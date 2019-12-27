@@ -68,7 +68,7 @@ public class Motion {
                 JSONArray waypointArray = wpObj.getJSONArray(key);
                 Pose waypoint = new Pose(waypointArray.getDouble(0), waypointArray.getDouble(1), waypointArray.getDouble(2));
                 waypoints.put(key, waypoint);
-                if (start.pose.equals(new Pose(0, 0, 0)) && key.startsWith(hardware.opModeID) && key.contains("sStart")) {
+                if (start.pose.equals(new Pose(0, 0, 0)) && key.startsWith(hardware.opModeID) && key.contains("start")) {
                     start = new PlanningPoint(new Pose(waypoint));
                     robot = new PlanningPoint(start);
                 }
@@ -87,8 +87,7 @@ public class Motion {
 
             for (Iterator keys = splineObj.keys(); keys.hasNext();) {
                 String key = keys.next().toString();
-                SplineTrajectory spline = new SplineTrajectory(hardware.constants);
-                spline.readJson(splineObj.getJSONObject(key).toString());
+                SplineTrajectory spline = new SplineTrajectory(splineObj.getJSONObject(key).toString(), hardware.constants);
                 splines.put(key, spline);
             }
         } catch (Exception e) {

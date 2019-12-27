@@ -12,19 +12,19 @@ import java.net.InetAddress;
 public class Constants {
 
     // Localization
-    public Pose XL_REL; // m, m, degrees
-    public Pose XR_REL; // m, m, degrees
-    public Pose Y_REL ; // m, m, degrees
-    public double TRACK_WIDTH; // m
-    public double DRIVE_BASE; // m
-    public double ODO_WHEEL_RADIUS; // m
-    public double ODO_WHEEL_CIRCUMFERENCE; // m
+    public Pose XL_REL; // cm, cm, degrees
+    public Pose XR_REL; // cm, cm, degrees
+    public Pose Y_REL ; // cm, cm, degrees
+    public double TRACK_WIDTH; // cm
+    public double DRIVE_BASE; // cm
+    public double ODO_WHEEL_RADIUS; // cm
+    public double ODO_WHEEL_CIRCUMFERENCE; // cm
     public int ODO_CYCLES_PER_REV; // cycles
     public int ODO_CPR; // counts
     public double COUNTS_PER_M; // counts
-    public double FIELD_SIDE_LENGTH; // m
+    public double FIELD_SIDE_LENGTH; // cm
     public double COORD_AXIS_LENGTH_UNITS; // coords
-    public double M_PER_COORD; // m
+    public double M_PER_COORD; // cm
 
     // PID
     public double X_K_P; // coefficient
@@ -45,11 +45,11 @@ public class Constants {
     public double MP_K_TV; // coefficient
     public double MP_K_AA; // coefficient
     public double MP_K_AV; // coefficient
-    public double MAX_SEGMENT_LENGTH; // m
-    public double MAX_BISECTION_ERROR; // m
-    public double MAX_TRANSLATIONAL_VELOCITY; // m/s
-    public double MAX_TRANSLATIONAL_ACCELERATION; // m/s^2
-    public double MAX_TRANSLATIONAL_DECELERATION; // m/s^2
+    public double MAX_SEGMENT_LENGTH; // cm
+    public double MAX_BISECTION_ERROR; // cm
+    public double MAX_TRANSLATIONAL_VELOCITY; // cm/s
+    public double MAX_TRANSLATIONAL_ACCELERATION; // cm/s^2
+    public double MAX_TRANSLATIONAL_DECELERATION; // cm/s^2
     public double MAX_ANGULAR_VELOCITY; // rad/s
     public double MAX_ANGULAR_ACCELERATION; // rad/s^2
     public double MAX_ANGULAR_DECELERATION; // rad/s^2
@@ -87,11 +87,11 @@ public class Constants {
             JSONObject localization = root.getJSONObject("localization");
             JSONObject odometryPoses = localization.getJSONObject("odometryPoses");
             JSONArray xLRelArr = odometryPoses.getJSONArray("xLRelativePose");
-            XL_REL = new Pose(xLRelArr.getDouble(0) / 100, xLRelArr.getDouble(1) / 100, Math.toRadians(xLRelArr.getDouble(2)));
+            XL_REL = new Pose(xLRelArr.getDouble(0), xLRelArr.getDouble(1), Math.toRadians(xLRelArr.getDouble(2)));
             JSONArray xRRelArr = odometryPoses.getJSONArray("xRRelativePose");
-            XR_REL = new Pose(xRRelArr.getDouble(0) / 100, xRRelArr.getDouble(1) / 100, Math.toRadians(xRRelArr.getDouble(2)));
+            XR_REL = new Pose(xRRelArr.getDouble(0), xRRelArr.getDouble(1), Math.toRadians(xRRelArr.getDouble(2)));
             JSONArray yRelArr = odometryPoses.getJSONArray("yRelativePose");
-            Y_REL = new Pose(yRelArr.getDouble(0) / 100, yRelArr.getDouble(1) / 100, Math.toRadians(yRelArr.getDouble(2)));
+            Y_REL = new Pose(yRelArr.getDouble(0), yRelArr.getDouble(1), Math.toRadians(yRelArr.getDouble(2)));
 
             TRACK_WIDTH = localization.getDouble("trackWidth");
             DRIVE_BASE = localization.getDouble("driveBase");

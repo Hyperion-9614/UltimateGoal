@@ -209,7 +209,7 @@ public class FieldPane extends Pane {
     }
 
     public void deselectAll() {
-        UIClient.displayPane.updateVelocityDistanceGraph(null);
+        UIClient.displayPane.updateGraphs(null);
         UIClient.selectedWaypoint = null;
         for (Waypoint wp : UIClient.waypoints) {
             wp.deselect();

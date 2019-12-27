@@ -149,7 +149,7 @@ public class DisplaySpline {
         for (Rectangle selectRect : selectRects) {
             selectRect.setVisible(true);
         }
-        UIClient.displayPane.updateVelocityDistanceGraph(this);
+        UIClient.displayPane.updateGraphs(this);
     }
 
     public void deselect() {
