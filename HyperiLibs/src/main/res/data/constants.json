@@ -1,0 +1,102 @@
+{
+    "localization": {
+        "odometryPoses": {
+            "xLRelativePose": [
+                -9.525,
+                11.43,
+                0
+            ],
+            "xRRelativePose": [
+                -9.525,
+                -11.43,
+                0
+            ],
+            "yRelativePose": [
+                -21.08,
+                0,
+                90
+            ]
+        },
+        "trackWidth": 33.53,
+        "driveBase": 31.29,
+        "odometryWheelRadius": 2.9,
+        "odometryCyclesPerRevolution": 360,
+        "fieldSideLength": 365.76
+    },
+    "pid": {
+        "x": {
+            "kP": 1,
+            "kI": 0,
+            "kD": 0
+        },
+        "y": {
+            "kP": 1,
+            "kI": 0,
+            "kD": 0
+        },
+        "theta": {
+            "kP": 1,
+            "kI": 0,
+            "kD": 0
+        },
+        "outputScales": {
+            "uX": 0.05,
+            "uY": 0.05,
+            "uTheta": 0.05
+        }
+    },
+    "splinesMotionProfile": {
+        "k": {
+            "kTv": 0.469,
+            "kTa": 0,
+            "kAv": 0,
+            "kAa": 0
+        },
+        "maxes": {
+            "segmentLength": 25,
+            "bisectionError": 0.1,
+            "translationalVelocity": 213.36,
+            "translationalAcceleration": 30,
+            "translationalDeceleration": 30,
+            "angularVelocity": 0.3,
+            "angularAcceleration": 0.523599,
+            "angularDeceleration": 0.523599
+        },
+        "endErrorThresholds": {
+            "translation": 1,
+            "rotation": 1
+        }
+    },
+    "cv": {
+        "blackThreshold": 10
+    },
+    "io": {
+        "filePaths": {
+            "resPrefix": "/HyperiLibs/src/main/res",
+            "resDataPrefix": "/data",
+            "resImgPrefix": "/img"
+        }
+    },
+    "appendages": {
+        "stoneVerticalSlideCounts": 200,
+        "verticalSlidePower": 0.5
+    },
+    "dashboard": {
+        "version": "2.5.0",
+        "net": {
+            "hostIP": "this",
+            "port": 8080,
+            "rcIP": "192.168.1.49"
+        },
+        "gui": {
+            "sizes": {
+                "waypoint": 24,
+                "planningPoint": 4.5
+            },
+            "wbb": {
+                "strokeWidth": 4,
+                "grayScale": 0.3
+            }
+        }
+    }
+}

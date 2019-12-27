@@ -9,8 +9,12 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath 'com.android.tools.build:gradle:3.5.3'
     }
+}
+
+repositories{
+    mavenCentral()
 }
 
 // This is now required because aapt2 has to be downloaded from the
