@@ -93,7 +93,8 @@ public class OptionsPane extends VBox {
             FXCollections.observableArrayList(
             "auto.blue.full", "auto.red.full",
                     "auto.blue.foundation", "auto.red.foundation",
-                    "auto.blue.brick", "auto.red.brick"
+                    "auto.blue.brick", "auto.red.brick",
+                    "tele.red", "tele.blue"
             );
         final ComboBox opModeSelector = new ComboBox(options);
         opModeSelector.valueProperty().setValue("auto.blue.full");

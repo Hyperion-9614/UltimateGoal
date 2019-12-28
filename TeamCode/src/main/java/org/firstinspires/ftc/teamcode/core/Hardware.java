@@ -3,11 +3,14 @@ package org.firstinspires.ftc.teamcode.core;
 import com.hyperion.common.Constants;
 import com.hyperion.common.Options;
 import com.hyperion.common.Utils;
+import com.hyperion.motion.math.PlanningPoint;
+import com.hyperion.motion.math.Pose;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.modules.CvPipeline;
@@ -49,7 +52,7 @@ public class Hardware {
     public Constants constants;
     public Options options;
     public Unimetry unimetry;
-    public String status = "";
+    public String status = opModeID;
 
     public File dashboardJson;
     public File nnConfigJson;
@@ -70,8 +73,10 @@ public class Hardware {
     public DcMotor compWheelsL;
     public DcMotor compWheelsR;
 
-    public CRServo foundationMoverL;
-    public CRServo foundationMoverR;
+    public Servo foundationMoverL;
+    public Servo foundationMoverR;
+    public Servo chainBarL;
+    public Servo chainBarR;
     public CRServo claw;
 
     public int presetPlaceStoneCounts = 2500;
@@ -111,8 +116,10 @@ public class Hardware {
         compWheelsL = hwmp.dcMotor.get("compWheelsL");
         compWheelsR = hwmp.dcMotor.get("compWheelsR");
 
-        foundationMoverL = hwmp.crservo.get("foundationMoverL");
-        foundationMoverR = hwmp.crservo.get("foundationMoverR");
+        foundationMoverL = hwmp.servo.get("foundationMoverL");
+        foundationMoverR = hwmp.servo.get("foundationMoverR");
+        chainBarL = hwmp.servo.get("chainBarL");
+        chainBarR = hwmp.servo.get("chainBarR");
         claw = hwmp.crservo.get("claw");
 
         // Init control & settings
@@ -151,6 +158,12 @@ public class Hardware {
         isRunning = true;
         status = "Running " + opModeID;
 
+        // Init pp
+        Pose startPose = motion.waypoints.get(opModeID + ".waypoint.start");
+        if (startPose == null) startPose = new Pose();
+        motion.start = new PlanningPoint(startPose);
+        motion.robot = new PlanningPoint(startPose);
+
         // Init CV
         int cameraMonitorViewId = hwmp.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmp.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
@@ -165,6 +178,9 @@ public class Hardware {
         status = "Ending";
         isRunning = false;
 
+        motion.localizer.update();
+        unimetry.update();
+
         if (phoneCam != null) {
             phoneCam.pauseViewport();
             phoneCam.stopStreaming();
@@ -176,7 +192,7 @@ public class Hardware {
             try {
                 JSONObject obj = new JSONObject(Utils.readFile(dashboardJson));
                 JSONObject wpObj = obj.getJSONObject("waypoints");
-                wpObj.put("tele." + (opModeID.contains("red") ? "red" : "blue") + ".waypoint.sStart", motion.robot.pose.toArray());
+                wpObj.put("tele." + (opModeID.contains("red") ? "red" : "blue") + ".waypoint.start", motion.robot.pose.toArray());
                 obj.put("waypoints", wpObj);
                 Utils.writeFile(obj.toString(), dashboardJson);
             } catch (Exception e) {

@@ -44,7 +44,9 @@ public class AUTO_Main extends OpMode {
             }
 
             if (motion.localizer != null && hardware.unimetry != null) {
-                if (!hardware.opModeID.isEmpty()) hardware.status = "Running " + hardware.opModeID;
+                if (!hardware.isRunning) {
+                    hardware.init();
+                }
                 motion.localizer.update();
                 hardware.unimetry.update();
             }
@@ -81,8 +83,7 @@ public class AUTO_Main extends OpMode {
             if (!hardware.opModeID.equals("Choose OpMode")) {
                 hardware.init();
                 start();
-            }
-            if (gamepad1.b) {
+            } else if (gamepad1.b) {
                 hardware.opModeID = "auto.red.full";
             } else if (gamepad1.x) {
                 hardware.opModeID = "auto.blue.full";

@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.core;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
  * Manages all appendages (servos, arms, etc.) on robot
@@ -14,6 +16,7 @@ public class Appendages {
 
     public String compWheelsStatus = "";
     public String foundationMoverStatus = "";
+    public String chainBarStatus = "";
     public String clawStatus = "";
 
     public Appendages(Hardware hardware) {
@@ -21,9 +24,15 @@ public class Appendages {
 
         resetVerticalSlideEncoders();
 
+        hardware.vertSlideL.setDirection(DcMotorSimple.Direction.REVERSE);
+        hardware.vertSlideR.setDirection(DcMotorSimple.Direction.REVERSE);
         hardware.compWheelsL.setDirection(DcMotorSimple.Direction.REVERSE);
+        hardware.foundationMoverL.setDirection(Servo.Direction.REVERSE);
+        hardware.chainBarL.setDirection(Servo.Direction.REVERSE);
 
+        setCompWheelsStatus("stop");
         setFoundationMoverStatus("up");
+        setChainBarStatus("in");
         setClawStatus("open");
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -49,6 +58,17 @@ public class Appendages {
     public void setVerticalSlideTarget(int target) {
         hardware.vertSlideL.setTargetPosition(target);
         hardware.vertSlideR.setTargetPosition(target);
+    }
+
+    public void setVerticalSlidePosition(int target) {
+        hardware.vertSlideL.setTargetPosition(target);
+        hardware.vertSlideR.setTargetPosition(target);
+
+        ElapsedTime timer = new ElapsedTime();
+        while ((hardware.vertSlideL.isBusy() || hardware.vertSlideR.isBusy()) && timer.milliseconds() <= 4000) {
+            setVerticalSlidePower(1);
+        }
+        setVerticalSlidePower(0);
     }
 
     public void resetVerticalSlideEncoders() {
@@ -78,11 +98,22 @@ public class Appendages {
     public void setFoundationMoverStatus(String downUp) {
         foundationMoverStatus = downUp.toLowerCase();
         if (foundationMoverStatus.equals("down")) {
-            hardware.foundationMoverL.setPower(1.0);
-            hardware.foundationMoverR.setPower(1.0);
+            hardware.foundationMoverL.setPosition(1.0);
+            hardware.foundationMoverR.setPosition(1.0);
         } else {
-            hardware.foundationMoverL.setPower(0);
-            hardware.foundationMoverR.setPower(0);
+            hardware.foundationMoverL.setPosition(0);
+            hardware.foundationMoverR.setPosition(0);
+        }
+    }
+
+    public void setChainBarStatus(String inOut) {
+        chainBarStatus = inOut.toLowerCase();
+        if (chainBarStatus.equals("in")) {
+            hardware.chainBarL.setPosition(0.95);
+            hardware.chainBarR.setPosition(0.95);
+        } else {
+            hardware.chainBarL.setPosition(0.5);
+            hardware.chainBarR.setPosition(0.5);
         }
     }
 
@@ -91,7 +122,7 @@ public class Appendages {
         if (clawStatus.equals("open")) {
             hardware.claw.setPower(1.0);
         } else {
-            hardware.claw.setPower(0);
+            hardware.claw.setPower(-1.0);
         }
     }
 

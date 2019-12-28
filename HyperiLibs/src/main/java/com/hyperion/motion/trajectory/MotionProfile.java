@@ -66,6 +66,9 @@ public class MotionProfile {
             PlanningPoint p0 = spline.planningPoints.get(i - 1);
             p0.translationalVelocity.setMagnitude(Math.min(p0.translationalVelocity.magnitude, Math.sqrt(Math.pow(p1.translationalVelocity.magnitude, 2) + 2 * constants.MAX_TRANSLATIONAL_DECELERATION * (p1.distance - p0.distance))));
         }
+
+        spline.planningPoints.get(0).translationalVelocity.setMagnitude(0);
+        spline.planningPoints.get(spline.planningPoints.size() - 1).translationalVelocity.setMagnitude(0);
     }
 
     // Calculate accelerations on planning point intervals
@@ -76,32 +79,26 @@ public class MotionProfile {
             double maxAcceleration = Math.min(constants.MAX_TRANSLATIONAL_ACCELERATION, (Math.pow(p1.translationalVelocity.magnitude, 2) - Math.pow(p0.translationalVelocity.magnitude, 2)) / (2 * (p1.distance - p0.distance)));
             p0.translationalAcceleration.setMagnitude((p1.translationalVelocity.magnitude < p0.translationalVelocity.magnitude ? -1 : 1) * maxAcceleration);
         }
+
+        spline.planningPoints.get(spline.planningPoints.size() - 1).translationalAcceleration.setMagnitude(0);
     }
 
     // Generate piecewise acceleration profile
     public void generateAccelerationProfile() {
         translationalAccelerationProfile = new Piecewise();
-        int firstPPi = 0;
-        for (int i = 1; i < spline.planningPoints.size(); i++) {
-            if (i > 1 && !spline.planningPoints.get(i).translationalAcceleration.equals(spline.planningPoints.get(firstPPi).translationalAcceleration)) {
-                translationalAccelerationProfile.setLTAInterval(spline.planningPoints.get(firstPPi), spline.planningPoints.get(i - 1));
-                firstPPi = i - 1;
-            }
+        for (int i = 0; i < spline.planningPoints.size() - 1; i++) {
+            translationalAccelerationProfile.setLTAInterval(spline.planningPoints.get(i), spline.planningPoints.get(i + 1));
         }
-        translationalAccelerationProfile.setLTAInterval(spline.planningPoints.get(firstPPi), spline.planningPoints.get(spline.planningPoints.size() - 1));
+        translationalAccelerationProfile.setLTAInterval(spline.planningPoints.get(spline.planningPoints.size() - 2), spline.planningPoints.get(spline.planningPoints.size() - 1));
     }
 
-    // Generate piecewise velocity profile based on accelerations & velocities of planning points
+    // Generate piecewise velocity profile
     public void generateVelocityProfile() {
         translationalVelocityProfile = new Piecewise();
-        int firstPPi = 0;
-        for (int i = 1; i < spline.planningPoints.size(); i++) {
-            if (i > 1 && !spline.planningPoints.get(i).translationalAcceleration.equals(spline.planningPoints.get(firstPPi).translationalAcceleration)) {
-                translationalVelocityProfile.setLTVInterval(spline.planningPoints.get(firstPPi), spline.planningPoints.get(i - 1));
-                firstPPi = i - 1;
-            }
+        for (int i = 0; i < spline.planningPoints.size() - 1; i++) {
+            translationalVelocityProfile.setLTVInterval(spline.planningPoints.get(i), spline.planningPoints.get(i + 1));
         }
-        translationalVelocityProfile.setLTVInterval(spline.planningPoints.get(firstPPi), spline.planningPoints.get(spline.planningPoints.size() - 1));
+        translationalVelocityProfile.setLTVInterval(spline.planningPoints.get(spline.planningPoints.size() - 2), spline.planningPoints.get(spline.planningPoints.size() - 1));
     }
 
     public Vector2D getTranslationalVelocity(double distance) {

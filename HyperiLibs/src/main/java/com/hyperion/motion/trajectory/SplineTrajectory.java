@@ -35,11 +35,6 @@ public class SplineTrajectory {
     public int numIntervals;
     public double segmentLength;
 
-    public SplineTrajectory(Constants constants) {
-        this.constants = constants;
-        motionProfile = new MotionProfile(this);
-    }
-
     public SplineTrajectory(ArrayList<PlanningPoint> waypoints, Constants constants) {
         this.constants = constants;
         this.waypoints = waypoints;
@@ -130,8 +125,8 @@ public class SplineTrajectory {
                     JSONArray xyCoeffsArray = coefficientsArray.getJSONArray(i);
                     JSONArray xCa = xyCoeffsArray.getJSONArray(0);
                     JSONArray yCa = xyCoeffsArray.getJSONArray(1);
-                    coefficients[i] = new double[][]{new double[]{xCa.getDouble(0), xCa.getDouble(1), xCa.getDouble(2), xCa.getDouble(3)},
-                                                     new double[]{yCa.getDouble(0), yCa.getDouble(1), yCa.getDouble(2), yCa.getDouble(3)}};
+                    coefficients[i] = new double[][]{new double[]{ xCa.getDouble(0), xCa.getDouble(1), xCa.getDouble(2), xCa.getDouble(3) },
+                                                     new double[]{ yCa.getDouble(0), yCa.getDouble(1), yCa.getDouble(2), yCa.getDouble(3) }};
                 }
 
                 JSONArray planningPointsArray = obj.getJSONArray("planningPoints");
@@ -153,8 +148,8 @@ public class SplineTrajectory {
                     JSONArray xyCoeffsArray = planningCoefficientsArray.getJSONArray(i);
                     JSONArray xCa = xyCoeffsArray.getJSONArray(0);
                     JSONArray yCa = xyCoeffsArray.getJSONArray(1);
-                    planningCoefficients[i] = new double[][]{new double[]{xCa.getDouble(0), xCa.getDouble(1), xCa.getDouble(2), xCa.getDouble(3)},
-                                                             new double[]{yCa.getDouble(0), yCa.getDouble(1), yCa.getDouble(2), yCa.getDouble(3)}};
+                    planningCoefficients[i] = new double[][]{new double[]{ xCa.getDouble(0), xCa.getDouble(1), xCa.getDouble(2), xCa.getDouble(3) },
+                                                             new double[]{ yCa.getDouble(0), yCa.getDouble(1), yCa.getDouble(2), yCa.getDouble(3) }};
                 }
 
                 motionProfile.fromJSON(obj);

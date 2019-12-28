@@ -28,7 +28,7 @@ public class DisplayPane extends VBox {
 
         tVdGraph = new LineChart<>(xAxis, yAxis);
         tVdGraph.setCreateSymbols(false);
-        tVdGraph.setTitle("Translational Motion vs. Distance");
+        tVdGraph.setTitle("Translational Magnitudes vs. Distance");
 
         updateGraphs(UIClient.selectedSpline);
         getChildren().add(tVdGraph);

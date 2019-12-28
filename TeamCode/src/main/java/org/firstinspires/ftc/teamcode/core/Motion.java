@@ -39,8 +39,13 @@ public class Motion {
 
     public Motion(Hardware hardware) {
         this.hardware = hardware;
-        readWaypoints();
-        readSplines();
+        try {
+            JSONObject jsonObject = new JSONObject(Utils.readFile(hardware.dashboardJson));
+            readWaypoints(jsonObject);
+//            readSplines(jsonObject);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         localizer = new Localizer(hardware);
         dStarLite = new DStarLite();
@@ -57,41 +62,30 @@ public class Motion {
     //////////////////////// INIT ////////////////////////////
 
     // Read waypoints from dashboard.json file
-    public void readWaypoints() {
-        try {
-            String json = Utils.readFile(hardware.dashboardJson);
-            JSONObject wpObj = new JSONObject(json).getJSONObject("waypoints");
-            waypoints.clear();
+    public void readWaypoints(JSONObject root) throws Exception {
+        JSONObject wpObj = root.getJSONObject("waypoints");
+        waypoints.clear();
 
-            for (Iterator keys = wpObj.keys(); keys.hasNext();) {
-                String key = keys.next().toString();
-                JSONArray waypointArray = wpObj.getJSONArray(key);
-                Pose waypoint = new Pose(waypointArray.getDouble(0), waypointArray.getDouble(1), waypointArray.getDouble(2));
-                waypoints.put(key, waypoint);
-                if (start.pose.equals(new Pose(0, 0, 0)) && key.startsWith(hardware.opModeID) && key.contains("start")) {
-                    start = new PlanningPoint(new Pose(waypoint));
-                    robot = new PlanningPoint(start);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        Iterator keys = wpObj.keys();
+        while (keys.hasNext()) {
+            String key = keys.next().toString();
+            JSONArray waypointArray = wpObj.getJSONArray(key);
+            Pose waypoint = new Pose(waypointArray.getDouble(0), waypointArray.getDouble(1), waypointArray.getDouble(2));
+            waypoints.put(key, waypoint);
         }
     }
 
     // Read splines from dashboard.json file
-    public void readSplines() {
-        try {
-            String json = Utils.readFile(hardware.dashboardJson);
-            JSONObject splineObj = new JSONObject(json).getJSONObject("splines");
-            splines.clear();
+    public void readSplines(JSONObject root) throws Exception {
+        JSONObject splinesObj = root.getJSONObject("splines");
+        splines.clear();
 
-            for (Iterator keys = splineObj.keys(); keys.hasNext();) {
-                String key = keys.next().toString();
-                SplineTrajectory spline = new SplineTrajectory(splineObj.getJSONObject(key).toString(), hardware.constants);
-                splines.put(key, spline);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        Iterator keys = splinesObj.keys();
+        while (keys.hasNext()) {
+            String key = keys.next().toString();
+            long start = System.currentTimeMillis();
+            SplineTrajectory spline = new SplineTrajectory(splinesObj.getJSONObject(key).toString(), hardware.constants);
+            splines.put(key, spline);
         }
     }
 
@@ -120,8 +114,6 @@ public class Motion {
             hardware.fRDrive.setPower(powers[1]);
             hardware.bRDrive.setPower(powers[1]);
         }
-        localizer.update();
-        hardware.unimetry.update();
     }
     public void setDrive(Vector2D moveVec, double rot) {
         setDrive(new double[]{

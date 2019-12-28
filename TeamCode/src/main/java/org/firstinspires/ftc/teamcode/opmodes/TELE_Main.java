@@ -31,6 +31,7 @@ public class TELE_Main extends OpMode {
     private boolean intakeToggle;
     private boolean outtakeToggle;
     private boolean foundationMoverToggle;
+    private boolean chainBarToggle;
     private boolean clawToggle;
 
     @Override
@@ -50,7 +51,9 @@ public class TELE_Main extends OpMode {
             }
 
             if (motion.localizer != null && hardware.unimetry != null) {
-                if (!hardware.opModeID.isEmpty()) hardware.status = "Running " + hardware.opModeID;
+                if (!hardware.isRunning && !hardware.opModeID.equals("Choose OpMode")) {
+                    hardware.init();
+                }
                 motion.localizer.update();
                 hardware.unimetry.update();
             }
@@ -117,12 +120,12 @@ public class TELE_Main extends OpMode {
 
             /*
              * GAMEPAD 1
-             * X : Place stone preset
+             * Y : Place stone preset
              */
-            if (gamepad1.x && !presetPlaceStoneToggle) {
+            if (gamepad1.y && !presetPlaceStoneToggle) {
                 hardware.preset_placeStone(true);
                 presetPlaceStoneToggle = true;
-            } else if (!gamepad1.x) {
+            } else if (!gamepad1.y) {
                 presetPlaceStoneToggle = false;
             }
 
@@ -142,10 +145,22 @@ public class TELE_Main extends OpMode {
              * B : Claw toggle
              */
             if (gamepad1.b && !clawToggle) {
-                appendages.setClawStatus(appendages.clawStatus.equals("open") ? "closed" : "open");
+//                appendages.setClawStatus(appendages.clawStatus.equals("open") ? "closed" : "open");
+                appendages.setVerticalSlidePosition(1000);
                 clawToggle = true;
             } else if (!gamepad1.b) {
                 clawToggle = false;
+            }
+
+            /*
+             * GAMEPAD 1
+             * X : Chain bar toggle
+             */
+            if (gamepad1.x && !chainBarToggle) {
+                appendages.setChainBarStatus(appendages.chainBarStatus.equals("in") ? "out" : "in");
+                chainBarToggle = true;
+            } else if (!gamepad1.x) {
+                chainBarToggle = false;
             }
 
             /*
@@ -167,13 +182,13 @@ public class TELE_Main extends OpMode {
         } else {
             if (!hardware.opModeID.equals("Choose OpMode")) {
                 hardware.init();
-            }
-            if (gamepad1.b) {
+            } else if (gamepad1.b) {
                 hardware.opModeID = "tele.red";
             } else if (gamepad1.x) {
                 hardware.opModeID = "tele.blue";
             }
         }
+
         motion.localizer.update();
         hardware.unimetry.update();
     }
