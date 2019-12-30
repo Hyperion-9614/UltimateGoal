@@ -1,6 +1,6 @@
 package com.hyperion.motion.dstarlite;
 
-import com.hyperion.motion.math.PlanningPoint;
+import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 
 import java.util.*;
@@ -392,7 +392,7 @@ public class DStarLite {
         return (Math.abs(x - y) < Math.pow(10, -5));
     }
 
-    public ArrayList<PlanningPoint> optimalPath(Pose start, Pose goal) {
+    public ArrayList<RigidBody> optimalPath(Pose start, Pose goal) {
         init(start.x, start.y, goal.x, goal.y);
         for (Node obstacle : obstacles) {
             updateCell(obstacle.x, obstacle.y, -1);
@@ -400,17 +400,17 @@ public class DStarLite {
         replan();
         updateGoal();
 
-        ArrayList<PlanningPoint> toReturn = new ArrayList<>();
+        ArrayList<RigidBody> toReturn = new ArrayList<>();
         for (Node node : path) {
-            toReturn.add(new PlanningPoint(new Pose(node.x, node.y)));
+            toReturn.add(new RigidBody(new Pose(node.x, node.y)));
         }
         return toReturn;
     }
 
-}
+    public class CellInfo {
+        double g = 0;
+        double rhs = 0;
+        double cost = 0;
+    }
 
-class CellInfo {
-    double g = 0;
-    double rhs = 0;
-    double cost = 0;
 }

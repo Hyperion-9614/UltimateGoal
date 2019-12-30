@@ -1,6 +1,6 @@
 package com.hyperion.common;
 
-import com.hyperion.motion.math.PlanningPoint;
+import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 
 import org.apache.commons.math3.util.Precision;
@@ -11,7 +11,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -19,8 +18,6 @@ import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 
 public class Utils {
@@ -151,12 +148,12 @@ public class Utils {
         return joined.toString();
     }
 
-    public static ArrayList<PlanningPoint> toPlanningPointList(ArrayList<Pose> poses) {
-        ArrayList<PlanningPoint> planningPoints = new ArrayList<>();
+    public static ArrayList<RigidBody> toPlanningPointList(ArrayList<Pose> poses) {
+        ArrayList<RigidBody> rigidBodies = new ArrayList<>();
         for (Pose p : poses) {
-            planningPoints.add(new PlanningPoint(p));
+            rigidBodies.add(new RigidBody(p));
         }
-        return planningPoints;
+        return rigidBodies;
     }
 
     public static String getFormattedDate() {
@@ -175,6 +172,14 @@ public class Utils {
         if (n > max) n = max;
         else if (n < min) n = min;
         return n;
+    }
+
+    public static boolean isInRange(double val, double lowerBound, double upperBound) {
+        return val >= lowerBound && val <= upperBound;
+    }
+
+    public static int sign(double val) {
+        return (val >= 0 ? 1 : -1);
     }
 
     public static void printArray(double[] arr) {

@@ -2,7 +2,7 @@ package com.hyperion.motion.trajectory;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.Utils;
-import com.hyperion.motion.math.PlanningPoint;
+import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 
@@ -20,7 +20,7 @@ public class HomogeneousPID {
     public Constants constants;
     public long currTime;
     public double lastTime;
-    public PlanningPoint initial;
+    public RigidBody initial;
     public double preHtTheta;
     public ArrayList<double[]> xEt;
     public ArrayList<double[]> xUt;
@@ -33,10 +33,10 @@ public class HomogeneousPID {
         this.constants = constants;
     }
 
-    public void reset(PlanningPoint initial) {
+    public void reset(RigidBody initial) {
         currTime = -1;
         lastTime = 0;
-        this.initial = new PlanningPoint(initial);
+        this.initial = new RigidBody(initial);
         preHtTheta = initial.pose.theta;
         xEt = new ArrayList<>();
         xUt = new ArrayList<>();
@@ -46,7 +46,7 @@ public class HomogeneousPID {
         thetaUt = new ArrayList<>();
     }
 
-    public double[] controlLoopIteration(PlanningPoint pp, PlanningPoint target) {
+    public double[] controlLoopIteration(RigidBody pp, RigidBody target) {
         if (currTime == -1) currTime = System.currentTimeMillis();
         double dT = (System.currentTimeMillis() - currTime) / 1000.0;
         double xError = target.pose.x - pp.pose.x;

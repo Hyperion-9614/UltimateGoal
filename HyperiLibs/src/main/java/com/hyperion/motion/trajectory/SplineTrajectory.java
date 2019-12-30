@@ -2,7 +2,8 @@ package com.hyperion.motion.trajectory;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.Utils;
-import com.hyperion.motion.math.PlanningPoint;
+import com.hyperion.motion.math.Piecewise;
+import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 
 import org.apache.commons.math3.linear.LUDecomposition;
@@ -11,6 +12,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mariuszgromada.math.mxparser.Expression;
+import org.mariuszgromada.math.mxparser.Function;
 
 import java.util.ArrayList;
 
@@ -26,16 +28,16 @@ import java.util.ArrayList;
 public class SplineTrajectory {
 
     public Constants constants;
-    public ArrayList<PlanningPoint> waypoints;
-    public ArrayList<PlanningPoint> planningPoints;
-    public double[][][] coefficients;
-    public double[][][] planningCoefficients;
+    public ArrayList<RigidBody> waypoints;
+    public ArrayList<RigidBody> planningPoints;
+    public Piecewise tauX = new Piecewise();
+    public Piecewise tauY = new Piecewise();
+    public Piecewise distanceX = new Piecewise();
+    public Piecewise distanceY = new Piecewise();
     public MotionProfile motionProfile;
-
-    public int numIntervals;
     public double segmentLength;
 
-    public SplineTrajectory(ArrayList<PlanningPoint> waypoints, Constants constants) {
+    public SplineTrajectory(ArrayList<RigidBody> waypoints, Constants constants) {
         this.constants = constants;
         this.waypoints = waypoints;
         motionProfile = new MotionProfile(this);
@@ -50,7 +52,7 @@ public class SplineTrajectory {
 
     public void endPath() {
         if (waypoints.size() >= 2) {
-            recalculate(waypoints, true);
+            interpolate(waypoints, true);
         }
     }
 
@@ -61,35 +63,24 @@ public class SplineTrajectory {
 
         try {
             JSONArray waypointsArray = new JSONArray();
-            for (PlanningPoint waypoint : waypoints) {
+            for (RigidBody waypoint : waypoints) {
                 waypointsArray.put(waypoint.toArray());
             }
             obj.put("waypoints", waypointsArray);
 
             if (waypointsArray.length() >= 2) {
-                JSONArray coefficientsArray = new JSONArray();
-                for (double[][] xyCoeffs : coefficients) {
-                    JSONArray xyCoeffsArray = new JSONArray();
-                    xyCoeffsArray.put(xyCoeffs[0]);
-                    xyCoeffsArray.put(xyCoeffs[1]);
-                    coefficientsArray.put(xyCoeffsArray);
-                }
-                obj.put("coefficients", coefficientsArray);
-
                 JSONArray planningPointsArray = new JSONArray();
-                for (PlanningPoint pp : planningPoints) {
+                for (RigidBody pp : planningPoints) {
                     planningPointsArray.put(pp.toArray());
                 }
                 obj.put("planningPoints", planningPointsArray);
 
-                JSONArray planningCoefficientsArray = new JSONArray();
-                for (double[][] xyCoeffs : planningCoefficients) {
-                    JSONArray xyCoeffsArray = new JSONArray();
-                    xyCoeffsArray.put(xyCoeffs[0]);
-                    xyCoeffsArray.put(xyCoeffs[1]);
-                    planningCoefficientsArray.put(xyCoeffsArray);
-                }
-                obj.put("planningCoefficients", planningCoefficientsArray);
+                JSONObject coefficients = new JSONObject();
+                coefficients.put("tauX", tauX.toJSONArray());
+                coefficients.put("tauY", tauY.toJSONArray());
+                coefficients.put("distanceX", distanceX.toJSONArray());
+                coefficients.put("distanceY", distanceY.toJSONArray());
+                obj.put("coefficients", coefficients);
 
                 obj.put("motionProfile", motionProfile.toJSONObject());
             }
@@ -114,21 +105,10 @@ public class SplineTrajectory {
                 double T = waypointArray.getDouble(0);
                 double distance = waypointArray.getDouble(1);
                 Pose newWaypoint = new Pose(waypointArray.getDouble(2), waypointArray.getDouble(3), waypointArray.getDouble(4));
-                waypoints.add(new PlanningPoint(T, distance, newWaypoint));
+                waypoints.add(new RigidBody(T, distance, newWaypoint));
             }
 
             if (waypoints.size() >= 2) {
-                JSONArray coefficientsArray = obj.getJSONArray("coefficients");
-                numIntervals = coefficientsArray.length();
-                coefficients = new double[numIntervals][2][4];
-                for (int i = 0; i < numIntervals; i++) {
-                    JSONArray xyCoeffsArray = coefficientsArray.getJSONArray(i);
-                    JSONArray xCa = xyCoeffsArray.getJSONArray(0);
-                    JSONArray yCa = xyCoeffsArray.getJSONArray(1);
-                    coefficients[i] = new double[][]{new double[]{ xCa.getDouble(0), xCa.getDouble(1), xCa.getDouble(2), xCa.getDouble(3) },
-                                                     new double[]{ yCa.getDouble(0), yCa.getDouble(1), yCa.getDouble(2), yCa.getDouble(3) }};
-                }
-
                 JSONArray planningPointsArray = obj.getJSONArray("planningPoints");
                 planningPoints = new ArrayList<>();
                 for (int i = 0; i < planningPointsArray.length(); i++) {
@@ -136,21 +116,14 @@ public class SplineTrajectory {
                     double T = planningPointArray.getDouble(0);
                     double distance = planningPointArray.getDouble(1);
                     Pose newWaypoint = new Pose(planningPointArray.getDouble(2), planningPointArray.getDouble(3), planningPointArray.getDouble(4));
-                    planningPoints.add(new PlanningPoint(T, distance, newWaypoint));
+                    planningPoints.add(new RigidBody(T, distance, newWaypoint));
                 }
 
-                JSONArray planningCoefficientsArray = obj.getJSONArray("planningCoefficients");
-                double L = arcDistance(waypoints.size() - 1);
-                int numSegments = (int) Math.ceil(L / constants.MAX_SEGMENT_LENGTH);
-                segmentLength = L / numSegments;
-                planningCoefficients = new double[numIntervals][2][4];
-                for (int i = 0; i < numIntervals; i++) {
-                    JSONArray xyCoeffsArray = planningCoefficientsArray.getJSONArray(i);
-                    JSONArray xCa = xyCoeffsArray.getJSONArray(0);
-                    JSONArray yCa = xyCoeffsArray.getJSONArray(1);
-                    planningCoefficients[i] = new double[][]{new double[]{ xCa.getDouble(0), xCa.getDouble(1), xCa.getDouble(2), xCa.getDouble(3) },
-                                                             new double[]{ yCa.getDouble(0), yCa.getDouble(1), yCa.getDouble(2), yCa.getDouble(3) }};
-                }
+                JSONObject coefficientsObj = obj.getJSONObject("coefficients");
+                tauX = new Piecewise(coefficientsObj.getJSONArray("tauX"));
+                tauY = new Piecewise(coefficientsObj.getJSONArray("tauY"));
+                distanceX = new Piecewise(coefficientsObj.getJSONArray("distanceX"));
+                distanceY = new Piecewise(coefficientsObj.getJSONArray("distanceY"));
 
                 motionProfile.fromJSON(obj);
             }
@@ -161,55 +134,15 @@ public class SplineTrajectory {
 
     ///////////////////////////////////// SPLINE CALCULATIONS /////////////////////////////////////
 
-    private void recalculate(ArrayList<PlanningPoint> planningPoints, boolean shouldReparameterize) {
-        numIntervals = Math.max(0, planningPoints.size() - 1);
-        double[][][] coefficients = new double[numIntervals][2][4];
-
-        if (numIntervals == 1) {
-            double dX = planningPoints.get(1).pose.x - planningPoints.get(0).pose.x;
-            double dY = planningPoints.get(1).pose.y - planningPoints.get(0).pose.y;
-            coefficients[0] = new double[][]{ Utils.roundArr(new double[] { 0, 0, dX, planningPoints.get(0).pose.x }, 3),
-                                              Utils.roundArr(new double[] { 0, 0, dY, planningPoints.get(0).pose.y }, 3) };
-        } else if (numIntervals > 1) {
-            double[][] M = calculateM();
-            double[] X = calculateXY(planningPoints, true);
-            double[] Y = calculateXY(planningPoints, false);
-
-            RealMatrix MMatInv = new LUDecomposition(MatrixUtils.createRealMatrix(M)).getSolver().getInverse();
-            RealMatrix XMat = MatrixUtils.createColumnRealMatrix(X);
-            RealMatrix YMat = MatrixUtils.createColumnRealMatrix(Y);
-
-            double[] xCoeffs = Utils.roundArr(MMatInv.multiply(XMat).getColumn(0), 3);
-            double[] yCoeffs = Utils.roundArr(MMatInv.multiply(YMat).getColumn(0), 3);
-            for (int i = 0; i < numIntervals; i++) {
-                coefficients[i] = new double[][]{ Utils.spliceArr(xCoeffs, i * 4, i * 4 + 4),
-                                                  Utils.spliceArr(yCoeffs, i * 4, i * 4 + 4)};
-            }
-        }
-
-        if (numIntervals >= 1) {
-            if (shouldReparameterize) {
-                this.coefficients = coefficients;
-                for (int i = 0; i < waypoints.size(); i++) {
-                    waypoints.get(i).distance = arcDistance(i);
-                }
-                reparameterizeByDistance();
-            } else {
-                this.planningCoefficients = coefficients;
-                motionProfile.recreate();
-            }
-        }
-    }
-
-    private double[][] calculateM() {
+    private double[][] calculateM(int numIntervals) {
         double[][] M = new double[][]{};
 
         // Goes through points
         for (int i = 0; i < numIntervals; i++) {
             double[] cStart = plugIn(i, 0);
             double[] cEnd = plugIn(i + 1, 0);
-            double[][] traversion2Rows = new double[][]{Utils.pad(cStart, 4 * i, 4 * numIntervals - 4 * i - 4),
-                                                        Utils.pad(cEnd, 4 * i, 4 * numIntervals - 4 * i - 4)};
+            double[][] traversion2Rows = new double[][]{ Utils.pad(cStart, 4 * i, 4 * numIntervals - 4 * i - 4),
+                                                         Utils.pad(cEnd, 4 * i, 4 * numIntervals - 4 * i - 4) };
             M = Utils.combineArrs(M, traversion2Rows);
         }
 
@@ -217,7 +150,7 @@ public class SplineTrajectory {
         for (int i = 1; i < numIntervals; i++) {
             double[] c = plugIn(i, 1);
             double[] cLR = Utils.combineArrs(c, Utils.coeffArr(c, -1.0));
-            double[][] firstDerivCont1Row = new double[][]{Utils.pad(cLR, 4 * (i - 1), 4 * numIntervals - 4 * (i - 1) - 8)};
+            double[][] firstDerivCont1Row = new double[][]{ Utils.pad(cLR, 4 * (i - 1), 4 * numIntervals - 4 * (i - 1) - 8) };
             M = Utils.combineArrs(M, firstDerivCont1Row);
         }
 
@@ -225,25 +158,24 @@ public class SplineTrajectory {
         for (int i = 1; i < numIntervals; i++) {
             double[] c = plugIn(i, 2);
             double[] cLR = Utils.combineArrs(c, Utils.coeffArr(c, -1.0));
-            double[][] secondDerivCont1Row = new double[][]{Utils.pad(cLR, 4 * (i - 1), 4 * numIntervals - 4 * (i - 1) - 8)};
+            double[][] secondDerivCont1Row = new double[][]{ Utils.pad(cLR, 4 * (i - 1), 4 * numIntervals - 4 * (i - 1) - 8) };
             M = Utils.combineArrs(M, secondDerivCont1Row);
         }
 
         // Boundary condition
-        double[][] startPoint0Cont = new double[][]{Utils.pad(plugIn(0, 2), 0, 4 * (numIntervals - 1))};
-        double[][] endPoint0Cont = new double[][]{Utils.pad(plugIn(numIntervals + 1, 2), 4 * (numIntervals - 1), 0)};
+        double[][] startPoint0Cont = new double[][]{ Utils.pad(plugIn(0, 2), 0, 4 * (numIntervals - 1)) };
+        double[][] endPoint0Cont = new double[][]{ Utils.pad(plugIn(numIntervals + 1, 2), 4 * (numIntervals - 1), 0) };
         M = Utils.combineArrs(M, Utils.combineArrs(startPoint0Cont, endPoint0Cont));
 
         return M;
     }
-
-    private double[] calculateXY(ArrayList<PlanningPoint> planningPoints, boolean isX) {
+    private double[] calculateXY(ArrayList<RigidBody> rigidBodies, int numIntervals, boolean isX) {
         double[] XY = new double[]{};
 
         // Goes through points
         for (int i = 0; i < numIntervals; i++) {
-            double fStart = (isX) ? planningPoints.get(i).pose.x : planningPoints.get(i).pose.y;
-            double fEnd = (isX) ? planningPoints.get(i + 1).pose.x : planningPoints.get(i + 1).pose.y;
+            double fStart = (isX) ? rigidBodies.get(i).pose.x : rigidBodies.get(i).pose.y;
+            double fEnd = (isX) ? rigidBodies.get(i + 1).pose.x : rigidBodies.get(i + 1).pose.y;
             XY = Utils.combineArrs(XY, new double[] { fStart, fEnd });
         }
 
@@ -262,7 +194,6 @@ public class SplineTrajectory {
 
         return XY;
     }
-
     private double[] plugIn(int T, int deriv) {
         /*
          * x(t) = at^3 + bt^2 + ct + d
@@ -270,20 +201,69 @@ public class SplineTrajectory {
          * x''(t) = 6at + 2b
          */
 
-        if (deriv == 0) return new double[] {Math.pow(T, 3), Math.pow(T, 2), T, 1};
-        else if (deriv == 1) return new double[] {3 * Math.pow(T, 2), 2 * T, 1, 0};
-        else if (deriv == 2) return new double[] {6 * T, 2, 0, 0};
-        else return new double[]{};
+        if (deriv == 0) return new double[] { Math.pow(T, 3), Math.pow(T, 2), T, 1 };
+        else if (deriv == 1) return new double[] { 3 * Math.pow(T, 2), 2 * T, 1, 0 };
+        else if (deriv == 2) return new double[] { 6 * T, 2, 0, 0 };
+        else return new double[]{ 0, 0, 0, 0 };
+    }
+    private String buildPolynomialExpression(double[] coeffs) {
+        return "(" + coeffs[0] + ")*t^3 + (" + coeffs[1] + ")*t^2 + (" + coeffs[2] + ")*t + (" + coeffs[3] + ")";
     }
 
-    private void calculatePlanningPoints(double L) {
+    private void interpolate(ArrayList<RigidBody> rigidBodies, boolean shouldReparameterize) {
+        int numIntervals = Math.max(0, rigidBodies.size() - 1);
+        Piecewise pwX = (shouldReparameterize ? tauX : distanceX);
+        Piecewise pwY = (shouldReparameterize ? tauY : distanceY);
+
+        if (numIntervals == 1) {
+            double dX = rigidBodies.get(1).pose.x - rigidBodies.get(0).pose.x;
+            double dY = rigidBodies.get(1).pose.y - rigidBodies.get(0).pose.y;
+            pwX.setInterval(0, 1, buildPolynomialExpression(Utils.roundArr(new double[] { 0, 0, dX, rigidBodies.get(0).pose.x }, 3)));
+            pwY.setInterval(0, 1, buildPolynomialExpression(Utils.roundArr(new double[] { 0, 0, dY, rigidBodies.get(0).pose.y }, 3)));
+        } else if (numIntervals > 1) {
+            double[][] M = calculateM(numIntervals);
+            double[] X = calculateXY(rigidBodies, numIntervals, true);
+            double[] Y = calculateXY(rigidBodies, numIntervals, false);
+
+            RealMatrix MMatInv = new LUDecomposition(MatrixUtils.createRealMatrix(M)).getSolver().getInverse();
+            RealMatrix XMat = MatrixUtils.createColumnRealMatrix(X);
+            RealMatrix YMat = MatrixUtils.createColumnRealMatrix(Y);
+
+            double[] xCoeffs = Utils.roundArr(MMatInv.multiply(XMat).getColumn(0), 3);
+            double[] yCoeffs = Utils.roundArr(MMatInv.multiply(YMat).getColumn(0), 3);
+            for (int i = 0; i < numIntervals; i++) {
+                pwX.setInterval(i, i + 1, buildPolynomialExpression(Utils.spliceArr(xCoeffs, i * 4, i * 4 + 4)));
+                pwY.setInterval(i, i + 1, buildPolynomialExpression(Utils.spliceArr(yCoeffs, i * 4, i * 4 + 4)));
+            }
+        }
+
+        if (numIntervals >= 1) {
+            if (shouldReparameterize) {
+                for (int i = 0; i < waypoints.size(); i++) {
+                    waypoints.get(i).distance = arcDistance(i);
+                }
+                calculatePlanningPoints();
+                interpolate(this.planningPoints, false);
+            } else {
+                for (int i = 0; i < tauX.size(); i++) {
+                    Piecewise.Interval dXi = distanceX.intervals.get(i);
+                    Piecewise.Interval dYi = distanceY.intervals.get(i);
+                    distanceX.changeInterval(dXi.a, dXi.b, dXi.a * segmentLength, dXi.b * segmentLength);
+                    distanceY.changeInterval(dYi.a, dYi.b, dYi.a * segmentLength, dYi.b * segmentLength);
+                }
+                motionProfile.recreate();
+            }
+        }
+    }
+    private void calculatePlanningPoints() {
         planningPoints = new ArrayList<>();
+        double L = arcDistance(waypoints.size() - 1);
         int numSegments = (int) Math.ceil(L / constants.MAX_SEGMENT_LENGTH);
         segmentLength = L / numSegments;
         for (int i = 0; i < numSegments; i++) {
             double l = i * segmentLength;
             int tJ;
-            for (tJ = 0; tJ < numIntervals; tJ++) {
+            for (tJ = 0; tJ < tauX.size(); tJ++) {
                 if (l >= waypoints.get(tJ).distance && l < waypoints.get(tJ + 1).distance) {
                     break;
                 }
@@ -304,13 +284,10 @@ public class SplineTrajectory {
             }
             double theta = waypoints.get(tJ).pose.theta + Utils.optimalThetaDifference(waypoints.get(tJ).pose.theta, waypoints.get(tJ + 1).pose.theta)
                            * ((l - waypoints.get(tJ).distance) / (waypoints.get(tJ + 1).distance - waypoints.get(tJ).distance));
-            planningPoints.add(new PlanningPoint(tMiddle, l, theta, this));
+            planningPoints.add(new RigidBody(tMiddle, l, theta, this));
         }
-    }
 
-    private void reparameterizeByDistance() {
-        calculatePlanningPoints(arcDistance(waypoints.size() - 1));
-        recalculate(planningPoints, false);
+        planningPoints.add(new RigidBody(waypoints.size() - 1, segmentLength * numSegments, waypoints.get(waypoints.size() - 1).pose.theta, this));
     }
 
     ///////////////////////// SPLINE INTERPRETATION //////////////////////////
@@ -327,19 +304,18 @@ public class SplineTrajectory {
 
         return Utils.round(length, 3);
     }
-
     private double arcLengthInterval(int Tstart, double Tend) {
-        if (Tstart < coefficients.length) {
-            String xDer = "(3*(" + coefficients[Tstart][0][0] + ")*t^2 + 2*(" + coefficients[Tstart][0][1] + ")*t + (" + coefficients[Tstart][0][2] + "))^2";
-            String yDer = "(3*(" + coefficients[Tstart][1][0] + ")*t^2 + 2*(" + coefficients[Tstart][1][1] + ")*t + (" + coefficients[Tstart][1][2] + "))^2";
-            Expression integral = new Expression("int(sqrt(" + xDer + " + " + yDer + "), t, " + Tstart + ", " + Tend + ")");
+        if (Tstart < tauX.size()) {
+            Function X = new Function("X(t) = (" + tauX.getExpressionString(Tstart, Tstart + 1, 1) + ")^2");
+            Function Y = new Function("Y(t) = (" + tauY.getExpressionString(Tstart, Tstart + 1, 1) + ")^2");
+            Expression integral = new Expression("int(sqrt(X(t) + Y(t)), t, " + Tstart + ", " + Tend + ")", X, Y);
             return integral.calculate();
         } else {
             return 0;
         }
     }
 
-    public int getInterval(double distance) {
+    private int getInterval(double distance) {
         int i;
         for (i = 0; i < waypoints.size() - 1; i++) {
             if (distance >= waypoints.get(i).distance && distance < waypoints.get(i + 1).distance) {
@@ -348,43 +324,15 @@ public class SplineTrajectory {
         }
         return i;
     }
-
     public Pose getPoseFromT(double T) {
-        int interval = (int) Math.floor(T);
-        double x = coefficients[interval][0][0] * Math.pow(T, 3) + coefficients[interval][0][1] * Math.pow(T, 2) + coefficients[interval][0][2] * T + coefficients[interval][0][3];
-        double y = coefficients[interval][1][0] * Math.pow(T, 3) + coefficients[interval][1][1] * Math.pow(T, 2) + coefficients[interval][1][2] * T + coefficients[interval][1][3];
         double theta = 0;
-        return new Pose(x, y, theta);
+        return new Pose(tauX.evaluate(T, 0), tauY.evaluate(T, 1), theta);
     }
-
     public Pose getPoseFromDistance(double distance) {
         int interval = getInterval(distance);
-        double x = planningCoefficients[interval][0][0] * Math.pow(distance, 3) + planningCoefficients[interval][0][1] * Math.pow(distance, 2) + planningCoefficients[interval][0][2] * distance + planningCoefficients[interval][0][3];
-        double y = planningCoefficients[interval][1][0] * Math.pow(distance, 3) + planningCoefficients[interval][1][1] * Math.pow(distance, 2) + planningCoefficients[interval][1][2] * distance + planningCoefficients[interval][1][3];
-        double theta = waypoints.get(interval).pose.theta + Utils.optimalThetaDifference(waypoints.get(interval).pose.theta, waypoints.get(interval + 1).pose.theta)
-                       * ((distance - waypoints.get(interval).distance) / (waypoints.get(interval + 1).distance - waypoints.get(interval).distance));
-        return new Pose(x, y, theta);
-    }
-
-    public double[] getDerivative(double distance, int deriv) {
-        deriv = Math.max(1, deriv);
-        int interval = getInterval(distance);
-        double x;
-        double y;
-        if (deriv == 1) {
-            x = 3 * coefficients[interval][0][0] * Math.pow(distance, 2) + 2 * coefficients[interval][0][1] * distance + coefficients[interval][0][2];
-            y = 3 * coefficients[interval][1][0] * Math.pow(distance, 2) + 2 * coefficients[interval][1][1] * distance + coefficients[interval][1][2];
-        } else if (deriv == 2) {
-            x = 6 * coefficients[interval][0][0] * distance + 2 * coefficients[interval][0][1];
-            y = 6 * coefficients[interval][1][0] * distance + 2 * coefficients[interval][1][1];
-        } else if (deriv == 3) {
-            x = 6 * coefficients[interval][0][0];
-            y = 6 * coefficients[interval][1][0];
-        } else {
-            x = 1;
-            y = 0;
-        }
-        return new double[]{ x, y };
+        double theta = Utils.normalizeTheta(waypoints.get(interval).pose.theta + Utils.optimalThetaDifference(waypoints.get(interval).pose.theta, waypoints.get(interval + 1).pose.theta)
+                                                  * ((distance - waypoints.get(interval).distance) / (waypoints.get(interval + 1).distance - waypoints.get(interval).distance)), 0, 2 * Math.PI);
+        return new Pose(distanceX.evaluate(distance, 0), distanceY.evaluate(distance, 0), theta);
     }
 
 }

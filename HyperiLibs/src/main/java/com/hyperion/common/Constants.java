@@ -65,8 +65,8 @@ public class Constants {
     public File RES_IMG_PREFIX; // file
 
     // Appendages
-    public int STONE_VERT_SLIDE_COUNTS = 200; // counts
-    public double VERT_SLIDE_POWER = 0.5; // power
+    public int STONE_VERT_SLIDE_TICKS; // ticks
+    public double VERT_SLIDE_POWER; // power
 
     // Dashboard
     public String HOST_IP; // IP Address
@@ -76,6 +76,7 @@ public class Constants {
     public String DASHBOARD_VERSION;
     public double WAYPOINT_SIZE; // pixels
     public double PLANNINGPOINT_SIZE; // pixels
+    public double PATHPOINT_SIZE; // pixels
     public double WBB_STROKE_WIDTH; // pixels
     public double WBB_GRAY_SCALE; // pixels
 
@@ -151,7 +152,7 @@ public class Constants {
             RES_IMG_PREFIX = new File(RES_PREFIX + filePaths.getString("resImgPrefix"));
 
             JSONObject appendages = root.getJSONObject("appendages");
-            STONE_VERT_SLIDE_COUNTS = appendages.getInt("stoneVerticalSlideCounts");
+            STONE_VERT_SLIDE_TICKS = appendages.getInt("stoneVerticalSlideCounts");
             VERT_SLIDE_POWER = appendages.getDouble("verticalSlidePower");
 
             JSONObject dashboard = root.getJSONObject("dashboard");
@@ -161,6 +162,7 @@ public class Constants {
             if (HOST_IP.equals("this")) {
                 HOST_IP = InetAddress.getLocalHost().getHostAddress();
             }
+            System.out.println("Host IP: " + HOST_IP);
             PORT = net.getInt("port");
             ADDRESS = "http://" + HOST_IP + ":" + PORT;
             RC_IP = net.getString("rcIP");
@@ -168,6 +170,7 @@ public class Constants {
             JSONObject sizes = gui.getJSONObject("sizes");
             WAYPOINT_SIZE = sizes.getDouble("waypoint");
             PLANNINGPOINT_SIZE = sizes.getDouble("planningPoint");
+            PATHPOINT_SIZE = sizes.getDouble("pathPoint");
             JSONObject wbb = gui.getJSONObject("wbb");
             WBB_STROKE_WIDTH = wbb.getDouble("strokeWidth");
             WBB_GRAY_SCALE = wbb.getDouble("grayScale");

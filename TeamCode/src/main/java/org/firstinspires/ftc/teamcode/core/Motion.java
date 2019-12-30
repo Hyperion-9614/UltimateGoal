@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.core;
 
 import com.hyperion.common.Utils;
+import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.trajectory.HomogeneousPID;
 import com.hyperion.motion.trajectory.TrajectoryPID;
-import com.hyperion.motion.math.PlanningPoint;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 import com.hyperion.motion.dstarlite.DStarLite;
@@ -32,8 +32,8 @@ public class Motion {
     public HomogeneousPID homogeneousPID;
     public DStarLite dStarLite;
 
-    public PlanningPoint start = new PlanningPoint(new Pose(0, 0, 0));
-    public PlanningPoint robot = new PlanningPoint(start);
+    public RigidBody start = new RigidBody(new Pose(0, 0, 0));
+    public RigidBody robot = new RigidBody(start);
     public HashMap<String, Pose> waypoints = new HashMap<>();
     public HashMap<String, SplineTrajectory> splines = new HashMap<>();
 
@@ -42,7 +42,7 @@ public class Motion {
         try {
             JSONObject jsonObject = new JSONObject(Utils.readFile(hardware.dashboardJson));
             readWaypoints(jsonObject);
-//            readSplines(jsonObject);
+            readSplines(jsonObject);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -83,7 +83,6 @@ public class Motion {
         Iterator keys = splinesObj.keys();
         while (keys.hasNext()) {
             String key = keys.next().toString();
-            long start = System.currentTimeMillis();
             SplineTrajectory spline = new SplineTrajectory(splinesObj.getJSONObject(key).toString(), hardware.constants);
             splines.put(key, spline);
         }
@@ -118,7 +117,7 @@ public class Motion {
     public void setDrive(Vector2D moveVec, double rot) {
         setDrive(new double[]{
             moveVec.x + moveVec.y + rot,
-            -moveVec.x + moveVec.y - rot
+            -moveVec.x + moveVec.y - rot,
             -moveVec.x + moveVec.y + rot,
             moveVec.x + moveVec.y - rot
         });
@@ -132,7 +131,7 @@ public class Motion {
         while ((hardware.context.gamepad1.left_stick_x == 0 && hardware.context.gamepad1.left_stick_y == 0 && hardware.context.gamepad1.right_stick_x == 0)
                && (Utils.distance(robot.pose, target) >= hardware.constants.END_TRANSLATION_ERROR_THRESHOLD
                || Math.abs(Utils.optimalThetaDifference(robot.pose.theta, target.theta)) >= hardware.constants.END_ROTATION_ERROR_THRESHOLD)) {
-            setDrive(homogeneousPID.controlLoopIteration(robot, new PlanningPoint(target)));
+            setDrive(homogeneousPID.controlLoopIteration(robot, new RigidBody(target)));
         }
         if (shouldStop) setDrive(0);
     }

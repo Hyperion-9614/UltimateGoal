@@ -2,7 +2,7 @@ package com.hyperion.motion.trajectory;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.Utils;
-import com.hyperion.motion.math.PlanningPoint;
+import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 
@@ -20,7 +20,7 @@ public class TrajectoryPID {
     public Constants constants;
     public long currTime;
     public double lastTime;
-    public PlanningPoint initial;
+    public RigidBody initial;
     public double preHtTheta;
     public SplineTrajectory splineTrajectory;
     public ArrayList<double[]> xEt;
@@ -34,11 +34,11 @@ public class TrajectoryPID {
         this.constants = constants;
     }
 
-    public void reset(PlanningPoint initial, SplineTrajectory splineTrajectory) {
+    public void reset(RigidBody initial, SplineTrajectory splineTrajectory) {
         currTime = -1;
         lastTime = 0;
         this.splineTrajectory = splineTrajectory;
-        this.initial = new PlanningPoint(initial);
+        this.initial = new RigidBody(initial);
         preHtTheta = initial.pose.theta;
         xEt = new ArrayList<>();
         xUt = new ArrayList<>();
@@ -48,10 +48,10 @@ public class TrajectoryPID {
         thetaUt = new ArrayList<>();
     }
 
-    public double[] controlLoopIteration(double distance, PlanningPoint pp) {
+    public double[] controlLoopIteration(double distance, RigidBody pp) {
         if (currTime == -1) currTime = System.currentTimeMillis();
         double dT = (System.currentTimeMillis() - currTime) / 1000.0;
-        PlanningPoint setPoint = splineTrajectory.motionProfile.getPlanningPoint(distance);
+        RigidBody setPoint = splineTrajectory.motionProfile.getPlanningPoint(distance);
         double xError = setPoint.pose.x - pp.pose.x;
         double yError = setPoint.pose.y - pp.pose.y;
         double thetaError = Utils.optimalThetaDifference(pp.pose.theta, setPoint.pose.theta);

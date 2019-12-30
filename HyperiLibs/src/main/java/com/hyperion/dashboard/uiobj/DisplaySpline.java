@@ -2,7 +2,7 @@ package com.hyperion.dashboard.uiobj;
 
 import com.hyperion.common.Constants;
 import com.hyperion.dashboard.UIClient;
-import com.hyperion.motion.math.PlanningPoint;
+import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 
@@ -48,8 +48,8 @@ public class DisplaySpline {
     public DisplaySpline(Pose start, Constants constants) {
         this.id = UIClient.opModeID + ".spline.";
         this.constants = constants;
-        ArrayList<PlanningPoint> wps = new ArrayList<>();
-        wps.add(new PlanningPoint(start));
+        ArrayList<RigidBody> wps = new ArrayList<>();
+        wps.add(new RigidBody(start));
         spline = new SplineTrajectory(wps, constants);
         displayGroup = new Group();
         refreshDisplayGroup();
@@ -71,7 +71,14 @@ public class DisplaySpline {
         selectRects = new ArrayList<>();
 
         if (spline.waypoints.size() >= 2) {
-            Color ppColor = new Color(1.0, 1.0, 1.0, 0.75);
+            Color pathPointColor = new Color(1.0, 1.0, 1.0, 0.5);
+            for (double d = 0; d < spline.planningPoints.get(spline.planningPoints.size() - 1).distance; d += 5) {
+                double[] poseArr = UIClient.fieldPane.poseToDisplay(spline.getPoseFromDistance(d), 0);
+                Circle pathPoint = new Circle(poseArr[0], poseArr[1], UIClient.constants.PATHPOINT_SIZE);
+                pathPoint.setFill(pathPointColor);
+                displayGroup.getChildren().add(pathPoint);
+            }
+
             double[] lastPoseArr = UIClient.fieldPane.poseToDisplay(spline.planningPoints.get(0).pose, 0);
             for (int i = 1; i < spline.planningPoints.size(); i++) {
                 double[] poseArr = UIClient.fieldPane.poseToDisplay(spline.planningPoints.get(i).pose, 0);
@@ -83,12 +90,12 @@ public class DisplaySpline {
 
                 if (i == 1) {
                     Circle pp0 = new Circle(poseArr[0], poseArr[1], UIClient.constants.PLANNINGPOINT_SIZE);
-                    pp0.setFill(ppColor);
+                    pp0.setFill(Color.WHITE);
                     displayGroup.getChildren().add(pp0);
                 }
 
                 Circle pp = new Circle(poseArr[0], poseArr[1], UIClient.constants.PLANNINGPOINT_SIZE);
-                pp.setFill(ppColor);
+                pp.setFill(Color.WHITE);
                 displayGroup.getChildren().add(pp);
 
                 Color selectColor = Color.DIMGRAY;
@@ -117,7 +124,7 @@ public class DisplaySpline {
         }
 
         for (int i = 0; i < spline.waypoints.size(); i++) {
-            PlanningPoint wpPP = spline.waypoints.get(i);
+            RigidBody wpPP = spline.waypoints.get(i);
             Waypoint waypoint = new Waypoint("", wpPP.pose, constants, this, (i == 0));
             if (waypoint.renderID) {
                 waypoint.idField.setText(id.replace(UIClient.opModeID + ".spline.", ""));

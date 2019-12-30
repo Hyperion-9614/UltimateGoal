@@ -53,7 +53,7 @@
             "kAa": 0
         },
         "maxes": {
-            "segmentLength": 25,
+            "segmentLength": 50,
             "bisectionError": 0.1,
             "translationalVelocity": 213.36,
             "translationalAcceleration": 30,
@@ -82,7 +82,7 @@
         "verticalSlidePower": 0.5
     },
     "dashboard": {
-        "version": "2.5.0",
+        "version": "2.6.0",
         "net": {
             "hostIP": "this",
             "port": 8080,
@@ -91,7 +91,8 @@
         "gui": {
             "sizes": {
                 "waypoint": 24,
-                "planningPoint": 4.5
+                "planningPoint": 4.5,
+                "pathPoint": 2.25
             },
             "wbb": {
                 "strokeWidth": 4,

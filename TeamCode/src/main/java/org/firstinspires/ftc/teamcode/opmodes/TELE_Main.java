@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.hyperion.motion.math.PlanningPoint;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -145,8 +144,8 @@ public class TELE_Main extends OpMode {
              * B : Claw toggle
              */
             if (gamepad1.b && !clawToggle) {
-//                appendages.setClawStatus(appendages.clawStatus.equals("open") ? "closed" : "open");
-                appendages.setVerticalSlidePosition(1000);
+                appendages.setClawStatus(appendages.clawStatus.equals("open") ? "closed" : "open");
+//                appendages.setVerticalSlidePosition(1000);
                 clawToggle = true;
             } else if (!gamepad1.b) {
                 clawToggle = false;

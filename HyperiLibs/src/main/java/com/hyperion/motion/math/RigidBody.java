@@ -3,7 +3,7 @@ package com.hyperion.motion.math;
 import com.hyperion.common.Utils;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 
-public class PlanningPoint {
+public class RigidBody {
 
     public double T = 0;
     public double distance = 0;
@@ -13,35 +13,35 @@ public class PlanningPoint {
     public double angularVelocity = 0;
     public double angularAcceleration = 0;
 
-    public PlanningPoint(double distance) {
+    public RigidBody(double distance) {
         this.distance = distance;
     }
 
-    public PlanningPoint(Pose pose) {
+    public RigidBody(Pose pose) {
         this.pose = pose;
     }
 
-    public PlanningPoint(double T, double distance, Pose pose) {
+    public RigidBody(double T, double distance, Pose pose) {
         this.T = T;
         this.distance = distance;
         this.pose = pose;
     }
 
-    public PlanningPoint(double T, double distance, double theta, SplineTrajectory sT) {
+    public RigidBody(double T, double distance, double theta, SplineTrajectory sT) {
         this.T = T;
         this.pose = sT.getPoseFromT(T);
         this.pose.setT(theta);
         this.distance = distance;
     }
 
-    public PlanningPoint(PlanningPoint planningPoint) {
-        this.T = planningPoint.T;
-        this.distance = planningPoint.distance;
-        this.pose = new Pose(planningPoint.pose);
-        this.translationalVelocity = new Vector2D(planningPoint.translationalVelocity);
-        this.translationalAcceleration = new Vector2D(planningPoint.translationalAcceleration);
-        this.angularVelocity = planningPoint.angularVelocity;
-        this.angularAcceleration = planningPoint.angularAcceleration;
+    public RigidBody(RigidBody rigidBody) {
+        this.T = rigidBody.T;
+        this.distance = rigidBody.distance;
+        this.pose = new Pose(rigidBody.pose);
+        this.translationalVelocity = new Vector2D(rigidBody.translationalVelocity);
+        this.translationalAcceleration = new Vector2D(rigidBody.translationalAcceleration);
+        this.angularVelocity = rigidBody.angularVelocity;
+        this.angularAcceleration = rigidBody.angularAcceleration;
     }
 
     public double[] toArray() {

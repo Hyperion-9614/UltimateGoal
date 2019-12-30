@@ -43,7 +43,8 @@ public class Unimetry {
         data.add(new Entry());
 
         data.add(new Entry("Appendages"));
-        data.add(new Entry("Vertical Slides (L/R)", Utils.round(hardware.vertSlideL.getPower(), 2) + " " + Utils.round(hardware.vertSlideR.getPower(), 2)));
+        data.add(new Entry("Vertical Slides (lPower/rPower/lTicks/rTicks)", Utils.round(hardware.vertSlideL.getPower(), 2) + " " + Utils.round(hardware.vertSlideR.getPower(), 2)
+                            + " " + hardware.vertSlideL.getCurrentPosition() + " " + hardware.vertSlideR.getCurrentPosition()));
         data.add(new Entry("Compliant Wheels Status", hardware.appendages.compWheelsStatus));
         data.add(new Entry("Foundation Mover Status", hardware.appendages.foundationMoverStatus));
         data.add(new Entry("Chain Bar Status", hardware.appendages.chainBarStatus));

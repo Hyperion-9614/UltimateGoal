@@ -38,16 +38,16 @@ public class DisplayPane extends VBox {
     public void updateGraphs(DisplaySpline displaySpline) {
         Platform.runLater(() -> {
             tVdGraph.getData().clear();
-            if (displaySpline != null) {
+            if (displaySpline != null && displaySpline.waypoints.size() >= 2) {
                 XYChart.Series velSeries = new XYChart.Series();
                 velSeries.setName("Velocity (cm/s)");
                 Piecewise velocityProfile = displaySpline.spline.motionProfile.translationalVelocityProfile;
                 if (velocityProfile != null) {
-                    for (double[] interval : velocityProfile.getIntervals()) {
-                        velSeries.getData().add(new XYChart.Data(interval[0], displaySpline.spline.motionProfile.getTranslationalVelocity(interval[0]).magnitude));
+                    for (Piecewise.Interval interval : velocityProfile.intervals) {
+                        velSeries.getData().add(new XYChart.Data(interval.a, displaySpline.spline.motionProfile.getTranslationalVelocity(interval.a).magnitude));
                     }
-                    double lastD = velocityProfile.getIntervals()[velocityProfile.intervals.size() - 1][1];
-                    velSeries.getData().add(new XYChart.Data(lastD, displaySpline.spline.motionProfile.getTranslationalVelocity(lastD).magnitude));
+                    Piecewise.Interval lastInterval = velocityProfile.intervals.get(velocityProfile.size() - 1);
+                    velSeries.getData().add(new XYChart.Data(lastInterval.b, displaySpline.spline.motionProfile.getTranslationalVelocity(lastInterval.b).magnitude));
                     tVdGraph.getData().add(velSeries);
                 }
 
@@ -55,11 +55,11 @@ public class DisplayPane extends VBox {
                 accSeries.setName("Acceleration (cm/s\u00B2)");
                 Piecewise accelerationProfile = displaySpline.spline.motionProfile.translationalAccelerationProfile;
                 if (accelerationProfile != null) {
-                    for (double[] interval : accelerationProfile.getIntervals()) {
-                        accSeries.getData().add(new XYChart.Data(interval[0], displaySpline.spline.motionProfile.getTranslationalAcceleration(interval[0]).magnitude));
+                    for (Piecewise.Interval interval : accelerationProfile.intervals) {
+                        accSeries.getData().add(new XYChart.Data(interval.a, displaySpline.spline.motionProfile.getTranslationalAcceleration(interval.a).magnitude));
                     }
-                    double lastD = accelerationProfile.getIntervals()[accelerationProfile.intervals.size() - 1][1];
-                    accSeries.getData().add(new XYChart.Data(lastD, displaySpline.spline.motionProfile.getTranslationalAcceleration(lastD).magnitude));
+                    Piecewise.Interval lastInterval = accelerationProfile.intervals.get(accelerationProfile.size() - 1);
+                    accSeries.getData().add(new XYChart.Data(lastInterval.b, displaySpline.spline.motionProfile.getTranslationalAcceleration(lastInterval.b).magnitude));
                     tVdGraph.getData().add(accSeries);
                 }
             }

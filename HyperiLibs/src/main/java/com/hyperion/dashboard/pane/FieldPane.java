@@ -4,7 +4,7 @@ import com.hyperion.common.Utils;
 import com.hyperion.dashboard.UIClient;
 import com.hyperion.dashboard.uiobj.DisplaySpline;
 import com.hyperion.dashboard.uiobj.Waypoint;
-import com.hyperion.motion.math.PlanningPoint;
+import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 
@@ -119,7 +119,7 @@ public class FieldPane extends Pane {
                                 Waypoint newWP = new Waypoint(UIClient.opModeID + ".waypoint.", newPose, UIClient.constants, null, true);
                                 if (UIClient.isBuildingPaths) {
                                     if (UIClient.selectedSpline != null) {
-                                        UIClient.selectedSpline.spline.waypoints.add(new PlanningPoint(newWP.pose));
+                                        UIClient.selectedSpline.spline.waypoints.add(new RigidBody(newWP.pose));
                                         int i = UIClient.selectedWaypoint != null ? UIClient.selectedSpline.waypoints.indexOf(UIClient.selectedWaypoint) : -1;
                                         UIClient.selectedSpline.refreshDisplayGroup();
                                         if (i >= 0) {

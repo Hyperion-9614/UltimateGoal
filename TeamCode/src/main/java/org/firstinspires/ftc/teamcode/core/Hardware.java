@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.core;
 import com.hyperion.common.Constants;
 import com.hyperion.common.Options;
 import com.hyperion.common.Utils;
-import com.hyperion.motion.math.PlanningPoint;
+import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.modules.CvPipeline;
 import org.firstinspires.ftc.teamcode.modules.Unimetry;
@@ -79,7 +78,7 @@ public class Hardware {
     public Servo chainBarR;
     public CRServo claw;
 
-    public int presetPlaceStoneCounts = 2500;
+    public int presetPlaceStoneTicks = 2500;
 
     public Hardware(OpMode context) {
         this.context = context;
@@ -161,8 +160,8 @@ public class Hardware {
         // Init pp
         Pose startPose = motion.waypoints.get(opModeID + ".waypoint.start");
         if (startPose == null) startPose = new Pose();
-        motion.start = new PlanningPoint(startPose);
-        motion.robot = new PlanningPoint(startPose);
+        motion.start = new RigidBody(startPose);
+        motion.robot = new RigidBody(startPose);
 
         // Init CV
         int cameraMonitorViewId = hwmp.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmp.appContext.getPackageName());
@@ -211,32 +210,13 @@ public class Hardware {
 
     // Place a stone on foundation
     public void preset_placeStone(boolean goToWaypoint) {
-        if (goToWaypoint) motion.goToWaypoint("place");
-
-        if (context.gamepad1.left_stick_x == 0 && context.gamepad1.left_stick_y == 0 && context.gamepad1.right_stick_x == 0) {
-            appendages.setVerticalSlideTarget(presetPlaceStoneCounts);
-            appendages.setVerticalSlideMode(DcMotor.RunMode.RUN_TO_POSITION);
-            appendages.setVerticalSlidePower(constants.VERT_SLIDE_POWER);
-            ElapsedTime timer = new ElapsedTime();
-            while (timer.milliseconds() <= 2000 && vertSlideL.isBusy() && vertSlideR.isBusy()) {
-                motion.localizer.update();
-                unimetry.update();
-            }
-            appendages.setVerticalSlidePower(0);
-
-            // TODO: Claw
-
-            appendages.setVerticalSlideTarget(0);
-            appendages.setVerticalSlideMode(DcMotor.RunMode.RUN_TO_POSITION);
-            appendages.setVerticalSlidePower(constants.VERT_SLIDE_POWER);
-            timer.reset();
-            while (timer.milliseconds() <= 2000 && vertSlideL.isBusy() && vertSlideR.isBusy()) {
-                motion.localizer.update();
-                unimetry.update();
-            }
-            appendages.setVerticalSlidePower(0);
-            presetPlaceStoneCounts += constants.STONE_VERT_SLIDE_COUNTS;
+        if (goToWaypoint) {
+            motion.goToWaypoint("place");
         }
+
+        appendages.setVerticalSlidePosition(presetPlaceStoneTicks);
+        appendages.setVerticalSlidePosition(0);
+        presetPlaceStoneTicks += constants.STONE_VERT_SLIDE_TICKS;
     }
 
 }
