@@ -29,7 +29,7 @@ public class RigidBody {
 
     public RigidBody(double T, double distance, double theta, SplineTrajectory sT) {
         this.T = T;
-        this.pose = sT.getPoseFromT(T);
+        this.pose = sT.getTPose(T);
         this.pose.setT(theta);
         this.distance = distance;
     }

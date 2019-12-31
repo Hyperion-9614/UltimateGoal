@@ -47,7 +47,7 @@ public class SplineTrajectory {
     public SplineTrajectory(String json, Constants constants) {
         this.constants = constants;
         motionProfile = new MotionProfile(this);
-        readJson(json);
+        readJSON(json);
     }
 
     public void endPath() {
@@ -58,7 +58,7 @@ public class SplineTrajectory {
 
     ///////////////////////////////////// I/O /////////////////////////////////////
 
-    public String writeJson() {
+    public String writeJSON() {
         JSONObject obj = new JSONObject();
 
         try {
@@ -91,7 +91,7 @@ public class SplineTrajectory {
         return obj.toString();
     }
 
-    public void readJson(String json) {
+    public void readJSON(String json) {
         try {
             JSONObject obj = new JSONObject(json);
 
@@ -245,18 +245,13 @@ public class SplineTrajectory {
                 calculatePlanningPoints();
                 interpolate(this.planningPoints, false);
             } else {
-                for (int i = 0; i < tauX.size(); i++) {
-                    Piecewise.Interval dXi = distanceX.intervals.get(i);
-                    Piecewise.Interval dYi = distanceY.intervals.get(i);
-                    distanceX.changeInterval(dXi.a, dXi.b, dXi.a * segmentLength, dXi.b * segmentLength);
-                    distanceY.changeInterval(dYi.a, dYi.b, dYi.a * segmentLength, dYi.b * segmentLength);
-                }
                 motionProfile.recreate();
             }
         }
     }
     private void calculatePlanningPoints() {
         planningPoints = new ArrayList<>();
+
         double L = arcDistance(waypoints.size() - 1);
         int numSegments = (int) Math.ceil(L / constants.MAX_SEGMENT_LENGTH);
         segmentLength = L / numSegments;
@@ -318,20 +313,28 @@ public class SplineTrajectory {
     private int getInterval(double distance) {
         int i;
         for (i = 0; i < waypoints.size() - 1; i++) {
-            if (distance >= waypoints.get(i).distance && distance < waypoints.get(i + 1).distance) {
+            if (distance >= waypoints.get(i).distance && distance <= waypoints.get(i + 1).distance) {
                 break;
             }
         }
         return i;
     }
-    public Pose getPoseFromT(double T) {
-        double theta = 0;
-        return new Pose(tauX.evaluate(T, 0), tauY.evaluate(T, 1), theta);
+    public double paramDistance(double distance) {
+        double count = 0;
+        while (distance >= segmentLength) {
+            distance -= segmentLength;
+            count++;
+        }
+        return (distance / segmentLength) + count;
     }
-    public Pose getPoseFromDistance(double distance) {
+    public Pose getTPose(double T) {
+        return new Pose(tauX.evaluate(T, 0), tauY.evaluate(T, 0), 0);
+    }
+    public Pose getDPose(double distance) {
         int interval = getInterval(distance);
         double theta = Utils.normalizeTheta(waypoints.get(interval).pose.theta + Utils.optimalThetaDifference(waypoints.get(interval).pose.theta, waypoints.get(interval + 1).pose.theta)
                                                   * ((distance - waypoints.get(interval).distance) / (waypoints.get(interval + 1).distance - waypoints.get(interval).distance)), 0, 2 * Math.PI);
+        distance = paramDistance(distance);
         return new Pose(distanceX.evaluate(distance, 0), distanceY.evaluate(distance, 0), theta);
     }
 

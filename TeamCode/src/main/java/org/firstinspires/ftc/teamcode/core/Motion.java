@@ -197,7 +197,7 @@ public class Motion {
     public void goToWaypoint(Pose goal) {
         SplineTrajectory path = new SplineTrajectory(dStarLite.optimalPath(robot.pose, goal), hardware.constants);
         if (hardware.options.debug) {
-            hardware.rcClient.emit("pathFound", path.writeJson());
+            hardware.rcClient.emit("pathFound", path.writeJSON());
             Utils.printSocketLog("RC", "SERVER", "pathFound", hardware.options);
         }
         followPath(path);

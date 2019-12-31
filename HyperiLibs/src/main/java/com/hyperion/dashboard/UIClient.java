@@ -216,15 +216,18 @@ public class UIClient extends Application {
                 }
                 obj.put("waypoints", wpObj);
             }
+
             if (splines != null) {
                 JSONObject splinesObj = new JSONObject();
                 for (DisplaySpline spline : splines) {
                     if (spline != null && spline.id != null && !spline.id.isEmpty()) {
-                        splinesObj.put(spline.id, new JSONObject(spline.spline.writeJson()));
+                        splinesObj.put(spline.id, new JSONObject(spline.spline.writeJSON()));
                     }
                 }
                 obj.put("splines", splinesObj);
             }
+
+            displayPane.updateGraphs(null);
         } catch (Exception e) {
             e.printStackTrace();
         }

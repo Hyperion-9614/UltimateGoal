@@ -71,11 +71,19 @@ public class DisplaySpline {
         selectRects = new ArrayList<>();
 
         if (spline.waypoints.size() >= 2) {
-            Color pathPointColor = new Color(1.0, 1.0, 1.0, 0.5);
-            for (double d = 0; d < spline.planningPoints.get(spline.planningPoints.size() - 1).distance; d += 5) {
-                double[] poseArr = UIClient.fieldPane.poseToDisplay(spline.getPoseFromDistance(d), 0);
+            Color tauPathPointColor = new Color(0.3, 0.3, 0.3, 0.5);
+            for (double t = 0; t <= spline.waypoints.size(); t += 0.2) {
+                double[] poseArr = UIClient.fieldPane.poseToDisplay(spline.getTPose(t), 0);
                 Circle pathPoint = new Circle(poseArr[0], poseArr[1], UIClient.constants.PATHPOINT_SIZE);
-                pathPoint.setFill(pathPointColor);
+                pathPoint.setFill(tauPathPointColor);
+                displayGroup.getChildren().add(pathPoint);
+            }
+
+            Color distancePathPointColor = new Color(1.0, 1.0, 1.0, 0.5);
+            for (double d = 0; d <= spline.waypoints.get(spline.waypoints.size() - 1).distance; d += 10) {
+                double[] poseArr = UIClient.fieldPane.poseToDisplay(spline.getDPose(d), 0);
+                Circle pathPoint = new Circle(poseArr[0], poseArr[1], UIClient.constants.PATHPOINT_SIZE);
+                pathPoint.setFill(distancePathPointColor);
                 displayGroup.getChildren().add(pathPoint);
             }
 

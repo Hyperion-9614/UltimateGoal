@@ -6,7 +6,6 @@ import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class Piecewise {
 
@@ -28,20 +27,20 @@ public class Piecewise {
     }
 
     public void setInterval(double a, double b, String exp) {
-        Interval setTo = new Interval(a, b, new Expression(exp));
-        for (Iterator iter = intervals.iterator(); iter.hasNext();) {
-            Interval interval = (Interval) iter.next();
-            if (interval.boundsEquals(setTo)) {
-                iter.remove();
+        ArrayList<Interval> toRemove = new ArrayList<>();
+        for (Interval interval : intervals) {
+            if (interval.boundsEquals(a, b)) {
+                toRemove.add(interval);
             }
         }
-        intervals.add(setTo);
+        intervals.removeAll(toRemove);
+        intervals.add(new Interval(a, b, new Expression(exp)));
     }
 
     public double evaluate(double t, int derivative) {
         derivative = Math.max(0, derivative);
         for (Interval interval : intervals) {
-            if (t >= interval.a && t < interval.b) {
+            if (t >= interval.a && t <= interval.b) {
                 String expression = getExpressionString(interval.a, interval.b, derivative);
                 return new Expression(expression, new Argument("t = " + t)).calculate();
             }
@@ -61,14 +60,6 @@ public class Piecewise {
             expression = "der(" + expression + ", t)";
         }
         return expression;
-    }
-
-    public void changeInterval(double aOld, double bOld, double aNew, double bNew) {
-        for (int i = 0; i < size(); i++) {
-            if (intervals.get(i).boundsEquals(aOld, bOld)) {
-                intervals.set(i, new Interval(aNew, bNew, intervals.get(i).exp));
-            }
-        }
     }
 
     public JSONArray toJSONArray() {
@@ -101,10 +92,6 @@ public class Piecewise {
 
         public boolean boundsEquals(double a, double b) {
             return this.a == a && this.b == b;
-        }
-
-        public boolean boundsEquals(Interval other) {
-            return boundsEquals(other.a, other.b);
         }
 
         public JSONObject toJSONObject() {

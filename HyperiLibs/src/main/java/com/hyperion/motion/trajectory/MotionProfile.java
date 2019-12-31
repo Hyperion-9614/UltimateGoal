@@ -97,7 +97,7 @@ public class MotionProfile {
     // Set an interval in the translational acceleration profile
     public void setTAPInterval(Piecewise profile, RigidBody pp0, RigidBody pp1) {
         double slope = Utils.slope(pp0.distance, pp0.translationalAcceleration.magnitude, pp1.distance, pp1.translationalAcceleration.magnitude);
-        profile.setInterval(pp0.distance, pp1.distance, "(" + slope + ")*d + (" + -(slope * pp0.distance) + ") + (" + pp0.translationalAcceleration.magnitude + ")");
+        profile.setInterval(pp0.distance, pp1.distance, "(" + slope + ")*t + (" + -(slope * pp0.distance) + ") + (" + pp0.translationalAcceleration.magnitude + ")");
     }
 
     // Generate piecewise velocity profile
@@ -112,18 +112,20 @@ public class MotionProfile {
     // Set an interval in the translational velocity profile
     public void setTVPInterval(Piecewise profile, RigidBody pp0, RigidBody pp1) {
         double slope = Utils.slope(pp0.distance, pp0.translationalVelocity.magnitude, pp1.distance, pp1.translationalVelocity.magnitude);
-        profile.setInterval(pp0.distance, pp1.distance, "(" + slope + ")*d + (" + -(slope * pp0.distance) + ") + (" + pp0.translationalVelocity.magnitude + ")");
+        profile.setInterval(pp0.distance, pp1.distance, "(" + slope + ")*t + (" + -(slope * pp0.distance) + ") + (" + pp0.translationalVelocity.magnitude + ")");
     }
 
     public Vector2D getTranslationalVelocity(double distance) {
-        double dX = spline.distanceX.evaluate(distance, 1);
-        double dY = spline.distanceY.evaluate(distance, 1);
+        double paramD = spline.paramDistance(distance);
+        double dX = spline.distanceX.evaluate(paramD, 1);
+        double dY = spline.distanceY.evaluate(paramD, 1);
         return new Vector2D(translationalVelocityProfile.evaluate(distance, 0), Utils.normalizeTheta(Math.atan2(dY, dX), 0, 2 * Math.PI), false);
     }
 
     public Vector2D getTranslationalAcceleration(double distance) {
-        double dX = spline.distanceX.evaluate(distance, 2);
-        double dY = spline.distanceY.evaluate(distance, 2);
+        double paramD = spline.paramDistance(distance);
+        double dX = spline.distanceX.evaluate(paramD, 2);
+        double dY = spline.distanceY.evaluate(paramD, 2);
         return new Vector2D(translationalAccelerationProfile.evaluate(distance, 0), Utils.normalizeTheta(Math.atan2(dY, dX), 0, 2 * Math.PI), false);
     }
 
@@ -137,7 +139,7 @@ public class MotionProfile {
 
     public RigidBody getPlanningPoint(double distance) {
         RigidBody toReturn = new RigidBody(distance);
-        toReturn.pose = spline.getPoseFromDistance(distance);
+        toReturn.pose = spline.getDPose(distance);
         toReturn.translationalVelocity = getTranslationalVelocity(distance);
         toReturn.translationalAcceleration = getTranslationalAcceleration(distance);
         toReturn.angularVelocity = getAngularVelocity(distance);
