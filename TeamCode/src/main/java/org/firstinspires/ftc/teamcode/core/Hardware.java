@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.core;
 
+import android.os.DropBoxManager;
 import com.hyperion.common.Constants;
 import com.hyperion.common.Options;
 import com.hyperion.common.Utils;
@@ -169,7 +170,7 @@ public class Hardware {
         phoneCam.openCameraDevice();
         cvPipeline = new CvPipeline(this);
         phoneCam.setPipeline(cvPipeline);
-        phoneCam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+        phoneCam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
     }
 
     // Wrap up OpMode
