@@ -157,7 +157,7 @@ public class TELE_Main extends OpMode {
              * X : Chain bar toggle
              */
             if (gamepad1.x && !chainBarToggle) {
-                appendages.setChainBarStatus(appendages.chainBarStatus.equals("in") ? "noStone" : "out");
+                appendages.setChainBarStatus(appendages.chainBarStatus.equals("in") ? "out" : "in");
                 chainBarToggle = true;
             } else if (!gamepad1.x) {
                 chainBarToggle = false;
