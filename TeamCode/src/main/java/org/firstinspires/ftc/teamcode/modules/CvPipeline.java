@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Custom, basic, threshold-based OpenCV pipeline
+ * SUPER COOL, ADVANCED, OPENCV DNN NEURAL NETWORK!!!
  */
 
 public class CvPipeline extends OpenCvPipeline {
