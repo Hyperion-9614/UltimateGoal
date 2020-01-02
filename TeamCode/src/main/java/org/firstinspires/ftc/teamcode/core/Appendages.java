@@ -122,9 +122,13 @@ public class Appendages {
         if (chainBarStatus.equals("in")) {
             hardware.chainBarL.setPosition(0.9);
             hardware.chainBarR.setPosition(0.9);
+        } else if (chainBarStatus.equals("noStone")){
+            hardware.chainBarL.setPosition(0.8);
+            hardware.chainBarR.setPosition(0.8);
         } else {
             hardware.chainBarL.setPosition(0.5);
             hardware.chainBarR.setPosition(0.5);
+
         }
     }
 
