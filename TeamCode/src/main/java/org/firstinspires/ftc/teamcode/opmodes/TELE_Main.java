@@ -24,6 +24,7 @@ public class TELE_Main extends OpMode {
 
     private boolean isHtStarted;
     private double preHtTheta;
+    private int multTuneDirection = -1;
 
     private boolean presetPlaceStoneToggle;
     private boolean resetVertSlidesToggle;
@@ -162,21 +163,18 @@ public class TELE_Main extends OpMode {
                 chainBarToggle = false;
             }
 
-            /*
-             * GAMEPAD 1
-             * DPAD UP : Move 10 cm, pi/2
-             * DPAD DOWN : Move 10 cm, 3pi/2
-             * DPAD LEFT : Move 10 cm, pi
-             * DPAD RIGHT : Move 10 cm, 0
-             */
             if (gamepad1.dpad_up) {
-                motion.pidMove(new Pose(0, 10, 0), true);
+                hardware.constants.FRONT_LEFT_MULT += multTuneDirection * 0.01;
             } else if (gamepad1.dpad_down) {
-                motion.pidMove(new Pose(0, -10, 0), true);
+                hardware.constants.FRONT_RIGHT_MULT += multTuneDirection * 0.01;
             } else if (gamepad1.dpad_left) {
-                motion.pidMove(new Pose(-10, 0, 0), true);
+                hardware.constants.BACK_LEFT_MULT += multTuneDirection * 0.01;
             } else if (gamepad1.dpad_right) {
-                motion.pidMove(new Pose(10, 0, 0), true);
+                hardware.constants.BACK_RIGHT_MULT += multTuneDirection * 0.01;
+            } else if (gamepad1.right_stick_button) {
+                hardware.constants.write();
+            } else if (gamepad1.left_stick_button) {
+                multTuneDirection *= -1;
             }
         } else {
             if (!hardware.opModeID.equals("Choose OpMode")) {

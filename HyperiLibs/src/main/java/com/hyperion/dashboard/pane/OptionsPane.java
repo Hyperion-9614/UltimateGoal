@@ -89,6 +89,15 @@ public class OptionsPane extends VBox {
 
         getChildren().add(buttons);
 
+        CheckBox enablePathBuilder = new CheckBox("Preset Path Builder");
+        enablePathBuilder.setStyle("-fx-font: 22px \"Arial\";");
+        enablePathBuilder.setTextAlignment(TextAlignment.CENTER);
+        enablePathBuilder.setTextFill(Color.WHITE);
+        enablePathBuilder.setPrefSize(350, 30);
+        enablePathBuilder.selectedProperty().addListener((observable, oldValue, newValue) -> UIClient.isBuildingPaths = newValue);
+        enablePathBuilder.setSelected(false);
+        getChildren().add(enablePathBuilder);
+
         ObservableList<String> options =
             FXCollections.observableArrayList(
             "auto.blue.full", "auto.red.full",
@@ -106,15 +115,6 @@ public class OptionsPane extends VBox {
             UIClient.sendDashboard();
         });
         getChildren().add(opModeSelector);
-
-        CheckBox enablePathBuilder = new CheckBox("Preset Path Builder");
-        enablePathBuilder.setStyle("-fx-font: 22px \"Arial\";");
-        enablePathBuilder.setTextAlignment(TextAlignment.CENTER);
-        enablePathBuilder.setTextFill(Color.WHITE);
-        enablePathBuilder.setPrefSize(350, 30);
-        enablePathBuilder.selectedProperty().addListener((observable, oldValue, newValue) -> UIClient.isBuildingPaths = newValue);
-        enablePathBuilder.setSelected(false);
-        getChildren().add(enablePathBuilder);
     }
 
 }

@@ -26,7 +26,7 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 
 /**
- * Handles all hardware interfacing and robot/external initialization
+ * Handles all hw interfacing and robot/external initialization
  * Also contains presets
  */
 
@@ -95,7 +95,7 @@ public class Hardware {
             e.printStackTrace();
         }
 
-        // Init hardware
+        // Init hw
         expansionHubL = hwmp.get(ExpansionHubEx.class, "Expansion Hub L");
         expansionHubR = hwmp.get(ExpansionHubEx.class, "Expansion Hub R");
         imu = hwmp.get(BNO055IMU.class, "imu");
@@ -161,7 +161,7 @@ public class Hardware {
         Pose startPose = motion.waypoints.get(opModeID + ".waypoint.start");
         if (startPose == null) startPose = new Pose();
         motion.start = new RigidBody(startPose);
-        motion.robot = new RigidBody(startPose);
+        motion.robot = new RigidBody(motion.start);
 
         // Init CV
         int cameraMonitorViewId = hwmp.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmp.appContext.getPackageName());

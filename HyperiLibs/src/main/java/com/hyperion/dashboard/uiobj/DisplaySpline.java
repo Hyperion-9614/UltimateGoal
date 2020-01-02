@@ -72,7 +72,7 @@ public class DisplaySpline {
 
         if (spline.waypoints.size() >= 2) {
             Color tauPathPointColor = new Color(0.3, 0.3, 0.3, 0.5);
-            for (double t = 0; t <= spline.waypoints.size(); t += 0.2) {
+            for (double t = 0; t <= spline.waypoints.size() - 1; t += 0.2) {
                 double[] poseArr = UIClient.fieldPane.poseToDisplay(spline.getTPose(t), 0);
                 Circle pathPoint = new Circle(poseArr[0], poseArr[1], UIClient.constants.PATHPOINT_SIZE);
                 pathPoint.setFill(tauPathPointColor);

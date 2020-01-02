@@ -78,8 +78,9 @@ public class MotionProfile {
         for (int i = 0; i < spline.planningPoints.size() - 1; i++) {
             RigidBody p0 = spline.planningPoints.get(i);
             RigidBody p1 = spline.planningPoints.get(i + 1);
-            double maxAcceleration = Math.min(constants.MAX_TRANSLATIONAL_ACCELERATION, (Math.pow(p1.translationalVelocity.magnitude, 2) - Math.pow(p0.translationalVelocity.magnitude, 2)) / (2 * (p1.distance - p0.distance)));
-            p0.translationalAcceleration.setMagnitude((p1.translationalVelocity.magnitude < p0.translationalVelocity.magnitude ? -1 : 1) * maxAcceleration);
+            double maxAcceleration = Math.min(constants.MAX_TRANSLATIONAL_ACCELERATION, Math.abs(Math.pow(p1.translationalVelocity.magnitude, 2) - Math.pow(p0.translationalVelocity.magnitude, 2)) / (2 * (p1.distance - p0.distance)));
+            p0.translationalAcceleration.setMagnitude(maxAcceleration);
+            p0.translationalAcceleration.setTheta(p0.translationalVelocity.theta + (p1.translationalVelocity.magnitude < p0.translationalVelocity.magnitude ? Math.PI : 0));
         }
 
         spline.planningPoints.get(spline.planningPoints.size() - 1).translationalAcceleration.setMagnitude(0);
@@ -123,10 +124,13 @@ public class MotionProfile {
     }
 
     public Vector2D getTranslationalAcceleration(double distance) {
-        double paramD = spline.paramDistance(distance);
-        double dX = spline.distanceX.evaluate(paramD, 2);
-        double dY = spline.distanceY.evaluate(paramD, 2);
-        return new Vector2D(translationalAccelerationProfile.evaluate(distance, 0), Utils.normalizeTheta(Math.atan2(dY, dX), 0, 2 * Math.PI), false);
+        RigidBody floored = spline.planningPoints.get(0);
+        for (int i = spline.planningPoints.size() - 1; i >= 0; i--) {
+            if (spline.planningPoints.get(i).distance <= distance) {
+                floored = spline.planningPoints.get(i);
+            }
+        }
+        return new Vector2D(translationalAccelerationProfile.evaluate(distance, 0), floored.translationalAcceleration.theta, false);
     }
 
     public double getAngularVelocity(double distance) {
