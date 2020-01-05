@@ -18,7 +18,7 @@ public class RigidBody {
     }
 
     public RigidBody(Pose pose) {
-        this.pose = pose;
+        this.pose = new Pose(pose);
     }
 
     public RigidBody(double T, double distance, Pose pose) {

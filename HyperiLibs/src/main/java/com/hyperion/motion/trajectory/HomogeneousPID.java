@@ -46,12 +46,12 @@ public class HomogeneousPID {
         thetaUt = new ArrayList<>();
     }
 
-    public double[] controlLoopIteration(RigidBody pp, RigidBody target) {
+    public double[] controlLoopIteration(RigidBody robot, RigidBody target) {
         if (currTime == -1) currTime = System.currentTimeMillis();
         double dT = (System.currentTimeMillis() - currTime) / 1000.0;
-        double xError = target.pose.x - pp.pose.x;
-        double yError = target.pose.y - pp.pose.y;
-        double thetaError = Utils.optimalThetaDifference(pp.pose.theta, target.pose.theta);
+        double xError = target.pose.x - robot.pose.x;
+        double yError = target.pose.y - robot.pose.y;
+        double thetaError = Utils.optimalThetaDifference(robot.pose.theta, target.pose.theta);
 
         double time = lastTime + dT;
         xEt.add(new double[]{ time, xError });
@@ -67,7 +67,7 @@ public class HomogeneousPID {
         thetaUt.add(new double[]{ time, uTheta });
 
         lastTime = time;
-        return toMotorPowers(pp.pose, uX, uY, uTheta);
+        return toMotorPowers(robot.pose, uX, uY, uTheta);
     }
 
     public double pOut(ArrayList<double[]> eT, double kP) {
@@ -94,17 +94,17 @@ public class HomogeneousPID {
     }
 
     public double[] toMotorPowers(Pose robot, double uX, double uY, double uTheta) {
-        double vX = Utils.clip(uX * constants.U_X_SCALE, -1, 1);
-        double vY = Utils.clip(uY * constants.U_Y_SCALE, -1, 1);
-        double w = Utils.clip(uTheta * constants.U_THETA_SCALE, -1, 1);
+        double vX = Utils.clip(uX, -1, 1);
+        double vY = Utils.clip(uY, -1, 1);
+        double w = Utils.clip(uTheta, -1, 1);
 
-        Vector2D velocity = new Vector2D(vX, vY, true).rotated(preHtTheta - robot.theta);
+        Vector2D velocity = new Vector2D(vX, vY, true).rotated(preHtTheta - 2 * robot.theta + Math.PI / 2.0);
         if (velocity.magnitude > 1) velocity = velocity.unit();
         return new double[]{
-            velocity.x + velocity.y + w,
-            -velocity.x + velocity.y - w,
+            velocity.x + velocity.y - w,
             -velocity.x + velocity.y + w,
-            velocity.x + velocity.y - w
+            -velocity.x + velocity.y - w,
+            velocity.x + velocity.y + w
         };
     }
 

@@ -19,7 +19,7 @@
   down to service the 640x480 request.
 
   Further, it is important to note that if *no* calibrations exist for a given camera, then Vuforia
-  is offered the entire range of capture resolutions that the hardware can support (and it does its
+  is offered the entire range of capture resolutions that the hw can support (and it does its
   best to deal with the lack of calibration). However, if *any* calibrations are provided for a camera,
   then capture resolutions in those aspect ratios supported by the camera for which any calibrations
   are *not* provided are *not* offered. Thus, if you calibrate a camera but fail to calibrate all

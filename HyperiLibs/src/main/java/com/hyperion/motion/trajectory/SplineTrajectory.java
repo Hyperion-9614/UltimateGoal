@@ -328,9 +328,11 @@ public class SplineTrajectory {
         return (distance / segmentLength) + count;
     }
     public Pose getTPose(double T) {
+        if (T == waypoints.size()) return waypoints.get(waypoints.size() - 1).pose;
         return new Pose(tauX.evaluate(T, 0), tauY.evaluate(T, 0), 0);
     }
     public Pose getDPose(double distance) {
+        if (distance == waypoints.get(waypoints.size() - 1).distance) return waypoints.get(waypoints.size() - 1).pose;
         int interval = getInterval(distance);
         double theta = Utils.normalizeTheta(waypoints.get(interval).pose.theta + Utils.optimalThetaDifference(waypoints.get(interval).pose.theta, waypoints.get(interval + 1).pose.theta)
                                                   * ((distance - waypoints.get(interval).distance) / (waypoints.get(interval + 1).distance - waypoints.get(interval).distance)), 0, 2 * Math.PI);

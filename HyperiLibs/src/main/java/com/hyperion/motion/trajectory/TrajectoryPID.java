@@ -61,9 +61,9 @@ public class TrajectoryPID {
         yEt.add(new double[]{ time, yError });
         thetaEt.add(new double[]{ time, thetaError });
 
-        double uX = pOut(xEt, constants.X_K_P) + dOut(xEt, constants.X_K_D);
-        double uY = pOut(yEt, constants.Y_K_P) + dOut(yEt, constants.Y_K_D);
-        double uTheta = pOut(thetaEt, constants.THETA_K_P) + dOut(thetaEt, constants.THETA_K_D);
+        double uX = pOut(xEt, constants.X_K_P) + iOut(xEt, constants.X_K_I) + dOut(xEt, constants.X_K_D);
+        double uY = pOut(yEt, constants.Y_K_P) + iOut(yEt, constants.Y_K_I) + dOut(yEt, constants.Y_K_D);
+        double uTheta = pOut(thetaEt, constants.THETA_K_P) + iOut(thetaEt, constants.THETA_K_I) + dOut(thetaEt, constants.THETA_K_D);
 
         xUt.add(new double[]{ time, uX });
         yUt.add(new double[]{ time, uY });
@@ -77,6 +77,17 @@ public class TrajectoryPID {
         return kP * eT.get(eT.size() - 1)[1];
     }
 
+    public double iOut(ArrayList<double[]> eT, double kI) {
+        double integral = 0;
+        double lastT = 0;
+        for (int i = 1; i < eT.size(); i++) {
+            double dT = eT.get(i)[0] - lastT;
+            integral += dT * eT.get(i - 1)[1];
+            lastT += dT;
+        }
+        return kI * integral;
+    }
+
     public double dOut(ArrayList<double[]> eT, double kD) {
         double derivative = 0;
         if (eT.size() >= 2) {
@@ -86,9 +97,9 @@ public class TrajectoryPID {
     }
 
     public double[] toMotorPowers(Pose robot, double uX, double uY, double uTheta) {
-        double vX = Utils.clip(uX * constants.U_X_SCALE, -1, 1);
-        double vY = Utils.clip(uY * constants.U_Y_SCALE, -1, 1);
-        double w = Utils.clip(uTheta * constants.U_THETA_SCALE, -1, 1);
+        double vX = Utils.clip(uX, -1, 1);
+        double vY = Utils.clip(uY, -1, 1);
+        double w = Utils.clip(uTheta, -1, 1);
 
         Vector2D velocity = new Vector2D(vX, vY, true).rotated(preHtTheta - robot.theta);
         if (velocity.magnitude > 1) velocity = velocity.unit();

@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 public class Motion {
 
-    public Hardware hardware;
+    public Hardware hw;
 
     public Localizer localizer;
     public TrajectoryPID trajectoryPID;
@@ -37,26 +37,26 @@ public class Motion {
     public HashMap<String, Pose> waypoints = new HashMap<>();
     public HashMap<String, SplineTrajectory> splines = new HashMap<>();
 
-    public Motion(Hardware hardware) {
-        this.hardware = hardware;
+    public Motion(Hardware hw) {
+        this.hw = hw;
         try {
-            JSONObject jsonObject = new JSONObject(Utils.readFile(hardware.dashboardJson));
+            JSONObject jsonObject = new JSONObject(Utils.readFile(hw.dashboardJson));
             readWaypoints(jsonObject);
             readSplines(jsonObject);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        localizer = new Localizer(hardware);
+        localizer = new Localizer(hw);
         dStarLite = new DStarLite();
-        trajectoryPID = new TrajectoryPID(hardware.constants);
-        homogeneousPID = new HomogeneousPID(hardware.constants);
+        trajectoryPID = new TrajectoryPID(hw.constants);
+        homogeneousPID = new HomogeneousPID(hw.constants);
 
-        for (DcMotor motor : hardware.hwmp.dcMotor) {
+        for (DcMotor motor : hw.hwmp.dcMotor) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
-        hardware.fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-        hardware.bRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        hw.fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        hw.bRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     //////////////////////// INIT ////////////////////////////
@@ -83,7 +83,7 @@ public class Motion {
         Iterator keys = splinesObj.keys();
         while (keys.hasNext()) {
             String key = keys.next().toString();
-            SplineTrajectory spline = new SplineTrajectory(splinesObj.getJSONObject(key).toString(), hardware.constants);
+            SplineTrajectory spline = new SplineTrajectory(splinesObj.getJSONObject(key).toString(), hw.constants);
             splines.put(key, spline);
         }
     }
@@ -103,16 +103,18 @@ public class Motion {
     }
     public void setDrive(double[] powers) {
         if (powers.length == 4) {
-            hardware.fLDrive.setPower(powers[0]);
-            hardware.fRDrive.setPower(powers[1]);
-            hardware.bLDrive.setPower(powers[2]);
-            hardware.bRDrive.setPower(powers[3]);
+            hw.fLDrive.setPower(hw.constants.FRONT_LEFT_MULT * powers[0]);
+            hw.fRDrive.setPower(hw.constants.FRONT_RIGHT_MULT * powers[1]);
+            hw.bLDrive.setPower(hw.constants.BACK_LEFT_MULT * powers[2]);
+            hw.bRDrive.setPower(hw.constants.BACK_RIGHT_MULT * powers[3]);
         } else if (powers.length == 2) {
-            hardware.fLDrive.setPower(powers[0]);
-            hardware.bLDrive.setPower(powers[0]);
-            hardware.fRDrive.setPower(powers[1]);
-            hardware.bRDrive.setPower(powers[1]);
+            hw.fLDrive.setPower(powers[0]);
+            hw.bLDrive.setPower(powers[0]);
+            hw.fRDrive.setPower(powers[1]);
+            hw.bRDrive.setPower(powers[1]);
         }
+        hw.motion.localizer.update();
+        hw.unimetry.update();
     }
     public void setDrive(Vector2D moveVec, double rot) {
         setDrive(new double[]{
@@ -128,9 +130,10 @@ public class Motion {
     // PID homogeneous transform to target
     public void pidMove(Pose target, boolean shouldStop) {
         homogeneousPID.reset(robot);
-        while ((hardware.context.gamepad1.left_stick_x == 0 && hardware.context.gamepad1.left_stick_y == 0 && hardware.context.gamepad1.right_stick_x == 0)
-               && (Utils.distance(robot.pose, target) >= hardware.constants.END_TRANSLATION_ERROR_THRESHOLD
-               || Math.abs(Utils.optimalThetaDifference(robot.pose.theta, target.theta)) >= hardware.constants.END_ROTATION_ERROR_THRESHOLD)) {
+        ElapsedTime timer = new ElapsedTime();
+        while (timer.milliseconds() <= 4000 && (hw.context.gamepad1.left_stick_x == 0 && hw.context.gamepad1.left_stick_y == 0 && hw.context.gamepad1.right_stick_x == 0)
+                && (Utils.distance(robot.pose, target) >= hw.constants.END_TRANSLATION_ERROR_THRESHOLD
+                || Math.abs(Utils.optimalThetaDifference(robot.pose.theta, target.theta)) >= hw.constants.END_ROTATION_ERROR_THRESHOLD)) {
             setDrive(homogeneousPID.controlLoopIteration(robot, new RigidBody(target)));
         }
         if (shouldStop) setDrive(0);
@@ -186,8 +189,8 @@ public class Motion {
             centriT = Utils.normalizeTheta(targetHeading - Math.PI / 2, 0, 2 * Math.PI);
         }
 
-        Pose center = robot.pose.addVector(new Vector2D(hardware.constants.TRACK_WIDTH / 2, centriR, false));
-        Pose target = center.addVector(new Vector2D(hardware.constants.TRACK_WIDTH / 2, Utils.normalizeTheta(centriT + Math.PI, 0, 2 * Math.PI), false));
+        Pose center = robot.pose.addVector(new Vector2D(hw.constants.TRACK_WIDTH / 2, centriR, false));
+        Pose target = center.addVector(new Vector2D(hw.constants.TRACK_WIDTH / 2, Utils.normalizeTheta(centriT + Math.PI, 0, 2 * Math.PI), false));
         pidMove(target, true);
     }
 
@@ -195,20 +198,20 @@ public class Motion {
 
     // Calculate and follow optimal SplineTrajectory to a waypoint from current pose
     public void goToWaypoint(Pose goal) {
-        SplineTrajectory path = new SplineTrajectory(dStarLite.optimalPath(robot.pose, goal), hardware.constants);
-        if (hardware.options.debug) {
-            hardware.rcClient.emit("pathFound", path.writeJSON());
-            Utils.printSocketLog("RC", "SERVER", "pathFound", hardware.options);
+        SplineTrajectory path = new SplineTrajectory(dStarLite.optimalPath(robot.pose, goal), hw.constants);
+        if (hw.options.debug) {
+            hw.rcClient.emit("pathFound", path.writeJSON());
+            Utils.printSocketLog("RC", "SERVER", "pathFound", hw.options);
         }
         followPath(path);
-        if (hardware.options.debug) {
-            hardware.rcClient.emit("pathCompleted", "{}");
-            Utils.printSocketLog("RC", "SERVER", "pathCompleted", hardware.options);
+        if (hw.options.debug) {
+            hw.rcClient.emit("pathCompleted", "{}");
+            Utils.printSocketLog("RC", "SERVER", "pathCompleted", hw.options);
         }
     }
 
     public void goToWaypoint(String waypointName) {
-        Pose goal = waypoints.get(hardware.opModeID + ".waypoint." + waypointName);
+        Pose goal = waypoints.get(hw.opModeID + ".waypoint." + waypointName);
         goToWaypoint(goal);
     }
 
@@ -217,16 +220,16 @@ public class Motion {
         double distance = 0;
         Pose lastPose = robot.pose;
         trajectoryPID.reset(robot, splineTrajectory);
-        while ((hardware.context.gamepad1.right_stick_x == 0 && hardware.context.gamepad1.left_stick_y == 0 && hardware.context.gamepad1.left_stick_x == 0)
-               && Utils.distance(robot.pose, splineTrajectory.waypoints.get(splineTrajectory.waypoints.size() - 1).pose) >= hardware.constants.END_TRANSLATION_ERROR_THRESHOLD
-               || Math.abs(Utils.optimalThetaDifference(robot.pose.theta, splineTrajectory.waypoints.get(splineTrajectory.waypoints.size() - 1).pose.theta)) >= hardware.constants.END_ROTATION_ERROR_THRESHOLD) {
+        while ((hw.context.gamepad1.right_stick_x == 0 && hw.context.gamepad1.left_stick_y == 0 && hw.context.gamepad1.left_stick_x == 0)
+               && Utils.distance(robot.pose, splineTrajectory.waypoints.get(splineTrajectory.waypoints.size() - 1).pose) >= hw.constants.END_TRANSLATION_ERROR_THRESHOLD
+               || Math.abs(Utils.optimalThetaDifference(robot.pose.theta, splineTrajectory.waypoints.get(splineTrajectory.waypoints.size() - 1).pose.theta)) >= hw.constants.END_ROTATION_ERROR_THRESHOLD) {
             distance += lastPose.distanceTo(robot.pose);
             lastPose = robot.pose;
 
-            Vector2D translationalVelocity = splineTrajectory.motionProfile.getTranslationalVelocity(distance).scaled(hardware.constants.MP_K_TA);
-            Vector2D translationalAcceleration = splineTrajectory.motionProfile.getTranslationalAcceleration(distance).scaled(hardware.constants.MP_K_TV);
-            double angularVelocity = -hardware.constants.MP_K_AV * splineTrajectory.motionProfile.getAngularVelocity(distance);
-            double angularAcceleration = -hardware.constants.MP_K_AA * splineTrajectory.motionProfile.getAngularAcceleration(distance);
+            Vector2D translationalVelocity = splineTrajectory.motionProfile.getTranslationalVelocity(distance).scaled(hw.constants.MP_K_TA);
+            Vector2D translationalAcceleration = splineTrajectory.motionProfile.getTranslationalAcceleration(distance).scaled(hw.constants.MP_K_TV);
+            double angularVelocity = -hw.constants.MP_K_AV * splineTrajectory.motionProfile.getAngularVelocity(distance);
+            double angularAcceleration = -hw.constants.MP_K_AA * splineTrajectory.motionProfile.getAngularAcceleration(distance);
             setDrive(translationalVelocity.added(translationalAcceleration), angularVelocity + angularAcceleration);
             setDrive(trajectoryPID.controlLoopIteration(distance, robot));
         }
@@ -234,7 +237,7 @@ public class Motion {
     }
 
     public void followPath(String pathName) {
-        SplineTrajectory path = splines.get(hardware.opModeID + ".spline." + pathName);
+        SplineTrajectory path = splines.get(hw.opModeID + ".spline." + pathName);
         if (path != null) {
             followPath(path);
         }

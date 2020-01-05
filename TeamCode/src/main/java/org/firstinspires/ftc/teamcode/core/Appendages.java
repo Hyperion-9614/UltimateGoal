@@ -25,7 +25,6 @@ public class Appendages {
 
         resetVerticalSlideEncoders();
 
-        hardware.vertSlideL.setDirection(DcMotorSimple.Direction.REVERSE);
         hardware.compWheelsL.setDirection(DcMotorSimple.Direction.REVERSE);
         hardware.foundationMoverL.setDirection(Servo.Direction.REVERSE);
         hardware.chainBarL.setDirection(Servo.Direction.REVERSE);
@@ -46,8 +45,8 @@ public class Appendages {
     //////////////////////// APPENDAGE CONTROL //////////////////////////
 
     public void setVerticalSlidePower(double power) {
-        if ((hardware.vertSlideL.getCurrentPosition() > 0 && hardware.vertSlideR.getCurrentPosition() > 0)
-            || (hardware.vertSlideL.getCurrentPosition() <= 0 && hardware.vertSlideR.getCurrentPosition() <= 0 && power > 0)) {
+        if ((hardware.vertSlideL.getCurrentPosition() >= 0 && hardware.vertSlideR.getCurrentPosition() >= 0)
+            || ((hardware.vertSlideL.getCurrentPosition() < 0 || hardware.vertSlideR.getCurrentPosition() < 0) && power > 0)) {
             hardware.vertSlideL.setPower(power);
             hardware.vertSlideR.setPower(power);
         } else {
@@ -120,15 +119,11 @@ public class Appendages {
     public void setChainBarStatus(String inOut) {
         chainBarStatus = inOut.toLowerCase();
         if (chainBarStatus.equals("in")) {
-            hardware.chainBarL.setPosition(0.9);
-            hardware.chainBarR.setPosition(0.9);
-        } else if (chainBarStatus.equals("noStone")){
-            hardware.chainBarL.setPosition(0.8);
-            hardware.chainBarR.setPosition(0.8);
+            hardware.chainBarL.setPosition(0.95);
+            hardware.chainBarR.setPosition(0.95);
         } else {
             hardware.chainBarL.setPosition(0.5);
             hardware.chainBarR.setPosition(0.5);
-
         }
     }
 

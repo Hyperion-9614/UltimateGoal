@@ -25,24 +25,19 @@
     },
     "pid": {
         "x": {
-            "kP": 1,
+            "kP": 0.06,
             "kI": 0,
             "kD": 0
         },
         "y": {
-            "kP": 1,
+            "kP": 0.06,
             "kI": 0,
             "kD": 0
         },
         "theta": {
-            "kP": 1,
+            "kP": 0,
             "kI": 0,
             "kD": 0
-        },
-        "outputScales": {
-            "uX": 0.05,
-            "uY": 0.05,
-            "uTheta": 0.05
         }
     },
     "splinesMotionProfile": {
@@ -80,6 +75,12 @@
     "appendages": {
         "stoneVerticalSlideCounts": 200,
         "verticalSlidePower": 0.5
+    },
+    "driveMultipliers": {
+        "fLDrive": 1,
+        "fRDrive": 1,
+        "bLDrive": 1,
+        "bRDrive": 1
     },
     "dashboard": {
         "version": "2.6.0",

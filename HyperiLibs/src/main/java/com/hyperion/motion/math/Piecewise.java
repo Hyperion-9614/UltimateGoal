@@ -40,12 +40,13 @@ public class Piecewise {
     public double evaluate(double t, int derivative) {
         derivative = Math.max(0, derivative);
         for (Interval interval : intervals) {
-            if (t >= interval.a && t <= interval.b) {
+            if (t >= interval.a && t < interval.b) {
                 String expression = getExpressionString(interval.a, interval.b, derivative);
                 return new Expression(expression, new Argument("t = " + t)).calculate();
             }
         }
-        return 0;
+        String expression = getExpressionString(intervals.get(size() - 1).a, intervals.get(size() - 1).b, derivative);
+        return new Expression(expression, new Argument("t = " + t)).calculate();
     }
 
     public String getExpressionString(double a, double b, int derivative) {
@@ -88,6 +89,10 @@ public class Piecewise {
             this.a = a;
             this.b = b;
             this.exp = exp;
+        }
+
+        public double evaluate(double t) {
+            return new Expression(exp.getExpressionString(), new Argument("t = " + t)).calculate();
         }
 
         public boolean boundsEquals(double a, double b) {

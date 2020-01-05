@@ -24,11 +24,11 @@ public class DisplayPane extends VBox {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Distance (cm)");
-        yAxis.setLabel("Translational Velocity (cm/s)");
+        yAxis.setLabel("Translational Magnitude (cm/s)");
 
         tVdGraph = new LineChart<>(xAxis, yAxis);
         tVdGraph.setCreateSymbols(false);
-        tVdGraph.setTitle("Translational Magnitudes vs. Distance");
+        tVdGraph.setTitle("Translational Magnitude vs. Distance");
 
         updateGraphs(UIClient.selectedSpline);
         getChildren().add(tVdGraph);
