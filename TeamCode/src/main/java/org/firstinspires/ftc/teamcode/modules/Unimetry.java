@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.modules;
 import com.hyperion.common.Utils;
 
 import org.firstinspires.ftc.teamcode.core.Hardware;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -61,19 +62,24 @@ public class Unimetry {
 
     public void updateTelemetry() {
         try {
-            JSONObject obj = new JSONObject();
+            JSONArray dataArr = new JSONArray();
             for (Entry entry : data) {
+                JSONArray miniArr = new JSONArray();
                 if (entry.token2 == null) {
                     hardware.context.telemetry.addData(entry.token1.toString(), "");
-                    obj.put("", "");
+                    miniArr.put("");
+                    miniArr.put("");
                 } else {
                     hardware.context.telemetry.addData(entry.token1.toString(), entry.token2.toString());
-                    obj.put(entry.token1.toString(), entry.token2.toString());
+                    miniArr.put(entry.token1.toString());
+                    miniArr.put(entry.token2.toString());
                 }
+                dataArr.put(miniArr);
             }
-            json = obj.toString();
+
+            json = dataArr.toString();
             hardware.context.telemetry.update();
-            if (hardware.options.debug) {
+            if (hardware.options.debug && hardware.rcClient != null) {
                 hardware.rcClient.emit("unimetryUpdated", json);
                 Utils.printSocketLog("RC", "SERVER", "unimetryUpdated", hardware.options);
             }

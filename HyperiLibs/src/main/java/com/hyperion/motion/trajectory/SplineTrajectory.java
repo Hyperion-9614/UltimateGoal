@@ -281,7 +281,6 @@ public class SplineTrajectory {
                            * ((l - waypoints.get(tJ).distance) / (waypoints.get(tJ + 1).distance - waypoints.get(tJ).distance));
             planningPoints.add(new RigidBody(tMiddle, l, theta, this));
         }
-
         planningPoints.add(new RigidBody(waypoints.size() - 1, segmentLength * numSegments, waypoints.get(waypoints.size() - 1).pose.theta, this));
     }
 

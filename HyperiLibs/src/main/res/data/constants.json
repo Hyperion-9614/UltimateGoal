@@ -1,5 +1,37 @@
 {
+    "appendages": {
+        "stoneVerticalSlideCounts": 200,
+        "verticalSlidePower": 0.5
+    },
+    "cv": {"blackThreshold": 10},
+    "dashboard": {
+        "gui": {
+            "sizes": {
+                "pathPoint": 2.25,
+                "planningPoint": 4.5,
+                "waypoint": 24
+            },
+            "wbb": {
+                "grayScale": 0.3,
+                "strokeWidth": 4
+            }
+        },
+        "net": {
+            "hostIP": "192.168.222.13",
+            "port": 8080,
+            "rcIP": "192.168.1.49"
+        },
+        "version": "2.6.0"
+    },
+    "io": {"filePaths": {
+        "resDataPrefix": "\\data",
+        "resImgPrefix": "\\img",
+        "resPrefix": "\\HyperiLibs\\src\\main\\res"
+    }},
     "localization": {
+        "driveBase": 31.29,
+        "fieldSideLength": 365.76,
+        "odometryCyclesPerRevolution": 360,
         "odometryPoses": {
             "xLRelativePose": [
                 -9.525,
@@ -14,91 +46,49 @@
             "yRelativePose": [
                 -21.08,
                 0,
-                90
+                6.672374145959818E-27
             ]
         },
-        "trackWidth": 33.53,
-        "driveBase": 31.29,
         "odometryWheelRadius": 2.9,
-        "odometryCyclesPerRevolution": 360,
-        "fieldSideLength": 365.76
+        "trackWidth": 33.53
     },
     "pid": {
-        "x": {
-            "kP": 0.06,
+        "theta": {
+            "kD": 0,
             "kI": 0,
-            "kD": 0
+            "kP": 0
+        },
+        "x": {
+            "kD": 0,
+            "kI": 0,
+            "kP": 0.06
         },
         "y": {
-            "kP": 0.06,
+            "kD": 0,
             "kI": 0,
-            "kD": 0
-        },
-        "theta": {
-            "kP": 0,
-            "kI": 0,
-            "kD": 0
+            "kP": 0.06
         }
     },
     "splinesMotionProfile": {
+        "endErrorThresholds": {
+            "rotation": 7.413749051066466E-29,
+            "translation": 1
+        },
         "k": {
-            "kTv": 0.469,
-            "kTa": 0,
+            "kAa": 0,
             "kAv": 0,
-            "kAa": 0
+            "kTa": 0,
+            "kTv": 0.469
         },
         "maxes": {
-            "segmentLength": 50,
+            "angularAcceleration": 0.523599,
+            "angularDeceleration": 0.523599,
+            "angularVelocity": 0.3,
             "bisectionError": 0.1,
-            "translationalVelocity": 213.36,
+            "segmentLength": 50,
             "translationalAcceleration": 30,
             "translationalDeceleration": 30,
-            "angularVelocity": 0.3,
-            "angularAcceleration": 0.523599,
-            "angularDeceleration": 0.523599
-        },
-        "endErrorThresholds": {
-            "translation": 1,
-            "rotation": 1
-        }
-    },
-    "cv": {
-        "blackThreshold": 10
-    },
-    "io": {
-        "filePaths": {
-            "resPrefix": "/HyperiLibs/src/main/res",
-            "resDataPrefix": "/data",
-            "resImgPrefix": "/img"
-        }
-    },
-    "appendages": {
-        "stoneVerticalSlideCounts": 200,
-        "verticalSlidePower": 0.5
-    },
-    "driveMultipliers": {
-        "fLDrive": 1,
-        "fRDrive": 1,
-        "bLDrive": 1,
-        "bRDrive": 1
-    },
-    "dashboard": {
-        "version": "2.6.0",
-        "net": {
-            "hostIP": "this",
-            "port": 8080,
-            "rcIP": "192.168.1.49"
-        },
-        "gui": {
-            "sizes": {
-                "waypoint": 24,
-                "planningPoint": 4.5,
-                "pathPoint": 2.25
-            },
-            "wbb": {
-                "strokeWidth": 4,
-                "grayScale": 0.3
-            }
+            "translationalVelocity": 213.36
         }
     }
 }

@@ -68,12 +68,6 @@ public class Constants {
     public int STONE_VERT_SLIDE_TICKS; // ticks
     public double VERT_SLIDE_POWER; // power
 
-    // Drive Multipliers
-    public double FRONT_LEFT_MULT; // coefficient
-    public double FRONT_RIGHT_MULT; // coefficient
-    public double BACK_LEFT_MULT; // coefficient
-    public double BACK_RIGHT_MULT; // coefficient
-
     // Dashboard
     public String HOST_IP; // IP Address
     public int PORT; // Port
@@ -86,12 +80,23 @@ public class Constants {
     public double WBB_STROKE_WIDTH; // pixels
     public double WBB_GRAY_SCALE; // pixels
 
+    public Constants() {
+
+    }
+
     public Constants(File file) {
         try {
             this.file = file;
             JSONTokener tokener = new JSONTokener(Utils.readFile(file));
-            root = new JSONObject(tokener);
+            this.root = new JSONObject(tokener);
+            init();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    public void init() {
+        try {
             JSONObject localization = root.getJSONObject("localization");
             JSONObject odometryPoses = localization.getJSONObject("odometryPoses");
             JSONArray xLRelArr = odometryPoses.getJSONArray("xLRelativePose");
@@ -158,12 +163,6 @@ public class Constants {
             STONE_VERT_SLIDE_TICKS = appendages.getInt("stoneVerticalSlideCounts");
             VERT_SLIDE_POWER = appendages.getDouble("verticalSlidePower");
 
-            JSONObject driveMultipliers = root.getJSONObject("driveMultipliers");
-            FRONT_LEFT_MULT = driveMultipliers.getDouble("fLDrive");
-            FRONT_RIGHT_MULT = driveMultipliers.getDouble("fRDrive");
-            BACK_LEFT_MULT = driveMultipliers.getDouble("bLDrive");
-            BACK_RIGHT_MULT = driveMultipliers.getDouble("bRDrive");
-
             JSONObject dashboard = root.getJSONObject("dashboard");
             DASHBOARD_VERSION = dashboard.getString("version");
             JSONObject net = dashboard.getJSONObject("net");
@@ -188,10 +187,14 @@ public class Constants {
         }
     }
 
-    public void write() {
-        try {
-            JSONObject root = new JSONObject();
+    public void read(JSONObject root) {
+        this.root = root;
+        init();
+    }
 
+    public JSONObject toJSONObject() {
+        JSONObject root = new JSONObject();
+        try {
             JSONObject localization = new JSONObject();
             JSONObject odometryPoses = new JSONObject();
             odometryPoses.put("xLRelativePose", new JSONArray(XL_REL.toArray()));
@@ -264,13 +267,6 @@ public class Constants {
             appendages.put("verticalSlidePower", VERT_SLIDE_POWER);
             root.put("appendages", appendages);
 
-            JSONObject driveMultipliers = new JSONObject();
-            driveMultipliers.put("fLDrive", FRONT_LEFT_MULT);
-            driveMultipliers.put("fRDrive", FRONT_RIGHT_MULT);
-            driveMultipliers.put("bLDrive", BACK_LEFT_MULT);
-            driveMultipliers.put("bRDrive", BACK_RIGHT_MULT);
-            root.put("driveMultipliers", driveMultipliers);
-
             JSONObject dashboard = new JSONObject();
             dashboard.put("version", DASHBOARD_VERSION);
             JSONObject net = new JSONObject();
@@ -290,8 +286,16 @@ public class Constants {
             gui.put("wbb", wbb);
             dashboard.put("gui", gui);
             root.put("dashboard", dashboard);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return root;
+    }
 
-            Utils.writeFile(root.toString(), file);
+    public void write() {
+        try {
+            root = toJSONObject();
+            Utils.writeFile(root.toString(4), file);
         } catch (Exception e) {
             e.printStackTrace();
         }

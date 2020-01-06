@@ -4,13 +4,12 @@ import com.hyperion.common.Constants;
 import com.hyperion.common.Options;
 import com.hyperion.common.Utils;
 import com.hyperion.dashboard.pane.DisplayPane;
-import com.hyperion.dashboard.pane.UnimetryPane;
-import com.hyperion.dashboard.uiobj.DisplaySpline;
 import com.hyperion.dashboard.pane.FieldPane;
 import com.hyperion.dashboard.pane.MenuPane;
 import com.hyperion.dashboard.pane.OptionsPane;
+import com.hyperion.dashboard.pane.TextPane;
+import com.hyperion.dashboard.uiobj.DisplaySpline;
 import com.hyperion.dashboard.uiobj.Waypoint;
-import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 
 import org.json.JSONArray;
@@ -18,18 +17,21 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.FlowPane;
@@ -45,7 +47,7 @@ public class UIClient extends Application {
     public static MenuPane menuPane;
     public static FieldPane fieldPane;
     public static OptionsPane optionsPane;
-    public static UnimetryPane unimetryPane;
+    public static TextPane textPane;
     public static DisplayPane displayPane;
 
     public static Socket uiClient;
@@ -58,15 +60,16 @@ public class UIClient extends Application {
     public static ArrayList<DisplaySpline> splines = new ArrayList<>();
     public static ImageView robot = new ImageView();
     public static ArrayList<Waypoint> waypoints = new ArrayList<>();
-    public static String unimetry = "";
+    public static HashMap<String, String> unimetry = new HashMap<>();
 
     public static String opModeID = "auto.blue.full";
     public static boolean isBuildingPaths;
-    public static long endOpModeTime;
+    public static boolean isSimulating;
 
     public static void main(String[] args) {
         constants = new Constants(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
-        options = new Options(new File(constants.RES_DATA_PREFIX + "/dashboard.json"));
+        options = new Options(new File(constants.RES_DATA_PREFIX + "/options.json"));
+        startClient();
         launch(args);
     }
 
@@ -87,10 +90,9 @@ public class UIClient extends Application {
         sideStuff.setSpacing(10);
         menuPane = new MenuPane(stage);
         fieldPane = new FieldPane(stage);
+        textPane = new TextPane();
         optionsPane = new OptionsPane();
-        unimetryPane = new UnimetryPane();
         displayPane = new DisplayPane();
-        startClient();
         all.getChildren().add(menuPane);
         all.getChildren().add(fieldPane);
         FlowPane.setMargin(fieldPane, new Insets(10));
@@ -98,7 +100,7 @@ public class UIClient extends Application {
         hbox.setBackground(Background.EMPTY);
         hbox.setSpacing(10);
         hbox.getChildren().add(optionsPane);
-        hbox.getChildren().add(unimetryPane);
+        hbox.getChildren().add(textPane);
         sideStuff.getChildren().add(hbox);
         sideStuff.getChildren().add(displayPane);
 
@@ -128,6 +130,15 @@ public class UIClient extends Application {
                 Utils.printSocketLog("UI", "SERVER", "connected", options);
             }).on(Socket.EVENT_DISCONNECT, args -> {
                 Utils.printSocketLog("UI", "SERVER", "disconnected", options);
+            }).on("constantsUpdated", args -> {
+                try {
+                    Utils.printSocketLog("SERVER", "UI", "constantsUpdated", options);
+                    constants.read(new JSONObject(args[0].toString()));
+                    textPane.constantsDisplay.setText(constants.root.toString(4));
+                    constants.write();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }).on("dashboardJson", args -> {
                 Utils.printSocketLog("SERVER", "UI", "dashboardJson", options);
                 readDashboard(args[0].toString());
@@ -141,14 +152,10 @@ public class UIClient extends Application {
             }).on("opModeEnded", args -> {
                 Utils.printSocketLog("SERVER", "UI", "opModeEnded", options);
                 currentPath.removeDisplayGroup();
-                readRobot(args[0].toString());
-            }).on("robotMoved", args -> {
-                Utils.printSocketLog("SERVER", "UI", "robotMoved", options);
-                readRobot(args[0].toString());
             }).on("unimetryUpdated", args -> {
                 Utils.printSocketLog("SERVER", "UI", "unimetryUpdated", options);
                 readUnimetry(args[0].toString());
-                Platform.runLater(() -> unimetryPane.unimetryDisplay.setText(unimetry));
+                Platform.runLater(() -> textPane.setUnimetryDisplayText());
             });
 
             uiClient.connect();
@@ -157,7 +164,7 @@ public class UIClient extends Application {
         }
     }
 
-    // Read in waypoints & splines data maps from json
+    // Read in waypoints & splines from json
     public static void readDashboard(String json) {
         try {
             JSONObject root = new JSONObject(json);
@@ -202,11 +209,10 @@ public class UIClient extends Application {
         }
     }
 
-    // Write waypoints data map & options to json
+    // Write waypoints & splines to json
     public static String writeDashboard() {
         JSONObject obj = new JSONObject();
         try {
-            obj.put("options", options.toJSONObject());
             if (waypoints != null) {
                 JSONObject wpObj = new JSONObject();
                 for (Waypoint wp : waypoints) {
@@ -240,51 +246,21 @@ public class UIClient extends Application {
         Utils.printSocketLog("UI", "SERVER", "dashboardJson", options);
     }
 
-    // Read in robot data map from json
-    private static void readRobot(String json) {
-        try {
-            JSONObject obj = new JSONObject(json);
-            if (obj.get("x") == null) {
-                endOpModeTime = System.currentTimeMillis();
-                Platform.runLater(() -> {
-                    while(endOpModeTime + 5000 <= System.currentTimeMillis()) {
-
-                    }
-                    fieldPane.getChildren().remove(robot);
-                });
-                return;
-            }
-            Platform.runLater(() -> {
-                try {
-                    if (!fieldPane.getChildren().contains(robot)) {
-                        robot.setImage(new Image(new File(constants.RES_IMG_PREFIX + "/robot.png").toURI().toURL().toString()));
-                        robot.toFront();
-                        fieldPane.getChildren().add(robot);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-            double[] viewArr = fieldPane.poseToDisplay(new Pose(obj.getDouble("x"), obj.getDouble("y"), obj.getDouble("theta")), fieldPane.robotSize);
-            robot.setLayoutX(viewArr[0]);
-            robot.setLayoutY(viewArr[1]);
-            robot.setRotate(Math.toDegrees(viewArr[2]));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    // Send constants json
+    public static void sendConstants() {
+        uiClient.emit("constantsUpdated", constants.toJSONObject().toString());
+        Utils.printSocketLog("UI", "SERVER", "constantsUpdated", options);
     }
 
     // Read in unimetry from json
     private static void readUnimetry(String json) {
         try {
-            JSONObject obj = new JSONObject(json);
-
-            StringBuilder unimetryStrBuilder = new StringBuilder();
-            for (Iterator keys = obj.keys(); keys.hasNext();) {
-                String key = keys.next().toString();
-                unimetryStrBuilder.append(key).append(" ").append(obj.get(key)).append("\n");
+            unimetry = new HashMap<>();
+            JSONArray data = new JSONArray(json);
+            for (int i = 0; i < data.length(); i++) {
+                JSONArray miniArr = data.getJSONArray(i);
+                unimetry.put(miniArr.getString(0), miniArr.getString(1));
             }
-            unimetry = unimetryStrBuilder.toString();
         } catch (Exception e) {
             e.printStackTrace();
         }

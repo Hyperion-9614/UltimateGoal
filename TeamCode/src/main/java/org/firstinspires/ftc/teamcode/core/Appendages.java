@@ -33,13 +33,6 @@ public class Appendages {
         setFoundationMoverStatus("up");
         setChainBarStatus("in");
         setClawStatus("open");
-
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = false;
-        hardware.imu.initialize(parameters);
     }
 
     //////////////////////// APPENDAGE CONTROL //////////////////////////
@@ -116,14 +109,33 @@ public class Appendages {
         }
     }
 
-    public void setChainBarStatus(String inOut) {
-        chainBarStatus = inOut.toLowerCase();
-        if (chainBarStatus.equals("in")) {
-            hardware.chainBarL.setPosition(0.95);
-            hardware.chainBarR.setPosition(0.95);
-        } else {
-            hardware.chainBarL.setPosition(0.5);
-            hardware.chainBarR.setPosition(0.5);
+    public void setChainBarPosition(double position) {
+        hardware.chainBarL.setPosition(position);
+        hardware.chainBarR.setPosition(position);
+    }
+
+    public void setChainBarStatus(String upInOut) {
+        chainBarStatus = upInOut.toLowerCase();
+        if (chainBarStatus.equals("up")) {
+            setChainBarPosition(0.8);
+        } else if (chainBarStatus.equals("in")) {
+            setChainBarPosition(0.95);
+        } else if (chainBarStatus.equals("out")) {
+            setChainBarPosition(0.5);
+        }
+    }
+
+    public void cycleChainBar() {
+        switch (chainBarStatus) {
+            case "up":
+                setChainBarStatus("in");
+                break;
+            case "in":
+                setChainBarStatus("out");
+                break;
+            case "out":
+                setChainBarStatus("up");
+                break;
         }
     }
 

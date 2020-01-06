@@ -37,8 +37,8 @@ public class DStarLite {
     private HashMap<Node, CellInfo>	cellHash = new HashMap<>();
     private HashMap<Node, Float> openHash = new HashMap<>();
 
-    private double M_SQRT2 = Math.sqrt(2.0);
-    private double C1 = 20;
+    private double C1 = 40;
+    private double DIAG = Math.sqrt(2 * C1 * C1);
 
     public DStarLite() {
 
@@ -109,7 +109,7 @@ public class DStarLite {
             min = max;
             max = temp;
         }
-        return ((M_SQRT2 - 1.0) * min + max);
+        return ((DIAG - C1) * min + max);
     }
 
     private void replan() {
@@ -175,8 +175,7 @@ public class DStarLite {
                (openList.peek().lt(s_start = calculateKey(s_start))) ||
                (getRHS(s_start) != getG(s_start))) {
 
-            int maxSteps = 80000;
-            if (k++ > maxSteps) {
+            if (k++ > 80000) {
                 System.out.println("At maxsteps");
                 return -1;
             }
@@ -216,25 +215,17 @@ public class DStarLite {
 
     private LinkedList<Node> getSucc(Node u) {
         LinkedList<Node> s = new LinkedList<>();
-        Node tempNode;
+        Pair<Double, Double> k = new Pair<>(-1.0, -1.0);
         if (occupied(u)) return s;
 
-        tempNode = new Node(u.x + 1, u.y, new Pair<>(-1.0, -1.0));
-        s.addFirst(tempNode);
-        tempNode = new Node(u.x + 1, u.y + 1, new Pair<>(-1.0, -1.0));
-        s.addFirst(tempNode);
-        tempNode = new Node(u.x, u.y + 1, new Pair<>(-1.0, -1.0));
-        s.addFirst(tempNode);
-        tempNode = new Node(u.x - 1, u.y + 1, new Pair<>(-1.0, -1.0));
-        s.addFirst(tempNode);
-        tempNode = new Node(u.x - 1, u.y, new Pair<>(-1.0, -1.0));
-        s.addFirst(tempNode);
-        tempNode = new Node(u.x - 1, u.y - 1, new Pair<>(-1.0, -1.0));
-        s.addFirst(tempNode);
-        tempNode = new Node(u.x, u.y - 1, new Pair<>(-1.0, -1.0));
-        s.addFirst(tempNode);
-        tempNode = new Node(u.x + 1, u.y - 1, new Pair<>(-1.0, -1.0));
-        s.addFirst(tempNode);
+        s.addFirst(new Node(u.x + C1, u.y, k));
+        s.addFirst(new Node(u.x + C1, u.y + C1, k));
+        s.addFirst(new Node(u.x, u.y + C1, k));
+        s.addFirst(new Node(u.x - 1, u.y + 1, k));
+        s.addFirst(new Node(u.x - 1, u.y, new Pair<>(-1.0, -1.0)));
+        s.addFirst(new Node(u.x - 1, u.y - 1, k));
+        s.addFirst(new Node(u.x, u.y - 1, k));
+        s.addFirst(new Node(u.x + 1, u.y - 1, k));
 
         return s;
     }
@@ -372,11 +363,11 @@ public class DStarLite {
     }
 
     private double cost(Node a, Node b) {
-        double xd = Math.abs(a.x - b.x);
-        double yd = Math.abs(a.y - b.y);
+        double dX = Math.abs(a.x - b.x);
+        double dY = Math.abs(a.y - b.y);
         double scale = 1;
-        if (xd + yd > 1) {
-            scale = M_SQRT2;
+        if (dX + dY > C1) {
+            scale = DIAG;
         }
 
         if (!cellHash.containsKey(a)) {

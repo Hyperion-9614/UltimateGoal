@@ -103,10 +103,10 @@ public class Motion {
     }
     public void setDrive(double[] powers) {
         if (powers.length == 4) {
-            hw.fLDrive.setPower(hw.constants.FRONT_LEFT_MULT * powers[0]);
-            hw.fRDrive.setPower(hw.constants.FRONT_RIGHT_MULT * powers[1]);
-            hw.bLDrive.setPower(hw.constants.BACK_LEFT_MULT * powers[2]);
-            hw.bRDrive.setPower(hw.constants.BACK_RIGHT_MULT * powers[3]);
+            hw.fLDrive.setPower(powers[0]);
+            hw.fRDrive.setPower(powers[1]);
+            hw.bLDrive.setPower(powers[2]);
+            hw.bRDrive.setPower(powers[3]);
         } else if (powers.length == 2) {
             hw.fLDrive.setPower(powers[0]);
             hw.bLDrive.setPower(powers[0]);

@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.modules.CvPipeline;
@@ -35,7 +36,6 @@ public class Hardware {
     public ExpansionHubEx expansionHubL;
     public ExpansionHubEx expansionHubR;
     public HardwareMap hwmp;
-    public BNO055IMU imu;
     public boolean isRunning;
 
     public Motion motion;
@@ -98,7 +98,6 @@ public class Hardware {
         // Init hw
         expansionHubL = hwmp.get(ExpansionHubEx.class, "Expansion Hub L");
         expansionHubR = hwmp.get(ExpansionHubEx.class, "Expansion Hub R");
-        imu = hwmp.get(BNO055IMU.class, "imu");
 
         fLDrive = hwmp.dcMotor.get("fLDrive");
         fRDrive = hwmp.dcMotor.get("fRDrive");
@@ -203,6 +202,7 @@ public class Hardware {
             Utils.printSocketLog("RC", "SERVER", "dashboardJson", options);
             rcClient.emit("opModeEnded", "{}");
             Utils.printSocketLog("RC", "SERVER", "opModeEnded", options);
+            rcClient.close();
         }
     }
 

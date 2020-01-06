@@ -137,10 +137,10 @@ public class Utils {
         }
     }
 
-    public static String join(String separator, String[] elements) {
+    public static String join(String separator, Object[] elements) {
         StringBuilder joined = new StringBuilder();
-        for (int i = 0; i <  elements.length; i++) {
-            joined.append(elements[i]);
+        for (int i = 0; i < elements.length; i++) {
+            joined.append(elements[i].toString());
             if (i < elements.length - 1) {
                 joined.append(separator);
             }
@@ -271,6 +271,14 @@ public class Utils {
         double min = 0;
         for (double n : arr) min = Math.min(n, min);
         return min;
+    }
+
+    public static Object getCompoundJsonObjectValue(ArrayList<String> compoundKey, JSONObject root) throws Exception {
+        JSONObject current = root;
+        for (String key : compoundKey) {
+            current = current.getJSONObject(key);
+        }
+        return current;
     }
 
 }
