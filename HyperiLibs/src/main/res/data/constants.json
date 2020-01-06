@@ -1,7 +1,8 @@
 {
-    "appendages": {
+    "teamcode": {
         "stoneVerticalSlideCounts": 200,
-        "verticalSlidePower": 0.5
+        "verticalSlidePower": 0.5,
+        "updaterDelay": 10
     },
     "cv": {"blackThreshold": 10},
     "dashboard": {
@@ -50,7 +51,7 @@
             ]
         },
         "odometryWheelRadius": 2.9,
-        "trackWidth": 33.53
+        "trackWidth": 33.53,
     },
     "pid": {
         "theta": {

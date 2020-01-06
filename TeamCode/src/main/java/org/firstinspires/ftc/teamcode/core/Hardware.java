@@ -5,12 +5,11 @@ import com.hyperion.common.Options;
 import com.hyperion.common.Utils;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
-import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.modules.CvPipeline;
@@ -38,10 +37,13 @@ public class Hardware {
     public HardwareMap hwmp;
     public boolean isRunning;
 
+    public Thread updater;
+    private long lastUpdateTime = System.currentTimeMillis();
+
     public Motion motion;
     public Appendages appendages;
 
-    public OpMode context;
+    public LinearOpMode context;
     public String opModeID = "Choose OpMode";
 
     public OpenCvInternalCamera phoneCam;
@@ -80,7 +82,7 @@ public class Hardware {
 
     public int presetPlaceStoneTicks = 2500;
 
-    public Hardware(OpMode context) {
+    public Hardware(LinearOpMode context) {
         this.context = context;
         this.hwmp = context.hardwareMap;
 
@@ -120,19 +122,44 @@ public class Hardware {
         chainBarR = hwmp.servo.get("chainBarR");
         claw = hwmp.crservo.get("claw");
 
-        // Init control & settings
+        // Init control, telemetry, & settings
         motion = new Motion(this);
         appendages = new Appendages(this);
         unimetry = new Unimetry(this);
 
+        initUpdater();
+        initCV();
+
         // Init options & dashboard
-        if (options.debug) dashboardInit();
+        if (options.debug) initDashboard();
     }
 
     ///////////////////////// PRE & POST //////////////////////////
 
-    // Dashboard init
-    public void dashboardInit() {
+    // Initialize updater thread
+    public void initUpdater() {
+        updater = new Thread(() -> {
+            if (System.currentTimeMillis() - lastUpdateTime >= constants.UPDATER_DELAY) {
+                lastUpdateTime = System.currentTimeMillis();
+                motion.localizer.update();
+                unimetry.update();
+            }
+        });
+        updater.start();
+    }
+
+    // Initialize CV pipeline
+    public void initCV() {
+        int cameraMonitorViewId = hwmp.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmp.appContext.getPackageName());
+        phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+        phoneCam.openCameraDevice();
+        cvPipeline = new CvPipeline(this);
+        phoneCam.setPipeline(cvPipeline);
+        phoneCam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+    }
+
+    // Initialize dashboard RC client socket
+    public void initDashboard() {
         try {
             rcClient = IO.socket(constants.ADDRESS);
 
@@ -151,24 +178,16 @@ public class Hardware {
         }
     }
 
-    // Init
-    public void init() {
+    // Initialize OpMode
+    public void initOpMode(String opModeID) {
         isRunning = true;
+        this.opModeID = opModeID;
         status = "Running " + opModeID;
 
-        // Init pp
         Pose startPose = motion.waypoints.get(opModeID + ".waypoint.start");
         if (startPose == null) startPose = new Pose();
         motion.start = new RigidBody(startPose);
         motion.robot = new RigidBody(motion.start);
-
-        // Init CV
-        int cameraMonitorViewId = hwmp.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmp.appContext.getPackageName());
-        phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
-        phoneCam.openCameraDevice();
-        cvPipeline = new CvPipeline(this);
-        phoneCam.setPipeline(cvPipeline);
-        phoneCam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
     }
 
     // Wrap up OpMode
@@ -176,8 +195,7 @@ public class Hardware {
         status = "Ending";
         isRunning = false;
 
-        motion.localizer.update();
-        unimetry.update();
+        if (updater != null && updater.isAlive() && !updater.isInterrupted()) updater.interrupt();
 
         if (phoneCam != null) {
             phoneCam.pauseViewport();

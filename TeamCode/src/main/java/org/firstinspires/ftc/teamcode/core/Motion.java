@@ -67,7 +67,7 @@ public class Motion {
         waypoints.clear();
 
         Iterator keys = wpObj.keys();
-        while (keys.hasNext()) {
+        while (!hw.context.isStarted() && !hw.context.isStopRequested() && keys.hasNext()) {
             String key = keys.next().toString();
             JSONArray waypointArray = wpObj.getJSONArray(key);
             Pose waypoint = new Pose(waypointArray.getDouble(0), waypointArray.getDouble(1), waypointArray.getDouble(2));
@@ -81,7 +81,7 @@ public class Motion {
         splines.clear();
 
         Iterator keys = splinesObj.keys();
-        while (keys.hasNext()) {
+        while (!hw.context.isStarted() && !hw.context.isStopRequested() && keys.hasNext()) {
             String key = keys.next().toString();
             SplineTrajectory spline = new SplineTrajectory(splinesObj.getJSONObject(key).toString(), hw.constants);
             splines.put(key, spline);
@@ -113,8 +113,6 @@ public class Motion {
             hw.fRDrive.setPower(powers[1]);
             hw.bRDrive.setPower(powers[1]);
         }
-        hw.motion.localizer.update();
-        hw.unimetry.update();
     }
     public void setDrive(Vector2D moveVec, double rot) {
         setDrive(new double[]{
@@ -131,9 +129,10 @@ public class Motion {
     public void pidMove(Pose target, boolean shouldStop) {
         homogeneousPID.reset(robot);
         ElapsedTime timer = new ElapsedTime();
-        while (timer.milliseconds() <= 4000 && (hw.context.gamepad1.left_stick_x == 0 && hw.context.gamepad1.left_stick_y == 0 && hw.context.gamepad1.right_stick_x == 0)
-                && (Utils.distance(robot.pose, target) >= hw.constants.END_TRANSLATION_ERROR_THRESHOLD
-                || Math.abs(Utils.optimalThetaDifference(robot.pose.theta, target.theta)) >= hw.constants.END_ROTATION_ERROR_THRESHOLD)) {
+        while (hw.context.opModeIsActive() && !hw.context.isStopRequested()
+               && timer.milliseconds() <= 4000 && (hw.context.gamepad1.left_stick_x == 0 && hw.context.gamepad1.left_stick_y == 0 && hw.context.gamepad1.right_stick_x == 0)
+               && (Utils.distance(robot.pose, target) >= hw.constants.END_TRANSLATION_ERROR_THRESHOLD
+               || Math.abs(Utils.optimalThetaDifference(robot.pose.theta, target.theta)) >= hw.constants.END_ROTATION_ERROR_THRESHOLD)) {
             setDrive(homogeneousPID.controlLoopIteration(robot, new RigidBody(target)));
         }
         if (shouldStop) setDrive(0);
@@ -220,7 +219,8 @@ public class Motion {
         double distance = 0;
         Pose lastPose = robot.pose;
         trajectoryPID.reset(robot, splineTrajectory);
-        while ((hw.context.gamepad1.right_stick_x == 0 && hw.context.gamepad1.left_stick_y == 0 && hw.context.gamepad1.left_stick_x == 0)
+        while (hw.context.opModeIsActive() && !hw.context.isStopRequested()
+               && (hw.context.gamepad1.right_stick_x == 0 && hw.context.gamepad1.left_stick_y == 0 && hw.context.gamepad1.left_stick_x == 0)
                && Utils.distance(robot.pose, splineTrajectory.waypoints.get(splineTrajectory.waypoints.size() - 1).pose) >= hw.constants.END_TRANSLATION_ERROR_THRESHOLD
                || Math.abs(Utils.optimalThetaDifference(robot.pose.theta, splineTrajectory.waypoints.get(splineTrajectory.waypoints.size() - 1).pose.theta)) >= hw.constants.END_ROTATION_ERROR_THRESHOLD) {
             distance += lastPose.distanceTo(robot.pose);

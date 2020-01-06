@@ -64,9 +64,10 @@ public class Constants {
     public File RES_DATA_PREFIX; // file
     public File RES_IMG_PREFIX; // file
 
-    // Appendages
+    // TeamCode
     public int STONE_VERT_SLIDE_TICKS; // ticks
     public double VERT_SLIDE_POWER; // power
+    public long UPDATER_DELAY; // ms
 
     // Dashboard
     public String HOST_IP; // IP Address
@@ -79,10 +80,6 @@ public class Constants {
     public double PATHPOINT_SIZE; // pixels
     public double WBB_STROKE_WIDTH; // pixels
     public double WBB_GRAY_SCALE; // pixels
-
-    public Constants() {
-
-    }
 
     public Constants(File file) {
         try {
@@ -116,6 +113,7 @@ public class Constants {
             FIELD_SIDE_LENGTH = localization.getDouble("fieldSideLength");
             COORD_AXIS_LENGTH_UNITS = FIELD_SIDE_LENGTH;
             M_PER_COORD = FIELD_SIDE_LENGTH / COORD_AXIS_LENGTH_UNITS;
+            UPDATER_DELAY = localization.getLong("updaterDelay");
 
             JSONObject pid = root.getJSONObject("pid");
             JSONObject x = pid.getJSONObject("x");
@@ -159,9 +157,10 @@ public class Constants {
             RES_DATA_PREFIX = new File(RES_PREFIX + filePaths.getString("resDataPrefix"));
             RES_IMG_PREFIX = new File(RES_PREFIX + filePaths.getString("resImgPrefix"));
 
-            JSONObject appendages = root.getJSONObject("appendages");
-            STONE_VERT_SLIDE_TICKS = appendages.getInt("stoneVerticalSlideCounts");
-            VERT_SLIDE_POWER = appendages.getDouble("verticalSlidePower");
+            JSONObject teamcode = root.getJSONObject("teamcode");
+            STONE_VERT_SLIDE_TICKS = teamcode.getInt("stoneVerticalSlideCounts");
+            VERT_SLIDE_POWER = teamcode.getDouble("verticalSlidePower");
+            UPDATER_DELAY = teamcode.getLong("updaterDelay");
 
             JSONObject dashboard = root.getJSONObject("dashboard");
             DASHBOARD_VERSION = dashboard.getString("version");
@@ -207,6 +206,7 @@ public class Constants {
             localization.put("odometryWheelRadius", ODO_WHEEL_RADIUS);
             localization.put("odometryCyclesPerRevolution", ODO_CYCLES_PER_REV);
             localization.put("fieldSideLength", FIELD_SIDE_LENGTH);
+            localization.put("updaterDelay", UPDATER_DELAY);
             root.put("localization", localization);
 
             JSONObject pid = new JSONObject();
@@ -262,10 +262,11 @@ public class Constants {
             io.put("filePaths", filePaths);
             root.put("io", io);
 
-            JSONObject appendages = new JSONObject();
-            appendages.put("stoneVerticalSlideCounts", STONE_VERT_SLIDE_TICKS);
-            appendages.put("verticalSlidePower", VERT_SLIDE_POWER);
-            root.put("appendages", appendages);
+            JSONObject teamcode = new JSONObject();
+            teamcode.put("stoneVerticalSlideCounts", STONE_VERT_SLIDE_TICKS);
+            teamcode.put("verticalSlidePower", VERT_SLIDE_POWER);
+            teamcode.put("updaterDelay", UPDATER_DELAY);
+            root.put("teamcode", teamcode);
 
             JSONObject dashboard = new JSONObject();
             dashboard.put("version", DASHBOARD_VERSION);

@@ -14,10 +14,6 @@ public class Options {
     public boolean debug;
     public boolean socketLog;
 
-    public Options() {
-
-    }
-
     public Options(File file) {
         try {
             this.file = file;
