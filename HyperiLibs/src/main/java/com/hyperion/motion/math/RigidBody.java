@@ -3,6 +3,8 @@ package com.hyperion.motion.math;
 import com.hyperion.common.Utils;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 
+import java.util.Scanner;
+
 public class RigidBody {
 
     public double T = 0;
@@ -42,6 +44,21 @@ public class RigidBody {
         this.translationalAcceleration = new Vector2D(rigidBody.translationalAcceleration);
         this.angularVelocity = rigidBody.angularVelocity;
         this.angularAcceleration = rigidBody.angularAcceleration;
+    }
+
+    public RigidBody(String str) {
+        this.pose = new Pose(str);
+        str = str.substring(str.indexOf("tVel"));
+        this.translationalVelocity = new Vector2D(str);
+        str = str.substring(str.indexOf("tAcc"));
+        this.translationalVelocity = new Vector2D(str);
+        str = str.substring(str.indexOf("aVel"));
+        Scanner scanner = new Scanner(str);
+        this.angularVelocity = scanner.nextDouble();
+        str = str.substring(str.indexOf("aAcc"));
+        scanner = new Scanner(str);
+        this.angularAcceleration = scanner.nextDouble();
+        scanner.close();
     }
 
     public double[] toArray() {

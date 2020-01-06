@@ -9,7 +9,9 @@ import com.hyperion.dashboard.pane.MenuPane;
 import com.hyperion.dashboard.pane.OptionsPane;
 import com.hyperion.dashboard.pane.TextPane;
 import com.hyperion.dashboard.uiobj.DisplaySpline;
+import com.hyperion.dashboard.uiobj.Robot;
 import com.hyperion.dashboard.uiobj.Waypoint;
+import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 
 import org.json.JSONArray;
@@ -58,7 +60,7 @@ public class UIClient extends Application {
     public static Waypoint selectedWaypoint = null;
     public static DisplaySpline currentPath = new DisplaySpline();
     public static ArrayList<DisplaySpline> splines = new ArrayList<>();
-    public static ImageView robot = new ImageView();
+    public static Robot robot;
     public static ArrayList<Waypoint> waypoints = new ArrayList<>();
     public static HashMap<String, String> unimetry = new HashMap<>();
 
@@ -152,10 +154,18 @@ public class UIClient extends Application {
             }).on("opModeEnded", args -> {
                 Utils.printSocketLog("SERVER", "UI", "opModeEnded", options);
                 currentPath.removeDisplayGroup();
+                robot.removeDisplayGroup();
+                robot = null;
+
             }).on("unimetryUpdated", args -> {
                 Utils.printSocketLog("SERVER", "UI", "unimetryUpdated", options);
                 readUnimetry(args[0].toString());
                 Platform.runLater(() -> textPane.setUnimetryDisplayText());
+                if (robot == null) {
+                    robot = new Robot();
+                    robot.addDisplayGroup();
+                }
+                robot.refreshDisplayGroup(new RigidBody(unimetry.get("Current")));
             });
 
             uiClient.connect();
@@ -261,6 +271,8 @@ public class UIClient extends Application {
                 JSONArray miniArr = data.getJSONArray(i);
                 unimetry.put(miniArr.getString(0), miniArr.getString(1));
             }
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }

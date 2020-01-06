@@ -2,6 +2,8 @@ package com.hyperion.motion.math;
 
 import com.hyperion.common.Utils;
 
+import java.util.Scanner;
+
 /**
  * 2D vector object
  */
@@ -37,6 +39,16 @@ public class Vector2D {
             x = magnitude * Math.cos(theta);
             y = magnitude * Math.sin(theta);
         }
+    }
+
+    public Vector2D(String str) {
+        Scanner scanner = new Scanner(str);
+        this.magnitude = scanner.nextDouble();
+        this.theta = Math.toRadians(scanner.nextDouble());
+        scanner.close();
+
+        x = magnitude * Math.cos(theta);
+        y = magnitude * Math.sin(theta);
     }
 
     public Vector2D(Pose a, Pose b) {
