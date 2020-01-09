@@ -52,6 +52,7 @@ public class Motion {
         for (DcMotor motor : hw.hwmp.dcMotor) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
+
         hw.fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         hw.bRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     }
@@ -192,7 +193,7 @@ public class Motion {
 
             Vector2D translationalVelocity = splineTrajectory.motionProfile.getTranslationalVelocity(distance).scaled(hw.constants.MP_K_TA);
             Vector2D translationalAcceleration = splineTrajectory.motionProfile.getTranslationalAcceleration(distance).scaled(hw.constants.MP_K_TV);
-            double angularVelocity = (-1.0 / (2 * Math.PI)) * Utils.optimalThetaDifference(robot.pose.theta, splineTrajectory.getDPose(distance).theta);
+            double angularVelocity = Math.pow((-1.0 / (2 * Math.PI)) * Utils.optimalThetaDifference(robot.pose.theta, splineTrajectory.getDPose(distance).theta), 3);
             double angularAcceleration = 0;
 
             setDrive(translationalVelocity.added(translationalAcceleration), angularVelocity + angularAcceleration);

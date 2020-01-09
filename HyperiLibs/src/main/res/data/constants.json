@@ -67,7 +67,7 @@
     },
     "splinesMotionProfile": {
         "endErrorThresholds": {
-            "rotation": 0.017453292519943295,
+            "rotation": 0,
             "translation": 1
         },
         "k": {
@@ -77,14 +77,14 @@
             "kTv": 0.00468691413
         },
         "maxes": {
-            "angularAcceleration": 0.523599,
-            "angularDeceleration": 0.523599,
-            "angularVelocity": 0.3,
+            "aAcc": 0.523599,
+            "aDec": 0.523599,
+            "aVel": 0.3,
             "bisectionError": 1,
             "segmentLength": 50,
-            "translationalAcceleration": 30,
-            "translationalDeceleration": 30,
-            "translationalVelocity": 213.36
+            "tAcc": 30,
+            "tDec": 30,
+            "tVel": 213.36
         }
     },
     "teamcode": {

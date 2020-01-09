@@ -57,9 +57,11 @@ public class TextPane extends VBox {
             constantsDisplay.setEditable(true);
             constantsDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
                 try {
-                    UIClient.constants.read(new JSONObject(newValue));
-                    UIClient.sendConstants();
-                    UIClient.constants.write();
+                    if (!newValue.equals(oldValue)) {
+                        UIClient.constants.read(new JSONObject(newValue));
+                        UIClient.sendConstants();
+                        UIClient.constants.write();
+                    }
                 } catch (Exception ignored) {
 
                 }
