@@ -65,10 +65,10 @@ public class OptionsPane extends VBox {
             HBox buttons = new HBox();
             buttons.setSpacing(10);
 
-            Button clearOpMode = new Button("Clear Current OpMode");
+            Button clearOpMode = new Button("Clear Current\nOpMode");
             clearOpMode.setTextAlignment(TextAlignment.CENTER);
             clearOpMode.setStyle("-fx-font: 14px \"Arial\";");
-            clearOpMode.setPrefSize(170, 50);
+            clearOpMode.setPrefSize(150, 50);
             clearOpMode.setOnMouseClicked(event -> {
                 if (UIClient.waypoints != null) {
                     for (Iterator<Waypoint> iter = UIClient.waypoints.iterator(); iter.hasNext(); ) {
@@ -90,10 +90,10 @@ public class OptionsPane extends VBox {
             });
             buttons.getChildren().add(clearOpMode);
 
-            Button clearAllOpModes = new Button("Clear All OpModes");
+            Button clearAllOpModes = new Button("Clear All\nOpModes");
             clearAllOpModes.setStyle("-fx-font: 14px \"Arial\";");
             clearAllOpModes.setTextAlignment(TextAlignment.CENTER);
-            clearAllOpModes.setPrefSize(170, 50);
+            clearAllOpModes.setPrefSize(150, 50);
             clearAllOpModes.setOnMouseClicked(event -> {
                 UIClient.waypoints = new ArrayList<>();
                 UIClient.splines = new ArrayList<>();
@@ -108,7 +108,7 @@ public class OptionsPane extends VBox {
             enablePathBuilder.setStyle("-fx-font: 22px \"Arial\";");
             enablePathBuilder.setTextAlignment(TextAlignment.CENTER);
             enablePathBuilder.setTextFill(Color.WHITE);
-            enablePathBuilder.setPrefSize(350, 30);
+            enablePathBuilder.setPrefSize(310, 30);
             enablePathBuilder.selectedProperty().addListener((observable, oldValue, newValue) -> UIClient.isBuildingPaths = newValue);
             enablePathBuilder.setSelected(false);
             getChildren().add(enablePathBuilder);
@@ -117,7 +117,7 @@ public class OptionsPane extends VBox {
             simulationMode.setStyle("-fx-font: 22px \"Arial\";");
             simulationMode.setTextAlignment(TextAlignment.CENTER);
             simulationMode.setTextFill(Color.WHITE);
-            simulationMode.setPrefSize(350, 30);
+            simulationMode.setPrefSize(310, 30);
             simulationMode.selectedProperty().addListener((observable, oldValue, newValue) -> UIClient.isSimulating = newValue);
             simulationMode.setSelected(false);
             getChildren().add(simulationMode);
@@ -132,7 +132,7 @@ public class OptionsPane extends VBox {
             final ComboBox opModeSelector = new ComboBox(options);
             opModeSelector.valueProperty().setValue("auto.blue.full");
             opModeSelector.setStyle("-fx-font: 24px \"Arial\";");
-            opModeSelector.setPrefSize(350, 70);
+            opModeSelector.setPrefSize(310, 70);
             opModeSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
                 UIClient.fieldPane.deselectAll();
                 UIClient.opModeID = newValue.toString();

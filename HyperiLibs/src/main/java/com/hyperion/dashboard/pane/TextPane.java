@@ -20,7 +20,6 @@ import javafx.stage.Screen;
 public class TextPane extends VBox {
 
     public TextArea unimetryDisplay;
-    public double unimetryScrollVal;
     public TextArea constantsDisplay;
     public double width;
 
@@ -30,7 +29,9 @@ public class TextPane extends VBox {
             setPadding(new Insets(10, 7, 10, 0));
             setSpacing(10);
             setAlignment(Pos.TOP_CENTER);
+
             width = (Screen.getPrimary().getVisualBounds().getWidth() - UIClient.fieldPane.fieldSize) / 2.0 - 62;
+            if (System.getProperty("os.name").startsWith("Windows")) width += 40;
 
             Label unimetryLabel = new Label("Telemetry");
             unimetryLabel.setTextFill(Color.WHITE);
@@ -42,7 +43,6 @@ public class TextPane extends VBox {
             unimetryDisplay.setStyle("-fx-font: 14px \"Arial\";");
             unimetryDisplay.setPrefSize(width, width);
             unimetryDisplay.setEditable(false);
-            unimetryDisplay.setOnScroll(event -> unimetryScrollVal = unimetryDisplay.getScrollLeft());
             getChildren().add(unimetryDisplay);
 
             Label constantsLabel = new Label("Constants");
@@ -84,7 +84,6 @@ public class TextPane extends VBox {
         }
 
         unimetryDisplay.setText(unimetryStr.toString().trim());
-        unimetryDisplay.setScrollLeft(unimetryScrollVal);
     }
 
 }

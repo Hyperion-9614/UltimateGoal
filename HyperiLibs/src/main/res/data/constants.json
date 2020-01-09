@@ -1,9 +1,4 @@
 {
-    "teamcode": {
-        "stoneVerticalSlideCounts": 200,
-        "verticalSlidePower": 0.5,
-        "updaterDelay": 10
-    },
     "cv": {"blackThreshold": 10},
     "dashboard": {
         "gui": {
@@ -18,7 +13,7 @@
             }
         },
         "net": {
-            "hostIP": "192.168.222.13",
+            "hostIP": "192.168.222.30",
             "port": 8080,
             "rcIP": "192.168.1.49"
         },
@@ -47,11 +42,11 @@
             "yRelativePose": [
                 -21.08,
                 0,
-                6.672374145959818E-27
+                0
             ]
         },
         "odometryWheelRadius": 2.9,
-        "trackWidth": 33.53,
+        "trackWidth": 33.53
     },
     "pid": {
         "theta": {
@@ -72,24 +67,29 @@
     },
     "splinesMotionProfile": {
         "endErrorThresholds": {
-            "rotation": 7.413749051066466E-29,
+            "rotation": 0.017453292519943295,
             "translation": 1
         },
         "k": {
             "kAa": 0,
             "kAv": 0,
             "kTa": 0,
-            "kTv": 0.469
+            "kTv": 0.00468691413
         },
         "maxes": {
             "angularAcceleration": 0.523599,
             "angularDeceleration": 0.523599,
             "angularVelocity": 0.3,
-            "bisectionError": 0.1,
+            "bisectionError": 1,
             "segmentLength": 50,
             "translationalAcceleration": 30,
             "translationalDeceleration": 30,
             "translationalVelocity": 213.36
         }
+    },
+    "teamcode": {
+        "stoneVerticalSlideCounts": 200,
+        "updaterDelay": 10,
+        "verticalSlidePower": 0.5
     }
 }

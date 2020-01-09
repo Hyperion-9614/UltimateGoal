@@ -15,6 +15,7 @@ import org.mariuszgromada.math.mxparser.Expression;
 import org.mariuszgromada.math.mxparser.Function;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Creates a 2D parametric cubic spline curve given a set of at least 2 waypoints
@@ -40,6 +41,13 @@ public class SplineTrajectory {
     public SplineTrajectory(ArrayList<RigidBody> waypoints, Constants constants) {
         this.constants = constants;
         this.waypoints = waypoints;
+        motionProfile = new MotionProfile(this);
+        endPath();
+    }
+
+    public SplineTrajectory(Constants constants, RigidBody... rigidBodies) {
+        this.constants = constants;
+        this.waypoints = new ArrayList<>(Arrays.asList(rigidBodies));
         motionProfile = new MotionProfile(this);
         endPath();
     }
@@ -206,9 +214,6 @@ public class SplineTrajectory {
         else if (deriv == 2) return new double[] { 6 * T, 2, 0, 0 };
         else return new double[]{ 0, 0, 0, 0 };
     }
-    private String buildPolynomialExpression(double[] coeffs) {
-        return "(" + coeffs[0] + ")*t^3 + (" + coeffs[1] + ")*t^2 + (" + coeffs[2] + ")*t + (" + coeffs[3] + ")";
-    }
 
     private void interpolate(ArrayList<RigidBody> rigidBodies, boolean shouldReparameterize) {
         int numIntervals = Math.max(0, rigidBodies.size() - 1);
@@ -337,6 +342,9 @@ public class SplineTrajectory {
                                                   * ((distance - waypoints.get(interval).distance) / (waypoints.get(interval + 1).distance - waypoints.get(interval).distance)), 0, 2 * Math.PI);
         distance = paramDistance(distance);
         return new Pose(distanceX.evaluate(distance, 0), distanceY.evaluate(distance, 0), theta);
+    }
+    private String buildPolynomialExpression(double[] coeffs) {
+        return "(" + coeffs[0] + ")*t^3 + (" + coeffs[1] + ")*t^2 + (" + coeffs[2] + ")*t + (" + coeffs[3] + ")";
     }
 
 }

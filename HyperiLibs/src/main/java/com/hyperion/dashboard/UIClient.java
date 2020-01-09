@@ -136,7 +136,9 @@ public class UIClient extends Application {
                 try {
                     Utils.printSocketLog("SERVER", "UI", "constantsUpdated", options);
                     constants.read(new JSONObject(args[0].toString()));
-                    textPane.constantsDisplay.setText(constants.root.toString(4));
+                    if (textPane != null) {
+                        textPane.constantsDisplay.setText(constants.root.toString(4));
+                    }
                     constants.write();
                 } catch (Exception e) {
                     e.printStackTrace();

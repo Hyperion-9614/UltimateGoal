@@ -39,6 +39,9 @@ public class Unimetry {
         data.add(new Entry("Motion"));
         data.add(new Entry("Current", hardware.motion.robot.toString()));
         data.add(new Entry("Start", hardware.motion.start.toString()));
+        data.add(new Entry("Max Acceleration", hardware.motion.localizer.maxAccel));
+        data.add(new Entry("Max Deceleration", hardware.motion.localizer.maxDecel));
+        data.add(new Entry("Max Velocity", hardware.motion.localizer.maxVel));
         data.add(new Entry("Wheel Velocities (fL/fR/bL/bR)", Utils.round(hardware.fLDrive.getPower(), 2) + " " + Utils.round(hardware.fRDrive.getPower(), 2) + " " + Utils.round(hardware.bLDrive.getPower(), 2) + " " + Utils.round(hardware.bRDrive.getPower(), 2)));
         data.add(new Entry("Odometry Counts (xL/xR/y)", hardware.motion.localizer.oldxlCounts + " " + hardware.motion.localizer.oldxrCounts + " " + hardware.motion.localizer.oldyCounts));
         data.add(new Entry());

@@ -113,7 +113,6 @@ public class Constants {
             FIELD_SIDE_LENGTH = localization.getDouble("fieldSideLength");
             COORD_AXIS_LENGTH_UNITS = FIELD_SIDE_LENGTH;
             M_PER_COORD = FIELD_SIDE_LENGTH / COORD_AXIS_LENGTH_UNITS;
-            UPDATER_DELAY = localization.getLong("updaterDelay");
 
             JSONObject pid = root.getJSONObject("pid");
             JSONObject x = pid.getJSONObject("x");
@@ -138,11 +137,11 @@ public class Constants {
             JSONObject maxes = splinesMotionProfile.getJSONObject("maxes");
             MAX_SEGMENT_LENGTH = maxes.getDouble("segmentLength");
             MAX_BISECTION_ERROR = maxes.getDouble("bisectionError");
-            MAX_TRANSLATIONAL_VELOCITY = maxes.getDouble("translationalVelocity");
-            MAX_TRANSLATIONAL_ACCELERATION = maxes.getDouble("translationalAcceleration");
+            MAX_TRANSLATIONAL_VELOCITY = maxes.getDouble("tVel");
+            MAX_TRANSLATIONAL_ACCELERATION = maxes.getDouble("tAcc");
             MAX_TRANSLATIONAL_DECELERATION = maxes.getDouble("translationalDeceleration");
-            MAX_ANGULAR_VELOCITY = maxes.getDouble("angularVelocity");
-            MAX_ANGULAR_ACCELERATION = maxes.getDouble("angularAcceleration");
+            MAX_ANGULAR_VELOCITY = maxes.getDouble("aVel");
+            MAX_ANGULAR_ACCELERATION = maxes.getDouble("aAcc");
             MAX_ANGULAR_DECELERATION = maxes.getDouble("angularDeceleration");
             JSONObject endErrorThresholds = splinesMotionProfile.getJSONObject("endErrorThresholds");
             END_TRANSLATION_ERROR_THRESHOLD = endErrorThresholds.getDouble("translation");
@@ -206,7 +205,6 @@ public class Constants {
             localization.put("odometryWheelRadius", ODO_WHEEL_RADIUS);
             localization.put("odometryCyclesPerRevolution", ODO_CYCLES_PER_REV);
             localization.put("fieldSideLength", FIELD_SIDE_LENGTH);
-            localization.put("updaterDelay", UPDATER_DELAY);
             root.put("localization", localization);
 
             JSONObject pid = new JSONObject();
@@ -237,11 +235,11 @@ public class Constants {
             JSONObject maxes = new JSONObject();
             maxes.put("segmentLength", MAX_SEGMENT_LENGTH);
             maxes.put("bisectionError", MAX_BISECTION_ERROR);
-            maxes.put("translationalVelocity", MAX_TRANSLATIONAL_VELOCITY);
-            maxes.put("translationalAcceleration", MAX_TRANSLATIONAL_ACCELERATION);
+            maxes.put("tVel", MAX_TRANSLATIONAL_VELOCITY);
+            maxes.put("tAcc", MAX_TRANSLATIONAL_ACCELERATION);
             maxes.put("translationalDeceleration", MAX_TRANSLATIONAL_DECELERATION);
-            maxes.put("angularVelocity", MAX_ANGULAR_VELOCITY);
-            maxes.put("angularAcceleration", MAX_ANGULAR_ACCELERATION);
+            maxes.put("aVel", MAX_ANGULAR_VELOCITY);
+            maxes.put("aAcc", MAX_ANGULAR_ACCELERATION);
             maxes.put("angularDeceleration", MAX_ANGULAR_DECELERATION);
             splinesMotionProfile.put("maxes", maxes);
             JSONObject endErrorThresholds = new JSONObject();

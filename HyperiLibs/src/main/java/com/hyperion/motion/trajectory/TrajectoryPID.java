@@ -48,13 +48,13 @@ public class TrajectoryPID {
         thetaUt = new ArrayList<>();
     }
 
-    public double[] controlLoopIteration(double distance, RigidBody pp) {
+    public double[] controlLoopIteration(double distance, RigidBody robot) {
         if (currTime == -1) currTime = System.currentTimeMillis();
         double dT = (System.currentTimeMillis() - currTime) / 1000.0;
-        RigidBody setPoint = splineTrajectory.motionProfile.getPlanningPoint(distance);
-        double xError = setPoint.pose.x - pp.pose.x;
-        double yError = setPoint.pose.y - pp.pose.y;
-        double thetaError = Utils.optimalThetaDifference(pp.pose.theta, setPoint.pose.theta);
+        RigidBody setPoint = splineTrajectory.motionProfile.getRigidBody(distance);
+        double xError = setPoint.pose.x - robot.pose.x;
+        double yError = setPoint.pose.y - robot.pose.y;
+        double thetaError = Utils.optimalThetaDifference(robot.pose.theta, setPoint.pose.theta);
 
         double time = lastTime + dT;
         xEt.add(new double[]{ time, xError });
@@ -70,7 +70,7 @@ public class TrajectoryPID {
         thetaUt.add(new double[]{ time, uTheta });
 
         lastTime = time;
-        return toMotorPowers(pp.pose, uX, uY, uTheta);
+        return toMotorPowers(robot.pose, uX, uY, uTheta);
     }
 
     public double pOut(ArrayList<double[]> eT, double kP) {

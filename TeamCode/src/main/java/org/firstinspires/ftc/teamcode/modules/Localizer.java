@@ -26,7 +26,10 @@ public class Localizer {
     public double oldyCounts;
     public double oldT;
 
-    public Vector2D lastTranslationalVelocity = new Vector2D();
+    public Vector2D lastTvel = new Vector2D();
+    public Vector2D maxAccel = new Vector2D();
+    public Vector2D maxDecel = new Vector2D();
+    public Vector2D maxVel = new Vector2D();
 
     public Localizer(Hardware hw) {
         this.hw = hw;
@@ -69,9 +72,21 @@ public class Localizer {
             RealMatrix omega = new Array2DRowRealMatrix(new double[][]{ new double[]{ omegaXl, omegaXr, omegaY } }).transpose();
 
             double[] dR = AInv.multiply(omega).getColumn(0);
-            hw.motion.robot.translationalVelocity = new Vector2D(dR[0], dR[1], true).scaled(1.0 / dT);
-            hw.motion.robot.translationalAcceleration = new Vector2D(hw.motion.robot.translationalVelocity.magnitude - lastTranslationalVelocity.magnitude, hw.motion.robot.translationalVelocity.theta, false).scaled(1.0 / dT);
-            lastTranslationalVelocity = new Vector2D(hw.motion.robot.translationalVelocity);
+            hw.motion.robot.tVel = new Vector2D(dR[0], dR[1], true).scaled(1.0 / dT);
+            hw.motion.robot.tAcc = new Vector2D(Math.abs(hw.motion.robot.tVel.magnitude - lastTvel.magnitude),
+                                                     Utils.normalizeTheta(hw.motion.robot.tVel.theta + (hw.motion.robot.tVel.magnitude < lastTvel.magnitude ? Math.PI : 0), 0, 2 * Math.PI),
+                                                   false).scaled(1.0 / dT);
+
+            if (hw.motion.robot.tVel.magnitude > maxVel.magnitude) {
+                maxVel = new Vector2D(hw.motion.robot.tVel);
+            }
+            if (hw.motion.robot.tAcc.theta == hw.motion.robot.tVel.theta + Math.PI && hw.motion.robot.tAcc.magnitude >= maxDecel.magnitude) {
+                maxDecel = new Vector2D(hw.motion.robot.tAcc);
+            } else if (hw.motion.robot.tAcc.theta == hw.motion.robot.tVel.theta && hw.motion.robot.tAcc.magnitude >= maxAccel.magnitude) {
+                maxAccel = new Vector2D(hw.motion.robot.tAcc);
+            }
+
+            lastTvel = new Vector2D(hw.motion.robot.tVel);
             hw.motion.robot.pose.addXYT(hw.constants.mToCoords(dR[0]), hw.constants.mToCoords(dR[1]), dR[2]);
             hw.motion.robot.pose.theta = Utils.normalizeTheta(hw.motion.robot.pose.theta, 0, 2 * Math.PI);
         }
