@@ -21,6 +21,7 @@ public class DisplaySpline {
     public Constants constants;
     public String id;
     public SplineTrajectory spline;
+    public int selectedWaypointIndex = -1;
 
     public Group displayGroup;
     public ArrayList<Waypoint> waypoints;
@@ -169,6 +170,7 @@ public class DisplaySpline {
 
     public void deselect() {
         UIClient.selectedSpline = null;
+        selectedWaypointIndex = -1;
         for (Waypoint waypoint : waypoints) {
             waypoint.deselect();
         }

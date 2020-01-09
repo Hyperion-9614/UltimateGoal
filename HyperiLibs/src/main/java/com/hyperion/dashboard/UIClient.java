@@ -209,8 +209,8 @@ public class UIClient extends Application {
                 DisplaySpline newSpline = new DisplaySpline(key, splineTrajectory, constants);
                 newSpline.addDisplayGroup();
                 if (selectedSpline != null && key.equals(selectedSpline.id)) {
-                    if (selectedSpline.waypoints.contains(selectedWaypoint)) {
-                        newSpline.waypoints.get(selectedSpline.waypoints.indexOf(selectedWaypoint)).select();
+                    if (selectedSpline.selectedWaypointIndex != -1) {
+                        newSpline.waypoints.get(selectedSpline.selectedWaypointIndex).select();
                     }
                     newSpline.select();
                 }
