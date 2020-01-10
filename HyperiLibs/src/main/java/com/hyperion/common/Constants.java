@@ -64,15 +64,10 @@ public class Constants {
     public File RES_DATA_PREFIX; // file
     public File RES_IMG_PREFIX; // file
 
-    // Appendages
+    // TeamCode
     public int STONE_VERT_SLIDE_TICKS; // ticks
     public double VERT_SLIDE_POWER; // power
-
-    // Drive Multipliers
-    public double FRONT_LEFT_MULT; // coefficient
-    public double FRONT_RIGHT_MULT; // coefficient
-    public double BACK_LEFT_MULT; // coefficient
-    public double BACK_RIGHT_MULT; // coefficient
+    public long UPDATER_DELAY; // ms
 
     // Dashboard
     public String HOST_IP; // IP Address
@@ -90,8 +85,15 @@ public class Constants {
         try {
             this.file = file;
             JSONTokener tokener = new JSONTokener(Utils.readFile(file));
-            root = new JSONObject(tokener);
+            this.root = new JSONObject(tokener);
+            init();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    public void init() {
+        try {
             JSONObject localization = root.getJSONObject("localization");
             JSONObject odometryPoses = localization.getJSONObject("odometryPoses");
             JSONArray xLRelArr = odometryPoses.getJSONArray("xLRelativePose");
@@ -128,19 +130,19 @@ public class Constants {
 
             JSONObject splinesMotionProfile = root.getJSONObject("splinesMotionProfile");
             JSONObject k = splinesMotionProfile.getJSONObject("k");
-            MP_K_TA = k.getDouble("kTv");
-            MP_K_TV = k.getDouble("kTa");
+            MP_K_TA = k.getDouble("kTa");
+            MP_K_TV = k.getDouble("kTv");
             MP_K_AA = k.getDouble("kAa");
             MP_K_AV = k.getDouble("kAv");
             JSONObject maxes = splinesMotionProfile.getJSONObject("maxes");
+            MAX_ANGULAR_VELOCITY = maxes.getDouble("aVel");
+            MAX_ANGULAR_ACCELERATION = maxes.getDouble("aAcc");
+            MAX_ANGULAR_DECELERATION = maxes.getDouble("aDec");
+            MAX_TRANSLATIONAL_VELOCITY = maxes.getDouble("tVel");
+            MAX_TRANSLATIONAL_ACCELERATION = maxes.getDouble("tAcc");
+            MAX_TRANSLATIONAL_DECELERATION = maxes.getDouble("tDec");
             MAX_SEGMENT_LENGTH = maxes.getDouble("segmentLength");
             MAX_BISECTION_ERROR = maxes.getDouble("bisectionError");
-            MAX_TRANSLATIONAL_VELOCITY = maxes.getDouble("translationalVelocity");
-            MAX_TRANSLATIONAL_ACCELERATION = maxes.getDouble("translationalAcceleration");
-            MAX_TRANSLATIONAL_DECELERATION = maxes.getDouble("translationalDeceleration");
-            MAX_ANGULAR_VELOCITY = maxes.getDouble("angularVelocity");
-            MAX_ANGULAR_ACCELERATION = maxes.getDouble("angularAcceleration");
-            MAX_ANGULAR_DECELERATION = maxes.getDouble("angularDeceleration");
             JSONObject endErrorThresholds = splinesMotionProfile.getJSONObject("endErrorThresholds");
             END_TRANSLATION_ERROR_THRESHOLD = endErrorThresholds.getDouble("translation");
             END_ROTATION_ERROR_THRESHOLD = Math.toRadians(endErrorThresholds.getDouble("rotation"));
@@ -154,15 +156,10 @@ public class Constants {
             RES_DATA_PREFIX = new File(RES_PREFIX + filePaths.getString("resDataPrefix"));
             RES_IMG_PREFIX = new File(RES_PREFIX + filePaths.getString("resImgPrefix"));
 
-            JSONObject appendages = root.getJSONObject("appendages");
-            STONE_VERT_SLIDE_TICKS = appendages.getInt("stoneVerticalSlideCounts");
-            VERT_SLIDE_POWER = appendages.getDouble("verticalSlidePower");
-
-            JSONObject driveMultipliers = root.getJSONObject("driveMultipliers");
-            FRONT_LEFT_MULT = driveMultipliers.getDouble("fLDrive");
-            FRONT_RIGHT_MULT = driveMultipliers.getDouble("fRDrive");
-            BACK_LEFT_MULT = driveMultipliers.getDouble("bLDrive");
-            BACK_RIGHT_MULT = driveMultipliers.getDouble("bRDrive");
+            JSONObject teamcode = root.getJSONObject("teamcode");
+            STONE_VERT_SLIDE_TICKS = teamcode.getInt("stoneVerticalSlideCounts");
+            VERT_SLIDE_POWER = teamcode.getDouble("verticalSlidePower");
+            UPDATER_DELAY = teamcode.getLong("updaterDelay");
 
             JSONObject dashboard = root.getJSONObject("dashboard");
             DASHBOARD_VERSION = dashboard.getString("version");
@@ -188,10 +185,14 @@ public class Constants {
         }
     }
 
-    public void write() {
-        try {
-            JSONObject root = new JSONObject();
+    public void read(JSONObject root) {
+        this.root = root;
+        init();
+    }
 
+    public JSONObject toJSONObject() {
+        JSONObject root = new JSONObject();
+        try {
             JSONObject localization = new JSONObject();
             JSONObject odometryPoses = new JSONObject();
             odometryPoses.put("xLRelativePose", new JSONArray(XL_REL.toArray()));
@@ -234,12 +235,12 @@ public class Constants {
             JSONObject maxes = new JSONObject();
             maxes.put("segmentLength", MAX_SEGMENT_LENGTH);
             maxes.put("bisectionError", MAX_BISECTION_ERROR);
-            maxes.put("translationalVelocity", MAX_TRANSLATIONAL_VELOCITY);
-            maxes.put("translationalAcceleration", MAX_TRANSLATIONAL_ACCELERATION);
-            maxes.put("translationalDeceleration", MAX_TRANSLATIONAL_DECELERATION);
-            maxes.put("angularVelocity", MAX_ANGULAR_VELOCITY);
-            maxes.put("angularAcceleration", MAX_ANGULAR_ACCELERATION);
-            maxes.put("angularDeceleration", MAX_ANGULAR_DECELERATION);
+            maxes.put("tVel", MAX_TRANSLATIONAL_VELOCITY);
+            maxes.put("tAcc", MAX_TRANSLATIONAL_ACCELERATION);
+            maxes.put("tDec", MAX_TRANSLATIONAL_DECELERATION);
+            maxes.put("aVel", MAX_ANGULAR_VELOCITY);
+            maxes.put("aAcc", MAX_ANGULAR_ACCELERATION);
+            maxes.put("aDec", MAX_ANGULAR_DECELERATION);
             splinesMotionProfile.put("maxes", maxes);
             JSONObject endErrorThresholds = new JSONObject();
             endErrorThresholds.put("translation", END_TRANSLATION_ERROR_THRESHOLD);
@@ -259,17 +260,11 @@ public class Constants {
             io.put("filePaths", filePaths);
             root.put("io", io);
 
-            JSONObject appendages = new JSONObject();
-            appendages.put("stoneVerticalSlideCounts", STONE_VERT_SLIDE_TICKS);
-            appendages.put("verticalSlidePower", VERT_SLIDE_POWER);
-            root.put("appendages", appendages);
-
-            JSONObject driveMultipliers = new JSONObject();
-            driveMultipliers.put("fLDrive", FRONT_LEFT_MULT);
-            driveMultipliers.put("fRDrive", FRONT_RIGHT_MULT);
-            driveMultipliers.put("bLDrive", BACK_LEFT_MULT);
-            driveMultipliers.put("bRDrive", BACK_RIGHT_MULT);
-            root.put("driveMultipliers", driveMultipliers);
+            JSONObject teamcode = new JSONObject();
+            teamcode.put("stoneVerticalSlideCounts", STONE_VERT_SLIDE_TICKS);
+            teamcode.put("verticalSlidePower", VERT_SLIDE_POWER);
+            teamcode.put("updaterDelay", UPDATER_DELAY);
+            root.put("teamcode", teamcode);
 
             JSONObject dashboard = new JSONObject();
             dashboard.put("version", DASHBOARD_VERSION);
@@ -290,8 +285,16 @@ public class Constants {
             gui.put("wbb", wbb);
             dashboard.put("gui", gui);
             root.put("dashboard", dashboard);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return root;
+    }
 
-            Utils.writeFile(root.toString(), file);
+    public void write() {
+        try {
+            root = toJSONObject();
+            Utils.writeFile(root.toString(4), file);
         } catch (Exception e) {
             e.printStackTrace();
         }

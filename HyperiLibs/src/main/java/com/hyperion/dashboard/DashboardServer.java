@@ -24,7 +24,7 @@ public class DashboardServer {
 
     public static void main(String[] args) {
         constants = new Constants(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
-        options = new Options(new File(constants.RES_DATA_PREFIX + "/dashboard.json"));
+        options = new Options(new File(constants.RES_DATA_PREFIX + "/options.json"));
 
         try {
             Configuration configuration = new Configuration();
@@ -44,6 +44,8 @@ public class DashboardServer {
                 } else {
                     Utils.printSocketLog("UI", "SERVER", "connected", options);
                     dashboardClients.add(client);
+                    client.sendEvent("constantsUpdated", Utils.readDataJSON("constants", constants));
+                    Utils.printSocketLog("SERVER", "UI", "constantsUpdated", options);
                     client.sendEvent("dashboardJson", Utils.readDataJSON("dashboard", constants));
                     Utils.printSocketLog("SERVER", "UI", "dashboardJson", options);
                 }
@@ -108,7 +110,14 @@ public class DashboardServer {
 
                 for (SocketIOClient dashboardClient : dashboardClients) {
                     dashboardClient.sendEvent("unimetryUpdated", data);
-                    Utils.printSocketLog("SERVER", "RC", "unimetryUpdated", options);
+                    Utils.printSocketLog("SERVER", "UI", "unimetryUpdated", options);
+                }
+            });
+
+            server.addEventListener("constantsUpdated", String.class, (client, data, ackRequest) -> {
+                for (SocketIOClient dashboardClient : dashboardClients) {
+                    dashboardClient.sendEvent("constantsUpdated", data);
+                    Utils.printSocketLog("SERVER", "UI", "constantsUpdated", options);
                 }
             });
 

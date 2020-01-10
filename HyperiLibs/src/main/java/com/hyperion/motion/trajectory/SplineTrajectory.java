@@ -6,6 +6,12 @@ import com.hyperion.motion.math.Piecewise;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
+import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
+import org.apache.commons.math3.analysis.integration.SimpsonIntegrator;
+import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
+import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -15,6 +21,7 @@ import org.mariuszgromada.math.mxparser.Expression;
 import org.mariuszgromada.math.mxparser.Function;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Creates a 2D parametric cubic spline curve given a set of at least 2 waypoints
@@ -40,6 +47,13 @@ public class SplineTrajectory {
     public SplineTrajectory(ArrayList<RigidBody> waypoints, Constants constants) {
         this.constants = constants;
         this.waypoints = waypoints;
+        motionProfile = new MotionProfile(this);
+        endPath();
+    }
+
+    public SplineTrajectory(Constants constants, RigidBody... rigidBodies) {
+        this.constants = constants;
+        this.waypoints = new ArrayList<>(Arrays.asList(rigidBodies));
         motionProfile = new MotionProfile(this);
         endPath();
     }
@@ -206,9 +220,6 @@ public class SplineTrajectory {
         else if (deriv == 2) return new double[] { 6 * T, 2, 0, 0 };
         else return new double[]{ 0, 0, 0, 0 };
     }
-    private String buildPolynomialExpression(double[] coeffs) {
-        return "(" + coeffs[0] + ")*t^3 + (" + coeffs[1] + ")*t^2 + (" + coeffs[2] + ")*t + (" + coeffs[3] + ")";
-    }
 
     private void interpolate(ArrayList<RigidBody> rigidBodies, boolean shouldReparameterize) {
         int numIntervals = Math.max(0, rigidBodies.size() - 1);
@@ -281,7 +292,6 @@ public class SplineTrajectory {
                            * ((l - waypoints.get(tJ).distance) / (waypoints.get(tJ + 1).distance - waypoints.get(tJ).distance));
             planningPoints.add(new RigidBody(tMiddle, l, theta, this));
         }
-
         planningPoints.add(new RigidBody(waypoints.size() - 1, segmentLength * numSegments, waypoints.get(waypoints.size() - 1).pose.theta, this));
     }
 
@@ -295,16 +305,17 @@ public class SplineTrajectory {
         for (int T = 0; T < t2; T++) {
             length += arcLengthInterval(T, T + 1);
         }
-        length += arcLengthInterval(t2, T1);
 
+        length += arcLengthInterval(t2, T1);
         return Utils.round(length, 3);
     }
     private double arcLengthInterval(int Tstart, double Tend) {
-        if (Tstart < tauX.size()) {
-            Function X = new Function("X(t) = (" + tauX.getExpressionString(Tstart, Tstart + 1, 1) + ")^2");
-            Function Y = new Function("Y(t) = (" + tauY.getExpressionString(Tstart, Tstart + 1, 1) + ")^2");
-            Expression integral = new Expression("int(sqrt(X(t) + Y(t)), t, " + Tstart + ", " + Tend + ")", X, Y);
-            return integral.calculate();
+        if (Tstart < tauX.size() && Tend > Tstart) {
+            SimpsonIntegrator integrator = new SimpsonIntegrator();
+            String X = "(" + tauX.getExpressionString(Tstart, Tstart + 1, 1) + ")^2";
+            String Y = "(" + tauY.getExpressionString(Tstart, Tstart + 1, 1) + ")^2";
+            Function func = new Function("f(t) = sqrt(" + X + " + " + Y + ")");
+            return integrator.integrate(1000, func::calculate, Tstart, Tend);
         } else {
             return 0;
         }
@@ -312,8 +323,8 @@ public class SplineTrajectory {
 
     private int getInterval(double distance) {
         int i;
-        for (i = 0; i < waypoints.size() - 1; i++) {
-            if (distance >= waypoints.get(i).distance && distance <= waypoints.get(i + 1).distance) {
+        for (i = waypoints.size() - 2; i > 0; i--) {
+            if (distance >= waypoints.get(i - 1).distance && distance < waypoints.get(i).distance) {
                 break;
             }
         }
@@ -338,6 +349,9 @@ public class SplineTrajectory {
                                                   * ((distance - waypoints.get(interval).distance) / (waypoints.get(interval + 1).distance - waypoints.get(interval).distance)), 0, 2 * Math.PI);
         distance = paramDistance(distance);
         return new Pose(distanceX.evaluate(distance, 0), distanceY.evaluate(distance, 0), theta);
+    }
+    private String buildPolynomialExpression(double[] coeffs) {
+        return "(" + coeffs[0] + ")*t^3 + (" + coeffs[1] + ")*t^2 + (" + coeffs[2] + ")*t + (" + coeffs[3] + ")";
     }
 
 }

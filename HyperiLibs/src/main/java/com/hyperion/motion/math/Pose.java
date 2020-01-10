@@ -2,6 +2,8 @@ package com.hyperion.motion.math;
 
 import com.hyperion.common.Utils;
 
+import java.util.Scanner;
+
 /**
  * Orientation object for global positioning, pathing, etc.
  */
@@ -36,6 +38,14 @@ public class Pose {
         this.x = x;
         this.y = y;
         this.theta = theta;
+    }
+
+    public Pose(String str) {
+        Scanner scanner = new Scanner(str);
+        this.x = scanner.nextDouble();
+        this.y = scanner.nextDouble();
+        this.theta = Math.toRadians(scanner.nextDouble());
+        scanner.close();
     }
 
     public void setXY(double x, double y) {

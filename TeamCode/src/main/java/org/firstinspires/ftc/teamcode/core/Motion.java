@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.core;
 
 import com.hyperion.common.Utils;
 import com.hyperion.motion.math.RigidBody;
-import com.hyperion.motion.trajectory.HomogeneousPID;
 import com.hyperion.motion.trajectory.TrajectoryPID;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
@@ -29,7 +28,6 @@ public class Motion {
 
     public Localizer localizer;
     public TrajectoryPID trajectoryPID;
-    public HomogeneousPID homogeneousPID;
     public DStarLite dStarLite;
 
     public RigidBody start = new RigidBody(new Pose(0, 0, 0));
@@ -50,11 +48,11 @@ public class Motion {
         localizer = new Localizer(hw);
         dStarLite = new DStarLite();
         trajectoryPID = new TrajectoryPID(hw.constants);
-        homogeneousPID = new HomogeneousPID(hw.constants);
 
         for (DcMotor motor : hw.hwmp.dcMotor) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
+
         hw.fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         hw.bRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     }
@@ -67,7 +65,7 @@ public class Motion {
         waypoints.clear();
 
         Iterator keys = wpObj.keys();
-        while (keys.hasNext()) {
+        while (!hw.context.isStarted() && !hw.context.isStopRequested() && keys.hasNext()) {
             String key = keys.next().toString();
             JSONArray waypointArray = wpObj.getJSONArray(key);
             Pose waypoint = new Pose(waypointArray.getDouble(0), waypointArray.getDouble(1), waypointArray.getDouble(2));
@@ -81,7 +79,7 @@ public class Motion {
         splines.clear();
 
         Iterator keys = splinesObj.keys();
-        while (keys.hasNext()) {
+        while (!hw.context.isStarted() && !hw.context.isStopRequested() && keys.hasNext()) {
             String key = keys.next().toString();
             SplineTrajectory spline = new SplineTrajectory(splinesObj.getJSONObject(key).toString(), hw.constants);
             splines.put(key, spline);
@@ -103,18 +101,16 @@ public class Motion {
     }
     public void setDrive(double[] powers) {
         if (powers.length == 4) {
-            hw.fLDrive.setPower(hw.constants.FRONT_LEFT_MULT * powers[0]);
-            hw.fRDrive.setPower(hw.constants.FRONT_RIGHT_MULT * powers[1]);
-            hw.bLDrive.setPower(hw.constants.BACK_LEFT_MULT * powers[2]);
-            hw.bRDrive.setPower(hw.constants.BACK_RIGHT_MULT * powers[3]);
+            hw.fLDrive.setPower(powers[0]);
+            hw.fRDrive.setPower(powers[1]);
+            hw.bLDrive.setPower(powers[2]);
+            hw.bRDrive.setPower(powers[3]);
         } else if (powers.length == 2) {
             hw.fLDrive.setPower(powers[0]);
             hw.bLDrive.setPower(powers[0]);
             hw.fRDrive.setPower(powers[1]);
             hw.bRDrive.setPower(powers[1]);
         }
-        hw.motion.localizer.update();
-        hw.unimetry.update();
     }
     public void setDrive(Vector2D moveVec, double rot) {
         setDrive(new double[]{
@@ -127,23 +123,11 @@ public class Motion {
 
     ///////////////////////// GENERAL MOTION /////////////////////////
 
-    // PID homogeneous transform to target
-    public void pidMove(Pose target, boolean shouldStop) {
-        homogeneousPID.reset(robot);
-        ElapsedTime timer = new ElapsedTime();
-        while (timer.milliseconds() <= 4000 && (hw.context.gamepad1.left_stick_x == 0 && hw.context.gamepad1.left_stick_y == 0 && hw.context.gamepad1.right_stick_x == 0)
-                && (Utils.distance(robot.pose, target) >= hw.constants.END_TRANSLATION_ERROR_THRESHOLD
-                || Math.abs(Utils.optimalThetaDifference(robot.pose.theta, target.theta)) >= hw.constants.END_ROTATION_ERROR_THRESHOLD)) {
-            setDrive(homogeneousPID.controlLoopIteration(robot, new RigidBody(target)));
-        }
-        if (shouldStop) setDrive(0);
-    }
-
     // Strafe coords at velocity
     public void strafe(Vector2D velocity, double coords) {
         coords = Math.abs(coords);
         Pose target = robot.pose.addVector(new Vector2D(coords, velocity.theta, false));
-        pidMove(target, true);
+        followPath(new SplineTrajectory(hw.constants, new RigidBody(robot), new RigidBody(target)));
     }
 
     // Strafe at velocity for specified amount of currTime
@@ -170,28 +154,8 @@ public class Motion {
     // Rotate in place to target theta in specified direction
     public void rotate(double targetHeading) {
         targetHeading = Utils.normalizeTheta(targetHeading, 0, 2 * Math.PI);
-        pidMove(new Pose(robot.pose.x, robot.pose.y, targetHeading), true);
-    }
-
-    // Kinda rotates in an arc, somewhat pivoting on one side, to target theta
-    public void kindaPivot(double targetHeading, int pivotSide) {
-        targetHeading = Utils.normalizeTheta(targetHeading, 0, 2 * Math.PI);
-        if (pivotSide == 0) {
-            pivotSide = -1;
-            if (Utils.optimalThetaDifference(robot.pose.theta, targetHeading) > 0) {
-                pivotSide = 1;
-            }
-        }
-        double centriR = Utils.normalizeTheta(robot.pose.theta + Math.PI / 2, 0, 2 * Math.PI);
-        double centriT = Utils.normalizeTheta(targetHeading + Math.PI / 2, 0, 2 * Math.PI);
-        if (pivotSide == 1) {
-            centriR = Utils.normalizeTheta(robot.pose.theta - Math.PI / 2, 0, 2 * Math.PI);
-            centriT = Utils.normalizeTheta(targetHeading - Math.PI / 2, 0, 2 * Math.PI);
-        }
-
-        Pose center = robot.pose.addVector(new Vector2D(hw.constants.TRACK_WIDTH / 2, centriR, false));
-        Pose target = center.addVector(new Vector2D(hw.constants.TRACK_WIDTH / 2, Utils.normalizeTheta(centriT + Math.PI, 0, 2 * Math.PI), false));
-        pidMove(target, true);
+        Pose target = new Pose(robot.pose.x, robot.pose.y, targetHeading);
+        followPath(new SplineTrajectory(hw.constants, new RigidBody(robot), new RigidBody(target)));
     }
 
     ///////////////////////// PATHING /////////////////////////
@@ -220,7 +184,8 @@ public class Motion {
         double distance = 0;
         Pose lastPose = robot.pose;
         trajectoryPID.reset(robot, splineTrajectory);
-        while ((hw.context.gamepad1.right_stick_x == 0 && hw.context.gamepad1.left_stick_y == 0 && hw.context.gamepad1.left_stick_x == 0)
+        while (hw.context.opModeIsActive() && !hw.context.isStopRequested()
+               && (hw.context.gamepad1.right_stick_x == 0 && hw.context.gamepad1.left_stick_y == 0 && hw.context.gamepad1.left_stick_x == 0)
                && Utils.distance(robot.pose, splineTrajectory.waypoints.get(splineTrajectory.waypoints.size() - 1).pose) >= hw.constants.END_TRANSLATION_ERROR_THRESHOLD
                || Math.abs(Utils.optimalThetaDifference(robot.pose.theta, splineTrajectory.waypoints.get(splineTrajectory.waypoints.size() - 1).pose.theta)) >= hw.constants.END_ROTATION_ERROR_THRESHOLD) {
             distance += lastPose.distanceTo(robot.pose);
@@ -228,8 +193,9 @@ public class Motion {
 
             Vector2D translationalVelocity = splineTrajectory.motionProfile.getTranslationalVelocity(distance).scaled(hw.constants.MP_K_TA);
             Vector2D translationalAcceleration = splineTrajectory.motionProfile.getTranslationalAcceleration(distance).scaled(hw.constants.MP_K_TV);
-            double angularVelocity = -hw.constants.MP_K_AV * splineTrajectory.motionProfile.getAngularVelocity(distance);
-            double angularAcceleration = -hw.constants.MP_K_AA * splineTrajectory.motionProfile.getAngularAcceleration(distance);
+            double angularVelocity = Math.pow((-1.0 / (2 * Math.PI)) * Utils.optimalThetaDifference(robot.pose.theta, splineTrajectory.getDPose(distance).theta), 3);
+            double angularAcceleration = 0;
+
             setDrive(translationalVelocity.added(translationalAcceleration), angularVelocity + angularAcceleration);
             setDrive(trajectoryPID.controlLoopIteration(distance, robot));
         }

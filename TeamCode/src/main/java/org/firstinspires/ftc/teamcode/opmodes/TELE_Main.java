@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.apache.commons.math3.geometry.euclidean.twod.Line;
 import org.firstinspires.ftc.teamcode.core.Appendages;
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.firstinspires.ftc.teamcode.core.Motion;
@@ -16,7 +18,7 @@ import org.firstinspires.ftc.teamcode.core.Motion;
  */
 
 @TeleOp
-public class TELE_Main extends OpMode {
+public class TELE_Main extends LinearOpMode {
 
     private Hardware hardware;
     private Motion motion;
@@ -24,7 +26,6 @@ public class TELE_Main extends OpMode {
 
     private boolean isHtStarted;
     private double preHtTheta;
-    private int multTuneDirection = -1;
 
     private boolean presetPlaceStoneToggle;
     private boolean resetVertSlidesToggle;
@@ -35,34 +36,26 @@ public class TELE_Main extends OpMode {
     private boolean clawToggle;
 
     @Override
-    public void init() {
+    public void runOpMode() {
         hardware = new Hardware(this);
         motion = hardware.motion;
         appendages = hardware.appendages;
-    }
 
-    @Override
-    public void init_loop() {
-        if (hardware != null) {
+        while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hardware.isRunning))) {
             if (gamepad1.b) {
-                hardware.opModeID = "tele.red";
+                hardware.initOpMode("tele.red");
             } else if (gamepad1.x) {
-                hardware.opModeID = "tele.blue";
-            }
-
-            if (motion.localizer != null && hardware.unimetry != null) {
-                if (!hardware.isRunning && !hardware.opModeID.equals("Choose OpMode")) {
-                    hardware.init();
-                }
-                motion.localizer.update();
-                hardware.unimetry.update();
+                hardware.initOpMode("tele.blue");
             }
         }
+
+        executeLoop();
+
+        hardware.end();
     }
 
-    @Override
-    public void loop() {
-        if (hardware.isRunning) {
+    public void executeLoop() {
+        while (opModeIsActive() && !isStopRequested()) {
             /*
              * GAMEPAD 1
              * LEFT JOYSTICK : Translation in direction of joystick, relative to robot
@@ -157,42 +150,12 @@ public class TELE_Main extends OpMode {
              * X : Chain bar toggle
              */
             if (gamepad1.x && !chainBarToggle) {
-                appendages.setChainBarStatus(appendages.chainBarStatus.equals("in") ? "out" : "in");
+                appendages.cycleChainBar();
                 chainBarToggle = true;
             } else if (!gamepad1.x) {
                 chainBarToggle = false;
             }
-
-            if (gamepad1.dpad_up) {
-                hardware.constants.FRONT_LEFT_MULT += multTuneDirection * 0.01;
-            } else if (gamepad1.dpad_down) {
-                hardware.constants.FRONT_RIGHT_MULT += multTuneDirection * 0.01;
-            } else if (gamepad1.dpad_left) {
-                hardware.constants.BACK_LEFT_MULT += multTuneDirection * 0.01;
-            } else if (gamepad1.dpad_right) {
-                hardware.constants.BACK_RIGHT_MULT += multTuneDirection * 0.01;
-            } else if (gamepad1.right_stick_button) {
-                hardware.constants.write();
-            } else if (gamepad1.left_stick_button) {
-                multTuneDirection *= -1;
-            }
-        } else {
-            if (!hardware.opModeID.equals("Choose OpMode")) {
-                hardware.init();
-            } else if (gamepad1.b) {
-                hardware.opModeID = "tele.red";
-            } else if (gamepad1.x) {
-                hardware.opModeID = "tele.blue";
-            }
         }
-
-        motion.localizer.update();
-        hardware.unimetry.update();
-    }
-
-    @Override
-    public void stop() {
-        hardware.end();
     }
 
 }

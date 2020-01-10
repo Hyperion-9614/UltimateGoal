@@ -205,21 +205,29 @@ public class Waypoint {
     }
 
     public void select() {
-        for (Waypoint wp : (parentSpline != null ? parentSpline.waypoints : UIClient.waypoints)) {
+        if (parentSpline != null) {
+            for (Waypoint wp : parentSpline.waypoints) {
+                if (wp != this) {
+                    wp.deselect();
+                }
+            }
+        }
+        for (Waypoint wp : UIClient.waypoints) {
             if (wp != this) {
                 wp.deselect();
             }
         }
-        UIClient.selectedWaypoint = this;
         if (parentSpline != null) {
             parentSpline.select();
+            parentSpline.selectedWaypointIndex = parentSpline.waypoints.indexOf(this);
         }
+        UIClient.selectedWaypoint = this;
         info.setVisible(true);
         selectRect.setVisible(true);
     }
 
     public void deselect() {
-        UIClient.selectedWaypoint = null;
+        if (UIClient.selectedWaypoint == this) UIClient.selectedWaypoint = null;
         info.setVisible(false);
         selectRect.setVisible(false);
     }
