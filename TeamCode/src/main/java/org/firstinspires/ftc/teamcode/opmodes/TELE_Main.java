@@ -37,7 +37,6 @@ public class TELE_Main extends LinearOpMode {
         hardware = new Hardware(this);
         motion = hardware.motion;
         appendages = hardware.appendages;
-
         while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hardware.isRunning))) {
             if (gamepad1.b) {
                 hardware.initOpMode("tele.red");

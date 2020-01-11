@@ -161,7 +161,15 @@ public class Hardware {
         phoneCam.openCameraDevice();
         cvPipeline = new CvPipeline(this);
         phoneCam.setPipeline(cvPipeline);
-        phoneCam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+        phoneCam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT, OpenCvInternalCamera.BufferMethod.DOUBLE);
+        for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware())
+        {
+            if(r.max == 30 && r.min == 30)
+            {
+                phoneCam.setHardwareFrameTimingRange(r);
+                break;
+            }
+        }
     }
 
     // Initialize dashboard RC client socket
