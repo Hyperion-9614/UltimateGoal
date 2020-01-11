@@ -162,10 +162,8 @@ public class Hardware {
         cvPipeline = new CvPipeline(this);
         phoneCam.setPipeline(cvPipeline);
         phoneCam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT, OpenCvInternalCamera.BufferMethod.DOUBLE);
-        for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware())
-        {
-            if(r.max == 30 && r.min == 30)
-            {
+        for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
+            if(r.max == 30 && r.min == 30) {
                 phoneCam.setHardwareFrameTimingRange(r);
                 break;
             }
