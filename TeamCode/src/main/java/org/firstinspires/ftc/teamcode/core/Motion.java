@@ -130,15 +130,6 @@ public class Motion {
         followPath(new SplineTrajectory(hw.constants, new RigidBody(robot), new RigidBody(target)));
     }
 
-    // Strafe at velocity for specified amount of currTime
-    public void strafe(Vector2D velocity, long msDuration) {
-        ElapsedTime timer = new ElapsedTime();
-        while (timer.milliseconds() < msDuration) {
-            strafe(velocity);
-        }
-        setDrive(0);
-    }
-
     // Strafe at velocity
     public void strafe(Vector2D velocity) {
         velocity = velocity.rotated(-robot.pose.theta + Math.PI / 2);

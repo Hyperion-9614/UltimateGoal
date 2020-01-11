@@ -3,10 +3,9 @@ package org.firstinspires.ftc.teamcode.core;
 import com.hyperion.common.Constants;
 import com.hyperion.common.Options;
 import com.hyperion.common.Utils;
-import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
+import com.hyperion.motion.math.RigidBody;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -139,7 +138,7 @@ public class Hardware {
     // Initialize updater thread
     public void initUpdater() {
         updater = new Thread(() -> {
-            if (System.currentTimeMillis() - lastUpdateTime >= constants.UPDATER_DELAY) {
+            if (!updater.isInterrupted() && updater.isAlive() && System.currentTimeMillis() - lastUpdateTime >= constants.UPDATER_DELAY) {
                 lastUpdateTime = System.currentTimeMillis();
                 motion.localizer.update();
                 unimetry.update();

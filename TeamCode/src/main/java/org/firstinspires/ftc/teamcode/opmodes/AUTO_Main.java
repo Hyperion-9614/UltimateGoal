@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.hyperion.motion.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.core.Appendages;
 import org.firstinspires.ftc.teamcode.core.Hardware;
@@ -52,6 +54,7 @@ public class AUTO_Main extends LinearOpMode {
             if (hardware.opModeID.endsWith("full")) {
                 scanSkystone();
                 dragFoundation();
+                hardware.preset_placeStone(false);
                 motion.goToWaypoint("park");
             } else if (hardware.opModeID.endsWith("foundation")) {
                 dragFoundation();
@@ -68,11 +71,21 @@ public class AUTO_Main extends LinearOpMode {
     public void scanSkystone() {
         motion.goToWaypoint("scan");
 
+        ElapsedTime timer = new ElapsedTime();
+        motion.strafe(new Vector2D(0.5, 3 * Math.PI / 2, false));
+        while (timer.milliseconds() < 3000) {
+            // TODO: Aditya this is you
+        }
+        motion.setDrive(0);
+
     }
 
     // Pivot drag foundation & push into building zone
     public void dragFoundation() {
+        motion.goToWaypoint(motion.splines.get(hardware.opModeID + ".splines.drag").waypoints.get(0).pose);
+        appendages.setFoundationMoverStatus("down");
         motion.followPath("drag");
+        appendages.setFoundationMoverStatus("up");
     }
 
 }

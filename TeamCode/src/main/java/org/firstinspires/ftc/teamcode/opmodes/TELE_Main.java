@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.apache.commons.math3.geometry.euclidean.twod.Line;
 import org.firstinspires.ftc.teamcode.core.Appendages;
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.firstinspires.ftc.teamcode.core.Motion;
@@ -139,7 +136,6 @@ public class TELE_Main extends LinearOpMode {
              */
             if (gamepad1.b && !clawToggle) {
                 appendages.setClawStatus(appendages.clawStatus.equals("open") ? "closed" : "open");
-//                appendages.setVerticalSlidePosition(1000);
                 clawToggle = true;
             } else if (!gamepad1.b) {
                 clawToggle = false;
