@@ -54,14 +54,11 @@ public class AUTO_Main extends LinearOpMode {
             if (hardware.opModeID.endsWith("full")) {
                 scanSkystone();
                 dragFoundation();
-                hardware.preset_placeStone(false);
-                motion.goToWaypoint("park");
+                hardware.preset_placeStone();
             } else if (hardware.opModeID.endsWith("foundation")) {
                 dragFoundation();
-                motion.goToWaypoint("park");
-            } else if (hardware.opModeID.endsWith("brick")) {
-                motion.goToWaypoint("park");
             }
+            motion.goToWaypoint("park");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -78,6 +75,11 @@ public class AUTO_Main extends LinearOpMode {
         }
         motion.setDrive(0);
 
+        motion.rotate(hardware.opModeID.contains("blue") ? 3 * Math.PI / 2 : Math.PI / 2);
+        motion.strafe(new Vector2D(0.3, hardware.opModeID.contains("blue") ? 3 * Math.PI / 2 : Math.PI / 2, false), 30);
+        appendages.setAutoClawSwingStatus("down");
+        appendages.setAutoClawGripStatus("closed");
+        appendages.setAutoClawSwingStatus("up");
     }
 
     // Pivot drag foundation & push into building zone

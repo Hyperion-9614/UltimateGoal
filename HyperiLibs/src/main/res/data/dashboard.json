@@ -302,7 +302,7 @@
                 ]
             ]
         },
-        "auto.red.full.spline.drag": {
+        "auto.red.foundation.spline.drag": {
             "coefficients": {
                 "distanceX": [
                     {
@@ -453,7 +453,7 @@
                 ]
             ]
         },
-        "auto.red.foundation.spline.drag": {
+        "auto.red.full.spline.drag": {
             "coefficients": {
                 "distanceX": [
                     {
@@ -634,7 +634,7 @@
         "auto.blue.full.waypoint.place": [
             -124.789,
             109.19,
-            4.71238898038469
+            0
         ],
         "auto.blue.full.waypoint.scan": [
             -97.894,
@@ -672,9 +672,9 @@
             4.71238898038469
         ],
         "auto.red.full.waypoint.place": [
-            107.576,
+            108.114,
             109.19,
-            4.71238898038469
+            0
         ],
         "auto.red.full.waypoint.scan": [
             101.122,

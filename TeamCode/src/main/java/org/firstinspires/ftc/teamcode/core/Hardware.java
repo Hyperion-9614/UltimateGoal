@@ -35,9 +35,7 @@ public class Hardware {
     public ExpansionHubEx expansionHubR;
     public HardwareMap hwmp;
     public boolean isRunning;
-
     public Thread updater;
-    private long lastUpdateTime = System.currentTimeMillis();
 
     public Motion motion;
     public Appendages appendages;
@@ -55,6 +53,7 @@ public class Hardware {
     public String status = opModeID;
 
     public File dashboardJson;
+    public File optionsJson;
     public File nnConfigJson;
     public File modelConfig;
 
@@ -78,6 +77,8 @@ public class Hardware {
     public Servo chainBarL;
     public Servo chainBarR;
     public CRServo claw;
+    public Servo autoClawSwing;
+    public CRServo autoClawGrip;
 
     public int presetPlaceStoneTicks = 2500;
 
@@ -89,9 +90,10 @@ public class Hardware {
         try {
             constants = new Constants(new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/constants.json"));
             dashboardJson = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/dashboard.json");
+            optionsJson = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/options.json");
+            options = new Options(optionsJson);
             nnConfigJson = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/model/config.json");
             modelConfig = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/model/model.config");
-            options = new Options(dashboardJson);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -120,6 +122,8 @@ public class Hardware {
         chainBarL = hwmp.servo.get("chainBarL");
         chainBarR = hwmp.servo.get("chainBarR");
         claw = hwmp.crservo.get("claw");
+        autoClawSwing = hwmp.servo.get("autoClawSwing");
+        autoClawGrip = hwmp.crservo.get("autoClawGrip");
 
         // Init control, telemetry, & settings
         motion = new Motion(this);
@@ -138,10 +142,13 @@ public class Hardware {
     // Initialize updater thread
     public void initUpdater() {
         updater = new Thread(() -> {
-            if (!updater.isInterrupted() && updater.isAlive() && System.currentTimeMillis() - lastUpdateTime >= constants.UPDATER_DELAY) {
-                lastUpdateTime = System.currentTimeMillis();
-                motion.localizer.update();
-                unimetry.update();
+            long lastUpdateTime = System.currentTimeMillis();
+            while (!updater.isInterrupted() && updater.isAlive() && !context.isStopRequested()) {
+                if (System.currentTimeMillis() - lastUpdateTime >= constants.UPDATER_DELAY) {
+                    lastUpdateTime = System.currentTimeMillis();
+                    motion.localizer.update();
+                    unimetry.update();
+                }
             }
         });
         updater.start();
@@ -234,14 +241,17 @@ public class Hardware {
     //////////////////////////// PRESETS /////////////////////////////
 
     // Place a stone on foundation
-    public void preset_placeStone(boolean goToWaypoint) {
-        if (goToWaypoint) {
-            motion.goToWaypoint("place");
+    public void preset_placeStone() {
+        motion.goToWaypoint("place");
+        if (opModeID.contains("auto")) {
+            appendages.setAutoClawSwingStatus("down");
+            appendages.setAutoClawGripStatus("open");
+            appendages.setAutoClawSwingStatus("up");
+        } else {
+            appendages.setVerticalSlidePosition(presetPlaceStoneTicks);
+            appendages.setVerticalSlidePosition(0);
+            presetPlaceStoneTicks += constants.STONE_VERT_SLIDE_TICKS;
         }
-
-        appendages.setVerticalSlidePosition(presetPlaceStoneTicks);
-        appendages.setVerticalSlidePosition(0);
-        presetPlaceStoneTicks += constants.STONE_VERT_SLIDE_TICKS;
     }
 
 }

@@ -4,7 +4,6 @@ import com.hyperion.common.Utils;
 
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -24,12 +23,12 @@ public class Unimetry {
         this.hardware = hardware;
     }
 
-    public void update() {
+    public synchronized void update() {
         poll();
         updateTelemetry();
     }
 
-    public void poll() {
+    public synchronized void poll() {
         data.clear();
         newLineSpaces = "";
 
@@ -53,6 +52,8 @@ public class Unimetry {
         data.add(new Entry("Foundation Mover Status", hardware.appendages.foundationMoverStatus));
         data.add(new Entry("Chain Bar Status", hardware.appendages.chainBarStatus));
         data.add(new Entry("Claw Status", hardware.appendages.clawStatus));
+        data.add(new Entry("Auto Claw Swing Status", hardware.appendages.autoClawSwingStatus));
+        data.add(new Entry("Auto Claw Grip Status", hardware.appendages.autoClawGripStatus));
         data.add(new Entry());
 
         data.add(new Entry("Gamepad 1"));
@@ -63,7 +64,7 @@ public class Unimetry {
         data.add(new Entry("Right Trigger", Utils.round(hardware.context.gamepad1.right_trigger, 3)));
     }
 
-    public void updateTelemetry() {
+    public synchronized void updateTelemetry() {
         try {
             JSONArray dataArr = new JSONArray();
             for (Entry entry : data) {

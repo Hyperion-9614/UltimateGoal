@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.core;
 
-import com.hyperion.common.Utils;
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -19,6 +17,8 @@ public class Appendages {
     public String foundationMoverStatus = "";
     public String chainBarStatus = "";
     public String clawStatus = "";
+    public String autoClawSwingStatus = "";
+    public String autoClawGripStatus = "";
 
     public Appendages(Hardware hardware) {
         this.hardware = hardware;
@@ -28,24 +28,21 @@ public class Appendages {
         hardware.compWheelsL.setDirection(DcMotorSimple.Direction.REVERSE);
         hardware.foundationMoverL.setDirection(Servo.Direction.REVERSE);
         hardware.chainBarL.setDirection(Servo.Direction.REVERSE);
+        hardware.autoClawSwing.setDirection(Servo.Direction.REVERSE);
 
         setCompWheelsStatus("stop");
         setFoundationMoverStatus("up");
         setChainBarStatus("in");
         setClawStatus("open");
+        setAutoClawSwingStatus("up");
+        setAutoClawGripStatus("open");
     }
 
     //////////////////////// APPENDAGE CONTROL //////////////////////////
 
     public void setVerticalSlidePower(double power) {
-        if ((hardware.vertSlideL.getCurrentPosition() >= 0 && hardware.vertSlideR.getCurrentPosition() >= 0)
-            || ((hardware.vertSlideL.getCurrentPosition() < 0 || hardware.vertSlideR.getCurrentPosition() < 0) && power > 0)) {
-            hardware.vertSlideL.setPower(power);
-            hardware.vertSlideR.setPower(power);
-        } else {
-            hardware.vertSlideL.setPower(0);
-            hardware.vertSlideR.setPower(0);
-        }
+        hardware.vertSlideL.setPower(power);
+        hardware.vertSlideR.setPower(power);
     }
 
     public void setVerticalSlideMode(DcMotor.RunMode mode) {
@@ -112,6 +109,7 @@ public class Appendages {
     public void setChainBarPosition(double position) {
         hardware.chainBarL.setPosition(position);
         hardware.chainBarR.setPosition(position);
+        hardware.context.sleep(500);
     }
 
     public void setChainBarStatus(String upInOut) {
@@ -146,6 +144,27 @@ public class Appendages {
         } else {
             hardware.claw.setPower(-1.0);
         }
+        hardware.context.sleep(500);
+    }
+
+    public void setAutoClawSwingStatus(String downUp) {
+        autoClawSwingStatus = downUp.toLowerCase();
+        if (autoClawSwingStatus.equals("down")) {
+            hardware.autoClawSwing.setPosition(1.0);
+        } else {
+            hardware.autoClawSwing.setPosition(0.5);
+        }
+        hardware.context.sleep(500);
+    }
+
+    public void setAutoClawGripStatus(String openClosed) {
+        autoClawGripStatus = openClosed.toLowerCase();
+        if (autoClawGripStatus.equals("open")) {
+            hardware.autoClawGrip.setPower(1.0);
+        } else {
+            hardware.autoClawGrip.setPower(0);
+        }
+        hardware.context.sleep(500);
     }
 
 }

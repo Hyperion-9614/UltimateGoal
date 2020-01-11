@@ -8,6 +8,8 @@
             <NeveRest3.7v1Gearmotor name="vertSlideL" port="3" />
             <Servo name="chainBarL" port="0" />
             <Servo name="foundationMoverL" port="1" />
+            <Servo name="autoClawSwing" port="2" />
+            <ContinuousRotationServo name="autoClawGrip" port="3" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />
         </LynxModule>
         <LynxModule name="Expansion Hub R" port="3">

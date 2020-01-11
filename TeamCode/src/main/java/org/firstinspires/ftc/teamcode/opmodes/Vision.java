@@ -12,7 +12,7 @@ public class Vision extends LinearOpMode {
         hardware = new Hardware(this);
         waitForStart();
         while (opModeIsActive()){
-            hardware.init();
+
         }
     }
 }

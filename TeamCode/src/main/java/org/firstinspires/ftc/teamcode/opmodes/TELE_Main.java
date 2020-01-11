@@ -113,7 +113,7 @@ public class TELE_Main extends LinearOpMode {
              * Y : Place stone preset
              */
             if (gamepad1.y && !presetPlaceStoneToggle) {
-                hardware.preset_placeStone(true);
+                hardware.preset_placeStone();
                 presetPlaceStoneToggle = true;
             } else if (!gamepad1.y) {
                 presetPlaceStoneToggle = false;

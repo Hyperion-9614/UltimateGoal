@@ -17,11 +17,7 @@ public class Options {
     public Options(File file) {
         try {
             this.file = file;
-            JSONTokener tokener = new JSONTokener(Utils.readFile(file));
-            this.root = new JSONObject(tokener);
-
-            debug = root.getBoolean("debug");
-            socketLog = root.getBoolean("socketLog");
+            read(new JSONObject(Utils.readFile(file)));
         } catch (Exception e) {
             e.printStackTrace();
         }
