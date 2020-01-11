@@ -150,10 +150,10 @@ public class Appendages {
     public void setAutoClawSwingStatus(String downUp) {
         autoClawSwingStatus = downUp.toLowerCase();
         if (autoClawSwingStatus.equals("down")) {
-            hardware.autoClawSwing.setPosition(1.0);
+            hardware.autoClawSwing.setPosition(0);
         } else {
             hardware.autoClawSwing.setPosition(0.5);
-        }
+    }
         hardware.context.sleep(500);
     }
 
