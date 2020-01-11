@@ -340,7 +340,7 @@ public class SplineTrajectory {
     }
     public Pose getTPose(double T) {
         if (T == waypoints.size()) return waypoints.get(waypoints.size() - 1).pose;
-        return new Pose(tauX.evaluate(T, 0), tauY.evaluate(T, 0), 0);
+        return new Pose(tauX.evaluate(T, 0, true), tauY.evaluate(T, 0, true), 0);
     }
     public Pose getDPose(double distance) {
         if (distance == waypoints.get(waypoints.size() - 1).distance) return waypoints.get(waypoints.size() - 1).pose;
@@ -348,7 +348,7 @@ public class SplineTrajectory {
         double theta = Utils.normalizeTheta(waypoints.get(interval).pose.theta + Utils.optimalThetaDifference(waypoints.get(interval).pose.theta, waypoints.get(interval + 1).pose.theta)
                                                   * ((distance - waypoints.get(interval).distance) / (waypoints.get(interval + 1).distance - waypoints.get(interval).distance)), 0, 2 * Math.PI);
         distance = paramDistance(distance);
-        return new Pose(distanceX.evaluate(distance, 0), distanceY.evaluate(distance, 0), theta);
+        return new Pose(distanceX.evaluate(distance, 0, true), distanceY.evaluate(distance, 0, true), theta);
     }
     private String buildPolynomialExpression(double[] coeffs) {
         return "(" + coeffs[0] + ")*t^3 + (" + coeffs[1] + ")*t^2 + (" + coeffs[2] + ")*t + (" + coeffs[3] + ")";

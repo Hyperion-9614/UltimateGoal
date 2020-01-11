@@ -85,7 +85,23 @@ public class TextPane extends VBox {
             unimetryStr.append("\n");
         }
 
+        int caretPosition = unimetryDisplay.caretPositionProperty().get();
+        double scrollLeft = unimetryDisplay.getScrollLeft();
+        double scrollTop = unimetryDisplay.getScrollTop();
         unimetryDisplay.setText(unimetryStr.toString().trim());
+        unimetryDisplay.positionCaret(caretPosition);
+        unimetryDisplay.setScrollLeft(scrollLeft);
+        unimetryDisplay.setScrollTop(scrollTop);
+    }
+
+    public void setConstantsDisplayText(String text) {
+        int caretPosition = constantsDisplay.caretPositionProperty().get();
+        double scrollLeft = constantsDisplay.getScrollLeft();
+        double scrollTop = constantsDisplay.getScrollTop();
+        constantsDisplay.setText(text);
+        constantsDisplay.positionCaret(caretPosition);
+        constantsDisplay.setScrollLeft(scrollLeft);
+        constantsDisplay.setScrollTop(scrollTop);
     }
 
 }

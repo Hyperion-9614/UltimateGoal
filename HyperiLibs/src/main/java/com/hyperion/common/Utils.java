@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import javafx.scene.paint.Color;
+
 public class Utils {
 
     public static double round(double n, int places) {
@@ -279,6 +281,10 @@ public class Utils {
             current = current.getJSONObject(key);
         }
         return current;
+    }
+
+    public static String colorToCSS(Color color) {
+        return "rgba(" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue() + ", " + color.getOpacity() + ")";
     }
 
 }

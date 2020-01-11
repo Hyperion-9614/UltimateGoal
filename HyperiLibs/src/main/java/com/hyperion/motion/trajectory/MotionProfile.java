@@ -21,14 +21,14 @@ public class MotionProfile {
     public SplineTrajectory spline;
     public Constants constants;
 
-    public Piecewise translationalVelocityProfile;
-    public Piecewise translationalAccelerationProfile;
+    public Piecewise tVelProfile;
+    public Piecewise tAccProfile;
 
     public MotionProfile(SplineTrajectory spline) {
         this.spline = spline;
         constants = spline.constants;
-        translationalVelocityProfile = new Piecewise();
-        translationalAccelerationProfile = new Piecewise();
+        tVelProfile = new Piecewise();
+        tAccProfile = new Piecewise();
     }
 
     public void recreate() {
@@ -44,8 +44,8 @@ public class MotionProfile {
     public void initializePlanningPoints() {
         for (int i = 0; i < spline.planningPoints.size() - 1; i++) {
             RigidBody p = spline.planningPoints.get(i);
-            double dX = spline.distanceX.evaluate(p.distance, 1);
-            double dY = spline.distanceY.evaluate(p.distance, 1);
+            double dX = spline.distanceX.evaluate(p.distance, 1, true);
+            double dY = spline.distanceY.evaluate(p.distance, 1, true);
             p.tVel = new Vector2D(constants.MAX_TRANSLATIONAL_VELOCITY, Utils.normalizeTheta(Math.atan2(dY, dX), 0, 2 * Math.PI), false);
         }
         spline.planningPoints.get(0).tVel.setMagnitude(0);
@@ -88,26 +88,25 @@ public class MotionProfile {
 
     // Generate piecewise acceleration profile
     public void generateAccelerationProfile() {
-        translationalAccelerationProfile = new Piecewise();
+        tAccProfile = new Piecewise();
         for (int i = 0; i < spline.planningPoints.size() - 1; i++) {
-            setTAPInterval(translationalAccelerationProfile, spline.planningPoints.get(i), spline.planningPoints.get(i + 1));
+            setTAPInterval(tAccProfile, spline.planningPoints.get(i), spline.planningPoints.get(i + 1));
         }
-        setTAPInterval(translationalAccelerationProfile, spline.planningPoints.get(spline.planningPoints.size() - 2), spline.planningPoints.get(spline.planningPoints.size() - 1));
+        setTAPInterval(tAccProfile, spline.planningPoints.get(spline.planningPoints.size() - 2), spline.planningPoints.get(spline.planningPoints.size() - 1));
     }
 
     // Set an interval in the translational acceleration profile
     public void setTAPInterval(Piecewise profile, RigidBody pp0, RigidBody pp1) {
-        double slope = Utils.slope(pp0.distance, pp0.tAcc.magnitude, pp1.distance, pp1.tAcc.magnitude);
-        profile.setInterval(pp0.distance, pp1.distance, "(" + slope + ")*t + (" + -(slope * pp0.distance) + ") + (" + pp0.tAcc.magnitude + ")");
+        profile.setInterval(pp0.distance, pp1.distance, "(" + pp0.tAcc.magnitude + ")");
     }
 
     // Generate piecewise velocity profile
     public void generateVelocityProfile() {
-        translationalVelocityProfile = new Piecewise();
+        tVelProfile = new Piecewise();
         for (int i = 0; i < spline.planningPoints.size() - 1; i++) {
-            setTVPInterval(translationalVelocityProfile, spline.planningPoints.get(i), spline.planningPoints.get(i + 1));
+            setTVPInterval(tVelProfile, spline.planningPoints.get(i), spline.planningPoints.get(i + 1));
         }
-        setTVPInterval(translationalVelocityProfile, spline.planningPoints.get(spline.planningPoints.size() - 2), spline.planningPoints.get(spline.planningPoints.size() - 1));
+        setTVPInterval(tVelProfile, spline.planningPoints.get(spline.planningPoints.size() - 2), spline.planningPoints.get(spline.planningPoints.size() - 1));
     }
 
     // Set an interval in the translational velocity profile
@@ -118,9 +117,9 @@ public class MotionProfile {
 
     public Vector2D getTranslationalVelocity(double distance) {
         double paramD = spline.paramDistance(distance);
-        double dX = spline.distanceX.evaluate(paramD, 1);
-        double dY = spline.distanceY.evaluate(paramD, 1);
-        return new Vector2D(translationalVelocityProfile.evaluate(distance, 0), Utils.normalizeTheta(Math.atan2(dY, dX), 0, 2 * Math.PI), false);
+        double dX = spline.distanceX.evaluate(paramD, 1, true);
+        double dY = spline.distanceY.evaluate(paramD, 1, true);
+        return new Vector2D(tVelProfile.evaluate(distance, 0, true), Utils.normalizeTheta(Math.atan2(dY, dX), 0, 2 * Math.PI), false);
     }
 
     public Vector2D getTranslationalAcceleration(double distance) {
@@ -130,7 +129,7 @@ public class MotionProfile {
                 floored = spline.planningPoints.get(i);
             }
         }
-        return new Vector2D(translationalAccelerationProfile.evaluate(distance, 0), floored.tAcc.theta, false);
+        return new Vector2D(tAccProfile.evaluate(distance, 0, true), floored.tAcc.theta, false);
     }
 
     public double getAngularVelocity(double distance) {
@@ -154,19 +153,19 @@ public class MotionProfile {
     public void fromJSON(JSONObject obj) {
         try {
             JSONObject motionProfile = obj.getJSONObject("motionProfile");
-            JSONArray translationalAccelerationProfileArr = motionProfile.getJSONArray("translationalAccelerationProfile");
-            JSONArray translationalVelocityProfileArr = motionProfile.getJSONArray("translationalVelocityProfile");
+            JSONArray tAccProfileArr = motionProfile.getJSONArray("tAccProfile");
+            JSONArray tVelProfileArr = motionProfile.getJSONArray("tVelProfile");
 
-            translationalAccelerationProfile = new Piecewise();
-            for (int i = 0; i < translationalAccelerationProfileArr.length(); i++) {
-                JSONObject intervalObj = translationalAccelerationProfileArr.getJSONObject(i);
-                translationalAccelerationProfile.setInterval(intervalObj.getDouble("a"), intervalObj.getDouble("b"), intervalObj.getString("exp"));
+            tAccProfile = new Piecewise();
+            for (int i = 0; i < tAccProfileArr.length(); i++) {
+                JSONObject intervalObj = tAccProfileArr.getJSONObject(i);
+                tAccProfile.setInterval(intervalObj.getDouble("a"), intervalObj.getDouble("b"), intervalObj.getString("exp"));
             }
 
-            translationalVelocityProfile = new Piecewise();
-            for (int i = 0; i < translationalVelocityProfileArr.length(); i++) {
-                JSONObject intervalObj = translationalVelocityProfileArr.getJSONObject(i);
-                translationalVelocityProfile.setInterval(intervalObj.getDouble("a"), intervalObj.getDouble("b"), intervalObj.getString("exp"));
+            tVelProfile = new Piecewise();
+            for (int i = 0; i < tVelProfileArr.length(); i++) {
+                JSONObject intervalObj = tVelProfileArr.getJSONObject(i);
+                tVelProfile.setInterval(intervalObj.getDouble("a"), intervalObj.getDouble("b"), intervalObj.getString("exp"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -176,8 +175,8 @@ public class MotionProfile {
     public JSONObject toJSONObject() {
         JSONObject obj = new JSONObject();
         try {
-            obj.put("translationalAccelerationProfile", translationalAccelerationProfile.toJSONArray());
-            obj.put("translationalVelocityProfile", translationalVelocityProfile.toJSONArray());
+            obj.put("tAccProfile", tAccProfile.toJSONArray());
+            obj.put("tVelProfile", tVelProfile.toJSONArray());
         } catch (Exception e) {
             e.printStackTrace();
         }
