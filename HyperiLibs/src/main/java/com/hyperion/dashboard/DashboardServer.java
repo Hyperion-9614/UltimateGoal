@@ -28,6 +28,8 @@ public class DashboardServer {
 
         try {
             Configuration configuration = new Configuration();
+            constants.HOST_IP = InetAddress.getLocalHost().getHostAddress();
+            constants.write();
             configuration.setHostname(constants.HOST_IP);
             configuration.setPort(constants.PORT);
             server = new SocketIOServer(configuration);
@@ -36,19 +38,24 @@ public class DashboardServer {
                 String address = client.getRemoteAddress().toString()
                                  .substring(0, client.getRemoteAddress().toString().indexOf(":"))
                                  .replace("/", "");
+                String type;
                 if (rcClient == null && address.equals(constants.RC_IP)) {
                     rcClient = client;
-                    Utils.printSocketLog("RC", "SERVER", "connected", options);
-                    client.sendEvent("dashboardJson", Utils.readDataJSON("dashboard", constants));
-                    Utils.printSocketLog("SERVER", "RC", "dashboardJson", options);
+                    type = "RC";
                 } else {
-                    Utils.printSocketLog("UI", "SERVER", "connected", options);
                     dashboardClients.add(client);
-                    client.sendEvent("constantsUpdated", Utils.readDataJSON("constants", constants));
-                    Utils.printSocketLog("SERVER", "UI", "constantsUpdated", options);
-                    client.sendEvent("dashboardJson", Utils.readDataJSON("dashboard", constants));
-                    Utils.printSocketLog("SERVER", "UI", "dashboardJson", options);
+                    type = "UI";
                 }
+                Utils.printSocketLog(type, "SERVER", "connected", options);
+
+                client.sendEvent("constantsUpdated", Utils.readDataJSON("constants", constants));
+                Utils.printSocketLog("SERVER", type, "constantsUpdated", options);
+                client.sendEvent("optionsUpdated", Utils.readDataJSON("options", constants));
+                Utils.printSocketLog("SERVER", type, "optionsUpdated", options);
+                client.sendEvent("configUpdated", Utils.readFile(new File(constants.RES_DATA_PREFIX + "/MainConfig.xml")));
+                Utils.printSocketLog("SERVER", type, "configUpdated", options);
+                client.sendEvent("dashboardUpdated", Utils.readDataJSON("dashboard", constants));
+                Utils.printSocketLog("SERVER", type, "dashboardUpdated", options);
             });
 
             server.addDisconnectListener(client -> {
@@ -64,17 +71,17 @@ public class DashboardServer {
                 }
             });
 
-            server.addEventListener("dashboardJson", String.class, (client, data, ackRequest) -> {
-                Utils.printSocketLog("UI", "SERVER", "dashboardJson", options);
+            server.addEventListener("dashboardUpdated", String.class, (client, data, ackRequest) -> {
+                Utils.printSocketLog("UI", "SERVER", "dashboardUpdated", options);
 
                 try {
                     for (SocketIOClient dashboardClient : dashboardClients) {
-                        dashboardClient.sendEvent("dashboardJson", data);
-                        Utils.printSocketLog("SERVER", "UI", "dashboardJson", options);
+                        dashboardClient.sendEvent("dashboardUpdated", data);
+                        Utils.printSocketLog("SERVER", "UI", "dashboardUpdated", options);
                     }
                     if (rcClient != null) {
-                        rcClient.sendEvent("dashboardJson", data);
-                        Utils.printSocketLog("SERVER", "RC", "dashboardJson", options);
+                        rcClient.sendEvent("dashboardUpdated", data);
+                        Utils.printSocketLog("SERVER", "RC", "dashboardUpdated", options);
                     }
 
                     Utils.writeDataJSON(data, "dashboard", constants);
@@ -121,6 +128,17 @@ public class DashboardServer {
                 if (rcClient != null) {
                     rcClient.sendEvent("constantsUpdated", data);
                     Utils.printSocketLog("SERVER", "RC", "constantsUpdated", options);
+                }
+            });
+
+            server.addEventListener("configUpdated", String.class, (client, data, ackRequest) -> {
+                for (SocketIOClient dashboardClient : dashboardClients) {
+                    dashboardClient.sendEvent("configUpdated", data);
+                    Utils.printSocketLog("SERVER", "UI", "configUpdated", options);
+                }
+                if (rcClient != null) {
+                    rcClient.sendEvent("configUpdated", data);
+                    Utils.printSocketLog("SERVER", "RC", "configUpdated", options);
                 }
             });
 

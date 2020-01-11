@@ -63,6 +63,7 @@ public class UIClient extends Application {
     public static Robot robot;
     public static ArrayList<Waypoint> waypoints = new ArrayList<>();
     public static HashMap<String, String> unimetry = new HashMap<>();
+    public static String config = "";
 
     public static String opModeID = "auto.blue.full";
     public static boolean isBuildingPaths;
@@ -143,8 +144,8 @@ public class UIClient extends Application {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }).on("dashboardJson", args -> {
-                Utils.printSocketLog("SERVER", "UI", "dashboardJson", options);
+            }).on("dashboardUpdated", args -> {
+                Utils.printSocketLog("SERVER", "UI", "dashboardUpdated", options);
                 readDashboard(args[0].toString());
             }).on("pathFound", args -> {
                 Utils.printSocketLog("SERVER", "UI", "pathFound", options);
@@ -158,7 +159,6 @@ public class UIClient extends Application {
                 currentPath.removeDisplayGroup();
                 robot.removeDisplayGroup();
                 robot = null;
-
             }).on("unimetryUpdated", args -> {
                 Utils.printSocketLog("SERVER", "UI", "unimetryUpdated", options);
                 readUnimetry(args[0].toString());
@@ -168,6 +168,13 @@ public class UIClient extends Application {
                     robot.addDisplayGroup();
                 }
                 robot.refreshDisplayGroup(new RigidBody(unimetry.get("Current")));
+            }).on("configUpdated", args -> {
+                Utils.printSocketLog("SERVER", "UI", "configUpdated", options);
+                config = args[0].toString();
+                if (optionsPane != null) {
+                    optionsPane.setConfigDisplayText();
+                }
+                Utils.writeFile(config, new File(constants.RES_DATA_PREFIX + "/MainConfig.xml"));
             });
 
             uiClient.connect();
@@ -254,8 +261,8 @@ public class UIClient extends Application {
 
     // Send dashboard json
     public static void sendDashboard() {
-        uiClient.emit("dashboardJson", writeDashboard());
-        Utils.printSocketLog("UI", "SERVER", "dashboardJson", options);
+        uiClient.emit("dashboardUpdated", writeDashboard());
+        Utils.printSocketLog("UI", "SERVER", "dashboardUpdated", options);
     }
 
     // Send constants json

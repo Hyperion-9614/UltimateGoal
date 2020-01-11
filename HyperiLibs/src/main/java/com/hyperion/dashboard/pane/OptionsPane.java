@@ -1,5 +1,6 @@
 package com.hyperion.dashboard.pane;
 
+import com.github.underscore.lodash.U;
 import com.hyperion.common.Utils;
 import com.hyperion.dashboard.UIClient;
 import com.hyperion.dashboard.uiobj.DisplaySpline;
@@ -32,6 +33,7 @@ import javafx.scene.text.TextAlignment;
 public class OptionsPane extends VBox {
 
     public TextArea optionsDisplay;
+    public TextArea configDisplay;
 
     @SuppressWarnings("unchecked")
     public OptionsPane() {
@@ -97,8 +99,7 @@ public class OptionsPane extends VBox {
             clearAllOpModes.setOnMouseClicked(event -> {
                 UIClient.waypoints = new ArrayList<>();
                 UIClient.splines = new ArrayList<>();
-                UIClient.uiClient.emit("dashboardJson", UIClient.writeDashboard());
-                Utils.printSocketLog("UI", "SERVER", "dashboardJson", UIClient.options);
+                UIClient.sendDashboard();
             });
             buttons.getChildren().add(clearAllOpModes);
 
@@ -132,13 +133,50 @@ public class OptionsPane extends VBox {
             final ComboBox opModeSelector = new ComboBox(options);
             opModeSelector.valueProperty().setValue("auto.blue.full");
             opModeSelector.setStyle("-fx-font: 24px \"Arial\";");
-            opModeSelector.setPrefSize(310, 70);
+            opModeSelector.setPrefSize(310, 91);
             opModeSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
                 UIClient.fieldPane.deselectAll();
                 UIClient.opModeID = newValue.toString();
                 UIClient.sendDashboard();
             });
             getChildren().add(opModeSelector);
+
+            Label configLabel = new Label("Config");
+            configLabel.setTextFill(Color.WHITE);
+            configLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
+            configLabel.setPrefWidth(getPrefWidth());
+            getChildren().add(configLabel);
+
+            configDisplay = new TextArea();
+            configDisplay.setStyle("-fx-font: 14px \"Arial\";");
+            configDisplay.setPrefSize(310, 321);
+            configDisplay.setEditable(true);
+            configDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
+                try {
+                    if (!newValue.equals(oldValue)) {
+                        UIClient.config = newValue;
+                        UIClient.uiClient.emit("configUpdated", UIClient.config);
+                        Utils.printSocketLog("UI", "SERVER", "configUpdated", UIClient.options);
+                    }
+                } catch (Exception ignored) {
+
+                }
+            });
+            getChildren().add(configDisplay);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setConfigDisplayText() {
+        try {
+            int caretPosition = configDisplay.caretPositionProperty().get();
+            double scrollLeft = configDisplay.getScrollLeft();
+            double scrollTop = configDisplay.getScrollTop();
+            configDisplay.setText(U.formatXml(UIClient.config));
+            configDisplay.positionCaret(caretPosition);
+            configDisplay.setScrollLeft(scrollLeft);
+            configDisplay.setScrollTop(scrollTop);
         } catch (Exception e) {
             e.printStackTrace();
         }

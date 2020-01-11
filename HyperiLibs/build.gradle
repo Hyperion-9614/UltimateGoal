@@ -5,6 +5,7 @@ dependencies {
     implementation 'org.mariuszgromada.math:MathParser.org-mXparser:4.3.3'
     implementation 'io.socket:socket.io-client:1.0.0'
     implementation 'com.corundumstudio.socketio:netty-socketio:1.7.17'
+    implementation 'com.github.javadev:underscore:1.51'
 }
 
 sourceCompatibility = "8"
