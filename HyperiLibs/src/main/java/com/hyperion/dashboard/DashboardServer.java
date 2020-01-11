@@ -72,7 +72,6 @@ public class DashboardServer {
                         dashboardClient.sendEvent("dashboardJson", data);
                         Utils.printSocketLog("SERVER", "UI", "dashboardJson", options);
                     }
-
                     if (rcClient != null) {
                         rcClient.sendEvent("dashboardJson", data);
                         Utils.printSocketLog("SERVER", "RC", "dashboardJson", options);
@@ -118,6 +117,10 @@ public class DashboardServer {
                 for (SocketIOClient dashboardClient : dashboardClients) {
                     dashboardClient.sendEvent("constantsUpdated", data);
                     Utils.printSocketLog("SERVER", "UI", "constantsUpdated", options);
+                }
+                if (rcClient != null) {
+                    rcClient.sendEvent("constantsUpdated", data);
+                    Utils.printSocketLog("SERVER", "RC", "constantsUpdated", options);
                 }
             });
 
