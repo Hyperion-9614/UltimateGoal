@@ -197,7 +197,9 @@ public class Constants {
             JSONObject odometryPoses = new JSONObject();
             odometryPoses.put("xLRelativePose", new JSONArray(XL_REL.toArray()));
             odometryPoses.put("xRRelativePose", new JSONArray(XR_REL.toArray()));
-            odometryPoses.put("yRelativePose", new JSONArray(Y_REL.toArray()));
+            double[] yrel = Y_REL.toArray();
+            yrel[2] = Math.toDegrees(yrel[2]);
+            odometryPoses.put("yRelativePose", new JSONArray(yrel));
             localization.put("odometryPoses", odometryPoses);
 
             localization.put("trackWidth", TRACK_WIDTH);

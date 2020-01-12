@@ -157,7 +157,7 @@ public class UIClient extends Application {
             }).on("opModeEnded", args -> {
                 Utils.printSocketLog("SERVER", "UI", "opModeEnded", options);
                 currentPath.removeDisplayGroup();
-                robot.removeDisplayGroup();
+                if (robot != null) robot.removeDisplayGroup();
                 robot = null;
             }).on("unimetryUpdated", args -> {
                 Utils.printSocketLog("SERVER", "UI", "unimetryUpdated", options);

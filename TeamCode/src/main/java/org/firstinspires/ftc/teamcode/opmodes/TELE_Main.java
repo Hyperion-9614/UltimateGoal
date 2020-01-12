@@ -134,7 +134,7 @@ public class TELE_Main extends LinearOpMode {
              * B : Claw toggle
              */
             if (gamepad1.b && !clawToggle) {
-                appendages.setClawStatus(appendages.clawStatus.equals("open") ? "closed" : "open");
+                appendages.setAutoClawGripStatus(appendages.autoClawGripStatus.equals("open") ? "closed" : "open");
                 clawToggle = true;
             } else if (!gamepad1.b) {
                 clawToggle = false;
