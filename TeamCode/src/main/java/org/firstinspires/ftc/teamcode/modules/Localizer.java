@@ -41,13 +41,6 @@ public class Localizer {
         this.hw.xLOdo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         this.hw.xROdo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         this.hw.yOdo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        RealMatrix A = new Array2DRowRealMatrix(new double[][]{
-                new double[]{ Math.cos(hw.constants.XL_REL.theta), Math.sin(hw.constants.XL_REL.theta), hw.constants.XL_REL.x * Math.sin(hw.constants.XL_REL.theta) - hw.constants.XL_REL.y * Math.cos(hw.constants.XL_REL.theta) },
-                new double[]{ Math.cos(hw.constants.XR_REL.theta), Math.sin(hw.constants.XR_REL.theta), hw.constants.XR_REL.x * Math.sin(hw.constants.XR_REL.theta) - hw.constants.XR_REL.y * Math.cos(hw.constants.XR_REL.theta) },
-                new double[]{ Math.cos(hw.constants.Y_REL.theta), Math.sin(hw.constants.Y_REL.theta), hw.constants.Y_REL.x * Math.sin(hw.constants.Y_REL.theta) - hw.constants.Y_REL.y * Math.cos(hw.constants.Y_REL.theta) }
-        });
-        AInv = MatrixUtils.inverse(A.scalarMultiply(1.0 / hw.constants.ODO_WHEEL_RADIUS));
     }
 
     public synchronized void update() {
@@ -73,6 +66,14 @@ public class Localizer {
             double omegaY = dy / hw.constants.ODO_WHEEL_RADIUS;
 
             RealMatrix omega = new Array2DRowRealMatrix(new double[][]{ new double[]{ omegaXl, omegaXr, omegaY } }).transpose();
+            if (AInv == null) {
+                RealMatrix A = new Array2DRowRealMatrix(new double[][]{
+                        new double[]{ Math.cos(hw.constants.XL_REL.theta), Math.sin(hw.constants.XL_REL.theta), hw.constants.XL_REL.x * Math.sin(hw.constants.XL_REL.theta) - hw.constants.XL_REL.y * Math.cos(hw.constants.XL_REL.theta) },
+                        new double[]{ Math.cos(hw.constants.XR_REL.theta), Math.sin(hw.constants.XR_REL.theta), hw.constants.XR_REL.x * Math.sin(hw.constants.XR_REL.theta) - hw.constants.XR_REL.y * Math.cos(hw.constants.XR_REL.theta) },
+                        new double[]{ Math.cos(hw.constants.Y_REL.theta), Math.sin(hw.constants.Y_REL.theta), hw.constants.Y_REL.x * Math.sin(hw.constants.Y_REL.theta) - hw.constants.Y_REL.y * Math.cos(hw.constants.Y_REL.theta) }
+                });
+                AInv = MatrixUtils.inverse(A.scalarMultiply(1.0 / hw.constants.ODO_WHEEL_RADIUS));
+            }
             double[] dR = AInv.multiply(omega).getColumn(0);
 
             hw.motion.robot.tVel = new Vector2D(dR[0], dR[1], true).scaled(1.0 / dT);
