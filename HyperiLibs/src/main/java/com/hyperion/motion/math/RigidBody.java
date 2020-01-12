@@ -47,16 +47,12 @@ public class RigidBody {
     }
 
     public RigidBody(String str) {
-        this.pose = new Pose(str);
-        str = str.substring(str.indexOf("tVel"));
-        this.tVel = new Vector2D(str);
-        str = str.substring(str.indexOf("tAcc"));
-        this.tVel = new Vector2D(str);
-        str = str.substring(str.indexOf("aVel"));
+        str = str.replaceAll("[^\\d. -]", "");
         Scanner scanner = new Scanner(str);
+        this.pose = new Pose(scanner.nextDouble(), scanner.nextDouble(), Math.toRadians(scanner.nextDouble()));
+        this.tVel = new Vector2D(scanner.nextDouble(), Math.toRadians(scanner.nextDouble()), false);
+        this.tAcc = new Vector2D(scanner.nextDouble(), Math.toRadians(scanner.nextDouble()), false);
         this.aVel = scanner.nextDouble();
-        str = str.substring(str.indexOf("aAcc"));
-        scanner = new Scanner(str);
         this.aAcc = scanner.nextDouble();
         scanner.close();
     }

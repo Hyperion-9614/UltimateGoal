@@ -123,12 +123,12 @@ public class TELE_Main extends LinearOpMode {
              * A : Foundation mover toggle
              */
             if (gamepad1.a && !foundationMoverToggle) {
-                appendages.setFoundationMoverStatus(appendages.foundationMoverStatus.equals("down") ? "up" : "down");
+                appendages.setAutoClawSwingStatus(appendages.autoClawSwingStatus.equals("down") ? "up" : "down");
                 foundationMoverToggle = true;
             } else if (!gamepad1.a) {
                 foundationMoverToggle = false;
             }
-
+            
             /*
              * GAMEPAD 1
              * B : Claw toggle

@@ -40,14 +40,6 @@ public class Pose {
         this.theta = theta;
     }
 
-    public Pose(String str) {
-        Scanner scanner = new Scanner(str);
-        this.x = scanner.nextDouble();
-        this.y = scanner.nextDouble();
-        this.theta = Math.toRadians(scanner.nextDouble());
-        scanner.close();
-    }
-
     public void setXY(double x, double y) {
         this.x = x;
         this.y = y;

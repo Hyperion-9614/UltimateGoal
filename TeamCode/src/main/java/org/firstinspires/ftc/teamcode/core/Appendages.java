@@ -28,6 +28,7 @@ public class Appendages {
         hardware.compWheelsL.setDirection(DcMotorSimple.Direction.REVERSE);
         hardware.foundationMoverL.setDirection(Servo.Direction.REVERSE);
         hardware.chainBarL.setDirection(Servo.Direction.REVERSE);
+        hardware.autoClawGrip.setDirection(DcMotorSimple.Direction.REVERSE);
 
         setCompWheelsStatus("stop");
         setFoundationMoverStatus("up");
@@ -114,7 +115,7 @@ public class Appendages {
     public void setChainBarStatus(String upInOut) {
         chainBarStatus = upInOut.toLowerCase();
         if (chainBarStatus.equals("up")) {
-            setChainBarPosition(0.8);
+            setChainBarPosition(0.85);
         } else if (chainBarStatus.equals("in")) {
             setChainBarPosition(0.95);
         } else if (chainBarStatus.equals("out")) {
@@ -143,7 +144,6 @@ public class Appendages {
         } else {
             hardware.claw.setPower(-1.0);
         }
-        hardware.context.sleep(500);
     }
 
     public void setAutoClawSwingStatus(String downUp) {
@@ -152,18 +152,16 @@ public class Appendages {
             hardware.autoClawSwing.setPosition(1.0);
         } else {
             hardware.autoClawSwing.setPosition(0.5);
-    }
-        hardware.context.sleep(500);
+        }
     }
 
     public void setAutoClawGripStatus(String openClosed) {
         autoClawGripStatus = openClosed.toLowerCase();
         if (autoClawGripStatus.equals("open")) {
-            hardware.autoClawGrip.setPower(1.0);
+            hardware.autoClawGrip.setPower(-0.2);
         } else {
-            hardware.autoClawGrip.setPower(-0.3);
+            hardware.autoClawGrip.setPower(1.0);
         }
-        hardware.context.sleep(500);
     }
 
 }

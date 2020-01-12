@@ -41,16 +41,6 @@ public class Vector2D {
         }
     }
 
-    public Vector2D(String str) {
-        Scanner scanner = new Scanner(str);
-        this.magnitude = scanner.nextDouble();
-        this.theta = Math.toRadians(scanner.nextDouble());
-        scanner.close();
-
-        x = magnitude * Math.cos(theta);
-        y = magnitude * Math.sin(theta);
-    }
-
     public Vector2D(Pose a, Pose b) {
         this(b.x - a.x, b.y - a.y, true);
     }
