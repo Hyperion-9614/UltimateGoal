@@ -3,12 +3,12 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.hyperion.motion.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.core.Appendages;
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.firstinspires.ftc.teamcode.core.Motion;
+import org.firstinspires.ftc.teamcode.modules.CvPipeline;
 
 /**
  *  Main AutoOp
@@ -67,11 +67,12 @@ public class AUTO_Main extends LinearOpMode {
     // Locate and intake skystone
     public void scanSkystone() {
         motion.goToWaypoint("scan");
-
         ElapsedTime timer = new ElapsedTime();
         motion.strafe(new Vector2D(0.5, 3 * Math.PI / 2, false));
         while (timer.milliseconds() < 3000) {
-            // TODO: Aditya this is you
+            if (CvPipeline.skyStoneDetected) {
+                break;
+            }
         }
         motion.setDrive(0);
 
