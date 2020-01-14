@@ -21,9 +21,6 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.revextensions2.ExpansionHubEx;
 
 import java.io.File;
-import java.util.Calendar;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -40,8 +37,7 @@ public class Hardware {
     public HardwareMap hwmp;
     public boolean isRunning;
     public Thread updater;
-    public Timer forceParkTimer;
-    public Thread forceParkThread;
+    public ElapsedTime autoTime;
 
     public Motion motion;
     public Appendages appendages;
@@ -216,28 +212,20 @@ public class Hardware {
         motion.robot = new RigidBody(motion.start);
     }
 
-    // Start a thread that will force the robot to park no matter what when the round has 3.5 seconds left
-    public void startForceParkTimer() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MILLISECOND, 30000 - 3500);
-
-        forceParkThread = new Thread(() -> {
-            motion.goToWaypoint("park");
-            context.requestOpModeStop();
-        });
-
-        forceParkTimer = new Timer();
-        forceParkTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    forceParkThread.start();
-                    forceParkThread.join();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+    // Force park when 3.5 seconds are left
+    public void checkForcePark() {
+        if (opModeID.contains("auto") && autoTime.milliseconds() >= 30000 - 3500) {
+            try {
+                Thread forceParkThread = new Thread(() -> {
+                    motion.goToWaypoint("park");
+                    context.requestOpModeStop();
+                });
+                forceParkThread.start();
+                forceParkThread.join();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }, calendar.getTime());
+        }
     }
 
     // Wrap up OpMode
@@ -246,7 +234,6 @@ public class Hardware {
         isRunning = false;
 
         if (updater != null && updater.isAlive() && !updater.isInterrupted()) updater.interrupt();
-        if (forceParkThread != null && forceParkThread.isAlive() && !forceParkThread.isInterrupted()) forceParkThread.interrupt();
 
         if (phoneCam != null) {
             phoneCam.pauseViewport();

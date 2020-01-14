@@ -53,7 +53,7 @@ public class AUTO_Main extends LinearOpMode {
 
     public void execute() {
         try {
-            hardware.startForceParkTimer();
+            hardware.autoTime = new ElapsedTime();
             if (hardware.opModeID.endsWith("full")) {
                 scanSkystone();
                 dragFoundation();
@@ -81,6 +81,7 @@ public class AUTO_Main extends LinearOpMode {
             if (CvPipeline.skyStoneDetected) {
                 break;
             }
+            hardware.checkForcePark();
         }
         motion.setDrive(0);
 

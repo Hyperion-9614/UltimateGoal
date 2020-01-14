@@ -111,6 +111,7 @@ public class Motion {
             hw.fRDrive.setPower(powers[1]);
             hw.bRDrive.setPower(powers[1]);
         }
+        hw.checkForcePark();
     }
     public void setDrive(Vector2D moveVec, double rot) {
         setDrive(new double[]{
