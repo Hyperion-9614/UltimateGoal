@@ -10,6 +10,8 @@ import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.firstinspires.ftc.teamcode.core.Motion;
 import org.firstinspires.ftc.teamcode.modules.CvPipeline;
 
+import java.util.Objects;
+
 /**
  *  Main AutoOp
  *  Select op mode then start
@@ -51,21 +53,27 @@ public class AUTO_Main extends LinearOpMode {
 
     public void execute() {
         try {
+            hardware.startForceParkTimer();
             if (hardware.opModeID.endsWith("full")) {
                 scanSkystone();
                 dragFoundation();
                 hardware.preset_placeStone();
+
+//                scanSkystone();
+//                hardware.preset_placeStone();
             } else if (hardware.opModeID.endsWith("foundation")) {
                 dragFoundation();
             }
+
             motion.goToWaypoint("park");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     // Locate and intake skystone
-    public void scanSkystone() {
+    private void scanSkystone() {
         motion.goToWaypoint("scan");
         ElapsedTime timer = new ElapsedTime();
         motion.strafe(new Vector2D(0.5, 3 * Math.PI / 2, false));
@@ -84,8 +92,8 @@ public class AUTO_Main extends LinearOpMode {
     }
 
     // Pivot drag foundation & push into building zone
-    public void dragFoundation() {
-        motion.goToWaypoint(motion.splines.get(hardware.opModeID + ".splines.drag").waypoints.get(0).pose);
+    private void dragFoundation() {
+        motion.goToWaypoint(Objects.requireNonNull(motion.splines.get(hardware.opModeID + ".splines.drag")).waypoints.get(0).pose);
         appendages.setFoundationMoverStatus("down");
         motion.followPath("drag");
         appendages.setFoundationMoverStatus("up");

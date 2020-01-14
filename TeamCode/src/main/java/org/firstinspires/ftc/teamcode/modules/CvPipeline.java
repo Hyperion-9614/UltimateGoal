@@ -70,22 +70,17 @@ public class CvPipeline extends OpenCvPipeline {
 
                 List<Double> list = new ArrayList<>();
                 list.add(confidence);
-                list.add(Double.valueOf(left));
-                list.add(Double.valueOf(top));
-                list.add(Double.valueOf(right));
-                list.add(Double.valueOf(bottom));
-                list.add(Double.valueOf(classId));
+                list.add((double) left);
+                list.add((double) top);
+                list.add((double) right);
+                list.add((double) bottom);
+                list.add((double) classId);
 
                 blobList.add(list);
             }
         }
 
-        Collections.sort(blobList, new Comparator<List<Double>>() {
-            @Override
-            public int compare(List<Double> a, List<Double> b) {
-                return a.get(0) > b.get(0) ? 1 : -1;
-            }
-        });
+        Collections.sort(blobList, (a, b) -> a.get(0) > b.get(0) ? 1 : -1);
 
         Collections.reverse(blobList);
 
@@ -97,7 +92,7 @@ public class CvPipeline extends OpenCvPipeline {
             String detectedObj = "";
 
 
-            double v = blobStuff.get(5).doubleValue();
+            double v = blobStuff.get(5);
             if (v == 3.0) {
                 detectedObj = "Skystone";
                 numOfSkystone++;

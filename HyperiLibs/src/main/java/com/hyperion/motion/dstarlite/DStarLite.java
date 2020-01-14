@@ -384,17 +384,19 @@ public class DStarLite {
     }
 
     public ArrayList<RigidBody> optimalPath(Pose start, Pose goal) {
-        init(start.x, start.y, goal.x, goal.y);
-        for (Node obstacle : obstacles) {
-            updateCell(obstacle.x, obstacle.y, -1);
-        }
-        replan();
-        updateGoal();
+//        init(start.x, start.y, goal.x, goal.y);
+//        for (Node obstacle : obstacles) {
+//            updateCell(obstacle.x, obstacle.y, -1);
+//        }
+//        replan();
+//        updateGoal();
 
         ArrayList<RigidBody> toReturn = new ArrayList<>();
-        for (Node node : path) {
-            toReturn.add(new RigidBody(new Pose(node.x, node.y)));
-        }
+//        for (Node node : path) {
+//            toReturn.add(new RigidBody(new Pose(node.x, node.y)));
+//        }
+        toReturn.add(new RigidBody(start));
+        toReturn.add(new RigidBody(goal));
         return toReturn;
     }
 
