@@ -12,7 +12,6 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import static org.apache.commons.io.FilenameUtils.getPath;
@@ -24,6 +23,7 @@ public class CvPipeline extends OpenCvPipeline {
     public Hardware hardware;
     private static final String TAG = "OpenCV/DNN";
     public static boolean skyStoneDetected = false;
+    public static ArrayList<Integer> StonePath = new ArrayList<Integer>(2);
 
     public CvPipeline(Hardware hardware) {
         String pbFile = getPath("model.pb");
@@ -35,6 +35,7 @@ public class CvPipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat inputFrame) {
         skyStoneDetected = false;
+        StonePath.clear();
         final int IN_WIDTH = 300;
         final int IN_HEIGHT = 300;
         final double IN_SCALE_FACTOR = 1;
@@ -84,10 +85,11 @@ public class CvPipeline extends OpenCvPipeline {
 
         Collections.reverse(blobList);
 
-        int maxIndex = blobList.size() > 6 ? 6 : blobList.size();
+        int maxIndex = blobList.size() > 3 ? 3 : blobList.size();
         int numOfSkystone = 0;
-
-        for (int i = 0; i < 6; i++) {
+        ArrayList<String> StonePosition = new ArrayList<String>(3);
+        StonePosition.clear();
+        for (int i = 0; i < 3; i++) {
             List<Double> blobStuff = blobList.get(i);
             String detectedObj = "";
 
@@ -96,9 +98,11 @@ public class CvPipeline extends OpenCvPipeline {
             if (v == 3.0) {
                 detectedObj = "Skystone";
                 numOfSkystone++;
+                StonePosition.add("Skystone");
                 skyStoneDetected = true;
             } else if (v == 4.0) {
                 detectedObj = "Stone";
+                StonePosition.add("Stone");
             } else if (v == 2.0) {
                 detectedObj = "Red Foundation";
             } else if (v == 1.0) {
@@ -117,6 +121,8 @@ public class CvPipeline extends OpenCvPipeline {
             Imgproc.putText(inputFrame, label, new Point(blobStuff.get(0), blobStuff.get(2)),
                     FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 0, 0));
         }
+        StonePath.add(StonePosition.indexOf("Skystone") + 1);
+        StonePath.add(StonePosition.indexOf("Skystone") + 3);
         return inputFrame;
     }
 }
