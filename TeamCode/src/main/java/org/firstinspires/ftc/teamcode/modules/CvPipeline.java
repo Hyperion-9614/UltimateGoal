@@ -17,6 +17,8 @@ import java.util.List;
 import static org.apache.commons.io.FilenameUtils.getPath;
 import static org.opencv.imgproc.Imgproc.FONT_HERSHEY_SIMPLEX;
 
+//TODO: Actually test this shit out
+
 public class CvPipeline extends OpenCvPipeline {
 
     private static Net net;
@@ -36,6 +38,8 @@ public class CvPipeline extends OpenCvPipeline {
     public Mat processFrame(Mat inputFrame) {
         skyStoneDetected = false;
         StonePath.clear();
+        Rect relevantCameraStream = new Rect(0, 0 , 220, 240) //TODO: Test this line and the line below; this is very sketchy
+        Mat croppedFrame = new Mat (inputFrame, relevantCameraStream);
         final int IN_WIDTH = 300;
         final int IN_HEIGHT = 300;
         final double IN_SCALE_FACTOR = 1;
@@ -43,18 +47,18 @@ public class CvPipeline extends OpenCvPipeline {
         final double THRESHOLD = 0.85;
 
         // Get a new frame
-        Imgproc.cvtColor(inputFrame, inputFrame, Imgproc.COLOR_RGBA2BGR);
+        Imgproc.cvtColor(croppedFrame, croppedFrame, Imgproc.COLOR_RGBA2BGR);
 
         // Forward image through network.
-        Mat blob = Dnn.blobFromImage(inputFrame, IN_SCALE_FACTOR, new Size(IN_WIDTH, IN_HEIGHT), new Scalar(MEAN_VAL, MEAN_VAL, MEAN_VAL), false, false);
+        Mat blob = Dnn.blobFromImage(croppedFrame, IN_SCALE_FACTOR, new Size(IN_WIDTH, IN_HEIGHT), new Scalar(MEAN_VAL, MEAN_VAL, MEAN_VAL), false, false);
         net.setInput(blob);
 
         List<List<Double>> blobList = new ArrayList<>();
 
         Mat detections = net.forward();
 
-        int cols = inputFrame.cols();
-        int rows = inputFrame.rows();
+        int cols = croppedFrame.cols();
+        int rows = croppedFrame.rows();
 
 
         detections = detections.reshape(1, (int) detections.total() / 7);
@@ -114,15 +118,15 @@ public class CvPipeline extends OpenCvPipeline {
             String label = detectedObj + ": " + blobStuff.get(0);
             int[] baseLine = new int[1];
             Size labelSize = Imgproc.getTextSize(label, FONT_HERSHEY_SIMPLEX, 0.5, 1, baseLine);
-            Imgproc.rectangle(inputFrame, new Point(blobStuff.get(1).intValue(), blobStuff.get(2).intValue() - labelSize.height),
+            Imgproc.rectangle(croppedFrame, new Point(blobStuff.get(1).intValue(), blobStuff.get(2).intValue() - labelSize.height),
                     new Point(blobStuff.get(1).intValue() + labelSize.width, blobStuff.get(2).intValue() + baseLine[0]),
                     new Scalar(255, 255, 255), Imgproc.FILLED);
             // Write class name and confidence.
-            Imgproc.putText(inputFrame, label, new Point(blobStuff.get(0), blobStuff.get(2)),
+            Imgproc.putText(croppedFrame, label, new Point(blobStuff.get(0), blobStuff.get(2)),
                     FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 0, 0));
         }
         StonePath.add(StonePosition.indexOf("Skystone") + 1);
         StonePath.add(StonePosition.indexOf("Skystone") + 3);
-        return inputFrame;
+        return croppedFrame;
     }
 }
