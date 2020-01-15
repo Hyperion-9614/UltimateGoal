@@ -214,6 +214,8 @@ public class Hardware {
         this.opModeID = opModeID;
         status = "Running " + opModeID;
 
+        initCV(opModeID.contains("blue") ? "blue" : "red");
+
         Pose startPose = motion.waypoints.get(opModeID + ".waypoint.start");
         if (startPose == null) startPose = new Pose();
         motion.start = new RigidBody(startPose);
