@@ -29,20 +29,32 @@ public class AUTO_Main extends LinearOpMode {
         hardware = new Hardware(this);
         motion = hardware.motion;
         appendages = hardware.appendages;
+        if (hardware.opModeID.contains("blue")) {
+            hardware.initCV("blue");
+        } else if (hardware.opModeID.contains("red")) {
+            hardware.initCV("red");
+        }
+
 
         while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hardware.isRunning))) {
             if (gamepad1.b) {
                 hardware.initOpMode("auto.red.full");
+
             } else if (gamepad1.x) {
                 hardware.initOpMode("auto.blue.full");
+
             } else if (gamepad1.y) {
                 hardware.initOpMode("auto.red.foundation");
+
             } else if (gamepad1.a) {
                 hardware.initOpMode("auto.blue.foundation");
+
             } else if (gamepad1.dpad_right) {
                 hardware.initOpMode("auto.red.brick");
+
             } else if (gamepad1.dpad_left) {
                 hardware.initOpMode("auto.blue.brick");
+
             }
         }
 
@@ -81,6 +93,9 @@ public class AUTO_Main extends LinearOpMode {
         motion.strafe(new Vector2D(0.5, 3 * Math.PI / 2, false));
         while (timer.milliseconds() < 3000) {
             if (CvPipeline.skyStoneDetected) {
+                CvPipeline.StonePath.get(0); //TODO:@Adhit run path outputted based on integer
+                CvPipeline.StonePath.get(1); //TODO:@Adhit run path outputted based on integer
+                hardware.killCV();
                 break;
             }
             hardware.checkForcePark();
