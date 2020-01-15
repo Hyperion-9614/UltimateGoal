@@ -29,28 +29,32 @@ public class AUTO_Main extends LinearOpMode {
         hardware = new Hardware(this);
         motion = hardware.motion;
         appendages = hardware.appendages;
+        if (hardware.opModeID.contains("blue")) {
+            hardware.initCV("blue");
+        } else if (hardware.opModeID.contains("red")) {
+            hardware.initCV("red");
+        }
 
-        //TODO:Test or refactor below code for jankness
 
         while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hardware.isRunning))) {
             if (gamepad1.b) {
                 hardware.initOpMode("auto.red.full");
-                hardware.initCV("red");
+
             } else if (gamepad1.x) {
                 hardware.initOpMode("auto.blue.full");
-                hardware.initCV("blue");
+
             } else if (gamepad1.y) {
                 hardware.initOpMode("auto.red.foundation");
-                hardware.initCV("red");
+
             } else if (gamepad1.a) {
                 hardware.initOpMode("auto.blue.foundation");
-                hardware.initCV("blue");
+
             } else if (gamepad1.dpad_right) {
                 hardware.initOpMode("auto.red.brick");
-                hardware.initCV("red");
+
             } else if (gamepad1.dpad_left) {
                 hardware.initOpMode("auto.blue.brick");
-                hardware.initCV("blue");
+
             }
         }
 
