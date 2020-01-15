@@ -133,7 +133,6 @@ public class Hardware {
         unimetry = new Unimetry(this);
 
         initUpdater();
-        initCV();
 
         // Init options & dashboard
         if (options.debug) initDashboard();
@@ -157,11 +156,11 @@ public class Hardware {
     }
 
     // Initialize CV pipeline
-    public void initCV() {
+    public void initCV(String color) {
         int cameraMonitorViewId = hwmp.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmp.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
         phoneCam.openCameraDevice();
-        cvPipeline = new CvPipeline(this);
+        cvPipeline = new CvPipeline(this, color);
         phoneCam.setPipeline(cvPipeline);
         phoneCam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT, OpenCvInternalCamera.BufferMethod.DOUBLE);
         for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
@@ -169,6 +168,15 @@ public class Hardware {
                 phoneCam.setHardwareFrameTimingRange(r);
                 break;
             }
+        }
+    }
+
+    public void killCV() {
+        if (phoneCam != null) {
+            phoneCam.pauseViewport();
+            phoneCam.stopStreaming();
+            phoneCam.setPipeline(null);
+            phoneCam.closeCameraDevice();
         }
     }
 
@@ -235,12 +243,6 @@ public class Hardware {
 
         if (updater != null && updater.isAlive() && !updater.isInterrupted()) updater.interrupt();
 
-        if (phoneCam != null) {
-            phoneCam.pauseViewport();
-            phoneCam.stopStreaming();
-            phoneCam.setPipeline(null);
-            phoneCam.closeCameraDevice();
-        }
 
         if (opModeID.startsWith("auto")) {
             try {

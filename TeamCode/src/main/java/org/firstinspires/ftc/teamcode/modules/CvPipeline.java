@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.modules;
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.dnn.Dnn;
@@ -26,20 +27,39 @@ public class CvPipeline extends OpenCvPipeline {
     private static final String TAG = "OpenCV/DNN";
     public static boolean skyStoneDetected = false;
     public static ArrayList<Integer> StonePath = new ArrayList<Integer>(2);
+    String Color = "";
+    int x;
+    int y;
+    int width;
+    int height;
 
-    public CvPipeline(Hardware hardware) {
+    public CvPipeline(Hardware hardware, String color) {
         String pbFile = getPath("model.pb");
         String pbTxt = getPath("model.pbtxt");
         net = Dnn.readNetFromTensorflow(pbFile, pbTxt);
         this.hardware = hardware;
+        Color = color;
+        StonePath.clear();
+        if (Color == "red") {
+            x = 0;
+            y = 0;
+            width = 220;
+            height = 240;
+        } else if (Color == "blue") {
+            x = 0;
+            y = 0;
+            width = 220;
+            height = 240;
+        }
     }
+
 
     @Override
     public Mat processFrame(Mat inputFrame) {
         skyStoneDetected = false;
         StonePath.clear();
-        Rect relevantCameraStream = new Rect(0, 0 , 220, 240) //TODO: Test this line and the line below; this is very sketchy
-        Mat croppedFrame = new Mat (inputFrame, relevantCameraStream);
+        Rect relevantCameraStream = new Rect(x, y, width, height); //TODO: Test this line and the line below; this is very sketchy
+        Mat croppedFrame = inputFrame.submat(relevantCameraStream);
         final int IN_WIDTH = 300;
         final int IN_HEIGHT = 300;
         final double IN_SCALE_FACTOR = 1;
@@ -125,8 +145,13 @@ public class CvPipeline extends OpenCvPipeline {
             Imgproc.putText(croppedFrame, label, new Point(blobStuff.get(0), blobStuff.get(2)),
                     FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 0, 0));
         }
-        StonePath.add(StonePosition.indexOf("Skystone") + 1);
-        StonePath.add(StonePosition.indexOf("Skystone") + 3);
+        if (Color == "red") {
+            StonePath.add(StonePosition.indexOf("Skystone") + 1);
+            StonePath.add(StonePosition.indexOf("Skystone") + 3);
+        } else if (Color == "blue") {
+            StonePath.add(StonePosition.indexOf("Skystone") + 4);
+            StonePath.add(StonePosition.indexOf("Skystone") + 1);
+        }
         return croppedFrame;
     }
 }
