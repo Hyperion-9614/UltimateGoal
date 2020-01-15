@@ -54,14 +54,21 @@ public class OptionsPane extends VBox {
             optionsDisplay.setText(UIClient.options.toJSONObject().toString(4));
             optionsDisplay.setPrefSize(50, 7 * optionsDisplay.getPrefRowCount() + 8);
             optionsDisplay.setEditable(true);
-            optionsDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
+            Thread updateOptionsThread = new Thread(() -> {
                 try {
-                    UIClient.options.read(new JSONObject(newValue));
-                    Utils.writeDataJSON(newValue, "options", UIClient.constants);
-                } catch (Exception ignored) {
-
+                    long start = System.currentTimeMillis();
+                    while (true) {
+                        if (System.currentTimeMillis() - start >= 7000) {
+                            UIClient.options.read(new JSONObject(optionsDisplay.getText()));
+                            Utils.writeDataJSON(optionsDisplay.getText(), "options", UIClient.constants);
+                            start = System.currentTimeMillis();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
+            updateOptionsThread.start();
             getChildren().add(optionsDisplay);
 
             HBox buttons = new HBox();
@@ -151,17 +158,22 @@ public class OptionsPane extends VBox {
             configDisplay.setStyle("-fx-font: 14px \"Arial\";");
             configDisplay.setPrefSize(310, 321);
             configDisplay.setEditable(true);
-            configDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
+            Thread updateConfigThread = new Thread(() -> {
                 try {
-                    if (!newValue.equals(oldValue)) {
-                        UIClient.config = newValue;
-                        UIClient.uiClient.emit("configUpdated", UIClient.config);
-                        Utils.printSocketLog("UI", "SERVER", "configUpdated", UIClient.options);
+                    long start = System.currentTimeMillis();
+                    while (true) {
+                        if (System.currentTimeMillis() - start >= 8000) {
+                            UIClient.config = configDisplay.getText();
+                            UIClient.uiClient.emit("configUpdated", UIClient.config);
+                            Utils.printSocketLog("UI", "SERVER", "configUpdated", UIClient.options);
+                            start = System.currentTimeMillis();
+                        }
                     }
-                } catch (Exception ignored) {
-
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
+            updateConfigThread.start();
             getChildren().add(configDisplay);
         } catch (Exception e) {
             e.printStackTrace();

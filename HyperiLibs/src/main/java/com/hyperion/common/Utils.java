@@ -4,6 +4,8 @@ import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 
 import org.apache.commons.math3.util.Precision;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -285,6 +287,19 @@ public class Utils {
 
     public static String colorToCSS(Color color) {
         return "rgba(" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue() + ", " + color.getOpacity() + ")";
+    }
+
+    public static boolean isJSONValid(String test) {
+        try {
+            new JSONObject(test);
+        } catch (JSONException ex) {
+            try {
+                new JSONArray(test);
+            } catch (JSONException ex1) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

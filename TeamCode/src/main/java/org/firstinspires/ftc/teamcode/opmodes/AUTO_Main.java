@@ -55,9 +55,11 @@ public class AUTO_Main extends LinearOpMode {
         try {
             hardware.autoTime = new ElapsedTime();
             if (hardware.opModeID.endsWith("full")) {
-                scanSkystone();
-                dragFoundation();
-                hardware.preset_placeStone();
+                motion.followPath("test");
+
+//                scanSkystone();
+//                dragFoundation();
+//                hardware.preset_placeStone();
 
 //                scanSkystone();
 //                hardware.preset_placeStone();

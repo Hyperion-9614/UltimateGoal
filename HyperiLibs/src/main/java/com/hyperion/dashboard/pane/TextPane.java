@@ -55,17 +55,22 @@ public class TextPane extends VBox {
             constantsDisplay.setStyle("-fx-font: 14px \"Arial\";");
             constantsDisplay.setPrefSize(width, width);
             constantsDisplay.setEditable(true);
-            constantsDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
+            Thread updateConstantsThread = new Thread(() -> {
                 try {
-                    if (!newValue.equals(oldValue)) {
-                        UIClient.constants.read(new JSONObject(newValue));
-                        UIClient.sendConstants();
-                        UIClient.constants.write();
+                    long start = System.currentTimeMillis();
+                    while (true) {
+                        if (System.currentTimeMillis() - start >= 7000) {
+                            UIClient.constants.read(new JSONObject(constantsDisplay.getText()));
+                            UIClient.sendConstants();
+                            UIClient.constants.write();
+                            start = System.currentTimeMillis();
+                        }
                     }
-                } catch (Exception ignored) {
-
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
+            updateConstantsThread.start();
             getChildren().add(constantsDisplay);
         } catch (Exception e) {
             e.printStackTrace();

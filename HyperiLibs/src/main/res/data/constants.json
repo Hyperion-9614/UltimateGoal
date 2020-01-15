@@ -13,7 +13,7 @@
             }
         },
         "net": {
-            "hostIP": "192.168.1.201",
+            "hostIP": "192.168.49.156",
             "port": 8080,
             "rcIP": "192.168.1.49"
         },
@@ -30,17 +30,17 @@
         "odometryCyclesPerRevolution": 360,
         "odometryPoses": {
             "xLRelativePose": [
-                -9.525,
+                -5.556,
                 11.43,
                 0
             ],
             "xRRelativePose": [
-                -9.525,
+                -5.556,
                 -11.43,
                 0
             ],
             "yRelativePose": [
-                -21.08,
+                -17.939,
                 0,
                 90
             ]
@@ -52,7 +52,7 @@
         "theta": {
             "kD": 0,
             "kI": 0,
-            "kP": 0
+            "kP": 0.06
         },
         "x": {
             "kD": 0,
@@ -82,9 +82,9 @@
             "aVel": 0.3,
             "bisectionError": 1,
             "segmentLength": 50,
-            "tAcc": 30,
-            "tDec": 30,
-            "tVel": 213.36
+            "tAcc": 68.12,
+            "tDec": 6265.449,
+            "tVel": 350.12
         }
     },
     "teamcode": {
