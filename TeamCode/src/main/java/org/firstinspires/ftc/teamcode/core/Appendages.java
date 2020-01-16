@@ -28,13 +28,12 @@ public class Appendages {
         hardware.compWheelsL.setDirection(DcMotorSimple.Direction.REVERSE);
         hardware.foundationMoverL.setDirection(Servo.Direction.REVERSE);
         hardware.chainBarL.setDirection(Servo.Direction.REVERSE);
-        hardware.autoClawGrip.setDirection(DcMotorSimple.Direction.REVERSE);
 
         setCompWheelsStatus("stop");
         setFoundationMoverStatus("up");
         setChainBarStatus("in");
         setClawStatus("open");
-        setAutoClawSwingStatus("up");
+        setAutoClawSwingStatus("init");
         setAutoClawGripStatus("open");
     }
 
@@ -63,8 +62,7 @@ public class Appendages {
         ElapsedTime timer = new ElapsedTime();
         while ((hardware.vertSlideL.isBusy() || hardware.vertSlideR.isBusy()) && timer.milliseconds() <= 4000
                 && (hardware.context.gamepad1.left_stick_x == 0 && hardware.context.gamepad1.left_stick_y == 0 && hardware.context.gamepad1.right_stick_x == 0)) {
-            hardware.motion.localizer.update();
-            hardware.unimetry.update();
+
         }
 
         setVerticalSlidePower(0);
@@ -150,7 +148,9 @@ public class Appendages {
         autoClawSwingStatus = downUp.toLowerCase();
         if (autoClawSwingStatus.equals("down")) {
             hardware.autoClawSwing.setPosition(1.0);
-        } else {
+        } else if (autoClawSwingStatus.equals("up")) {
+            hardware.autoClawSwing.setPosition(0.75);
+        } else if (autoClawSwingStatus.equals("init")) {
             hardware.autoClawSwing.setPosition(0.5);
         }
     }
@@ -158,9 +158,9 @@ public class Appendages {
     public void setAutoClawGripStatus(String openClosed) {
         autoClawGripStatus = openClosed.toLowerCase();
         if (autoClawGripStatus.equals("open")) {
-            hardware.autoClawGrip.setPower(-0.2);
-        } else {
             hardware.autoClawGrip.setPower(1.0);
+        } else {
+            hardware.autoClawGrip.setPower(-0.9);
         }
     }
 

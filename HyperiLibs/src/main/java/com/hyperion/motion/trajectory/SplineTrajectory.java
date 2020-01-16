@@ -43,6 +43,7 @@ public class SplineTrajectory {
     public Piecewise distanceY = new Piecewise();
     public MotionProfile motionProfile;
     public double segmentLength;
+    public double length;
 
     public SplineTrajectory(ArrayList<RigidBody> waypoints, Constants constants) {
         this.constants = constants;
@@ -95,8 +96,6 @@ public class SplineTrajectory {
                 coefficients.put("distanceX", distanceX.toJSONArray());
                 coefficients.put("distanceY", distanceY.toJSONArray());
                 obj.put("coefficients", coefficients);
-
-                obj.put("motionProfile", motionProfile.toJSONObject());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -120,6 +119,7 @@ public class SplineTrajectory {
                 double distance = waypointArray.getDouble(1);
                 Pose newWaypoint = new Pose(waypointArray.getDouble(2), waypointArray.getDouble(3), waypointArray.getDouble(4));
                 waypoints.add(new RigidBody(T, distance, newWaypoint));
+                if (i == waypointsArray.length() - 1) length = waypoints.get(i).distance;
             }
 
             if (waypoints.size() >= 2) {
@@ -139,7 +139,7 @@ public class SplineTrajectory {
                 distanceX = new Piecewise(coefficientsObj.getJSONArray("distanceX"));
                 distanceY = new Piecewise(coefficientsObj.getJSONArray("distanceY"));
 
-                motionProfile.fromJSON(obj);
+                motionProfile.recreate();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -252,6 +252,7 @@ public class SplineTrajectory {
             if (shouldReparameterize) {
                 for (int i = 0; i < waypoints.size(); i++) {
                     waypoints.get(i).distance = arcDistance(i);
+                    if (i == waypoints.size() - 1) length = waypoints.get(i).distance;
                 }
                 calculatePlanningPoints();
                 interpolate(this.planningPoints, false);

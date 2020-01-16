@@ -144,7 +144,7 @@ public class Hardware {
     public void initUpdater() {
         updater = new Thread(() -> {
             long lastUpdateTime = System.currentTimeMillis();
-            while (!updater.isInterrupted() && updater.isAlive() && context.opModeIsActive() && !context.isStopRequested()) {
+            while (!updater.isInterrupted() && updater.isAlive() && !context.isStopRequested()) {
                 if (System.currentTimeMillis() - lastUpdateTime >= constants.UPDATER_DELAY) {
                     lastUpdateTime = System.currentTimeMillis();
                     motion.localizer.update();
@@ -189,8 +189,8 @@ public class Hardware {
                 Utils.printSocketLog("RC", "SERVER", "connected", options);
             }).on(Socket.EVENT_DISCONNECT, args -> {
                 Utils.printSocketLog("RC", "SERVER", "disconnected", options);
-            }).on("dashboardJson", args -> {
-                Utils.printSocketLog("SERVER", "RC", "dashboardJson", options);
+            }).on("dashboardUpdated", args -> {
+                Utils.printSocketLog("SERVER", "RC", "dashboardUpdated", options);
                 Utils.writeFile(args[0].toString(), dashboardJson);
             }).on("constantsUpdated", args -> {
                 try {
@@ -214,7 +214,7 @@ public class Hardware {
         this.opModeID = opModeID;
         status = "Running " + opModeID;
 
-        initCV(opModeID.contains("blue") ? "blue" : "red");
+//        initCV(opModeID.contains("blue") ? "blue" : "red");
 
         Pose startPose = motion.waypoints.get(opModeID + ".waypoint.start");
         if (startPose == null) startPose = new Pose();
@@ -228,7 +228,7 @@ public class Hardware {
             try {
                 Thread forceParkThread = new Thread(() -> {
                     motion.goToWaypoint("park");
-                    context.requestOpModeStop();
+                    end();
                 });
                 forceParkThread.start();
                 forceParkThread.join();
@@ -244,7 +244,6 @@ public class Hardware {
         isRunning = false;
 
         if (updater != null && updater.isAlive() && !updater.isInterrupted()) updater.interrupt();
-
 
         if (opModeID.startsWith("auto")) {
             try {
@@ -263,6 +262,10 @@ public class Hardware {
             rcClient.emit("opModeEnded", "{}");
             Utils.printSocketLog("RC", "SERVER", "opModeEnded", options);
             rcClient.close();
+        }
+
+        if (!context.isStopRequested() || context.opModeIsActive()) {
+            context.stop();
         }
     }
 

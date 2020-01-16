@@ -150,37 +150,4 @@ public class MotionProfile {
         return toReturn;
     }
 
-    public void fromJSON(JSONObject obj) {
-        try {
-            JSONObject motionProfile = obj.getJSONObject("motionProfile");
-            JSONArray tAccProfileArr = motionProfile.getJSONArray("tAccProfile");
-            JSONArray tVelProfileArr = motionProfile.getJSONArray("tVelProfile");
-
-            tAccProfile = new Piecewise();
-            for (int i = 0; i < tAccProfileArr.length(); i++) {
-                JSONObject intervalObj = tAccProfileArr.getJSONObject(i);
-                tAccProfile.setInterval(intervalObj.getDouble("a"), intervalObj.getDouble("b"), intervalObj.getString("exp"));
-            }
-
-            tVelProfile = new Piecewise();
-            for (int i = 0; i < tVelProfileArr.length(); i++) {
-                JSONObject intervalObj = tVelProfileArr.getJSONObject(i);
-                tVelProfile.setInterval(intervalObj.getDouble("a"), intervalObj.getDouble("b"), intervalObj.getString("exp"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public JSONObject toJSONObject() {
-        JSONObject obj = new JSONObject();
-        try {
-            obj.put("tAccProfile", tAccProfile.toJSONArray());
-            obj.put("tVelProfile", tVelProfile.toJSONArray());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return obj;
-    }
-
 }

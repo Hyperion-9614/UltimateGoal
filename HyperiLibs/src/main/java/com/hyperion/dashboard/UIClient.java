@@ -93,6 +93,7 @@ public class UIClient extends Application {
         sideStuff.setSpacing(10);
         menuPane = new MenuPane(stage);
         fieldPane = new FieldPane(stage);
+        robot = new Robot();
         textPane = new TextPane();
         optionsPane = new OptionsPane();
         displayPane = new DisplayPane();
@@ -157,16 +158,11 @@ public class UIClient extends Application {
             }).on("opModeEnded", args -> {
                 Utils.printSocketLog("SERVER", "UI", "opModeEnded", options);
                 currentPath.removeDisplayGroup();
-                if (robot != null) robot.removeDisplayGroup();
-                robot = null;
+                robot.removeDisplayGroup();
             }).on("unimetryUpdated", args -> {
                 Utils.printSocketLog("SERVER", "UI", "unimetryUpdated", options);
                 readUnimetry(args[0].toString());
                 Platform.runLater(() -> textPane.setUnimetryDisplayText());
-                if (robot == null) {
-                    robot = new Robot();
-                    robot.addDisplayGroup();
-                }
                 robot.refreshDisplayGroup(new RigidBody(unimetry.get("Current")));
             }).on("configUpdated", args -> {
                 Utils.printSocketLog("SERVER", "UI", "configUpdated", options);

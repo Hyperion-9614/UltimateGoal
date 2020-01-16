@@ -14,6 +14,7 @@ public class Robot {
     public Group displayGroup;
     public ImageView imgView;
     public RigidBody rigidBody;
+    public boolean isViewable;
 
     public Robot() {
         try {
@@ -30,9 +31,13 @@ public class Robot {
 
     public void addDisplayGroup() {
         Platform.runLater(() -> UIClient.fieldPane.getChildren().add(displayGroup));
+        isViewable = true;
     }
 
     public void refreshDisplayGroup(RigidBody rigidBody) {
+        if (!isViewable) {
+            addDisplayGroup();
+        }
         this.rigidBody = new RigidBody(rigidBody);
         double[] display = UIClient.fieldPane.poseToDisplay(rigidBody.pose, UIClient.fieldPane.robotSize);
         imgView.relocate(display[0], display[1]);
@@ -41,6 +46,7 @@ public class Robot {
 
     public void removeDisplayGroup() {
         Platform.runLater(() -> UIClient.fieldPane.getChildren().remove(displayGroup));
+        isViewable = false;
     }
 
 }

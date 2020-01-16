@@ -168,23 +168,34 @@ public class Motion {
 
     public void goToWaypoint(String waypointName) {
         Pose goal = waypoints.get(hw.opModeID + ".waypoint." + waypointName);
+        hw.status = "Going to " + hw.opModeID + ".waypoint." + waypointName;
         goToWaypoint(goal);
+        hw.status = "Arrived at " + hw.opModeID + ".waypoint." + waypointName;
     }
 
     // Uses feed forward motion profiling and a trajectory PID controller to follow a SplineTrajectory
     public void followPath(SplineTrajectory splineTrajectory) {
         double distance = 0;
-        Pose lastPose = robot.pose;
+        Pose lastPose = new Pose(robot.pose);
         trajectoryPID.reset(robot, splineTrajectory);
-        while (hw.context.opModeIsActive() && !hw.context.isStopRequested()
+        ElapsedTime timer = new ElapsedTime();
+        while (hw.context.opModeIsActive() && !hw.context.isStopRequested() && timer.milliseconds() <= 7500
                && (hw.context.gamepad1.right_stick_x == 0 && hw.context.gamepad1.left_stick_y == 0 && hw.context.gamepad1.left_stick_x == 0)
                && Utils.distance(robot.pose, splineTrajectory.waypoints.get(splineTrajectory.waypoints.size() - 1).pose) >= hw.constants.END_TRANSLATION_ERROR_THRESHOLD
                || Math.abs(Utils.optimalThetaDifference(robot.pose.theta, splineTrajectory.waypoints.get(splineTrajectory.waypoints.size() - 1).pose.theta)) >= hw.constants.END_ROTATION_ERROR_THRESHOLD) {
             distance += lastPose.distanceTo(robot.pose);
-            lastPose = robot.pose;
+            lastPose = new Pose(robot.pose);
 
-            Vector2D translationalVelocity = splineTrajectory.motionProfile.getTranslationalVelocity(distance).scaled(hw.constants.MP_K_TA);
-            Vector2D translationalAcceleration = splineTrajectory.motionProfile.getTranslationalAcceleration(distance).scaled(hw.constants.MP_K_TV);
+            if (distance > splineTrajectory.length) {
+                break;
+            }
+
+            System.out.println("mark0");
+            Vector2D translationalVelocity = splineTrajectory.motionProfile.getTranslationalVelocity(distance).scaled(hw.constants.MP_K_TV);
+            System.out.println("mark1");
+            Vector2D translationalAcceleration = splineTrajectory.motionProfile.getTranslationalAcceleration(distance).scaled(hw.constants.MP_K_TA);
+            System.out.println("mark2");
+
             double angularVelocity = Math.pow((-1.0 / (2 * Math.PI)) * Utils.optimalThetaDifference(robot.pose.theta, splineTrajectory.getDPose(distance).theta), 3);
             double angularAcceleration = 0;
 
@@ -197,7 +208,9 @@ public class Motion {
     public void followPath(String pathName) {
         SplineTrajectory path = splines.get(hw.opModeID + ".spline." + pathName);
         if (path != null) {
+            hw.status = "Following " + hw.opModeID + ".spline." + pathName;
             followPath(path);
+            hw.status = "Completed " + hw.opModeID + ".spline." + pathName;
         }
     }
 
