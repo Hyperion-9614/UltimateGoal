@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.modules.CvPipeline;
+import org.firstinspires.ftc.teamcode.modules.RectangleSampling;
 import org.firstinspires.ftc.teamcode.modules.Unimetry;
 import org.json.JSONObject;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -46,7 +47,7 @@ public class Hardware {
     public String opModeID = "Choose OpMode";
 
     public OpenCvInternalCamera phoneCam;
-    public CvPipeline cvPipeline;
+    public CvPipeline Pipeline;
 
     public Socket rcClient;
     public Constants constants;
@@ -160,8 +161,8 @@ public class Hardware {
         int cameraMonitorViewId = hwmp.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmp.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
         phoneCam.openCameraDevice();
-        cvPipeline = new CvPipeline(this, color);
-        phoneCam.setPipeline(cvPipeline);
+        Pipeline = new RectangleSampling();
+        phoneCam.setPipeline(Pipeline);
         phoneCam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT, OpenCvInternalCamera.BufferMethod.DOUBLE);
         for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
             if(r.max == 30 && r.min == 30) {

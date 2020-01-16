@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.core.Appendages;
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.firstinspires.ftc.teamcode.core.Motion;
-import org.firstinspires.ftc.teamcode.modules.CvPipeline;
 
 import java.util.Objects;
 
@@ -79,15 +78,19 @@ public class AUTO_Main extends LinearOpMode {
         motion.goToWaypoint("scan");
         ElapsedTime timer = new ElapsedTime();
         motion.strafe(new Vector2D(0.5, 3 * Math.PI / 2, false));
-        while (timer.milliseconds() < 3000) {
-            if (CvPipeline.skyStoneDetected) {
-                CvPipeline.StonePath.get(0); //TODO:@Adhit run path outputted based on integer
-                CvPipeline.StonePath.get(1); //TODO:@Adhit run path outputted based on integer
+        while ((timer.milliseconds() < 3000) && opModeIsActive()) {
+            if (hardware.Pipeline.getSkystoneDetected() == true) {
+                int firstPath = (hardware.Pipeline.getSkystonePositions(3)[0]);
+                int secondPath = (hardware.Pipeline.getSkystonePositions(3)[1]);
+                telemetry.addLine("The Skystone is located in positions:" + firstPath + "and" + secondPath);
+                telemetry.update();
                 hardware.killCV();
                 break;
             }
-            hardware.checkForcePark();
+            //hardware.checkForcePark();
         }
+        //motion.setPath(firstPath);
+        //motion.setPath(secondPath);
         motion.setDrive(0);
 
         motion.rotate(hardware.opModeID.contains("blue") ? 3 * Math.PI / 2 : Math.PI / 2);
