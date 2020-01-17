@@ -77,7 +77,7 @@ public class AUTO_Main extends LinearOpMode {
     private void scanSkystone() {
         motion.goToWaypoint("scan");
         ElapsedTime timer = new ElapsedTime();
-        motion.strafe(new Vector2D(0.5, 3 * Math.PI / 2, false));
+        motion.strafe(new Vector2D(0.5, 3 * Math.PI / 2, false), 0, false);
         while ((timer.milliseconds() < 3000) && opModeIsActive()) {
             if (hardware.Pipeline.getSkystoneDetected() == true) {
                 int firstPath = (hardware.Pipeline.getSkystonePositions(0)[0]);
