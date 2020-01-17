@@ -66,7 +66,7 @@ public class MotionProfile {
         for (int i = spline.planningPoints.size() - 1; i > 0; i--) {
             RigidBody p1 = spline.planningPoints.get(i);
             RigidBody p0 = spline.planningPoints.get(i - 1);
-            p0.tVel.setMagnitude(Math.min(p0.tVel.magnitude, Math.sqrt(Math.pow(p1.tVel.magnitude, 2) + 2 * constants.MAX_TRANSLATIONAL_DECELERATION * (p1.distance - p0.distance))));
+            p0.tVel.setMagnitude(Math.min(p0.tVel.magnitude, Math.sqrt(Math.pow(p1.tVel.magnitude, 2) + 2 * constants.MAX_TRANSLATIONAL_ACCELERATION * (p1.distance - p0.distance))));
         }
 
         spline.planningPoints.get(0).tVel.setMagnitude(0);

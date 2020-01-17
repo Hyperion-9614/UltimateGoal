@@ -49,10 +49,8 @@ public class Constants {
     public double MAX_BISECTION_ERROR; // cm
     public double MAX_TRANSLATIONAL_VELOCITY; // cm/s
     public double MAX_TRANSLATIONAL_ACCELERATION; // cm/s^2
-    public double MAX_TRANSLATIONAL_DECELERATION; // cm/s^2
     public double MAX_ANGULAR_VELOCITY; // rad/s
     public double MAX_ANGULAR_ACCELERATION; // rad/s^2
-    public double MAX_ANGULAR_DECELERATION; // rad/s^2
     public double END_TRANSLATION_ERROR_THRESHOLD; // coords
     public double END_ROTATION_ERROR_THRESHOLD; // degrees
 
@@ -137,10 +135,8 @@ public class Constants {
             JSONObject maxes = splinesMotionProfile.getJSONObject("maxes");
             MAX_ANGULAR_VELOCITY = maxes.getDouble("aVel");
             MAX_ANGULAR_ACCELERATION = maxes.getDouble("aAcc");
-            MAX_ANGULAR_DECELERATION = maxes.getDouble("aDec");
             MAX_TRANSLATIONAL_VELOCITY = maxes.getDouble("tVel");
             MAX_TRANSLATIONAL_ACCELERATION = maxes.getDouble("tAcc");
-            MAX_TRANSLATIONAL_DECELERATION = maxes.getDouble("tDec");
             MAX_SEGMENT_LENGTH = maxes.getDouble("segmentLength");
             MAX_BISECTION_ERROR = maxes.getDouble("bisectionError");
             JSONObject endErrorThresholds = splinesMotionProfile.getJSONObject("endErrorThresholds");
@@ -239,10 +235,8 @@ public class Constants {
             maxes.put("bisectionError", MAX_BISECTION_ERROR);
             maxes.put("tVel", MAX_TRANSLATIONAL_VELOCITY);
             maxes.put("tAcc", MAX_TRANSLATIONAL_ACCELERATION);
-            maxes.put("tDec", MAX_TRANSLATIONAL_DECELERATION);
             maxes.put("aVel", MAX_ANGULAR_VELOCITY);
             maxes.put("aAcc", MAX_ANGULAR_ACCELERATION);
-            maxes.put("aDec", MAX_ANGULAR_DECELERATION);
             splinesMotionProfile.put("maxes", maxes);
             JSONObject endErrorThresholds = new JSONObject();
             endErrorThresholds.put("translation", END_TRANSLATION_ERROR_THRESHOLD);
