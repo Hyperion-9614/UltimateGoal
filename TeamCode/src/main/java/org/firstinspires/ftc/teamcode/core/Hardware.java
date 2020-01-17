@@ -47,7 +47,7 @@ public class Hardware {
     public String opModeID = "Choose OpMode";
 
     public OpenCvInternalCamera phoneCam;
-    public CvPipeline Pipeline;
+    public CvPipeline cvPipeline;
 
     public Socket rcClient;
     public Constants constants;
@@ -161,8 +161,8 @@ public class Hardware {
         int cameraMonitorViewId = hwmp.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmp.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
         phoneCam.openCameraDevice();
-        Pipeline = new RectangleSampling();
-        phoneCam.setPipeline(Pipeline);
+        cvPipeline = new RectangleSampling();
+        phoneCam.setPipeline(cvPipeline);
         phoneCam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT, OpenCvInternalCamera.BufferMethod.DOUBLE);
         for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
             if(r.max == 30 && r.min == 30) {
@@ -215,7 +215,7 @@ public class Hardware {
         this.opModeID = opModeID;
         status = "Running " + opModeID;
 
-//        initCV(opModeID.contains("blue") ? "blue" : "red");
+        initCV(opModeID.contains("blue") ? "blue" : "red");
 
         Pose startPose = motion.waypoints.get(opModeID + ".waypoint.start");
         if (startPose == null) startPose = new Pose();
