@@ -80,8 +80,8 @@ public class AUTO_Main extends LinearOpMode {
         motion.strafe(new Vector2D(0.5, 3 * Math.PI / 2, false));
         while ((timer.milliseconds() < 3000) && opModeIsActive()) {
             if (hardware.Pipeline.getSkystoneDetected() == true) {
-                int firstPath = (hardware.Pipeline.getSkystonePositions(3)[0]);
-                int secondPath = (hardware.Pipeline.getSkystonePositions(3)[1]);
+                int firstPath = (hardware.Pipeline.getSkystonePositions(0)[0]);
+                int secondPath = (hardware.Pipeline.getSkystonePositions(0)[1]);
                 telemetry.addLine("The Skystone is located in positions:" + firstPath + "and" + secondPath);
                 telemetry.update();
                 hardware.killCV();
