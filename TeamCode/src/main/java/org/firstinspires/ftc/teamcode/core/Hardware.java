@@ -163,7 +163,7 @@ public class Hardware {
         phoneCam.openCameraDevice();
         Pipeline = new RectangleSampling();
         phoneCam.setPipeline(Pipeline);
-        phoneCam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT, OpenCvInternalCamera.BufferMethod.DOUBLE);
+        phoneCam.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT, OpenCvInternalCamera.BufferMethod.DOUBLE);
         for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
             if(r.max == 30 && r.min == 30) {
                 phoneCam.setHardwareFrameTimingRange(r);
