@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -64,14 +65,22 @@ public class AUTO_Main extends LinearOpMode {
             if (hardware.opModeID.endsWith("full")) {
                 motion.followPath("test");
 
-                motion.goToWaypoint("" + skystonePositions[0]);
-                pickUpBlock();
-                dragFoundation();
-                hardware.preset_placeStone();
-
-                motion.goToWaypoint("" + skystonePositions[1]);
-                pickUpBlock();
-                hardware.preset_placeStone();
+//                goToStone(skystonePositions[0]);
+//                pickUpBlock();
+//                dragFoundation();
+//                hardware.preset_placeStone();
+//
+//                goToStone(skystonePositions[1]);
+//                pickUpBlock();
+//                hardware.preset_placeStone();
+//
+//                for (int i = 0; i < 6; i++) {
+//                    if (i != skystonePositions[0] && i!= skystonePositions[1]) {
+//                        goToStone(i);
+//                        pickUpBlock();
+//                        hardware.preset_placeStone();
+//                    }
+//                }
             } else if (hardware.opModeID.endsWith("foundation")) {
                 dragFoundation();
             }
@@ -83,7 +92,7 @@ public class AUTO_Main extends LinearOpMode {
         }
     }
 
-    // Locate and intake skystone
+    // Pick up a block
     private void pickUpBlock() {
         appendages.setAutoClawSwingStatus("down");
         appendages.setAutoClawGripStatus("closed");
@@ -96,6 +105,12 @@ public class AUTO_Main extends LinearOpMode {
         appendages.setFoundationMoverStatus("down");
         motion.followPath("drag");
         appendages.setFoundationMoverStatus("up");
+    }
+
+    // Go to a stone position
+    private void goToStone(int position) {
+        Pose goal = motion.waypoints.get(hardware.opModeID + ".waypoint.scan").addVector(new Vector2D(position * 20, 3 * Math.PI / 2, false));
+        motion.goToWaypoint(goal);
     }
 
 }
