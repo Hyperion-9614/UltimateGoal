@@ -166,12 +166,12 @@ public class Hardware {
         cvPipeline = new RectangleSampling();
         phoneCam.setPipeline(cvPipeline);
         phoneCam.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
-//        for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
-//            if(r.max == 30 && r.min == 30) {
-//                phoneCam.setHardwareFrameTimingRange(r);
-//                break;
-//            }
-//        }
+        for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
+            if (r.max == 30 && r.min == 30) {
+                phoneCam.setHardwareFrameTimingRange(r);
+                break;
+            }
+        }
     }
 
     public void killCV() {
