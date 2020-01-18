@@ -15,17 +15,9 @@ public class Vision extends LinearOpMode {
         hardware.initCV();
         waitForStart();
         while (opModeIsActive()){
-            if (hardware.cvPipeline.getPipelineActive()) {
-                skystonePositions = hardware.cvPipeline.getSkystonePositions(0);
-//                if (hardware.opModeID.contains("blue")) {
-//                    skystonePositions = hardware.cvPipeline.getSkystonePositions(5);
-//                } else if (hardware.opModeID.contains("red")) {
-//                    skystonePositions = hardware.cvPipeline.getSkystonePositions(0);
-//                }
-                System.out.println("The Skystones are located at:" + skystonePositions[0] + "and " + skystonePositions[1]);
-                hardware.killCV();
-                break;
-            }
+            skystonePositions = hardware.cvPipeline.getSkystonePositions(0);
+            System.out.println("The Skystones are located at:" + skystonePositions[0] + "and " + skystonePositions[1]);
         }
+
     }
 }
