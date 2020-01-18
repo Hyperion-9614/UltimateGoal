@@ -48,7 +48,7 @@ public class Hardware {
     public String opModeID = "Choose OpMode";
 
     public OpenCvInternalCamera phoneCam;
-    public CvPipeline Pipeline;
+    public CvPipeline cvPipeline;
 
     public Socket rcClient;
     public Constants constants;
@@ -163,8 +163,8 @@ public class Hardware {
         int cameraMonitorViewId = hwmp.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmp.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
         phoneCam.openCameraDevice();
-        Pipeline = new RectangleSampling();
-        phoneCam.setPipeline(Pipeline);
+        cvPipeline = new RectangleSampling();
+        phoneCam.setPipeline(cvPipeline);
         phoneCam.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT, OpenCvInternalCamera.BufferMethod.DOUBLE);
         for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
             if(r.max == 30 && r.min == 30) {
@@ -244,6 +244,7 @@ public class Hardware {
         status = "Ending";
         isRunning = false;
 
+        killCV();
         if (updater != null && updater.isAlive() && !updater.isInterrupted()) updater.interrupt();
 
         if (opModeID.startsWith("auto")) {

@@ -23,6 +23,8 @@ public class AUTO_Main extends LinearOpMode {
     private Motion motion;
     private Appendages appendages;
 
+    private int[] skystonePositions;
+
     @Override
     public void runOpMode() {
         hardware = new Hardware(this);
@@ -42,6 +44,8 @@ public class AUTO_Main extends LinearOpMode {
                 hardware.initOpMode("auto.red.brick");
             } else if (gamepad1.dpad_left) {
                 hardware.initOpMode("auto.blue.brick");
+            } else if (gamepad1.right_stick_button) {
+
             }
         }
 
@@ -52,16 +56,22 @@ public class AUTO_Main extends LinearOpMode {
 
     public void execute() {
         try {
+            if (hardware.cvPipeline.getSkystoneDetected()) {
+                skystonePositions = hardware.cvPipeline.getSkystonePositions(0);
+            }
             hardware.autoTime = new ElapsedTime();
+
             if (hardware.opModeID.endsWith("full")) {
                 motion.followPath("test");
 
-//                scanSkystone();
-//                dragFoundation();
-//                hardware.preset_placeStone();
+                motion.goToWaypoint("" + skystonePositions[0]);
+                pickUpBlock();
+                dragFoundation();
+                hardware.preset_placeStone();
 
-//                scanSkystone();
-//                hardware.preset_placeStone();
+                motion.goToWaypoint("" + skystonePositions[1]);
+                pickUpBlock();
+                hardware.preset_placeStone();
             } else if (hardware.opModeID.endsWith("foundation")) {
                 dragFoundation();
             }
@@ -74,27 +84,7 @@ public class AUTO_Main extends LinearOpMode {
     }
 
     // Locate and intake skystone
-    private void scanSkystone() {
-        motion.goToWaypoint("scan");
-        ElapsedTime timer = new ElapsedTime();
-        motion.strafe(new Vector2D(0.5, 3 * Math.PI / 2, false), 0, false);
-        while ((timer.milliseconds() < 3000) && opModeIsActive()) {
-            if (hardware.Pipeline.getSkystoneDetected() == true) {
-                int firstPath = (hardware.Pipeline.getSkystonePositions(0)[0]);
-                int secondPath = (hardware.Pipeline.getSkystonePositions(0)[1]);
-                telemetry.addLine("The Skystone is located in positions:" + firstPath + "and" + secondPath);
-                telemetry.update();
-                hardware.killCV();
-                break;
-            }
-            //hardware.checkForcePark();
-        }
-        //motion.setPath(firstPath);
-        //motion.setPath(secondPath);
-        motion.setDrive(0);
-
-        motion.rotate(hardware.opModeID.contains("blue") ? 3 * Math.PI / 2 : Math.PI / 2);
-        motion.strafe(new Vector2D(0.3, hardware.opModeID.contains("blue") ? 3 * Math.PI / 2 : Math.PI / 2, false), 30);
+    private void pickUpBlock() {
         appendages.setAutoClawSwingStatus("down");
         appendages.setAutoClawGripStatus("closed");
         appendages.setAutoClawSwingStatus("up");
