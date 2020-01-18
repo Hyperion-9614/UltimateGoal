@@ -58,7 +58,12 @@ public class AUTO_Main extends LinearOpMode {
     public void execute() {
         try {
             if (hardware.cvPipeline.getSkystoneDetected()) {
-                skystonePositions = hardware.cvPipeline.getSkystonePositions(0);
+                if (hardware.opModeID.contains("blue")) {
+                    skystonePositions = hardware.cvPipeline.getSkystonePositions(5);
+                } else if (hardware.opModeID.contains("red")) {
+                    skystonePositions = hardware.cvPipeline.getSkystonePositions(0);
+                }
+
             }
             hardware.autoTime = new ElapsedTime();
 
