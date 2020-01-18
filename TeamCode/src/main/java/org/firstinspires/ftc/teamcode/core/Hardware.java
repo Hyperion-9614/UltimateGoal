@@ -165,7 +165,8 @@ public class Hardware {
         phoneCam.openCameraDevice();
         cvPipeline = new RectangleSampling();
         phoneCam.setPipeline(cvPipeline);
-        phoneCam.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
+        phoneCam.startStreaming(1280, 960, OpenCvCameraRotation.SIDEWAYS_LEFT);
+        phoneCam.setFlashlightEnabled(true);
         for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
             if (r.max == 30 && r.min == 30) {
                 phoneCam.setHardwareFrameTimingRange(r);
