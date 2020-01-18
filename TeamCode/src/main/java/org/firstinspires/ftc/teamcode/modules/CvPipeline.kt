@@ -8,7 +8,6 @@ abstract class CvPipeline : OpenCvPipeline() {
     private val stoneRowMaxWidth = 6
     var skystoneDetected = false
     var detectedSkystonePosition = -1
-
     val width = 640
     val height = 480
 

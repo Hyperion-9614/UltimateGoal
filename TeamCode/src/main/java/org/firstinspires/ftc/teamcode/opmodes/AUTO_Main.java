@@ -4,7 +4,6 @@ import com.hyperion.motion.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.core.Appendages;
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.firstinspires.ftc.teamcode.core.Motion;
@@ -22,6 +21,8 @@ public class AUTO_Main extends LinearOpMode {
     private Hardware hardware;
     private Motion motion;
     private Appendages appendages;
+    int firstPath;
+    int secondPath;
 
     @Override
     public void runOpMode() {
@@ -80,8 +81,14 @@ public class AUTO_Main extends LinearOpMode {
         motion.strafe(new Vector2D(0.5, 3 * Math.PI / 2, false));
         while ((timer.milliseconds() < 3000) && opModeIsActive()) {
             if (hardware.Pipeline.getSkystoneDetected() == true) {
-                int firstPath = (hardware.Pipeline.getSkystonePositions(0)[0]);
-                int secondPath = (hardware.Pipeline.getSkystonePositions(0)[1]);
+                if (hardware.opModeID.contains("blue")) {
+                    firstPath = (hardware.Pipeline.getSkystonePositions(5)[0]);
+                    secondPath = (hardware.Pipeline.getSkystonePositions(5)[1]);
+                } else if (hardware.opModeID.contains("red")) {
+                    firstPath = (hardware.Pipeline.getSkystonePositions(5)[0]);
+                    secondPath = (hardware.Pipeline.getSkystonePositions(5)[1]);
+                }
+
                 telemetry.addLine("The Skystone is located in positions:" + firstPath + "and" + secondPath);
                 telemetry.update();
                 hardware.killCV();
