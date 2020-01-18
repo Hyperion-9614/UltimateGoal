@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.modules;
 import com.hyperion.common.Utils;
 
 import org.firstinspires.ftc.teamcode.core.Hardware;
+import org.firstinspires.ftc.teamcode.opmodes.Vision;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
@@ -62,6 +63,9 @@ public class Unimetry {
         data.add(new Entry("Right Stick X", Utils.round(hardware.context.gamepad1.right_stick_x, 3)));
         data.add(new Entry("Left Trigger", Utils.round(hardware.context.gamepad1.left_trigger, 3)));
         data.add(new Entry("Right Trigger", Utils.round(hardware.context.gamepad1.right_trigger, 3)));
+        data.add(new Entry("Vision", Vision.skystonePositions[0]));
+        data.add(new Entry("Vision", Vision.skystonePositions[1]));
+
     }
 
     public synchronized void updateTelemetry() {

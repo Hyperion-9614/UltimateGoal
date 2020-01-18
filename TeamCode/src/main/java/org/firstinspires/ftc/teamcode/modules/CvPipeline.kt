@@ -6,7 +6,7 @@ import org.openftc.easyopencv.OpenCvPipeline
 abstract class CvPipeline : OpenCvPipeline() {
 
     private val stoneRowMaxWidth = 6
-    var skystoneDetected = false
+    var pipelineActive = true
     var detectedSkystonePosition = -1
     val width = 1280
     val height = 720
@@ -23,8 +23,7 @@ abstract class CvPipeline : OpenCvPipeline() {
         val skystonePositions = intArrayOf(firstSkystonePosition, secondSkystonePosition)
         skystonePositions.sort()
 
-        skystoneDetected = true
-
         return skystonePositions
     }
+
 }

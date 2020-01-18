@@ -24,7 +24,7 @@ public class AUTO_Main extends LinearOpMode {
     private Motion motion;
     private Appendages appendages;
 
-    private int[] skystonePositions;
+    public int[] skystonePositions;
 
     @Override
     public void runOpMode() {
@@ -57,7 +57,7 @@ public class AUTO_Main extends LinearOpMode {
 
     public void execute() {
         try {
-            if (hardware.cvPipeline.getSkystoneDetected()) {
+            if (hardware.cvPipeline.getPipelineActive()) {
                 if (hardware.opModeID.contains("blue")) {
                     skystonePositions = hardware.cvPipeline.getSkystonePositions(5);
                 } else if (hardware.opModeID.contains("red")) {
