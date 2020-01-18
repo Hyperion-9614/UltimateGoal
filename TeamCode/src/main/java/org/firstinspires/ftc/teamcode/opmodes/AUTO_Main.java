@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.core.Appendages;
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.firstinspires.ftc.teamcode.core.Motion;
@@ -21,8 +23,8 @@ public class AUTO_Main extends LinearOpMode {
     private Hardware hardware;
     private Motion motion;
     private Appendages appendages;
-    int firstPath;
-    int secondPath;
+
+    private int[] skystonePositions;
 
     @Override
     public void runOpMode() {
@@ -43,6 +45,8 @@ public class AUTO_Main extends LinearOpMode {
                 hardware.initOpMode("auto.red.brick");
             } else if (gamepad1.dpad_left) {
                 hardware.initOpMode("auto.blue.brick");
+            } else if (gamepad1.right_stick_button) {
+
             }
         }
 
@@ -53,16 +57,30 @@ public class AUTO_Main extends LinearOpMode {
 
     public void execute() {
         try {
+            if (hardware.cvPipeline.getSkystoneDetected()) {
+                skystonePositions = hardware.cvPipeline.getSkystonePositions(0);
+            }
             hardware.autoTime = new ElapsedTime();
+
             if (hardware.opModeID.endsWith("full")) {
                 motion.followPath("test");
 
-//                scanSkystone();
+//                goToStone(skystonePositions[0]);
+//                pickUpBlock();
 //                dragFoundation();
 //                hardware.preset_placeStone();
-
-//                scanSkystone();
+//
+//                goToStone(skystonePositions[1]);
+//                pickUpBlock();
 //                hardware.preset_placeStone();
+//
+//                for (int i = 0; i < 6; i++) {
+//                    if (i != skystonePositions[0] && i!= skystonePositions[1]) {
+//                        goToStone(i);
+//                        pickUpBlock();
+//                        hardware.preset_placeStone();
+//                    }
+//                }
             } else if (hardware.opModeID.endsWith("foundation")) {
                 dragFoundation();
             }
@@ -74,34 +92,8 @@ public class AUTO_Main extends LinearOpMode {
         }
     }
 
-    // Locate and intake skystone
-    private void scanSkystone() {
-        motion.goToWaypoint("scan");
-        ElapsedTime timer = new ElapsedTime();
-        motion.strafe(new Vector2D(0.5, 3 * Math.PI / 2, false));
-        while ((timer.milliseconds() < 3000) && opModeIsActive()) {
-            if (hardware.Pipeline.getSkystoneDetected() == true) {
-                if (hardware.opModeID.contains("blue")) {
-                    firstPath = (hardware.Pipeline.getSkystonePositions(5)[0]);
-                    secondPath = (hardware.Pipeline.getSkystonePositions(5)[1]);
-                } else if (hardware.opModeID.contains("red")) {
-                    firstPath = (hardware.Pipeline.getSkystonePositions(5)[0]);
-                    secondPath = (hardware.Pipeline.getSkystonePositions(5)[1]);
-                }
-
-                telemetry.addLine("The Skystone is located in positions:" + firstPath + "and" + secondPath);
-                telemetry.update();
-                hardware.killCV();
-                break;
-            }
-            //hardware.checkForcePark();
-        }
-        //motion.setPath(firstPath);
-        //motion.setPath(secondPath);
-        motion.setDrive(0);
-
-        motion.rotate(hardware.opModeID.contains("blue") ? 3 * Math.PI / 2 : Math.PI / 2);
-        motion.strafe(new Vector2D(0.3, hardware.opModeID.contains("blue") ? 3 * Math.PI / 2 : Math.PI / 2, false), 30);
+    // Pick up a block
+    private void pickUpBlock() {
         appendages.setAutoClawSwingStatus("down");
         appendages.setAutoClawGripStatus("closed");
         appendages.setAutoClawSwingStatus("up");
@@ -113,6 +105,15 @@ public class AUTO_Main extends LinearOpMode {
         appendages.setFoundationMoverStatus("down");
         motion.followPath("drag");
         appendages.setFoundationMoverStatus("up");
+    }
+
+    // Go to a stone position
+    private void goToStone(int position) {
+        Pose goal = motion.waypoints.get(hardware.opModeID + ".waypoint.scan");
+        if (goal != null) {
+            goal = goal.addVector(new Vector2D(position * 20, 3 * Math.PI / 2, false));
+            motion.goToWaypoint(goal);
+        }
     }
 
 }

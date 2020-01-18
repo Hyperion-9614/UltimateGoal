@@ -129,6 +129,7 @@ public class SplineTrajectory {
                     JSONArray planningPointArray = planningPointsArray.getJSONArray(i);
                     double T = planningPointArray.getDouble(0);
                     double distance = planningPointArray.getDouble(1);
+                    if (i == 1) segmentLength = distance;
                     Pose newWaypoint = new Pose(planningPointArray.getDouble(2), planningPointArray.getDouble(3), planningPointArray.getDouble(4));
                     planningPoints.add(new RigidBody(T, distance, newWaypoint));
                 }

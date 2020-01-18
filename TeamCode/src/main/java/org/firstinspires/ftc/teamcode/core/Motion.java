@@ -132,15 +132,21 @@ public class Motion {
     }
 
     // Strafe at velocity
-    public void strafe(Vector2D velocity) {
-        velocity = velocity.rotated(-robot.pose.theta + Math.PI / 2);
-        double[] velocities = new double[]{
-            velocity.x + velocity.y,
-            -velocity.x + velocity.y,
-            -velocity.x + velocity.y,
-            velocity.x + velocity.y
-        };
-        setDrive(velocities);
+    public void strafe(Vector2D a, double b, boolean isVw) {
+        if (isVw) {
+            a = a.rotated(-robot.pose.theta + Math.PI / 2);
+            double[] velocities = new double[]{
+                    a.x + a.y - b,
+                    -a.x + a.y + b,
+                    -a.x + a.y - b,
+                    a.x + a.y + b
+            };
+            setDrive(velocities);
+        } else {
+            b = Math.abs(b);
+            Pose target = robot.pose.addVector(new Vector2D(b, a.theta, false));
+            followPath(new SplineTrajectory(hw.constants, new RigidBody(robot), new RigidBody(target)));
+        }
     }
 
     // Rotate in place to target theta in specified direction
@@ -190,17 +196,14 @@ public class Motion {
                 break;
             }
 
-            System.out.println("mark0");
             Vector2D translationalVelocity = splineTrajectory.motionProfile.getTranslationalVelocity(distance).scaled(hw.constants.MP_K_TV);
-            System.out.println("mark1");
             Vector2D translationalAcceleration = splineTrajectory.motionProfile.getTranslationalAcceleration(distance).scaled(hw.constants.MP_K_TA);
-            System.out.println("mark2");
 
-            double angularVelocity = Math.pow((-1.0 / (2 * Math.PI)) * Utils.optimalThetaDifference(robot.pose.theta, splineTrajectory.getDPose(distance).theta), 3);
+            double angularVelocity = Math.pow((1.0 / (2 * Math.PI)) * Utils.optimalThetaDifference(robot.pose.theta, splineTrajectory.getDPose(distance).theta), 3);
             double angularAcceleration = 0;
 
-            setDrive(translationalVelocity.added(translationalAcceleration), angularVelocity + angularAcceleration);
-            setDrive(trajectoryPID.controlLoopIteration(distance, robot));
+            strafe(translationalVelocity.added(translationalAcceleration), angularVelocity + angularAcceleration, true);
+//            setDrive(trajectoryPID.controlLoopIteration(distance, robot));
         }
         setDrive(0);
     }

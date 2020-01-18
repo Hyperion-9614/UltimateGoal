@@ -11,18 +11,16 @@ abstract class CvPipeline : OpenCvPipeline() {
     val width = 640
     val height = 480
 
-
-    fun getSkystonePositions(leftMostPosition: Int): Array<Int> {
+    fun getSkystonePositions(leftMostPosition: Int): IntArray {
         val firstSkystonePosition = detectedSkystonePosition + leftMostPosition
         var secondSkystonePosition: Int
 
+        secondSkystonePosition = firstSkystonePosition + 3
         if (firstSkystonePosition >= stoneRowMaxWidth / 2) {
             secondSkystonePosition = firstSkystonePosition - 3
-        } else {
-            secondSkystonePosition = firstSkystonePosition + 3
         }
 
-        val skystonePositions = arrayOf(firstSkystonePosition, secondSkystonePosition)
+        val skystonePositions = intArrayOf(firstSkystonePosition, secondSkystonePosition)
         skystonePositions.sort()
 
         skystoneDetected = true
