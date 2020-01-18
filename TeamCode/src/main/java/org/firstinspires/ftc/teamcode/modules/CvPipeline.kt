@@ -9,7 +9,7 @@ abstract class CvPipeline : OpenCvPipeline() {
     var skystoneDetected = false
     var detectedSkystonePosition = -1
     val width = 1280
-    val height = 960
+    val height = 720
 
     fun getSkystonePositions(leftMostPosition: Int): IntArray {
         val firstSkystonePosition = detectedSkystonePosition + leftMostPosition

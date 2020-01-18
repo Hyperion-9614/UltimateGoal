@@ -165,7 +165,7 @@ public class Hardware {
         phoneCam.openCameraDevice();
         cvPipeline = new RectangleSampling();
         phoneCam.setPipeline(cvPipeline);
-        phoneCam.startStreaming(1280, 960, OpenCvCameraRotation.SIDEWAYS_LEFT);
+        phoneCam.startStreaming(1280, 720, OpenCvCameraRotation.SIDEWAYS_LEFT);
         phoneCam.setFlashlightEnabled(true);
         for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
             if (r.max == 30 && r.min == 30) {
@@ -177,6 +177,7 @@ public class Hardware {
 
     public void killCV() {
         if (phoneCam != null) {
+            phoneCam.setFlashlightEnabled(false);
             phoneCam.pauseViewport();
             phoneCam.stopStreaming();
             phoneCam.setPipeline(null);
