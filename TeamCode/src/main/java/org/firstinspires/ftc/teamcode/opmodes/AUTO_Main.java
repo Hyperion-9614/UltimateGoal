@@ -109,8 +109,11 @@ public class AUTO_Main extends LinearOpMode {
 
     // Go to a stone position
     private void goToStone(int position) {
-        Pose goal = motion.waypoints.get(hardware.opModeID + ".waypoint.scan").addVector(new Vector2D(position * 20, 3 * Math.PI / 2, false));
-        motion.goToWaypoint(goal);
+        Pose goal = motion.waypoints.get(hardware.opModeID + ".waypoint.scan");
+        if (goal != null) {
+            goal = goal.addVector(new Vector2D(position * 20, 3 * Math.PI / 2, false));
+            motion.goToWaypoint(goal);
+        }
     }
 
 }
