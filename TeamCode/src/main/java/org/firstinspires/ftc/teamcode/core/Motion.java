@@ -111,7 +111,7 @@ public class Motion {
             hw.fRDrive.setPower(powers[1]);
             hw.bRDrive.setPower(powers[1]);
         }
-        hw.checkForcePark();
+        hw.checkForceEnd();
     }
     public void setDrive(Vector2D relMoveVec, double rot) {
         setDrive(new double[]{
@@ -122,12 +122,19 @@ public class Motion {
         });
     }
 
+    // Getters
+    public Pose getWaypoint(String name) {
+        return waypoints.get(hw.opModeID + ".waypoint." + name);
+    }
+    public SplineTrajectory getSpline(String name) {
+        return splines.get(hw.opModeID + ".spline." + name);
+    }
+
     ///////////////////////// ADVANCED MOTION /////////////////////////
 
     public void pidMove(String waypoint) {
-        String id = hw.opModeID + ".waypoint." + waypoint;
-        hw.status = "Moving to " + id;
-        pidMove(waypoints.get(id));
+        hw.status = "Moving to waypoint" + waypoint;
+        pidMove(getWaypoint(waypoint));
     }
     public void pidMove(Pose target) {
         homogeneousPID.reset(robot.pose, target);
@@ -138,7 +145,21 @@ public class Motion {
             homogeneousPID.controlLoopIteration(robot.pose);
         }
     }
+    public void pidMove(Vector2D addVec) {
+        pidMove(robot.pose.addVector(addVec));
+    }
 
+    public void translate(String waypoint) {
+        hw.status = "Translating to waypoint" + waypoint;
+        translate(getWaypoint(waypoint));
+    }
+    public void translate(Pose target) {
+        pidMove(new Pose(target.x, target.y, robot.pose.theta));
+    }
+
+    public void rotate(String waypoint) {
+        rotate(getWaypoint(waypoint).theta);
+    }
     public void rotate(double targetTheta) {
         hw.status = "Rotating to " + Math.toDegrees(targetTheta) + "\u00B0";
         pidMove(new Pose(robot.pose.x, robot.pose.y, targetTheta));

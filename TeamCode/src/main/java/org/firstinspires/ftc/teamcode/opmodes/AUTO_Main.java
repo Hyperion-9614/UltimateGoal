@@ -20,7 +20,7 @@ import java.util.Objects;
 @Autonomous
 public class AUTO_Main extends LinearOpMode {
 
-    private Hardware hardware;
+    private Hardware hw;
     private Motion motion;
     private Appendages appendages;
 
@@ -28,70 +28,65 @@ public class AUTO_Main extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        hardware = new Hardware(this);
-        motion = hardware.motion;
-        appendages = hardware.appendages;
+        hw = new Hardware(this);
+        motion = hw.motion;
+        appendages = hw.appendages;
 
-        while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hardware.isRunning))) {
+        while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hw.isRunning))) {
             if (gamepad1.b) {
-                hardware.initOpMode("auto.red.full");
+                hw.initOpMode("auto.red.full");
             } else if (gamepad1.x) {
-                hardware.initOpMode("auto.blue.full");
+                hw.initOpMode("auto.blue.full");
             } else if (gamepad1.y) {
-                hardware.initOpMode("auto.red.foundation");
+                hw.initOpMode("auto.red.foundation");
             } else if (gamepad1.a) {
-                hardware.initOpMode("auto.blue.foundation");
+                hw.initOpMode("auto.blue.foundation");
             } else if (gamepad1.dpad_right) {
-                hardware.initOpMode("auto.red.brick");
+                hw.initOpMode("auto.red.brick");
             } else if (gamepad1.dpad_left) {
-                hardware.initOpMode("auto.blue.brick");
+                hw.initOpMode("auto.blue.brick");
             }
         }
 
         execute();
 
-        hardware.end();
+        hw.end();
     }
 
     public void execute() {
         try {
-            if (hardware.cvPipeline.getPipelineActive()) {
-                hardware.cvPipeline.setPipelineActive(false);
-                if (hardware.opModeID.contains("blue")) {
-                    skystonePositions = hardware.cvPipeline.getSkystonePositions(5);
-                } else if (hardware.opModeID.contains("red")) {
-                    skystonePositions = hardware.cvPipeline.getSkystonePositions(0);
+            if (hw.cvPipeline.getPipelineActive()) {
+                hw.cvPipeline.setPipelineActive(false);
+                if (hw.opModeID.contains("blue")) {
+                    skystonePositions = hw.cvPipeline.getSkystonePositions(5);
+                } else if (hw.opModeID.contains("red")) {
+                    skystonePositions = hw.cvPipeline.getSkystonePositions(0);
                 }
 
             }
-            skystonePositions = new int[]{0, 3};
-            hardware.autoTime = new ElapsedTime();
+            if (skystonePositions == null) skystonePositions = new int[]{0, 3};
+            hw.autoTime = new ElapsedTime();
 
-            if (hardware.opModeID.endsWith("full")) {
+            if (hw.opModeID.endsWith("full")) {
                 goToStone(skystonePositions[0]);
                 pickUpBlock();
                 dragFoundation();
-                hardware.preset_placeStone();
+                hw.preset_placeStone();
 
                 goToStone(skystonePositions[1]);
                 pickUpBlock();
-                hardware.preset_placeStone();
+                hw.preset_placeStone();
 
 //                for (int i = 0; i < 6; i++) {
 //                    if (i != skystonePositions[0] && i != skystonePositions[1]) {
 //                        goToStone(i);
 //                        pickUpBlock();
-//                        hardware.preset_placeStone();
+//                        hw.preset_placeStone();
 //                    }
 //                }
-            } else if (hardware.opModeID.endsWith("foundation")) {
+            } else if (hw.opModeID.endsWith("foundation")) {
                 dragFoundation();
             }
-
-            Pose park = motion.waypoints.get(hardware.opModeID + ".waypoint.park");
-            motion.rotate(Objects.requireNonNull(park).theta);
-            motion.strafe(park);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -102,30 +97,22 @@ public class AUTO_Main extends LinearOpMode {
         appendages.setAutoClawSwingStatus("down");
         appendages.setAutoClawGripStatus("closed");
         appendages.setAutoClawSwingStatus("up");
-        motion.strafe(new Vector2D(0.7, hardware.opModeID.contains("blue") ? Math.PI : 0, false), 20);
+        motion.pidMove(motion.robot.pose.addVector(new Vector2D(20, hw.opModeID.contains("blue") ? 0 : Math.PI, false)));
     }
 
     // Pivot drag foundation & push into building zone
     private void dragFoundation() {
-        Pose target = Objects.requireNonNull(motion.splines.get(hardware.opModeID + ".spline.drag")).waypoints.get(0).pose;
-        motion.rotate(target.theta);
-        motion.strafe(target);
+        motion.pidMove("drag0");
         appendages.setFoundationMoverStatus("down");
-        motion.pivot(3 * Math.PI / 2, hardware.opModeID.contains("blue") ? 0 : 1, hardware.opModeID.contains("blue") ? 1 : -1);
+        motion.translate("drag1");
+        motion.rotate("drag1");
         appendages.setFoundationMoverStatus("up");
-        motion.strafe(new Vector2D(0.5, Math.PI / 2, false), 10);
+        motion.pidMove(new Vector2D(10, Math.PI / 2, false));
     }
 
     // Go to a stone position
     private void goToStone(int position) {
-        Pose goal = motion.waypoints.get(hardware.opModeID + ".waypoint.pickup0");
-        if (goal != null) {
-            goal = goal.addVector(new Vector2D(position * 20.32, 3 * Math.PI / 2, false));
-            motion.rotate(goal.theta);
-            motion.strafe(goal);
-            motion.rotate(goal.theta);
-            motion.strafe(goal);
-        }
+        motion.pidMove(motion.getWaypoint("pickup0").addVector(new Vector2D(position * 20.32, 3 * Math.PI / 2, false)));
     }
 
 }

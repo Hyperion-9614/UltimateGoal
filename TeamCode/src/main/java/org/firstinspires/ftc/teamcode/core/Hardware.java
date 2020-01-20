@@ -217,20 +217,22 @@ public class Hardware {
 
     ///////////////////////// GENERAL & PRESETS //////////////////////////
 
-    // Force park when 3.5 seconds are left
-    public void checkForcePark() {
-        if (opModeID.contains("auto") && autoTime.milliseconds() >= 30000 - constants.FORCE_PARK_TIME_LEFT) {
+    // Force park & end when 3.5 seconds are left
+    public void checkForceEnd() {
+        if (opModeID.contains("auto") && autoTime.milliseconds() >= 30000 - constants.FORCE_END_TIME_LEFT) {
             try {
-                Thread forceParkThread = new Thread(() -> {
-                    motion.pidMove("park");
-                    end();
-                });
-                forceParkThread.start();
-                forceParkThread.join();
+                Thread forceEndThread = new Thread(this::end);
+                forceEndThread.start();
+                forceEndThread.join();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    // Choose between two values depending on opMode color
+    public double choose(double blue, double red) {
+        return opModeID.contains("blue") ? blue : red;
     }
 
     // Place a stone on foundation
@@ -261,6 +263,10 @@ public class Hardware {
 
     // Wrap up OpMode
     public void end() {
+        if (opModeID.contains("auto") && motion.robot.pose.distanceTo(motion.getWaypoint("park")) > 3) {
+            motion.pidMove("park");
+        }
+
         status = "Ending";
         isRunning = false;
 

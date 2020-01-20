@@ -12,7 +12,7 @@
             }
         },
         "net": {
-            "hostIP": "127.0.0.1",
+            "hostIP": "192.168.222.30",
             "port": 8080,
             "rcIP": "192.168.49.1"
         },
@@ -51,7 +51,7 @@
         "theta": {
             "kD": 0,
             "kI": 0,
-            "kP": 50
+            "kP": 0.2
         },
         "x": {
             "kD": 0,
@@ -66,7 +66,7 @@
     },
     "splinesMotionProfile": {
         "endErrorThresholds": {
-            "rotation": 2.07825520864478E-148,
+            "rotation": 3.22878291182728E-215,
             "translation": 1
         },
         "k": {
@@ -85,9 +85,9 @@
         }
     },
     "teamcode": {
+        "forceEndTimeLeft": 0,
         "stoneVerticalSlideCounts": 200,
         "updaterDelay": 10,
-        "verticalSlidePower": 0.5,
-        "forceParkTimeLeft": 3500
+        "verticalSlidePower": 0.5
     }
 }

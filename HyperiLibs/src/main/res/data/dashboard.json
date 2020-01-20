@@ -21,6 +21,26 @@
             98.971,
             3.1416277314626564
         ],
+        "auto.blue.full.waypoint.drag0": [
+            -64.546,
+            123.175,
+            3.141592653589793
+        ],
+        "auto.blue.full.waypoint.drag1": [
+            -118.872,
+            108.115,
+            4.71238898038469
+        ],
+        "auto.blue.foundation.waypoint.drag0": [
+            -64.546,
+            123.175,
+            3.141592653589793
+        ],
+        "auto.blue.foundation.waypoint.drag1": [
+            -118.872,
+            108.115,
+            4.71238898038469
+        ],
         "auto.blue.full.waypoint.park": [
             -84.985,
             0,
@@ -61,6 +81,26 @@
             98.97,
             3.141592653589793
         ],
+        "auto.red.full.waypoint.drag0": [
+            67.773,
+            122.638,
+            0
+        ],
+        "auto.red.full.waypoint.drag1": [
+            121.023,
+            111.88,
+            4.71238898038469
+        ],
+        "auto.red.foundation.waypoint.drag0": [
+            67.773,
+            122.638,
+            0
+        ],
+        "auto.red.foundation.waypoint.drag1": [
+            121.023,
+            111.88,
+            4.71238898038469
+        ],
         "auto.red.full.waypoint.park": [
             86.599,
             0,
@@ -72,8 +112,8 @@
             4.71238898038469
         ],
         "auto.red.full.waypoint.place": [
-            107.576,
-            109.19,
+            114.569,
+            108.652,
             4.71238898038469
         ],
         "auto.red.full.waypoint.start": [

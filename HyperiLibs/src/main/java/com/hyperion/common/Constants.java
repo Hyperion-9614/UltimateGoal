@@ -66,7 +66,7 @@ public class Constants {
     public int STONE_VERT_SLIDE_TICKS; // ticks
     public double VERT_SLIDE_POWER; // power
     public long UPDATER_DELAY; // ms
-    public long FORCE_PARK_TIME_LEFT; // ms
+    public long FORCE_END_TIME_LEFT; // ms
 
     // Dashboard
     public String HOST_IP; // IP Address
@@ -154,7 +154,7 @@ public class Constants {
             STONE_VERT_SLIDE_TICKS = teamcode.getInt("stoneVerticalSlideCounts");
             VERT_SLIDE_POWER = teamcode.getDouble("verticalSlidePower");
             UPDATER_DELAY = teamcode.getLong("updaterDelay");
-            FORCE_PARK_TIME_LEFT = teamcode.getLong("forceParkTimeLeft");
+            FORCE_END_TIME_LEFT = teamcode.getLong("forceEndTimeLeft");
 
             JSONObject dashboard = root.getJSONObject("dashboard");
             DASHBOARD_VERSION = dashboard.getString("version");
@@ -255,7 +255,7 @@ public class Constants {
             teamcode.put("stoneVerticalSlideCounts", STONE_VERT_SLIDE_TICKS);
             teamcode.put("verticalSlidePower", VERT_SLIDE_POWER);
             teamcode.put("updaterDelay", UPDATER_DELAY);
-            teamcode.put("forceParkTimeLeft", FORCE_PARK_TIME_LEFT);
+            teamcode.put("forceEndTimeLeft", FORCE_END_TIME_LEFT);
             root.put("teamcode", teamcode);
 
             JSONObject dashboard = new JSONObject();
