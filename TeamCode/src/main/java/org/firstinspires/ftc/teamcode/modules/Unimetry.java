@@ -5,6 +5,7 @@ import com.hyperion.common.Utils;
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.firstinspires.ftc.teamcode.opmodes.Vision;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -63,29 +64,29 @@ public class Unimetry {
         data.add(new Entry("Right Stick X", Utils.round(hardware.context.gamepad1.right_stick_x, 3)));
         data.add(new Entry("Left Trigger", Utils.round(hardware.context.gamepad1.left_trigger, 3)));
         data.add(new Entry("Right Trigger", Utils.round(hardware.context.gamepad1.right_trigger, 3)));
-        data.add(new Entry("Vision", Vision.skystonePositions[0]));
-        data.add(new Entry("Vision", Vision.skystonePositions[1]));
 
+        data.add(new Entry("Vision"));
+        data.add(new Entry("Skystone Positions", Vision.skystonePositions[0] + " " + Vision.skystonePositions[1]));
     }
 
     public synchronized void updateTelemetry() {
         try {
-            JSONArray dataArr = new JSONArray();
-            for (Entry entry : data) {
-                JSONArray miniArr = new JSONArray();
-                if (entry.token2 == null) {
-                    hardware.context.telemetry.addData(entry.token1.toString(), "");
-                    miniArr.put("");
-                    miniArr.put("");
+            JSONObject dataObj = new JSONObject();
+            for (int i = 0; i < data.size(); i++) {
+                Entry entry = data.get(i);
+                JSONObject miniObj = new JSONObject();
+                hardware.context.telemetry.addData(entry.token0, entry.token1);
+                if (entry.token1.isEmpty()) {
+                    miniObj.put("token0", "");
+                    miniObj.put("token1", "");
                 } else {
-                    hardware.context.telemetry.addData(entry.token1.toString(), entry.token2.toString());
-                    miniArr.put(entry.token1.toString());
-                    miniArr.put(entry.token2.toString());
+                    miniObj.put("token0", entry.token0);
+                    miniObj.put("token1", entry.token1);
                 }
-                dataArr.put(miniArr);
+                dataObj.put("" + i, miniObj);
             }
 
-            json = dataArr.toString();
+            json = dataObj.toString();
             hardware.context.telemetry.update();
             if (hardware.options.debug && hardware.rcClient != null) {
                 hardware.rcClient.emit("unimetryUpdated", json);
@@ -98,22 +99,22 @@ public class Unimetry {
 
     class Entry {
 
-        public Object token1;
-        public Object token2;
+        public String token0;
+        public String token1 = "";
 
         public Entry() {
+            token0 = newLineSpaces;
             token1 = newLineSpaces;
-            token2 = newLineSpaces;
             newLineSpaces += " ";
         }
 
-        public Entry(Object token1) {
-            this.token1 = token1;
+        public Entry(String token0) {
+            this.token0 = token0;
         }
 
-        public Entry(Object token1, Object token2) {
-            this.token1 = token1;
-            this.token2 = token2;
+        public Entry(String token0, Object token1) {
+            this.token0 = token0;
+            this.token1 = token1 == null ? "" : token1.toString();
         }
 
     }

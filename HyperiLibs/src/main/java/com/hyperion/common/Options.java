@@ -34,10 +34,14 @@ public class Options {
     }
 
     public JSONObject toJSONObject() {
-        HashMap<String, String> map = new HashMap<>();
-        map.put("debug", String.valueOf(debug));
-        map.put("socketLog", String.valueOf(socketLog));
-        return new JSONObject(map);
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("debug", debug);
+            obj.put("socketLog", socketLog);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return obj;
     }
 
 }

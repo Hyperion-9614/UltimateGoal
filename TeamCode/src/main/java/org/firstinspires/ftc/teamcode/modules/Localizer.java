@@ -91,7 +91,11 @@ public class Localizer {
             }
 
             lastTvel = new Vector2D(hw.motion.robot.tVel);
-            hw.motion.robot.pose.addXYT(hw.constants.mToCoords(dR[0]), hw.constants.mToCoords(dR[1]), dR[2]);
+            double dXr = hw.constants.mToCoords(dR[0]);
+            double dYr = hw.constants.mToCoords(dR[1]);
+            double theta = -hw.motion.robot.pose.theta;
+            hw.motion.robot.pose.addXYT(dXr * Math.cos(theta) + dYr * Math.sin(theta),
+                                        dYr * Math.cos(theta) - dXr * Math.sin(theta), dR[2]);
             hw.motion.robot.pose.theta = Utils.normalizeTheta(hw.motion.robot.pose.theta, 0, 2 * Math.PI);
         }
     }

@@ -129,19 +129,19 @@ public class Hardware {
         autoClawSwing = hwmp.servo.get("autoClawSwing");
         autoClawGrip = hwmp.crservo.get("autoClawGrip");
 
+        // Init dashboard
+        if (options.debug) initDashboard();
+
         // Init control, telemetry, & settings
         motion = new Motion(this);
         appendages = new Appendages(this);
         unimetry = new Unimetry(this);
 
-        initCV();
         initUpdater();
-
-        // Init options & dashboard
-        if (options.debug) initDashboard();
+        initCV();
     }
 
-    ///////////////////////// PRE & POST //////////////////////////
+    ///////////////////////// INIT //////////////////////////
 
     // Initialize updater thread
     public void initUpdater() {
@@ -172,16 +172,6 @@ public class Hardware {
                 phoneCam.setHardwareFrameTimingRange(r);
                 break;
             }
-        }
-    }
-
-    public void killCV() {
-        if (phoneCam != null) {
-            phoneCam.setFlashlightEnabled(false);
-            phoneCam.pauseViewport();
-            phoneCam.stopStreaming();
-            phoneCam.setPipeline(null);
-            phoneCam.closeCameraDevice();
         }
     }
 
@@ -225,12 +215,14 @@ public class Hardware {
         motion.robot = new RigidBody(motion.start);
     }
 
+    ///////////////////////// GENERAL & PRESETS //////////////////////////
+
     // Force park when 3.5 seconds are left
     public void checkForcePark() {
-        if (opModeID.contains("auto") && autoTime.milliseconds() >= 30000 - 3500) {
+        if (opModeID.contains("auto") && autoTime.milliseconds() >= 30000 - constants.FORCE_PARK_TIME_LEFT) {
             try {
                 Thread forceParkThread = new Thread(() -> {
-                    motion.goToWaypoint("park");
+                    motion.pidMove("park");
                     end();
                 });
                 forceParkThread.start();
@@ -238,6 +230,32 @@ public class Hardware {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    // Place a stone on foundation
+    public void preset_placeStone() {
+        if (opModeID.contains("auto")) {
+            motion.pidMove("place");
+            appendages.setAutoClawSwingStatus("down");
+            appendages.setAutoClawGripStatus("open");
+            appendages.setAutoClawSwingStatus("up");
+        } else {
+            appendages.setVerticalSlidePosition(presetPlaceStoneTicks);
+            appendages.setVerticalSlidePosition(0);
+            presetPlaceStoneTicks += constants.STONE_VERT_SLIDE_TICKS;
+        }
+    }
+
+    ///////////////////////// END //////////////////////////
+
+    public void killCV() {
+        if (phoneCam != null) {
+            phoneCam.setFlashlightEnabled(false);
+            phoneCam.pauseViewport();
+            phoneCam.stopStreaming();
+            phoneCam.setPipeline(null);
+            phoneCam.closeCameraDevice();
         }
     }
 
@@ -261,8 +279,8 @@ public class Hardware {
             }
         }
         if (options.debug) {
-            rcClient.emit("dashboardJson", Utils.readFile(dashboardJson));
-            Utils.printSocketLog("RC", "SERVER", "dashboardJson", options);
+            rcClient.emit("dashboardUpdated", Utils.readFile(dashboardJson));
+            Utils.printSocketLog("RC", "SERVER", "dashboardUpdated", options);
             rcClient.emit("opModeEnded", "{}");
             Utils.printSocketLog("RC", "SERVER", "opModeEnded", options);
             rcClient.close();
@@ -270,22 +288,6 @@ public class Hardware {
 
         if (!context.isStopRequested() || context.opModeIsActive()) {
             context.requestOpModeStop();
-        }
-    }
-
-    //////////////////////////// PRESETS /////////////////////////////
-
-    // Place a stone on foundation
-    public void preset_placeStone() {
-        motion.goToWaypoint("place");
-        if (opModeID.contains("auto")) {
-            appendages.setAutoClawSwingStatus("down");
-            appendages.setAutoClawGripStatus("open");
-            appendages.setAutoClawSwingStatus("up");
-        } else {
-            appendages.setVerticalSlidePosition(presetPlaceStoneTicks);
-            appendages.setVerticalSlidePosition(0);
-            presetPlaceStoneTicks += constants.STONE_VERT_SLIDE_TICKS;
         }
     }
 

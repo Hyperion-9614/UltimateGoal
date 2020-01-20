@@ -84,10 +84,10 @@ public class Appendages {
         double power = 0;
         switch (compWheelsStatus) {
             case "in":
-                power = -1;
+                power = 1;
                 break;
             case "out":
-                power = 1;
+                power = -1;
                 break;
         }
         setCompWheelsPower(power);
@@ -115,10 +115,11 @@ public class Appendages {
         if (chainBarStatus.equals("up")) {
             setChainBarPosition(0.85);
         } else if (chainBarStatus.equals("in")) {
-            setChainBarPosition(0.95);
+            setChainBarPosition(1.0);
         } else if (chainBarStatus.equals("out")) {
-            setChainBarPosition(0.5);
+            setChainBarPosition(0.4);
         }
+        hardware.context.sleep(300);
     }
 
     public void cycleChainBar() {
@@ -138,10 +139,11 @@ public class Appendages {
     public void setClawStatus(String openClosed) {
         clawStatus = openClosed.toLowerCase();
         if (clawStatus.equals("open")) {
-            hardware.claw.setPower(1.0);
-        } else {
             hardware.claw.setPower(-1.0);
+        } else {
+            hardware.claw.setPower(1.0);
         }
+        hardware.context.sleep(300);
     }
 
     public void setAutoClawSwingStatus(String downUp) {
@@ -153,6 +155,7 @@ public class Appendages {
         } else if (autoClawSwingStatus.equals("init")) {
             hardware.autoClawSwing.setPosition(0.5);
         }
+        hardware.context.sleep(300);
     }
 
     public void setAutoClawGripStatus(String openClosed) {
@@ -162,6 +165,7 @@ public class Appendages {
         } else {
             hardware.autoClawGrip.setPower(-0.9);
         }
+        hardware.context.sleep(300);
     }
 
 }

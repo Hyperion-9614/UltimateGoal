@@ -163,7 +163,7 @@ public class UIClient extends Application {
                 Utils.printSocketLog("SERVER", "UI", "unimetryUpdated", options);
                 readUnimetry(args[0].toString());
                 Platform.runLater(() -> textPane.setUnimetryDisplayText());
-                robot.refreshDisplayGroup(new RigidBody(unimetry.get("Current")));
+                robot.refreshDisplayGroup(new RigidBody(unimetry.get("3 Current")));
             }).on("configUpdated", args -> {
                 Utils.printSocketLog("SERVER", "UI", "configUpdated", options);
                 config = args[0].toString();
@@ -271,10 +271,10 @@ public class UIClient extends Application {
     private static void readUnimetry(String json) {
         try {
             unimetry = new HashMap<>();
-            JSONArray data = new JSONArray(json);
-            for (int i = 0; i < data.length(); i++) {
-                JSONArray miniArr = data.getJSONArray(i);
-                unimetry.put(miniArr.getString(0), miniArr.getString(1));
+            JSONObject dataObj = new JSONObject(json);
+            for (int i = 0; i < dataObj.length(); i++) {
+                JSONObject miniObj = dataObj.getJSONObject("" + i);
+                unimetry.put(i + " " + miniObj.getString("token0"), miniObj.getString("token1"));
             }
 
 

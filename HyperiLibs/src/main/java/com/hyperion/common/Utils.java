@@ -2,6 +2,7 @@ package com.hyperion.common;
 
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
+import com.hyperion.motion.math.Vector2D;
 
 import org.apache.commons.math3.util.Precision;
 import org.json.JSONArray;
@@ -80,7 +81,7 @@ public class Utils {
         return theta;
     }
 
-    public static double optimalThetaDifference(double thetaStart, double thetaEnd) {
+    public static double optThetaDiff(double thetaStart, double thetaEnd) {
         double difference = normalizeTheta(thetaEnd, 0, 2 * Math.PI) - normalizeTheta(thetaStart, 0, 2 * Math.PI);
         if (difference < -Math.PI) difference += 2 * Math.PI;
         if (difference > Math.PI) difference -= 2 * Math.PI;
@@ -275,31 +276,6 @@ public class Utils {
         double min = 0;
         for (double n : arr) min = Math.min(n, min);
         return min;
-    }
-
-    public static Object getCompoundJsonObjectValue(ArrayList<String> compoundKey, JSONObject root) throws Exception {
-        JSONObject current = root;
-        for (String key : compoundKey) {
-            current = current.getJSONObject(key);
-        }
-        return current;
-    }
-
-    public static String colorToCSS(Color color) {
-        return "rgba(" + color.getRed() + ", " + color.getGreen() + ", " + color.getBlue() + ", " + color.getOpacity() + ")";
-    }
-
-    public static boolean isJSONValid(String test) {
-        try {
-            new JSONObject(test);
-        } catch (JSONException ex) {
-            try {
-                new JSONArray(test);
-            } catch (JSONException ex1) {
-                return false;
-            }
-        }
-        return true;
     }
 
 }

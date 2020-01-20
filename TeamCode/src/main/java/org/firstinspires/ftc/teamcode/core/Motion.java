@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.core;
 
 import com.hyperion.common.Utils;
 import com.hyperion.motion.math.RigidBody;
-import com.hyperion.motion.trajectory.TrajectoryPID;
+import org.firstinspires.ftc.teamcode.modules.HomogeneousPID;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 import com.hyperion.motion.dstarlite.DStarLite;
@@ -27,7 +27,7 @@ public class Motion {
     public Hardware hw;
 
     public Localizer localizer;
-    public TrajectoryPID trajectoryPID;
+    public HomogeneousPID homogeneousPID;
     public DStarLite dStarLite;
 
     public RigidBody start = new RigidBody(new Pose(0, 0, 0));
@@ -47,7 +47,7 @@ public class Motion {
 
         localizer = new Localizer(hw);
         dStarLite = new DStarLite();
-        trajectoryPID = new TrajectoryPID(hw.constants);
+        homogeneousPID = new HomogeneousPID(hw);
 
         for (DcMotor motor : hw.hwmp.dcMotor) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -113,108 +113,35 @@ public class Motion {
         }
         hw.checkForcePark();
     }
-    public void setDrive(Vector2D moveVec, double rot) {
+    public void setDrive(Vector2D relMoveVec, double rot) {
         setDrive(new double[]{
-            moveVec.x + moveVec.y + rot,
-            -moveVec.x + moveVec.y - rot,
-            -moveVec.x + moveVec.y + rot,
-            moveVec.x + moveVec.y - rot
+            relMoveVec.x + relMoveVec.y + rot,
+            -relMoveVec.x + relMoveVec.y - rot,
+            -relMoveVec.x + relMoveVec.y + rot,
+            relMoveVec.x + relMoveVec.y - rot
         });
     }
 
-    ///////////////////////// GENERAL MOTION /////////////////////////
+    ///////////////////////// ADVANCED MOTION /////////////////////////
 
-    // Strafe coords at velocity
-    public void strafe(Vector2D velocity, double coords) {
-        coords = Math.abs(coords);
-        Pose target = robot.pose.addVector(new Vector2D(coords, velocity.theta, false));
-        followPath(new SplineTrajectory(hw.constants, new RigidBody(robot), new RigidBody(target)));
+    public void pidMove(String waypoint) {
+        String id = hw.opModeID + ".waypoint." + waypoint;
+        hw.status = "Moving to " + id;
+        pidMove(waypoints.get(id));
     }
-
-    // Strafe at velocity
-    public void strafe(Vector2D a, double b, boolean isVw) {
-        if (isVw) {
-            a = a.rotated(-robot.pose.theta + Math.PI / 2);
-            double[] velocities = new double[]{
-                    a.x + a.y - b,
-                    -a.x + a.y + b,
-                    -a.x + a.y - b,
-                    a.x + a.y + b
-            };
-            setDrive(velocities);
-        } else {
-            b = Math.abs(b);
-            Pose target = robot.pose.addVector(new Vector2D(b, a.theta, false));
-            followPath(new SplineTrajectory(hw.constants, new RigidBody(robot), new RigidBody(target)));
-        }
-    }
-
-    // Rotate in place to target theta in specified direction
-    public void rotate(double targetHeading) {
-        targetHeading = Utils.normalizeTheta(targetHeading, 0, 2 * Math.PI);
-        Pose target = new Pose(robot.pose.x, robot.pose.y, targetHeading);
-        followPath(new SplineTrajectory(hw.constants, new RigidBody(robot), new RigidBody(target)));
-    }
-
-    ///////////////////////// PATHING /////////////////////////
-
-    // Calculate and follow optimal SplineTrajectory to a waypoint from current pose
-    public void goToWaypoint(Pose goal) {
-        SplineTrajectory path = new SplineTrajectory(dStarLite.optimalPath(robot.pose, goal), hw.constants);
-        if (hw.options.debug) {
-            hw.rcClient.emit("pathFound", path.writeJSON());
-            Utils.printSocketLog("RC", "SERVER", "pathFound", hw.options);
-        }
-        followPath(path);
-        if (hw.options.debug) {
-            hw.rcClient.emit("pathCompleted", "{}");
-            Utils.printSocketLog("RC", "SERVER", "pathCompleted", hw.options);
-        }
-    }
-
-    public void goToWaypoint(String waypointName) {
-        Pose goal = waypoints.get(hw.opModeID + ".waypoint." + waypointName);
-        hw.status = "Going to " + hw.opModeID + ".waypoint." + waypointName;
-        goToWaypoint(goal);
-        hw.status = "Arrived at " + hw.opModeID + ".waypoint." + waypointName;
-    }
-
-    // Uses feed forward motion profiling and a trajectory PID controller to follow a SplineTrajectory
-    public void followPath(SplineTrajectory splineTrajectory) {
-        double distance = 0;
-        Pose lastPose = new Pose(robot.pose);
-        trajectoryPID.reset(robot, splineTrajectory);
+    public void pidMove(Pose target) {
+        homogeneousPID.reset(robot.pose, target);
         ElapsedTime timer = new ElapsedTime();
-        while (hw.context.opModeIsActive() && !hw.context.isStopRequested() && timer.milliseconds() <= 7500
-               && (hw.context.gamepad1.right_stick_x == 0 && hw.context.gamepad1.left_stick_y == 0 && hw.context.gamepad1.left_stick_x == 0)
-               && Utils.distance(robot.pose, splineTrajectory.waypoints.get(splineTrajectory.waypoints.size() - 1).pose) >= hw.constants.END_TRANSLATION_ERROR_THRESHOLD
-               || Math.abs(Utils.optimalThetaDifference(robot.pose.theta, splineTrajectory.waypoints.get(splineTrajectory.waypoints.size() - 1).pose.theta)) >= hw.constants.END_ROTATION_ERROR_THRESHOLD) {
-            distance += lastPose.distanceTo(robot.pose);
-            lastPose = new Pose(robot.pose);
-
-            if (distance > splineTrajectory.length) {
-                break;
-            }
-
-            Vector2D translationalVelocity = splineTrajectory.motionProfile.getTranslationalVelocity(distance).scaled(hw.constants.MP_K_TV);
-            Vector2D translationalAcceleration = splineTrajectory.motionProfile.getTranslationalAcceleration(distance).scaled(hw.constants.MP_K_TA);
-
-            double angularVelocity = Math.pow((1.0 / (2 * Math.PI)) * Utils.optimalThetaDifference(robot.pose.theta, splineTrajectory.getDPose(distance).theta), 3);
-            double angularAcceleration = 0;
-
-            strafe(translationalVelocity.added(translationalAcceleration), angularVelocity + angularAcceleration, true);
-//            setDrive(trajectoryPID.controlLoopIteration(distance, robot));
+        while (hw.context.opModeIsActive() && !hw.context.isStopRequested() && timer.milliseconds() <= 5500
+               && robot.pose.distanceTo(target) > hw.constants.END_TRANSLATION_ERROR_THRESHOLD
+               && Utils.optThetaDiff(robot.pose.theta, target.theta) > hw.constants.END_ROTATION_ERROR_THRESHOLD) {
+            homogeneousPID.controlLoopIteration(robot.pose);
         }
-        setDrive(0);
     }
 
-    public void followPath(String pathName) {
-        SplineTrajectory path = splines.get(hw.opModeID + ".spline." + pathName);
-        if (path != null) {
-            hw.status = "Following " + hw.opModeID + ".spline." + pathName;
-            followPath(path);
-            hw.status = "Completed " + hw.opModeID + ".spline." + pathName;
-        }
+    public void rotate(double targetTheta) {
+        hw.status = "Rotating to " + Math.toDegrees(targetTheta) + "\u00B0";
+        pidMove(new Pose(robot.pose.x, robot.pose.y, targetTheta));
     }
 
 }

@@ -1,5 +1,4 @@
 {
-    "cv": {"blackThreshold": 10},
     "dashboard": {
         "gui": {
             "sizes": {
@@ -13,9 +12,9 @@
             }
         },
         "net": {
-            "hostIP": "192.168.222.30",
+            "hostIP": "127.0.0.1",
             "port": 8080,
-            "rcIP": "192.168.1.49"
+            "rcIP": "192.168.49.1"
         },
         "version": "2.6.0"
     },
@@ -52,22 +51,22 @@
         "theta": {
             "kD": 0,
             "kI": 0,
-            "kP": 0.06
+            "kP": 50
         },
         "x": {
             "kD": 0,
             "kI": 0,
-            "kP": 0.06
+            "kP": 0.2
         },
         "y": {
             "kD": 0,
             "kI": 0,
-            "kP": 0.06
+            "kP": 0.2
         }
     },
     "splinesMotionProfile": {
         "endErrorThresholds": {
-            "rotation": 0,
+            "rotation": 2.07825520864478E-148,
             "translation": 1
         },
         "k": {
@@ -81,13 +80,14 @@
             "aVel": 0.3,
             "bisectionError": 1,
             "segmentLength": 50,
-            "tAcc": 68.12,
-            "tVel": 350.12
+            "tAcc": 50,
+            "tVel": 330.12
         }
     },
     "teamcode": {
         "stoneVerticalSlideCounts": 200,
         "updaterDelay": 10,
-        "verticalSlidePower": 0.5
+        "verticalSlidePower": 0.5,
+        "forceParkTimeLeft": 3500
     }
 }

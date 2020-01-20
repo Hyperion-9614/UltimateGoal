@@ -6,10 +6,8 @@
          <NeveRest3.7v1Gearmotor name="bLDrive" port="1"/>
          <NeveRest20Gearmotor name="compWheelsL" port="2"/>
          <NeveRest3.7v1Gearmotor name="vertSlideL" port="3"/>
-         <Servo name="chainBarL" port="0"/>
+         <ContinuousRotationServo name="autoClawGrip" port="0"/>
          <Servo name="foundationMoverL" port="1"/>
-         <Servo name="autoClawSwing" port="2"/>
-         <ContinuousRotationServo name="autoClawGrip" port="3"/>
          <LynxEmbeddedIMU name="imu" port="0" bus="0"/>
       </LynxModule>
       <LynxModule name="Expansion Hub R" port="3">
@@ -18,8 +16,11 @@
          <NeveRest3.7v1Gearmotor name="compWheelsR" port="2"/>
          <NeveRest20Gearmotor name="vertSlideR" port="3"/>
          <Servo name="chainBarR" port="0"/>
-         <Servo name="foundationMoverR" port="1"/>
+         <Servo name="chainBarL" port="1"/>
          <ContinuousRotationServo name="claw" port="2"/>
+         <Servo name="capstone" port="3"/>
+         <Servo name="foundationMoverR" port="4"/>
+         <Servo name="autoClawSwing" port="5"/>
          <LynxEmbeddedIMU name="imu 1" port="0" bus="0"/>
       </LynxModule>
    </LynxUsbDevice>

@@ -6,18 +6,12 @@ import com.hyperion.motion.math.Piecewise;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 
-import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.analysis.differentiation.DerivativeStructure;
-import org.apache.commons.math3.analysis.differentiation.UnivariateDifferentiableFunction;
 import org.apache.commons.math3.analysis.integration.SimpsonIntegrator;
-import org.apache.commons.math3.analysis.polynomials.PolynomialFunction;
-import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.mariuszgromada.math.mxparser.Expression;
 import org.mariuszgromada.math.mxparser.Function;
 
 import java.util.ArrayList;
@@ -290,7 +284,7 @@ public class SplineTrajectory {
                 tMiddle = (tLeft + tRight) / 2.0;
                 tMiddleLength = arcDistance(tMiddle);
             }
-            double theta = waypoints.get(tJ).pose.theta + Utils.optimalThetaDifference(waypoints.get(tJ).pose.theta, waypoints.get(tJ + 1).pose.theta)
+            double theta = waypoints.get(tJ).pose.theta + Utils.optThetaDiff(waypoints.get(tJ).pose.theta, waypoints.get(tJ + 1).pose.theta)
                            * ((l - waypoints.get(tJ).distance) / (waypoints.get(tJ + 1).distance - waypoints.get(tJ).distance));
             planningPoints.add(new RigidBody(tMiddle, l, theta, this));
         }
@@ -323,10 +317,10 @@ public class SplineTrajectory {
         }
     }
 
-    private int getInterval(double distance) {
+    private int getPlanningPointInterval(double distance) {
         int i;
-        for (i = waypoints.size() - 2; i > 0; i--) {
-            if (distance >= waypoints.get(i - 1).distance && distance < waypoints.get(i).distance) {
+        for (i = 0; i < planningPoints.size() - 1; i++) {
+            if (distance >= planningPoints.get(i).distance && distance < planningPoints.get(i + 1).distance) {
                 break;
             }
         }
@@ -346,9 +340,9 @@ public class SplineTrajectory {
     }
     public Pose getDPose(double distance) {
         if (distance == waypoints.get(waypoints.size() - 1).distance) return waypoints.get(waypoints.size() - 1).pose;
-        int interval = getInterval(distance);
-        double theta = Utils.normalizeTheta(waypoints.get(interval).pose.theta + Utils.optimalThetaDifference(waypoints.get(interval).pose.theta, waypoints.get(interval + 1).pose.theta)
-                                                  * ((distance - waypoints.get(interval).distance) / (waypoints.get(interval + 1).distance - waypoints.get(interval).distance)), 0, 2 * Math.PI);
+        int interval = getPlanningPointInterval(distance);
+        double theta = Utils.normalizeTheta(planningPoints.get(interval).pose.theta + Utils.optThetaDiff(planningPoints.get(interval).pose.theta, planningPoints.get(interval + 1).pose.theta)
+                                                  * ((distance - planningPoints.get(interval).distance) / (planningPoints.get(interval + 1).distance - planningPoints.get(interval).distance)), 0, 2 * Math.PI);
         distance = paramDistance(distance);
         return new Pose(distanceX.evaluate(distance, 0, true), distanceY.evaluate(distance, 0, true), theta);
     }

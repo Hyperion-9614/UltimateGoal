@@ -71,21 +71,21 @@ public class TELE_Main extends LinearOpMode {
             motion.setDrive(vel, rot);
 
             /*
-             * GAMEPAD 1
+             * GAMEPAD 2
              * LEFT TRIGGER : Vertical slides down
              * RIGHT TRIGGER : Vertical slides up
              */
-            double vertSlidePower = Math.pow(gamepad1.right_trigger - gamepad1.left_trigger, 3);
+            double vertSlidePower = Math.pow(gamepad2.right_trigger - gamepad2.left_trigger, 3);
             appendages.setVerticalSlidePower(vertSlidePower);
 
             /*
-             * GAMEPAD 1
+             * GAMEPAD 2
              * RIGHT STICK BUTTON : Reset vertical slide encoders
              */
-            if (gamepad1.right_stick_button && !resetVertSlidesToggle) {
+            if (gamepad2.right_stick_button && !resetVertSlidesToggle) {
                 appendages.resetVerticalSlideEncoders();
                 resetVertSlidesToggle = true;
-            } else if (!gamepad1.right_stick_button) {
+            } else if (!gamepad2.right_stick_button) {
                 resetVertSlidesToggle = false;
             }
 
@@ -123,31 +123,31 @@ public class TELE_Main extends LinearOpMode {
              * A : Foundation mover toggle
              */
             if (gamepad1.a && !foundationMoverToggle) {
-                appendages.setAutoClawSwingStatus(appendages.autoClawSwingStatus.equals("down") ? "up" : "down");
+                appendages.setFoundationMoverStatus(appendages.foundationMoverStatus.equals("down") ? "up" : "down");
                 foundationMoverToggle = true;
             } else if (!gamepad1.a) {
                 foundationMoverToggle = false;
             }
             
             /*
-             * GAMEPAD 1
+             * GAMEPAD 2
              * B : Claw toggle
              */
-            if (gamepad1.b && !clawToggle) {
-                appendages.setAutoClawGripStatus(appendages.autoClawGripStatus.equals("open") ? "closed" : "open");
+            if (gamepad2.b && !clawToggle) {
+                appendages.setClawStatus(appendages.clawStatus.equals("open") ? "closed" : "open");
                 clawToggle = true;
-            } else if (!gamepad1.b) {
+            } else if (!gamepad2.b) {
                 clawToggle = false;
             }
 
             /*
-             * GAMEPAD 1
+             * GAMEPAD 2
              * X : Chain bar toggle
              */
-            if (gamepad1.x && !chainBarToggle) {
+            if (gamepad2.x && !chainBarToggle) {
                 appendages.cycleChainBar();
                 chainBarToggle = true;
-            } else if (!gamepad1.x) {
+            } else if (!gamepad2.x) {
                 chainBarToggle = false;
             }
         }

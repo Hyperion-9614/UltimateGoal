@@ -46,7 +46,7 @@ public class DashboardServer {
                     dashboardClients.add(client);
                     type = "UI";
                 }
-                Utils.printSocketLog(type, "SERVER", "connected", options);
+                Utils.printSocketLog(type, "SERVER", address + " connected", options);
 
                 client.sendEvent("constantsUpdated", Utils.readDataJSON("constants", constants));
                 Utils.printSocketLog("SERVER", type, "constantsUpdated", options);
@@ -72,7 +72,11 @@ public class DashboardServer {
             });
 
             server.addEventListener("dashboardUpdated", String.class, (client, data, ackRequest) -> {
-                Utils.printSocketLog("UI", "SERVER", "dashboardUpdated", options);
+                String address = client.getRemoteAddress().toString()
+                        .substring(0, client.getRemoteAddress().toString().indexOf(":"))
+                        .replace("/", "");
+                String type = (rcClient != null && address.equals(constants.RC_IP)) ? "RC" : "UI";
+                Utils.printSocketLog(type, "SERVER", "dashboardUpdated", options);
 
                 try {
                     for (SocketIOClient dashboardClient : dashboardClients) {

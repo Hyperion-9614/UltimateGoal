@@ -35,7 +35,7 @@ class RectangleSampling : CvPipeline() {
 
     override fun processFrame(input: Mat): Mat {
         samplePoints.forEach {
-            Log.i("Fuck Me", "x: ${it[0].x}, ${it[0].y}  y: ${it[1].x}, ${it[1].y}")
+//            Log.i("Fuck Me", "x: ${it[0].x}, ${it[0].y}  y: ${it[1].x}, ${it[1].y}")
         }
 
         // Convert the image from RGB to YCrCb

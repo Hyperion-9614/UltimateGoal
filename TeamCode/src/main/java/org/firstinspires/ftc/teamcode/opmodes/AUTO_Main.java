@@ -45,8 +45,6 @@ public class AUTO_Main extends LinearOpMode {
                 hardware.initOpMode("auto.red.brick");
             } else if (gamepad1.dpad_left) {
                 hardware.initOpMode("auto.blue.brick");
-            } else if (gamepad1.right_stick_button) {
-
             }
         }
 
@@ -66,22 +64,21 @@ public class AUTO_Main extends LinearOpMode {
                 }
 
             }
+            skystonePositions = new int[]{0, 3};
             hardware.autoTime = new ElapsedTime();
 
             if (hardware.opModeID.endsWith("full")) {
-                motion.followPath("test");
+                goToStone(skystonePositions[0]);
+                pickUpBlock();
+                dragFoundation();
+                hardware.preset_placeStone();
 
-//                goToStone(skystonePositions[0]);
-//                pickUpBlock();
-//                dragFoundation();
-//                hardware.preset_placeStone();
-//
-//                goToStone(skystonePositions[1]);
-//                pickUpBlock();
-//                hardware.preset_placeStone();
-//
+                goToStone(skystonePositions[1]);
+                pickUpBlock();
+                hardware.preset_placeStone();
+
 //                for (int i = 0; i < 6; i++) {
-//                    if (i != skystonePositions[0] && i!= skystonePositions[1]) {
+//                    if (i != skystonePositions[0] && i != skystonePositions[1]) {
 //                        goToStone(i);
 //                        pickUpBlock();
 //                        hardware.preset_placeStone();
@@ -91,7 +88,9 @@ public class AUTO_Main extends LinearOpMode {
                 dragFoundation();
             }
 
-            motion.goToWaypoint("park");
+            Pose park = motion.waypoints.get(hardware.opModeID + ".waypoint.park");
+            motion.rotate(Objects.requireNonNull(park).theta);
+            motion.strafe(park);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,22 +102,29 @@ public class AUTO_Main extends LinearOpMode {
         appendages.setAutoClawSwingStatus("down");
         appendages.setAutoClawGripStatus("closed");
         appendages.setAutoClawSwingStatus("up");
+        motion.strafe(new Vector2D(0.7, hardware.opModeID.contains("blue") ? Math.PI : 0, false), 20);
     }
 
     // Pivot drag foundation & push into building zone
     private void dragFoundation() {
-        motion.goToWaypoint(Objects.requireNonNull(motion.splines.get(hardware.opModeID + ".splines.drag")).waypoints.get(0).pose);
+        Pose target = Objects.requireNonNull(motion.splines.get(hardware.opModeID + ".spline.drag")).waypoints.get(0).pose;
+        motion.rotate(target.theta);
+        motion.strafe(target);
         appendages.setFoundationMoverStatus("down");
-        motion.followPath("drag");
+        motion.pivot(3 * Math.PI / 2, hardware.opModeID.contains("blue") ? 0 : 1, hardware.opModeID.contains("blue") ? 1 : -1);
         appendages.setFoundationMoverStatus("up");
+        motion.strafe(new Vector2D(0.5, Math.PI / 2, false), 10);
     }
 
     // Go to a stone position
     private void goToStone(int position) {
-        Pose goal = motion.waypoints.get(hardware.opModeID + ".waypoint.scan");
+        Pose goal = motion.waypoints.get(hardware.opModeID + ".waypoint.pickup0");
         if (goal != null) {
-            goal = goal.addVector(new Vector2D(position * 20, 3 * Math.PI / 2, false));
-            motion.goToWaypoint(goal);
+            goal = goal.addVector(new Vector2D(position * 20.32, 3 * Math.PI / 2, false));
+            motion.rotate(goal.theta);
+            motion.strafe(goal);
+            motion.rotate(goal.theta);
+            motion.strafe(goal);
         }
     }
 

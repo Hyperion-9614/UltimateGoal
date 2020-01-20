@@ -1,4 +1,4 @@
 {
-    "debug": "true",
-    "socketLog": "true"
+    "debug": true,
+    "socketLog": true
 }
