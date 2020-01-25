@@ -85,6 +85,7 @@ public class Hardware {
     public CRServo autoClawGrip;
 
     public int presetPlaceStoneTicks = 2500;
+    public int[] skystonePositions;
 
     public Hardware(LinearOpMode context) {
         this.context = context;
@@ -137,8 +138,8 @@ public class Hardware {
         appendages = new Appendages(this);
         unimetry = new Unimetry(this);
 
-        initUpdater();
         initCV();
+        initUpdater();
     }
 
     ///////////////////////// INIT //////////////////////////
@@ -166,13 +167,14 @@ public class Hardware {
         cvPipeline = new RectangleSampling();
         phoneCam.setPipeline(cvPipeline);
         phoneCam.startStreaming(1280, 720, OpenCvCameraRotation.SIDEWAYS_LEFT);
-        phoneCam.setFlashlightEnabled(true);
-        for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
-            if (r.max == 30 && r.min == 30) {
-                phoneCam.setHardwareFrameTimingRange(r);
-                break;
-            }
-        }
+        skystonePositions = new int[2];
+        //phoneCam.setFlashlightEnabled(true);
+//        for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
+//            if (r.max == 30 && r.min == 30) {
+//                phoneCam.setHardwareFrameTimingRange(r);
+//                break;
+//            }
+//        }
     }
 
     // Initialize dashboard RC client socket

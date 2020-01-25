@@ -7,8 +7,8 @@ import org.opencv.imgproc.Imgproc
 class RectangleSampling : CvPipeline() {
     private val matYCrCb = Mat()
     private val matCb = Mat()
-    private val samplingRectWidth = 15
-    private val samplingRectHeight = 15
+    private val samplingRectWidth = 85
+    private val samplingRectHeight = 35
     private val samplingRectColor = Scalar(0.0, 0.0, 255.0)
     private val samplingRectThickness = 1
 
@@ -35,7 +35,7 @@ class RectangleSampling : CvPipeline() {
 
     override fun processFrame(input: Mat): Mat {
         samplePoints.forEach {
-//            Log.i("Fuck Me", "x: ${it[0].x}, ${it[0].y}  y: ${it[1].x}, ${it[1].y}")
+            Log.i("Fuck Me", "x: ${it[0].x}, ${it[0].y}  y: ${it[1].x}, ${it[1].y}")
         }
 
         // Convert the image from RGB to YCrCb

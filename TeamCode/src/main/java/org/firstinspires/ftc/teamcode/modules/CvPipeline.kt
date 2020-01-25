@@ -6,8 +6,8 @@ import org.openftc.easyopencv.OpenCvPipeline
 abstract class CvPipeline : OpenCvPipeline() {
 
     private val stoneRowMaxWidth = 6
-    var pipelineActive = true
     var detectedSkystonePosition = -1
+    var PipelineActive = true
     val width = 1280
     val height = 720
 
