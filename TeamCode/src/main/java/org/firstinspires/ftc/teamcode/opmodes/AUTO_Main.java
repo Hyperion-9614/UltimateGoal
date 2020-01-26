@@ -53,6 +53,7 @@ public class AUTO_Main extends LinearOpMode {
 
     public void execute() {
         try {
+            //TODO: Test this shit out, its jank af
             if (hw.cvPipeline.getPipelineActive()) {
                 hw.cvPipeline.setPipelineActive(false);
                 if (hw.opModeID.contains("blue")) {
