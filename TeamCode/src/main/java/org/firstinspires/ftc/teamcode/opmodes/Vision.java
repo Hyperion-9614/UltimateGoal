@@ -16,9 +16,11 @@ public class Vision extends LinearOpMode {
         hardware = new Hardware(this);
         hardware.initCV();
         waitForStart();
+
+//        Log.i("Skystone Locations: ", hardware.skystonePositions.toString());
         while (opModeIsActive()) {
-            hardware.skystonePositions = hardware.cvPipeline.getSkystonePositions(0);
-            Log.i("Skystone Locations: ", hardware.skystonePositions.toString());
+            sleep(100);
+            Log.i("Some Random Shit", "gay");
             }
         }
     }

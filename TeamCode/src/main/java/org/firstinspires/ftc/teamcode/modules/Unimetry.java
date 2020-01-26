@@ -64,8 +64,13 @@ public class Unimetry {
         data.add(new Entry("Right Trigger", Utils.round(hardware.context.gamepad1.right_trigger, 3)));
         data.add(new Entry());
 
-        data.add(new Entry("Vision"));
-        data.add(new Entry("Skystone Positions", hardware.skystonePositions[0] + " " + hardware.skystonePositions[1]));
+        data.add(new Entry("Vision: Blue"));
+        data.add(new Entry("Skystone Position 1", hardware.cvPipeline.getDetectedSkystonePosition()));
+        data.add(new Entry("Skystone Position 2", hardware.cvPipeline.getDetectedSkystonePosition() + 3));
+
+        data.add(new Entry("Vision: Red"));
+        data.add(new Entry("Skystone Position 1", hardware.cvPipeline.getDetectedSkystonePosition() + 5));
+        data.add(new Entry("Skystone Position 2", hardware.cvPipeline.getDetectedSkystonePosition() + 2));
     }
 
     public synchronized void updateTelemetry() {

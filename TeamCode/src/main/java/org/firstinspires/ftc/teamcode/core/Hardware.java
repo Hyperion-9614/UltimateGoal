@@ -167,14 +167,13 @@ public class Hardware {
         cvPipeline = new RectangleSampling();
         phoneCam.setPipeline(cvPipeline);
         phoneCam.startStreaming(1280, 720, OpenCvCameraRotation.SIDEWAYS_LEFT);
-        skystonePositions = new int[2];
-        //phoneCam.setFlashlightEnabled(true);
-//        for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
-//            if (r.max == 30 && r.min == 30) {
-//                phoneCam.setHardwareFrameTimingRange(r);
-//                break;
-//            }
-//        }
+        phoneCam.setFlashlightEnabled(true);
+        for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
+            if (r.max == 30 && r.min == 30) {
+                phoneCam.setHardwareFrameTimingRange(r);
+                break;
+            }
+        }
     }
 
     // Initialize dashboard RC client socket
@@ -260,6 +259,7 @@ public class Hardware {
             phoneCam.stopStreaming();
             phoneCam.setPipeline(null);
             phoneCam.closeCameraDevice();
+            System.gc();
         }
     }
 
@@ -272,7 +272,6 @@ public class Hardware {
         status = "Ending";
         isRunning = false;
 
-        killCV();
         if (updater != null && updater.isAlive() && !updater.isInterrupted()) updater.interrupt();
 
         if (opModeID.startsWith("auto")) {

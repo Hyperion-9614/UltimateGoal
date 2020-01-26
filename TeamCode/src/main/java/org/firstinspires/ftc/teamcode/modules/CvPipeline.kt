@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.modules
 
+import android.util.Log
 import org.openftc.easyopencv.OpenCvPipeline
 
 
@@ -22,7 +23,7 @@ abstract class CvPipeline : OpenCvPipeline() {
 
         val skystonePositions = intArrayOf(firstSkystonePosition, secondSkystonePosition)
         skystonePositions.sort()
-
+        Log.i("Skystone Positions", skystonePositions.toString())
         return skystonePositions
     }
 

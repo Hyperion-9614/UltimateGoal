@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.modules
 
-import android.util.Log
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 
@@ -35,7 +34,7 @@ class RectangleSampling : CvPipeline() {
 
     override fun processFrame(input: Mat): Mat {
         samplePoints.forEach {
-            Log.i("Fuck Me", "x: ${it[0].x}, ${it[0].y}  y: ${it[1].x}, ${it[1].y}")
+            //Log.i("Fuck Me", "x: ${it[0].x}, ${it[0].y}  y: ${it[1].x}, ${it[1].y}")
         }
 
         // Convert the image from RGB to YCrCb
@@ -53,6 +52,7 @@ class RectangleSampling : CvPipeline() {
         val avgSamples = subMats.map {
             Core.mean(it).`val`[0]
         }
+        //Log.i("AVG Samples", avgSamples.toString())
 
         // Draw rectangles around the sample areas
         samplePoints.forEach {
@@ -61,6 +61,7 @@ class RectangleSampling : CvPipeline() {
 
         // Figure out which sample zone had the lowest contrast from blue (lightest color)
         val max = avgSamples.max()
+        //Log.i("MAX VALUES:", max.toString())
 
         // Draw a circle on the detected skystone
         detectedSkystonePosition = avgSamples.indexOf(max)
@@ -81,7 +82,7 @@ class RectangleSampling : CvPipeline() {
         subMats.forEach {
             it.release()
         }
-
+        //Log.i("Skystone Positions", detectedSkystonePosition.toString())
         return input
     }
 }

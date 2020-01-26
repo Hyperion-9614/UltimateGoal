@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -9,8 +8,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.core.Appendages;
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.firstinspires.ftc.teamcode.core.Motion;
-
-import java.util.Objects;
 
 /**
  *  Main AutoOp
@@ -24,7 +21,8 @@ public class AUTO_Main extends LinearOpMode {
     private Motion motion;
     private Appendages appendages;
 
-    public int[] skystonePositions;
+    public int firstPath;
+    public int secondPath;
 
     @Override
     public void runOpMode() {
@@ -58,22 +56,24 @@ public class AUTO_Main extends LinearOpMode {
             if (hw.cvPipeline.getPipelineActive()) {
                 hw.cvPipeline.setPipelineActive(false);
                 if (hw.opModeID.contains("blue")) {
-                    skystonePositions = hw.cvPipeline.getSkystonePositions(5);
+                    firstPath = hw.cvPipeline.getDetectedSkystonePosition();
+                    secondPath = firstPath + 3;
                 } else if (hw.opModeID.contains("red")) {
-                    skystonePositions = hw.cvPipeline.getSkystonePositions(0);
+                    firstPath = hw.cvPipeline.getDetectedSkystonePosition() + 5;
+                    secondPath = firstPath + 2;
                 }
 
             }
-            if (skystonePositions == null) skystonePositions = new int[]{0, 3};
+            hw.killCV();
             hw.autoTime = new ElapsedTime();
 
             if (hw.opModeID.endsWith("full")) {
-                goToStone(skystonePositions[0]);
+                goToStone(firstPath);
                 pickUpBlock();
                 dragFoundation();
                 hw.preset_placeStone();
 
-                goToStone(skystonePositions[1]);
+                goToStone(secondPath);
                 pickUpBlock();
                 hw.preset_placeStone();
 
