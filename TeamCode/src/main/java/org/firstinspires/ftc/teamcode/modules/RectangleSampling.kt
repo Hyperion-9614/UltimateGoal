@@ -7,7 +7,7 @@ class RectangleSampling : CvPipeline() {
     private val matYCrCb = Mat()
     private val matCb = Mat()
     private val samplingRectWidth = 85
-    private val samplingRectHeight = 35
+    private val samplingRectHeight = 55
     private val samplingRectColor = Scalar(0.0, 0.0, 255.0)
     private val samplingRectThickness = 1
 

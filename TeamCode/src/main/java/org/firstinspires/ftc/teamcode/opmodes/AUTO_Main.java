@@ -57,11 +57,11 @@ public class AUTO_Main extends LinearOpMode {
             if (hw.cvPipeline.getPipelineActive()) {
                 hw.cvPipeline.setPipelineActive(false);
                 if (hw.opModeID.contains("blue")) {
-                    firstPath = hw.cvPipeline.getDetectedSkystonePosition();
-                    secondPath = firstPath + 3;
+                    firstPath = hw.cvPipeline.getDetectedSkystonePosition() + 3;
+                    secondPath = hw.cvPipeline.getDetectedSkystonePosition();
                 } else if (hw.opModeID.contains("red")) {
-                    firstPath = hw.cvPipeline.getDetectedSkystonePosition() + 5;
-                    secondPath = firstPath + 2;
+                    firstPath = hw.cvPipeline.getDetectedSkystonePosition();
+                    secondPath = hw.cvPipeline.getDetectedSkystonePosition() + 3;
                 }
 
             }

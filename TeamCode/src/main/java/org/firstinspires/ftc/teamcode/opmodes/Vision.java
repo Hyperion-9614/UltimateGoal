@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.core.Hardware;
 public class Vision extends LinearOpMode {
     private Hardware hardware;
 
-    //TODO: Run this opmode and scroll down to see Unimetry Readings, should work
     @Override
     public void runOpMode() {
         hardware = new Hardware(this);
