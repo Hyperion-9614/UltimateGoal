@@ -33,6 +33,12 @@ class RectangleSampling : CvPipeline() {
     }
 
     override fun processFrame(input: Mat): Mat {
+//        public val startTime = 0
+//        public val endTime = 0
+//        public val TimeForFrame = 0
+//
+//        startTime = System.nanoTime()
+
         samplePoints.forEach {
             //Log.i("Fuck Me", "x: ${it[0].x}, ${it[0].y}  y: ${it[1].x}, ${it[1].y}")
         }
@@ -82,6 +88,11 @@ class RectangleSampling : CvPipeline() {
         subMats.forEach {
             it.release()
         }
+
+        //endTime = System.nanoTime()
+
+        //TimeForFrame = (endTime - startTime)/1000000000
+
         //Log.i("Skystone Positions", detectedSkystonePosition.toString())
         return input
     }

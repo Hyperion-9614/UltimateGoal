@@ -67,6 +67,7 @@ public class Unimetry {
         data.add(new Entry("Vision"));
         data.add(new Entry("Skystone Position 1", hardware.cvPipeline.getDetectedSkystonePosition()));
         data.add(new Entry("Skystone Position 2", (hardware.cvPipeline.getDetectedSkystonePosition() + 3)));
+        //data.add(new Entry("Time for Frame", hardware.cvPipeline.getTimeForFrame));
         data.add(new Entry());
 
     }
