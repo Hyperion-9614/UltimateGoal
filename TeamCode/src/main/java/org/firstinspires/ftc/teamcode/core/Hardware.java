@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.core;
 import com.hyperion.common.Constants;
 import com.hyperion.common.Options;
 import com.hyperion.common.Utils;
+import com.hyperion.dashboard.uiobject.FieldEdit;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -56,7 +57,7 @@ public class Hardware {
     public Unimetry unimetry;
     public String status = opModeID;
 
-    public File dashboardJson;
+    public File fieldJSON;
     public File optionsJson;
     public File nnConfigJson;
     public File modelConfig;
@@ -90,17 +91,7 @@ public class Hardware {
         this.context = context;
         this.hwmp = context.hardwareMap;
 
-        // Init files & resources
-        try {
-            constants = new Constants(new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/constants.json"));
-            dashboardJson = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/dashboard.json");
-            optionsJson = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/options.json");
-            options = new Options(optionsJson);
-            nnConfigJson = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/model/config.json");
-            modelConfig = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/model/model.config");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        initFiles();
 
         // Init hw
         expansionHubL = hwmp.get(ExpansionHubEx.class, "Expansion Hub L");
@@ -184,9 +175,9 @@ public class Hardware {
                 Utils.printSocketLog("RC", "SERVER", "connected", options);
             }).on(Socket.EVENT_DISCONNECT, args -> {
                 Utils.printSocketLog("RC", "SERVER", "disconnected", options);
-            }).on("dashboardUpdated", args -> {
-                Utils.printSocketLog("SERVER", "RC", "dashboardUpdated", options);
-                Utils.writeFile(args[0].toString(), dashboardJson);
+            }).on("fieldEdited", args -> {
+                Utils.printSocketLog("SERVER", "RC", "fieldEdited", options);
+                writeFieldEditsToDashboardJSON(args[0].toString());
             }).on("constantsUpdated", args -> {
                 try {
                     Utils.printSocketLog("SERVER", "RC", "constantsUpdated", options);
@@ -195,12 +186,53 @@ public class Hardware {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                initFiles();
             });
 
             rcClient.connect();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // Exactly what the method header says
+    public void writeFieldEditsToDashboardJSON(String json) {
+        try {
+            JSONObject field = new JSONObject(Utils.readFile(fieldJSON));
+            JSONArray arr = new JSONArray(json);
+            for (int i = 0; i < arr.length(); i++) {
+                FieldEdit edit = new FieldEdit(arr.getJSONObject(i));
+                if (!edit.id.equals("robot")) {
+                    String o = edit.id.contains("waypoint") ? "waypoints" : "splines";
+                    JSONObject target = field.getJSONObject(o);
+                    switch (edit.type) {
+                        case CREATE:
+                        case EDIT_BODY:
+                            target.put(edit.id, new JSONObject(edit.body));
+                            break;
+                        case EDIT_ID:
+                            if (edit.id.contains("waypoint")) {
+                                JSONArray wpArr = target.getJSONArray(edit.id);
+                                target.remove(edit.id);
+                                target.put(edit.body, arr);
+                            } else {
+                                JSONObject splineObj = target.getJSONObject(edit.id);
+                                target.remove(edit.id);
+                                target.put(edit.body, splineObj);
+                            }
+                            break;
+                        case DELETE:
+                            target.remove(edit.id);
+                            break;
+                    }
+                    field.put(o, target);
+                }
+            }
+            Utils.writeFile(field.toString(), fieldJSON);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        initFiles();
     }
 
     // Initialize OpMode
@@ -227,6 +259,20 @@ public class Hardware {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    // Init all files & resources
+    public void initFiles() {
+        try {
+            constants = new Constants(new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/constants.json"));
+            fieldJSON = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/field.json");
+            optionsJson = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/options.json");
+            options = new Options(optionsJson);
+            nnConfigJson = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/model/config.json");
+            modelConfig = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/model/model.config");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -275,17 +321,17 @@ public class Hardware {
 
         if (opModeID.startsWith("auto")) {
             try {
-                JSONObject obj = new JSONObject(Utils.readFile(dashboardJson));
+                JSONObject obj = new JSONObject(Utils.readFile(fieldJSON));
                 JSONObject wpObj = obj.getJSONObject("waypoints");
                 wpObj.put("tele." + (opModeID.contains("red") ? "red" : "blue") + ".waypoint.start", new JSONArray(motion.robot.pose.toArray()));
                 obj.put("waypoints", wpObj);
-                Utils.writeFile(obj.toString(), dashboardJson);
+                Utils.writeFile(obj.toString(), fieldJSON);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         if (options.debug) {
-            rcClient.emit("dashboardUpdated", Utils.readFile(dashboardJson));
+            rcClient.emit("dashboardUpdated", Utils.readFile(fieldJSON));
             Utils.printSocketLog("RC", "SERVER", "dashboardUpdated", options);
             rcClient.emit("opModeEnded", "{}");
             Utils.printSocketLog("RC", "SERVER", "opModeEnded", options);

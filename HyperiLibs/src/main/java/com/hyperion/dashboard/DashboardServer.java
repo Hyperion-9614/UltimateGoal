@@ -6,10 +6,15 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.hyperion.common.Constants;
 import com.hyperion.common.Options;
 import com.hyperion.common.Utils;
+import com.hyperion.dashboard.uiobject.FieldEdit;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Runs dashboard server socket
@@ -50,12 +55,15 @@ public class DashboardServer {
 
                 client.sendEvent("constantsUpdated", Utils.readDataJSON("constants", constants));
                 Utils.printSocketLog("SERVER", type, "constantsUpdated", options);
+
                 client.sendEvent("optionsUpdated", Utils.readDataJSON("options", constants));
                 Utils.printSocketLog("SERVER", type, "optionsUpdated", options);
+
                 client.sendEvent("configUpdated", Utils.readFile(new File(constants.RES_DATA_PREFIX + "/MainConfig.xml")));
                 Utils.printSocketLog("SERVER", type, "configUpdated", options);
-                client.sendEvent("dashboardUpdated", Utils.readDataJSON("dashboard", constants));
-                Utils.printSocketLog("SERVER", type, "dashboardUpdated", options);
+
+                client.sendEvent("fieldEdited", readDashboardAsFieldEdits(Utils.readDataJSON("field", constants)).toString());
+                Utils.printSocketLog("SERVER", type, "fieldEdited", options);
             });
 
             server.addDisconnectListener(client -> {
@@ -71,24 +79,24 @@ public class DashboardServer {
                 }
             });
 
-            server.addEventListener("dashboardUpdated", String.class, (client, data, ackRequest) -> {
+            server.addEventListener("fieldEdited", String.class, (client, data, ackRequest) -> {
                 String address = client.getRemoteAddress().toString()
                         .substring(0, client.getRemoteAddress().toString().indexOf(":"))
                         .replace("/", "");
                 String type = (rcClient != null && address.equals(constants.RC_IP)) ? "RC" : "UI";
-                Utils.printSocketLog(type, "SERVER", "dashboardUpdated", options);
+                Utils.printSocketLog(type, "SERVER", "fieldEdited", options);
 
                 try {
                     for (SocketIOClient dashboardClient : dashboardClients) {
-                        dashboardClient.sendEvent("dashboardUpdated", data);
-                        Utils.printSocketLog("SERVER", "UI", "dashboardUpdated", options);
+                        dashboardClient.sendEvent("fieldEdited", data);
+                        Utils.printSocketLog("SERVER", "UI", "fieldEdited", options);
                     }
                     if (rcClient != null) {
-                        rcClient.sendEvent("dashboardUpdated", data);
-                        Utils.printSocketLog("SERVER", "RC", "dashboardUpdated", options);
+                        rcClient.sendEvent("fieldEdited", data);
+                        Utils.printSocketLog("SERVER", "RC", "fieldEdited", options);
                     }
 
-                    Utils.writeDataJSON(data, "dashboard", constants);
+                    writeFieldEditsToDashboardJSON(data);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -147,6 +155,66 @@ public class DashboardServer {
             });
 
             server.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Read in waypoints & splines from json as JSONArray of field edits
+    public static JSONArray readDashboardAsFieldEdits(String json) {
+        JSONArray arr = new JSONArray();
+        try {
+            JSONObject root = new JSONObject(json);
+            JSONObject waypointsObject = root.getJSONObject("waypoints");
+            JSONObject splinesObject = root.getJSONObject("splines");
+
+            for (Iterator keys = waypointsObject.keys(); keys.hasNext();) {
+                String key = keys.next().toString();
+                arr.put(new FieldEdit(key, FieldEdit.Type.CREATE, waypointsObject.getJSONArray(key).toString()).toJSONObject());
+            }
+            for (Iterator keys = splinesObject.keys(); keys.hasNext();) {
+                String key = keys.next().toString();
+                arr.put(new FieldEdit(key, FieldEdit.Type.CREATE, splinesObject.getJSONObject(key).toString()).toJSONObject());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return arr;
+    }
+
+    public static void writeFieldEditsToDashboardJSON(String json) {
+        try {
+            JSONObject field = new JSONObject(Utils.readDataJSON("field", constants));
+            JSONArray arr = new JSONArray(json);
+            for (int i = 0; i < arr.length(); i++) {
+                FieldEdit edit = new FieldEdit(arr.getJSONObject(i));
+                if (!edit.id.equals("robot")) {
+                    String o = edit.id.contains("waypoint") ? "waypoints" : "splines";
+                    JSONObject target = field.getJSONObject(o);
+                    switch (edit.type) {
+                        case CREATE:
+                        case EDIT_BODY:
+                            target.put(edit.id, (edit.id.contains("waypoint") ? new JSONArray(edit.body) : new JSONObject(edit.body)));
+                            break;
+                        case EDIT_ID:
+                            if (edit.id.contains("waypoint")) {
+                                JSONArray wpArr = target.getJSONArray(edit.id);
+                                target.remove(edit.id);
+                                target.put(edit.body, arr);
+                            } else {
+                                JSONObject splineObj = target.getJSONObject(edit.id);
+                                target.remove(edit.id);
+                                target.put(edit.body, splineObj);
+                            }
+                            break;
+                        case DELETE:
+                            target.remove(edit.id);
+                            break;
+                    }
+                    field.put(o, target);
+                }
+            }
+            Utils.writeDataJSON(field.toString(), "field", constants);
         } catch (Exception e) {
             e.printStackTrace();
         }

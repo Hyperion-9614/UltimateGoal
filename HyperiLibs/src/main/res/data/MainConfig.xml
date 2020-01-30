@@ -4,7 +4,7 @@
       <LynxModule name="Expansion Hub L" port="1">
          <NeveRest3.7v1Gearmotor name="fLDrive" port="0"/>
          <NeveRest3.7v1Gearmotor name="bLDrive" port="1"/>
-         <NeveRest20Gearmotor name="compWheelsL" port="2"/>
+         <NeveRest3.7v1Gearmotor name="compWheelsL" port="2"/>
          <NeveRest3.7v1Gearmotor name="vertSlideL" port="3"/>
          <ContinuousRotationServo name="autoClawGrip" port="0"/>
          <Servo name="foundationMoverL" port="1"/>
@@ -14,7 +14,7 @@
          <NeveRest3.7v1Gearmotor name="fRDrive" port="0"/>
          <NeveRest3.7v1Gearmotor name="bRDrive" port="1"/>
          <NeveRest3.7v1Gearmotor name="compWheelsR" port="2"/>
-         <NeveRest20Gearmotor name="vertSlideR" port="3"/>
+         <NeveRest3.7v1Gearmotor name="vertSlideR" port="3"/>
          <Servo name="chainBarR" port="0"/>
          <Servo name="chainBarL" port="1"/>
          <ContinuousRotationServo name="claw" port="2"/>

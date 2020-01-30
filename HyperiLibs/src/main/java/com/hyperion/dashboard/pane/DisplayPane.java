@@ -1,17 +1,15 @@
 package com.hyperion.dashboard.pane;
 
 import com.hyperion.dashboard.UIClient;
-import com.hyperion.dashboard.uiobj.DisplaySpline;
-import com.hyperion.dashboard.uiobj.PiecewiseLineGraph;
+import com.hyperion.dashboard.uiobject.DisplaySpline;
+import com.hyperion.dashboard.uiobject.PiecewiseLineGraph;
 import com.hyperion.motion.math.Piecewise;
 
 import java.util.HashMap;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.VBox;
 

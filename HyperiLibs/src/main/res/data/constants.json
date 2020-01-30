@@ -12,7 +12,7 @@
             }
         },
         "net": {
-            "hostIP": "192.168.222.30",
+            "hostIP": "10.153.68.159",
             "port": 8080,
             "rcIP": "192.168.49.1"
         },
@@ -66,7 +66,7 @@
     },
     "splinesMotionProfile": {
         "endErrorThresholds": {
-            "rotation": 3.22878291182728E-215,
+            "rotation": 6.994949657210352E-305,
             "translation": 1
         },
         "k": {

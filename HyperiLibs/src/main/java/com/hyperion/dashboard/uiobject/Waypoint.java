@@ -1,10 +1,12 @@
-package com.hyperion.dashboard.uiobj;
+package com.hyperion.dashboard.uiobject;
 
 import com.hyperion.common.Constants;
 import com.hyperion.dashboard.UIClient;
 import com.hyperion.motion.math.Pose;
 import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
+
+import org.json.JSONArray;
 
 import java.io.File;
 
@@ -19,15 +21,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
-public class Waypoint {
+public class Waypoint extends FieldObject {
 
-    public Constants constants;
-    public String id;
     public Pose pose;
     public boolean renderID;
     public DisplaySpline parentSpline;
 
-    public Group displayGroup;
     public ImageView imgView;
     public TextField idField;
     public Text info;
@@ -48,6 +47,10 @@ public class Waypoint {
 
     public Waypoint(String id, Pose pose, Constants constants, DisplaySpline parentSpline, boolean renderID) {
         this(id, pose.x, pose.y, pose.theta, constants, parentSpline, renderID);
+    }
+
+    public Waypoint(String key, JSONArray wpArr) throws Exception {
+        this(key, wpArr.getDouble(0), wpArr.getDouble(1), wpArr.getDouble(2), UIClient.constants, null, true);
     }
 
     public void createDisplayGroup() {
@@ -82,8 +85,9 @@ public class Waypoint {
                 if (parentSpline == null) {
                     idField.setOnKeyPressed(event -> {
                         if (event.getCode() == KeyCode.ENTER) {
-                            this.id = UIClient.opModeID + ".waypoint." + idField.getText();
-                            UIClient.sendDashboard();
+                            String oldID = id;
+                            id = UIClient.opModeID + ".waypoint." + idField.getText();
+                            UIClient.sendFieldEdits(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
                         }
                     });
                 }
@@ -119,21 +123,25 @@ public class Waypoint {
 
     public void setListeners() {
         displayGroup.setOnMouseClicked((event -> {
-            if (event.getButton() == MouseButton.SECONDARY) {
-                removeDisplayGroup();
-                if (parentSpline != null) {
-                    parentSpline.spline.waypoints.remove(parentSpline.waypoints.indexOf(this));
-                    parentSpline.waypoints.remove(this);
-                    if (parentSpline.waypoints.size() == 0) {
-                        parentSpline.removeDisplayGroup();
-                        UIClient.splines.remove(parentSpline);
-                    } else if (parentSpline.waypoints.size() == 1) {
-                        parentSpline.waypoints.get(0).select();
+            try {
+                if (event.getButton() == MouseButton.SECONDARY) {
+                    removeDisplayGroup();
+                    FieldEdit edit = new FieldEdit(id, FieldEdit.Type.DELETE, new JSONArray(pose.toArray()).toString());
+                    if (parentSpline != null) {
+                        parentSpline.spline.waypoints.remove(parentSpline.waypoints.indexOf(this));
+                        parentSpline.waypoints.remove(this);
+                        edit = new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString());
+                        if (parentSpline.waypoints.size() == 0) {
+                            parentSpline.removeDisplayGroup();
+                            edit = new FieldEdit(id, FieldEdit.Type.DELETE, "{}");
+                        } else if (parentSpline.waypoints.size() == 1) {
+                            parentSpline.waypoints.get(0).select();
+                        }
                     }
-                } else {
-                    UIClient.waypoints.remove(this);
+                    UIClient.sendFieldEdits(edit);
                 }
-                UIClient.sendDashboard();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }));
 
@@ -161,17 +169,24 @@ public class Waypoint {
         }));
 
         displayGroup.setOnMouseReleased((event -> {
-            if (System.currentTimeMillis() - startDragTime > 200) {
-                if (parentSpline != null) {
-                    parentSpline.spline.waypoints.get(parentSpline.waypoints.indexOf(this)).pose = pose;
+            try {
+                if (System.currentTimeMillis() - startDragTime > 200) {
+                    FieldEdit edit = new FieldEdit(id, FieldEdit.Type.EDIT_BODY, new JSONArray(pose.toArray()).toString());
+                    if (parentSpline != null) {
+                        parentSpline.spline.waypoints.get(parentSpline.waypoints.indexOf(this)).pose = pose;
+                        edit = new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString());
+                    }
+                    UIClient.sendFieldEdits(edit);
                 }
-                UIClient.sendDashboard();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }));
     }
 
     public void addDisplayGroup() {
         Platform.runLater(() -> {
+            idField.setText(id.replace(UIClient.opModeID + ".waypoint.", ""));
             if (parentSpline != null && parentSpline.id.startsWith(UIClient.opModeID)) {
                 parentSpline.displayGroup.getChildren().add(displayGroup);
             } else if (id.startsWith(UIClient.opModeID)) {
@@ -207,14 +222,14 @@ public class Waypoint {
     public void select() {
         if (parentSpline != null) {
             for (Waypoint wp : parentSpline.waypoints) {
-                if (wp != this) {
+                if (!wp.equals(this)) {
                     wp.deselect();
                 }
             }
         }
-        for (Waypoint wp : UIClient.waypoints) {
-            if (wp != this) {
-                wp.deselect();
+        for (FieldObject object : UIClient.fieldObjects) {
+            if (object instanceof Waypoint && !object.equals(this)) {
+                object.deselect();
             }
         }
         if (parentSpline != null) {
@@ -232,7 +247,6 @@ public class Waypoint {
         selectRect.setVisible(false);
     }
 
-    @Override
     public String toString() {
         return id + " " + pose;
     }

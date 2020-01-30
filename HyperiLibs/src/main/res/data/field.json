@@ -11,6 +11,16 @@
             -38.19,
             0
         ],
+        "auto.blue.foundation.waypoint.drag0": [
+            -64.546,
+            123.175,
+            3.141592653589793
+        ],
+        "auto.blue.foundation.waypoint.drag1": [
+            -118.872,
+            108.115,
+            4.71238898038469
+        ],
         "auto.blue.foundation.waypoint.park": [
             -87.137,
             -1.076,
@@ -22,21 +32,11 @@
             3.1416277314626564
         ],
         "auto.blue.full.waypoint.drag0": [
-            -64.546,
-            123.175,
+            -65.084,
+            122.099,
             3.141592653589793
         ],
         "auto.blue.full.waypoint.drag1": [
-            -118.872,
-            108.115,
-            4.71238898038469
-        ],
-        "auto.blue.foundation.waypoint.drag0": [
-            -64.546,
-            123.175,
-            3.141592653589793
-        ],
-        "auto.blue.foundation.waypoint.drag1": [
             -118.872,
             108.115,
             4.71238898038469
@@ -52,9 +52,9 @@
             4.712376246559831
         ],
         "auto.blue.full.waypoint.place": [
-            -124.789,
-            109.19,
-            4.71238898038469
+            -126.403,
+            115.107,
+            4.712406686394107
         ],
         "auto.blue.full.waypoint.start": [
             -159.751,
@@ -70,6 +70,16 @@
             159.751,
             -38.189,
             3.141592653589793
+        ],
+        "auto.red.foundation.waypoint.drag0": [
+            67.773,
+            122.638,
+            0
+        ],
+        "auto.red.foundation.waypoint.drag1": [
+            121.023,
+            111.88,
+            4.71238898038469
         ],
         "auto.red.foundation.waypoint.park": [
             86.599,
@@ -87,16 +97,6 @@
             0
         ],
         "auto.red.full.waypoint.drag1": [
-            121.023,
-            111.88,
-            4.71238898038469
-        ],
-        "auto.red.foundation.waypoint.drag0": [
-            67.773,
-            122.638,
-            0
-        ],
-        "auto.red.foundation.waypoint.drag1": [
             121.023,
             111.88,
             4.71238898038469

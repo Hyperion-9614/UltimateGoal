@@ -2,11 +2,15 @@ package com.hyperion.dashboard.pane;
 
 import com.hyperion.common.Utils;
 import com.hyperion.dashboard.UIClient;
-import com.hyperion.dashboard.uiobj.DisplaySpline;
-import com.hyperion.dashboard.uiobj.Waypoint;
+import com.hyperion.dashboard.uiobject.DisplaySpline;
+import com.hyperion.dashboard.uiobject.FieldEdit;
+import com.hyperion.dashboard.uiobject.FieldObject;
+import com.hyperion.dashboard.uiobject.Waypoint;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
+
+import org.json.JSONArray;
 
 import java.io.File;
 
@@ -89,7 +93,11 @@ public class FieldPane extends Pane {
                 startDragTime = System.currentTimeMillis();
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_RELEASED) {
                 if (mouseEvent.getButton() == MouseButton.PRIMARY && isDragging && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane)) {
-                    UIClient.sendDashboard();
+                    if (UIClient.selectedWaypoint.parentSpline != null) {
+                        UIClient.sendFieldEdits(new FieldEdit(UIClient.selectedSpline.id, FieldEdit.Type.EDIT_BODY, UIClient.selectedSpline.spline.writeJSON().toString()));
+                    } else {
+                        UIClient.sendFieldEdits(new FieldEdit(UIClient.selectedWaypoint.id, FieldEdit.Type.EDIT_BODY, new JSONArray(UIClient.selectedWaypoint.pose.toArray()).toString()));
+                    }
                 }
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED) {
                 mouseX = mouseEvent.getX();
@@ -125,20 +133,16 @@ public class FieldPane extends Pane {
                                         if (i >= 0) {
                                             UIClient.selectedSpline.waypoints.get(i).select();
                                         }
+                                        UIClient.sendFieldEdits(new FieldEdit(UIClient.selectedSpline.id, FieldEdit.Type.EDIT_BODY, UIClient.selectedSpline.spline.writeJSON().toString()));
                                     } else {
                                         DisplaySpline newSpline = new DisplaySpline(newWP.pose, UIClient.constants);
-                                        newSpline.addDisplayGroup();
-                                        newSpline.select();
                                         newSpline.waypoints.get(0).select();
-                                        UIClient.splines.add(newSpline);
+                                        UIClient.sendFieldEdits(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON().toString()));
                                     }
                                 } else {
                                     deselectAll();
-                                    UIClient.waypoints.add(newWP);
-                                    newWP.addDisplayGroup();
-                                    newWP.select();
+                                    UIClient.sendFieldEdits(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray()).toString()));
                                 }
-                                UIClient.sendDashboard();
                             }
                         }
                     }
@@ -211,12 +215,9 @@ public class FieldPane extends Pane {
     public void deselectAll() {
         UIClient.displayPane.updateGraphs(null);
         UIClient.selectedWaypoint = null;
-        for (Waypoint wp : UIClient.waypoints) {
-            wp.deselect();
-        }
         UIClient.selectedSpline = null;
-        for (DisplaySpline spline : UIClient.splines) {
-            spline.deselect();
+        for (FieldObject obj : UIClient.fieldObjects) {
+            obj.deselect();
         }
     }
 

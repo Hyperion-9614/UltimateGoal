@@ -3,13 +3,12 @@ package com.hyperion.dashboard.pane;
 import com.github.underscore.lodash.U;
 import com.hyperion.common.Utils;
 import com.hyperion.dashboard.UIClient;
-import com.hyperion.dashboard.uiobj.DisplaySpline;
-import com.hyperion.dashboard.uiobj.Waypoint;
+import com.hyperion.dashboard.uiobject.FieldEdit;
+import com.hyperion.dashboard.uiobject.FieldObject;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -79,23 +78,13 @@ public class OptionsPane extends VBox {
             clearOpMode.setStyle("-fx-font: 14px \"Arial\";");
             clearOpMode.setPrefSize(150, 50);
             clearOpMode.setOnMouseClicked(event -> {
-                if (UIClient.waypoints != null) {
-                    for (Iterator<Waypoint> iter = UIClient.waypoints.iterator(); iter.hasNext(); ) {
-                        Waypoint wp = iter.next();
-                        if (wp.id.startsWith(UIClient.opModeID)) {
-                            iter.remove();
-                        }
+                ArrayList<FieldEdit> toRemove = new ArrayList<>();
+                for (FieldObject o : UIClient.fieldObjects) {
+                    if (o.id.contains(UIClient.opModeID)) {
+                        toRemove.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
                     }
                 }
-                if (UIClient.splines != null) {
-                    for (Iterator<DisplaySpline> iter = UIClient.splines.iterator(); iter.hasNext(); ) {
-                        DisplaySpline spline = iter.next();
-                        if (spline.id.startsWith(UIClient.opModeID)) {
-                            iter.remove();
-                        }
-                    }
-                }
-                UIClient.sendDashboard();
+                UIClient.sendFieldEdits((FieldEdit[]) toRemove.toArray());
             });
             buttons.getChildren().add(clearOpMode);
 
@@ -104,9 +93,11 @@ public class OptionsPane extends VBox {
             clearAllOpModes.setTextAlignment(TextAlignment.CENTER);
             clearAllOpModes.setPrefSize(150, 50);
             clearAllOpModes.setOnMouseClicked(event -> {
-                UIClient.waypoints = new ArrayList<>();
-                UIClient.splines = new ArrayList<>();
-                UIClient.sendDashboard();
+                ArrayList<FieldEdit> toRemove = new ArrayList<>();
+                for (FieldObject o : UIClient.fieldObjects) {
+                    toRemove.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
+                }
+                UIClient.sendFieldEdits((FieldEdit[]) toRemove.toArray());
             });
             buttons.getChildren().add(clearAllOpModes);
 
@@ -144,7 +135,13 @@ public class OptionsPane extends VBox {
             opModeSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
                 UIClient.fieldPane.deselectAll();
                 UIClient.opModeID = newValue.toString();
-                UIClient.sendDashboard();
+                for (FieldObject o : UIClient.fieldObjects) {
+                    if (o.id.contains(UIClient.opModeID)) {
+                        o.addDisplayGroup();
+                    } else {
+                        o.removeDisplayGroup();
+                    }
+                }
             });
             getChildren().add(opModeSelector);
 

@@ -38,7 +38,7 @@ public class Motion {
     public Motion(Hardware hw) {
         this.hw = hw;
         try {
-            JSONObject jsonObject = new JSONObject(Utils.readFile(hw.dashboardJson));
+            JSONObject jsonObject = new JSONObject(Utils.readFile(hw.fieldJSON));
             readWaypoints(jsonObject);
             readSplines(jsonObject);
         } catch (Exception e) {
@@ -59,7 +59,7 @@ public class Motion {
 
     //////////////////////// INIT ////////////////////////////
 
-    // Read waypoints from dashboard.json file
+    // Read waypoints from field.json file
     public void readWaypoints(JSONObject root) throws Exception {
         JSONObject wpObj = root.getJSONObject("waypoints");
         waypoints.clear();
@@ -73,7 +73,7 @@ public class Motion {
         }
     }
 
-    // Read splines from dashboard.json file
+    // Read splines from field.json file
     public void readSplines(JSONObject root) throws Exception {
         JSONObject splinesObj = root.getJSONObject("splines");
         splines.clear();
@@ -81,7 +81,7 @@ public class Motion {
         Iterator keys = splinesObj.keys();
         while (!hw.context.isStarted() && !hw.context.isStopRequested() && keys.hasNext()) {
             String key = keys.next().toString();
-            SplineTrajectory spline = new SplineTrajectory(splinesObj.getJSONObject(key).toString(), hw.constants);
+            SplineTrajectory spline = new SplineTrajectory(splinesObj.getJSONObject(key), hw.constants);
             splines.put(key, spline);
         }
     }

@@ -3,13 +3,16 @@ package com.hyperion.motion.math;
 import com.hyperion.common.Utils;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.Scanner;
 
 public class RigidBody {
 
     public double T = 0;
     public double distance = 0;
-    public Pose pose;
+    public Pose pose = new Pose();
     public Vector2D tVel = new Vector2D();
     public Vector2D tAcc = new Vector2D();
     public double aVel = 0;
@@ -44,6 +47,16 @@ public class RigidBody {
         this.tAcc = new Vector2D(rigidBody.tAcc);
         this.aVel = rigidBody.aVel;
         this.aAcc = rigidBody.aAcc;
+    }
+
+    public RigidBody(JSONArray arr) {
+        try {
+            this.T = arr.getDouble(0);
+            this.distance = arr.getDouble(1);
+            this.pose = new Pose(arr.getDouble(2), arr.getDouble(3), arr.getDouble(4));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public RigidBody(String str) {

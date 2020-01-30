@@ -1,4 +1,4 @@
-package com.hyperion.dashboard.uiobj;
+package com.hyperion.dashboard.uiobject;
 
 import com.hyperion.motion.math.Piecewise;
 

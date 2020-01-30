@@ -8,11 +8,12 @@ import com.hyperion.dashboard.pane.FieldPane;
 import com.hyperion.dashboard.pane.MenuPane;
 import com.hyperion.dashboard.pane.OptionsPane;
 import com.hyperion.dashboard.pane.TextPane;
-import com.hyperion.dashboard.uiobj.DisplaySpline;
-import com.hyperion.dashboard.uiobj.Robot;
-import com.hyperion.dashboard.uiobj.Waypoint;
+import com.hyperion.dashboard.uiobject.DisplaySpline;
+import com.hyperion.dashboard.uiobject.FieldEdit;
+import com.hyperion.dashboard.uiobject.FieldObject;
+import com.hyperion.dashboard.uiobject.Robot;
+import com.hyperion.dashboard.uiobject.Waypoint;
 import com.hyperion.motion.math.RigidBody;
-import com.hyperion.motion.trajectory.SplineTrajectory;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,20 +22,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -59,11 +56,10 @@ public class UIClient extends Application {
     public static DisplaySpline selectedSpline = null;
     public static Waypoint selectedWaypoint = null;
     public static DisplaySpline currentPath = new DisplaySpline();
-    public static ArrayList<DisplaySpline> splines = new ArrayList<>();
-    public static Robot robot;
-    public static ArrayList<Waypoint> waypoints = new ArrayList<>();
+    public static ArrayList<FieldObject> fieldObjects = new ArrayList<>();
     public static HashMap<String, String> unimetry = new HashMap<>();
     public static String config = "";
+    public static boolean isRobotOnField;
 
     public static String opModeID = "auto.blue.full";
     public static boolean isBuildingPaths;
@@ -93,7 +89,6 @@ public class UIClient extends Application {
         sideStuff.setSpacing(10);
         menuPane = new MenuPane(stage);
         fieldPane = new FieldPane(stage);
-        robot = new Robot();
         textPane = new TextPane();
         optionsPane = new OptionsPane();
         displayPane = new DisplayPane();
@@ -145,25 +140,35 @@ public class UIClient extends Application {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }).on("dashboardUpdated", args -> {
-                Utils.printSocketLog("SERVER", "UI", "dashboardUpdated", options);
-                readDashboard(args[0].toString());
+            }).on("fieldEdited", args -> {
+                Utils.printSocketLog("SERVER", "UI", "fieldEdited", options);
+                readFieldEdits(args[0].toString());
             }).on("pathFound", args -> {
                 Utils.printSocketLog("SERVER", "UI", "pathFound", options);
-                currentPath = new DisplaySpline(args[0].toString(), constants);
-                currentPath.addDisplayGroup();
+                try {
+                    currentPath = new DisplaySpline(new JSONObject(args[0].toString()), constants);
+                    currentPath.addDisplayGroup();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }).on("pathCompleted", args -> {
                 Utils.printSocketLog("SERVER", "UI", "pathCompleted", options);
-                currentPath.removeDisplayGroup();
+                if (currentPath != null) {
+                    currentPath.removeDisplayGroup();
+                    currentPath = null;
+                }
+                readFieldEdits(args[0].toString());
             }).on("opModeEnded", args -> {
                 Utils.printSocketLog("SERVER", "UI", "opModeEnded", options);
-                currentPath.removeDisplayGroup();
-                robot.removeDisplayGroup();
+                if (currentPath != null) {
+                    currentPath.removeDisplayGroup();
+                    currentPath = null;
+                }
+                readFieldEdits(args[0].toString());
             }).on("unimetryUpdated", args -> {
                 Utils.printSocketLog("SERVER", "UI", "unimetryUpdated", options);
                 readUnimetry(args[0].toString());
                 Platform.runLater(() -> textPane.setUnimetryDisplayText());
-                robot.refreshDisplayGroup(new RigidBody(unimetry.get("3 Current")));
             }).on("configUpdated", args -> {
                 Utils.printSocketLog("SERVER", "UI", "configUpdated", options);
                 config = args[0].toString();
@@ -179,86 +184,91 @@ public class UIClient extends Application {
         }
     }
 
-    // Read in waypoints & splines from json
-    public static void readDashboard(String json) {
+    // Read field edits from json
+    public static void readFieldEdits(String json) {
         try {
-            JSONObject root = new JSONObject(json);
-            JSONObject waypointsObject = root.getJSONObject("waypoints");
-            JSONObject splinesObject = root.getJSONObject("splines");
-
-            for (Waypoint wp : waypoints) {
-                wp.removeDisplayGroup();
-            }
-            waypoints.clear();
-            for (DisplaySpline spline : splines) {
-                spline.removeDisplayGroup();
-            }
-            splines.clear();
-
-            for (Iterator keys = waypointsObject.keys(); keys.hasNext();) {
-                String key = keys.next().toString();
-                JSONArray wpArr = waypointsObject.getJSONArray(key);
-                Waypoint newWP = new Waypoint(key, wpArr.getDouble(0), wpArr.getDouble(1), wpArr.getDouble(2), constants, null, true);
-                newWP.addDisplayGroup();
-                if (selectedWaypoint != null && key.equals(selectedWaypoint.id)) {
-                    newWP.select();
-                }
-                waypoints.add(newWP);
-            }
-
-            for (Iterator keys = splinesObject.keys(); keys.hasNext();) {
-                String key = keys.next().toString();
-                SplineTrajectory splineTrajectory = new SplineTrajectory(splinesObject.getJSONObject(key).toString(), constants);
-                DisplaySpline newSpline = new DisplaySpline(key, splineTrajectory, constants);
-                newSpline.addDisplayGroup();
-                if (selectedSpline != null && key.equals(selectedSpline.id)) {
-                    if (selectedSpline.selectedWaypointIndex != -1) {
-                        newSpline.waypoints.get(selectedSpline.selectedWaypointIndex).select();
-                    }
-                    newSpline.select();
-                }
-                splines.add(newSpline);
+            JSONArray arr = new JSONArray(json);
+            for (int i = 0; i < arr.length(); i++) {
+                FieldEdit fieldEdit = new FieldEdit(arr.getJSONObject(i));
+                editUI(fieldEdit);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Write waypoints & splines to json
-    public static String writeDashboard() {
-        JSONObject obj = new JSONObject();
+    // Edit UI based on FieldEdit
+    public static void editUI(FieldEdit edit) {
         try {
-            if (waypoints != null) {
-                JSONObject wpObj = new JSONObject();
-                for (Waypoint wp : waypoints) {
-                    if (wp != null && wp.id != null && !wp.id.isEmpty()) {
-                        wpObj.put(wp.id, new JSONArray(wp.pose.toArray()));
-                    }
+            FieldObject newObj = null;
+            if (edit.type != FieldEdit.Type.DELETE) {
+                if (edit.id.contains("waypoint")) {
+                    newObj = new Waypoint(edit.id, new JSONArray(edit.body));
+                } else if (edit.id.contains("spline")) {
+                    newObj = new DisplaySpline(edit.id, new JSONObject(edit.body));
+                } else {
+                    newObj = new Robot(new JSONArray(edit.body));
+                    isRobotOnField = true;
                 }
-                obj.put("waypoints", wpObj);
             }
-
-            if (splines != null) {
-                JSONObject splinesObj = new JSONObject();
-                for (DisplaySpline spline : splines) {
-                    if (spline != null && spline.id != null && !spline.id.isEmpty()) {
-                        splinesObj.put(spline.id, new JSONObject(spline.spline.writeJSON()));
+            switch (edit.type) {
+                case CREATE:
+                    fieldObjects.add(newObj);
+                    newObj.addDisplayGroup();
+                    break;
+                case EDIT_BODY:
+                    for (int i = 0; i < fieldObjects.size(); i++) {
+                        if (fieldObjects.get(i).id.equals(edit.id)) {
+                            if (edit.id.equals("robot")) {
+                                ((Robot) fieldObjects.get(i)).rigidBody = new RigidBody(new JSONArray(edit.body));
+                                fieldObjects.get(i).refreshDisplayGroup();
+                            } else {
+                                fieldObjects.get(i).removeDisplayGroup();
+                                fieldObjects.set(i, newObj);
+                                newObj.addDisplayGroup();
+                            }
+                            break;
+                        }
                     }
-                }
-                obj.put("splines", splinesObj);
+                    break;
+                case EDIT_ID:
+                    for (int i = 0; i < fieldObjects.size(); i++) {
+                        if (fieldObjects.get(i).id.equals(edit.id)) {
+                            fieldObjects.get(i).id = edit.body;
+                            fieldObjects.get(i).refreshDisplayGroup();
+                            break;
+                        }
+                    }
+                    break;
+                case DELETE:
+                    Iterator<FieldObject> iter = fieldObjects.iterator();
+                    while (iter.hasNext()) {
+                        FieldObject next = iter.next();
+                        if (next.id.equals(edit.id)) {
+                            next.removeDisplayGroup();
+                            iter.remove();
+                            break;
+                        }
+                    }
+                    break;
             }
-
-            displayPane.updateGraphs(null);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return obj.toString();
     }
 
-    // Send dashboard json
-    public static void sendDashboard() {
-        uiClient.emit("dashboardUpdated", writeDashboard());
-        Utils.printSocketLog("UI", "SERVER", "dashboardUpdated", options);
+    // Send field edit
+    public static void sendFieldEdits(FieldEdit... fieldEdits) {
+        try {
+            JSONArray arr = new JSONArray();
+            for (FieldEdit edit : fieldEdits) {
+                arr.put(edit.toJSONObject());
+            }
+            uiClient.emit("fieldEdited", arr.toString());
+            Utils.printSocketLog("UI", "SERVER", "fieldEdited", options);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // Send constants json
@@ -277,7 +287,11 @@ public class UIClient extends Application {
                 unimetry.put(i + " " + miniObj.getString("token0"), miniObj.getString("token1"));
             }
 
-
+            FieldEdit robotEdit = new FieldEdit("robot", FieldEdit.Type.EDIT_BODY, "");
+            if (!isRobotOnField) {
+                robotEdit.type = FieldEdit.Type.CREATE;
+            }
+            editUI(robotEdit);
         } catch (Exception e) {
             e.printStackTrace();
         }

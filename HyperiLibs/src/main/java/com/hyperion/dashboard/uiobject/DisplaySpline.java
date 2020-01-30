@@ -1,10 +1,12 @@
-package com.hyperion.dashboard.uiobj;
+package com.hyperion.dashboard.uiobject;
 
 import com.hyperion.common.Constants;
 import com.hyperion.dashboard.UIClient;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.trajectory.SplineTrajectory;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -16,14 +18,11 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
-public class DisplaySpline {
+public class DisplaySpline extends FieldObject {
 
-    public Constants constants;
-    public String id;
     public SplineTrajectory spline;
     public int selectedWaypointIndex = -1;
 
-    public Group displayGroup;
     public ArrayList<Waypoint> waypoints;
     public ArrayList<Rectangle> selectRects;
 
@@ -31,9 +30,9 @@ public class DisplaySpline {
 
     }
 
-    public DisplaySpline(String json, Constants constants) {
+    public DisplaySpline(JSONObject obj, Constants constants) {
         this.constants = constants;
-        spline = new SplineTrajectory(json, constants);
+        spline = new SplineTrajectory(obj, constants);
         displayGroup = new Group();
         refreshDisplayGroup();
     }
@@ -54,23 +53,13 @@ public class DisplaySpline {
         spline = new SplineTrajectory(wps, constants);
         displayGroup = new Group();
         refreshDisplayGroup();
-
     }
 
-    public void addDisplayGroup() {
-        Platform.runLater(() -> {
-            if (id.startsWith(UIClient.opModeID)) {
-                UIClient.fieldPane.getChildren().add(displayGroup);
-            }
-        });
+    public DisplaySpline(String key, JSONObject obj) {
+        this(key, new SplineTrajectory(obj, UIClient.constants), UIClient.constants);
     }
 
-    public void refreshDisplayGroup() {
-        spline.endPath();
-        displayGroup.getChildren().clear();
-        waypoints = new ArrayList<>();
-        selectRects = new ArrayList<>();
-
+    public void createDisplayGroup() {
         if (spline.waypoints.size() >= 2) {
             Color tauPathPointColor = new Color(0.3, 0.3, 0.3, 0.5);
             for (double t = 0; t <= spline.waypoints.size() - 1; t += 0.2) {
@@ -109,7 +98,7 @@ public class DisplaySpline {
 
                 Color selectColor = Color.DIMGRAY;
                 Rectangle selectRect = new Rectangle(poseArr[0] - UIClient.fieldPane.robotSize / 2.0, poseArr[1] - UIClient.fieldPane.robotSize / 2.0,
-                                                        UIClient.fieldPane.robotSize, UIClient.fieldPane.robotSize);
+                        UIClient.fieldPane.robotSize, UIClient.fieldPane.robotSize);
                 selectRect.setStroke(selectColor);
                 selectRect.setStrokeWidth(2);
                 selectRect.setRotate(poseArr[2]);
@@ -139,8 +128,9 @@ public class DisplaySpline {
                 waypoint.idField.setText(id.replace(UIClient.opModeID + ".spline.", ""));
                 waypoint.idField.setOnKeyPressed(event -> {
                     if (event.getCode() == KeyCode.ENTER) {
-                        this.id = UIClient.opModeID + ".spline." + waypoint.idField.getText();
-                        UIClient.sendDashboard();
+                        String oldID = id;
+                        id = UIClient.opModeID + ".spline." + waypoint.idField.getText();
+                        UIClient.sendFieldEdits(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
                     }
                 });
             }
@@ -151,14 +141,30 @@ public class DisplaySpline {
         displayGroup.setOnMousePressed((event -> select()));
     }
 
+    public void addDisplayGroup() {
+        Platform.runLater(() -> {
+            if (id.startsWith(UIClient.opModeID)) {
+                UIClient.fieldPane.getChildren().add(displayGroup);
+            }
+        });
+    }
+
+    public void refreshDisplayGroup() {
+        spline.endPath();
+        displayGroup.getChildren().clear();
+        waypoints = new ArrayList<>();
+        selectRects = new ArrayList<>();
+        createDisplayGroup();
+    }
+
     public void removeDisplayGroup() {
         Platform.runLater(() -> UIClient.fieldPane.getChildren().remove(displayGroup));
     }
 
     public void select() {
-        for (DisplaySpline spline : UIClient.splines) {
-            if (spline != this) {
-                spline.deselect();
+        for (FieldObject object : UIClient.fieldObjects) {
+            if (object instanceof DisplaySpline && !object.equals(this)) {
+                object.deselect();
             }
         }
         UIClient.selectedSpline = this;

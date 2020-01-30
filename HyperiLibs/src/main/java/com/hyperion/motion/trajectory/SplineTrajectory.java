@@ -53,10 +53,10 @@ public class SplineTrajectory {
         endPath();
     }
 
-    public SplineTrajectory(String json, Constants constants) {
+    public SplineTrajectory(JSONObject obj, Constants constants) {
         this.constants = constants;
         motionProfile = new MotionProfile(this);
-        readJSON(json);
+        readJSON(obj);
     }
 
     public void endPath() {
@@ -67,7 +67,7 @@ public class SplineTrajectory {
 
     ///////////////////////////////////// I/O /////////////////////////////////////
 
-    public String writeJSON() {
+    public JSONObject writeJSON() {
         JSONObject obj = new JSONObject();
 
         try {
@@ -95,13 +95,11 @@ public class SplineTrajectory {
             e.printStackTrace();
         }
 
-        return obj.toString();
+        return obj;
     }
 
-    public void readJSON(String json) {
+    public void readJSON(JSONObject obj) {
         try {
-            JSONObject obj = new JSONObject(json);
-
             JSONArray waypointsArray = obj.getJSONArray("waypoints");
             waypoints = new ArrayList<>();
             if (waypointsArray == null) {
