@@ -284,10 +284,10 @@ public class UIClient extends Application {
             JSONObject dataObj = new JSONObject(json);
             for (int i = 0; i < dataObj.length(); i++) {
                 JSONObject miniObj = dataObj.getJSONObject("" + i);
-                unimetry.put(i + " " + miniObj.getString("token0"), miniObj.getString("token1"));
+                unimetry.put(miniObj.getString("token0"), miniObj.getString("token1"));
             }
 
-            FieldEdit robotEdit = new FieldEdit("robot", FieldEdit.Type.EDIT_BODY, "");
+            FieldEdit robotEdit = new FieldEdit("robot", FieldEdit.Type.EDIT_BODY, new JSONArray(new RigidBody(unimetry.get("Current")).toArray()).toString());
             if (!isRobotOnField) {
                 robotEdit.type = FieldEdit.Type.CREATE;
             }

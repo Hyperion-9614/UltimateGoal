@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Custom telemetry for universal usability
@@ -68,7 +69,7 @@ public class Unimetry {
         data.add(new Entry("Skystone Position 1", hardware.cvPipeline.getDetectedSkystonePosition()));
         data.add(new Entry("Skystone Position 2", (hardware.cvPipeline.getDetectedSkystonePosition() + 3)));
         data.add(new Entry("Theoretical max FPS", hardware.phoneCam.getCurrentPipelineMaxFps()));
-        data.add(new Entry("Current FPS", String.format("%.2f", hardware.phoneCam.getFps())));
+        data.add(new Entry("Current FPS", String.format(Locale.US, "%.2f", hardware.phoneCam.getFps())));
         data.add(new Entry("Total frame time ms", hardware.phoneCam.getTotalFrameTimeMs()));
         data.add(new Entry("Pipeline time ms", hardware.phoneCam.getPipelineTimeMs()));
         data.add(new Entry());
