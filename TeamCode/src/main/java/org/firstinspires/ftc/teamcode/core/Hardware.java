@@ -86,6 +86,7 @@ public class Hardware {
     public CRServo autoClawGrip;
 
     public int presetPlaceStoneTicks = 2500;
+    public int[] skystonePositions;
 
     public Hardware(LinearOpMode context) {
         this.context = context;
@@ -128,8 +129,8 @@ public class Hardware {
         appendages = new Appendages(this);
         unimetry = new Unimetry(this);
 
-        initUpdater();
         initCV();
+        initUpdater();
     }
 
     ///////////////////////// INIT //////////////////////////
@@ -304,6 +305,7 @@ public class Hardware {
             phoneCam.stopStreaming();
             phoneCam.setPipeline(null);
             phoneCam.closeCameraDevice();
+            System.gc();
         }
     }
 
@@ -316,7 +318,6 @@ public class Hardware {
         status = "Ending";
         isRunning = false;
 
-        killCV();
         if (updater != null && updater.isAlive() && !updater.isInterrupted()) updater.interrupt();
 
         if (opModeID.startsWith("auto")) {

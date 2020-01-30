@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.modules;
 import com.hyperion.common.Utils;
 
 import org.firstinspires.ftc.teamcode.core.Hardware;
-import org.firstinspires.ftc.teamcode.opmodes.Vision;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -64,9 +62,17 @@ public class Unimetry {
         data.add(new Entry("Right Stick X", Utils.round(hardware.context.gamepad1.right_stick_x, 3)));
         data.add(new Entry("Left Trigger", Utils.round(hardware.context.gamepad1.left_trigger, 3)));
         data.add(new Entry("Right Trigger", Utils.round(hardware.context.gamepad1.right_trigger, 3)));
+        data.add(new Entry());
 
         data.add(new Entry("Vision"));
-        data.add(new Entry("Skystone Positions", Vision.skystonePositions[0] + " " + Vision.skystonePositions[1]));
+        data.add(new Entry("Skystone Position 1", hardware.cvPipeline.getDetectedSkystonePosition()));
+        data.add(new Entry("Skystone Position 2", (hardware.cvPipeline.getDetectedSkystonePosition() + 3)));
+        data.add(new Entry("Theoretical max FPS", hardware.phoneCam.getCurrentPipelineMaxFps()));
+        data.add(new Entry("Current FPS", String.format("%.2f", hardware.phoneCam.getFps())));
+        data.add(new Entry("Total frame time ms", hardware.phoneCam.getTotalFrameTimeMs()));
+        data.add(new Entry("Pipeline time ms", hardware.phoneCam.getPipelineTimeMs()));
+        data.add(new Entry());
+
     }
 
     public synchronized void updateTelemetry() {
