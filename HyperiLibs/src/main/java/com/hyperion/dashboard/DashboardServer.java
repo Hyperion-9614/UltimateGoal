@@ -200,7 +200,7 @@ public class DashboardServer {
                             if (edit.id.contains("waypoint")) {
                                 JSONArray wpArr = target.getJSONArray(edit.id);
                                 target.remove(edit.id);
-                                target.put(edit.body, arr);
+                                target.put(edit.body, wpArr);
                             } else {
                                 JSONObject splineObj = target.getJSONObject(edit.id);
                                 target.remove(edit.id);

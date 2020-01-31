@@ -160,11 +160,18 @@ public class UIClient extends Application {
                 readFieldEdits(args[0].toString());
             }).on("opModeEnded", args -> {
                 Utils.printSocketLog("SERVER", "UI", "opModeEnded", options);
+                Iterator<FieldObject> iter = fieldObjects.iterator();
+                while (iter.hasNext()) {
+                    FieldObject o = iter.next();
+                    if (o.id.equals("robot")) {
+                        o.removeDisplayGroup();
+                        iter.remove();
+                    }
+                }
                 if (currentPath != null) {
                     currentPath.removeDisplayGroup();
                     currentPath = null;
                 }
-                readFieldEdits(args[0].toString());
             }).on("unimetryUpdated", args -> {
                 Utils.printSocketLog("SERVER", "UI", "unimetryUpdated", options);
                 readUnimetry(args[0].toString());
@@ -201,7 +208,7 @@ public class UIClient extends Application {
     public static void editUI(FieldEdit edit) {
         try {
             FieldObject newObj = null;
-            if (edit.type != FieldEdit.Type.DELETE) {
+            if (edit.type != FieldEdit.Type.DELETE && edit.type != FieldEdit.Type.EDIT_ID) {
                 if (edit.id.contains("waypoint")) {
                     newObj = new Waypoint(edit.id, new JSONArray(edit.body));
                 } else if (edit.id.contains("spline")) {
@@ -290,6 +297,7 @@ public class UIClient extends Application {
             FieldEdit robotEdit = new FieldEdit("robot", FieldEdit.Type.EDIT_BODY, new JSONArray(new RigidBody(unimetry.get("Current")).toArray()).toString());
             if (!isRobotOnField) {
                 robotEdit.type = FieldEdit.Type.CREATE;
+                isRobotOnField = true;
             }
             editUI(robotEdit);
         } catch (Exception e) {

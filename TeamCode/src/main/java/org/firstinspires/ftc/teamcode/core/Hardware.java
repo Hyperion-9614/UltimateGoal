@@ -209,13 +209,13 @@ public class Hardware {
                     switch (edit.type) {
                         case CREATE:
                         case EDIT_BODY:
-                            target.put(edit.id, new JSONObject(edit.body));
+                            target.put(edit.id, o.equals("waypoints") ? new JSONArray(edit.body) : new JSONObject(edit.body));
                             break;
                         case EDIT_ID:
                             if (edit.id.contains("waypoint")) {
                                 JSONArray wpArr = target.getJSONArray(edit.id);
                                 target.remove(edit.id);
-                                target.put(edit.body, arr);
+                                target.put(edit.body, wpArr);
                             } else {
                                 JSONObject splineObj = target.getJSONObject(edit.id);
                                 target.remove(edit.id);
@@ -320,11 +320,15 @@ public class Hardware {
 
         if (updater != null && updater.isAlive() && !updater.isInterrupted()) updater.interrupt();
 
+        String key = "";
+        JSONArray wpArr;
         if (opModeID.startsWith("auto")) {
             try {
                 JSONObject obj = new JSONObject(Utils.readFile(fieldJSON));
                 JSONObject wpObj = obj.getJSONObject("waypoints");
-                wpObj.put("tele." + (opModeID.contains("red") ? "red" : "blue") + ".waypoint.start", new JSONArray(motion.robot.pose.toArray()));
+                key = "tele." + (opModeID.contains("red") ? "red" : "blue") + ".waypoint.start";
+                wpArr = new JSONArray(motion.robot.pose.toArray());
+                wpObj.put(key, wpArr);
                 obj.put("waypoints", wpObj);
                 Utils.writeFile(obj.toString(), fieldJSON);
             } catch (Exception e) {
@@ -332,8 +336,8 @@ public class Hardware {
             }
         }
         if (options.debug) {
-            rcClient.emit("dashboardUpdated", Utils.readFile(fieldJSON));
-            Utils.printSocketLog("RC", "SERVER", "dashboardUpdated", options);
+            rcClient.emit("fieldEdited", Utils.readFile(fieldJSON));
+            Utils.printSocketLog("RC", "SERVER", "fieldEdited", options);
             rcClient.emit("opModeEnded", "{}");
             Utils.printSocketLog("RC", "SERVER", "opModeEnded", options);
             rcClient.close();

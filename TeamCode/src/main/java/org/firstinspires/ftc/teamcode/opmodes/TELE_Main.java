@@ -150,6 +150,12 @@ public class TELE_Main extends LinearOpMode {
             } else if (!gamepad2.x) {
                 chainBarToggle = false;
             }
+
+            // PID MOVE TESTING
+            if (gamepad1.dpad_up) motion.pidMove(new Vector2D(30, Math.PI / 2, false));
+            else if (gamepad1.dpad_down) motion.pidMove(new Vector2D(30, 3 * Math.PI / 2, false));
+            else if (gamepad1.dpad_left) motion.pidMove(new Vector2D(30, Math.PI, false));
+            else if (gamepad1.dpad_right) motion.pidMove(new Vector2D(30, 0, false));
         }
     }
 

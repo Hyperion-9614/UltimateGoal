@@ -12,7 +12,7 @@
             }
         },
         "net": {
-            "hostIP": "10.153.68.159",
+            "hostIP": "192.168.49.156",
             "port": 8080,
             "rcIP": "192.168.49.1"
         },
@@ -51,7 +51,7 @@
         "theta": {
             "kD": 0,
             "kI": 0,
-            "kP": 0.2
+            "kP": 0
         },
         "x": {
             "kD": 0,
@@ -66,7 +66,7 @@
     },
     "splinesMotionProfile": {
         "endErrorThresholds": {
-            "rotation": 6.994949657210352E-305,
+            "rotation": 1,
             "translation": 1
         },
         "k": {

@@ -109,6 +109,7 @@ public class HomogeneousPID {
         Vector2D velocity = new Vector2D(vX, vY, true);
         Vector2D relativeVelocity = velocity.thetaed(goal.theta - robot.theta).rotated(preHtTheta - robot.theta);
         if (relativeVelocity.magnitude > 1) relativeVelocity = relativeVelocity.unit();
+        System.out.println(relativeVelocity);
         hardware.motion.setDrive(relativeVelocity, w);
     }
 

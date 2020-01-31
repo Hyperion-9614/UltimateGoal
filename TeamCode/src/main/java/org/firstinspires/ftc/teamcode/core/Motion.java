@@ -140,8 +140,8 @@ public class Motion {
         homogeneousPID.reset(robot.pose, target);
         ElapsedTime timer = new ElapsedTime();
         while (hw.context.opModeIsActive() && !hw.context.isStopRequested() && timer.milliseconds() <= 5500
-               && robot.pose.distanceTo(target) > hw.constants.END_TRANSLATION_ERROR_THRESHOLD
-               && Utils.optThetaDiff(robot.pose.theta, target.theta) > hw.constants.END_ROTATION_ERROR_THRESHOLD) {
+               && (robot.pose.distanceTo(target) > hw.constants.END_TRANSLATION_ERROR_THRESHOLD
+               || Utils.optThetaDiff(robot.pose.theta, target.theta) > hw.constants.END_ROTATION_ERROR_THRESHOLD)) {
             homogeneousPID.controlLoopIteration(robot.pose);
         }
     }

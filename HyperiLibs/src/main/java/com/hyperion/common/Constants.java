@@ -239,7 +239,7 @@ public class Constants {
             splinesMotionProfile.put("maxes", maxes);
             JSONObject endErrorThresholds = new JSONObject();
             endErrorThresholds.put("translation", END_TRANSLATION_ERROR_THRESHOLD);
-            endErrorThresholds.put("rotation", END_ROTATION_ERROR_THRESHOLD);
+            endErrorThresholds.put("rotation", Math.toDegrees(END_ROTATION_ERROR_THRESHOLD));
             splinesMotionProfile.put("endErrorThresholds", endErrorThresholds);
             root.put("splinesMotionProfile", splinesMotionProfile);
 

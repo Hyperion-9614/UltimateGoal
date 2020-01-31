@@ -15,7 +15,6 @@ public class Robot extends FieldObject {
 
     public ImageView imgView;
     public RigidBody rigidBody;
-    public boolean isViewable;
 
     public Robot(JSONArray arr) {
         this.id = "robot";
@@ -40,14 +39,9 @@ public class Robot extends FieldObject {
 
     public void addDisplayGroup() {
         Platform.runLater(() -> UIClient.fieldPane.getChildren().add(displayGroup));
-        isViewable = true;
     }
 
     public void refreshDisplayGroup() {
-        if (!isViewable) {
-            addDisplayGroup();
-        }
-        this.rigidBody = new RigidBody(rigidBody);
         double[] display = UIClient.fieldPane.poseToDisplay(rigidBody.pose, UIClient.fieldPane.robotSize);
         imgView.relocate(display[0], display[1]);
         imgView.setRotate(display[2]);
@@ -55,7 +49,7 @@ public class Robot extends FieldObject {
 
     public void removeDisplayGroup() {
         Platform.runLater(() -> UIClient.fieldPane.getChildren().remove(displayGroup));
-        isViewable = false;
+        UIClient.isRobotOnField = false;
     }
 
     public void select() {

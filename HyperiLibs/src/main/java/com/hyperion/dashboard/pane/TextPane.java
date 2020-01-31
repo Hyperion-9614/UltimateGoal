@@ -81,12 +81,11 @@ public class TextPane extends VBox {
         StringBuilder unimetryStr = new StringBuilder();
 
         for (String key : UIClient.unimetry.keySet()) {
-            String realKey = key.substring(2).trim();
             String value = UIClient.unimetry.get(key).trim();
-            if (!realKey.isEmpty() && value.isEmpty()) {
-                unimetryStr.append(realKey);
-            } else if (!realKey.isEmpty()) {
-                unimetryStr.append(realKey).append(" : ").append(value);
+            if (!key.isEmpty() && value.isEmpty()) {
+                unimetryStr.append(key);
+            } else if (!key.isEmpty()) {
+                unimetryStr.append(key).append(" : ").append(value);
             } else if (value.isEmpty()) {
                 unimetryStr.append("\n");
             }
