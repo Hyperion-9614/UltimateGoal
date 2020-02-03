@@ -58,11 +58,16 @@ public class TextPane extends VBox {
             Thread updateConstantsThread = new Thread(() -> {
                 try {
                     long start = System.currentTimeMillis();
+                    String save = constantsDisplay.getText();
                     while (true) {
-                        if (System.currentTimeMillis() - start >= 7000) {
-                            UIClient.constants.read(new JSONObject(constantsDisplay.getText()));
-                            UIClient.sendConstants();
-                            UIClient.constants.write();
+                        if (System.currentTimeMillis() - start >= 2000) {
+                            String newStr = constantsDisplay.getText();
+                            if (!newStr.equals(save)) {
+                                UIClient.constants.read(new JSONObject(newStr));
+                                UIClient.sendConstants();
+                                UIClient.constants.write();
+                                save = newStr;
+                            }
                             start = System.currentTimeMillis();
                         }
                     }

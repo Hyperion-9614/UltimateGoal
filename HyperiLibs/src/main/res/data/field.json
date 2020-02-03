@@ -126,20 +126,10 @@
             109.19,
             4.71238898038469
         ],
-        "tele.blue.waypoint.start": [
-            3.765,
-            -0.538,
-            0
-        ],
         "tele.red.waypoint.place": [
             113.493,
             108.652,
             4.71238898038469
-        ],
-        "tele.red.waypoint.start": [
-            0,
-            0.538,
-            0
         ]
     }
 }

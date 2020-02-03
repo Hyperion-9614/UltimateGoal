@@ -44,4 +44,8 @@ public class Options {
         return obj;
     }
 
+    public String toString() {
+        return toJSONObject().toString();
+    }
+
 }

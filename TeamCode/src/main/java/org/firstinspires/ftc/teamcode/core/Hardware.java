@@ -24,6 +24,7 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.revextensions2.ExpansionHubEx;
 
 import java.io.File;
+import java.util.Iterator;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -336,7 +337,7 @@ public class Hardware {
             }
         }
         if (options.debug) {
-            rcClient.emit("fieldEdited", Utils.readFile(fieldJSON));
+            rcClient.emit("fieldEdited", readFieldAsEdits(Utils.readFile(fieldJSON)).toString());
             Utils.printSocketLog("RC", "SERVER", "fieldEdited", options);
             rcClient.emit("opModeEnded", "{}");
             Utils.printSocketLog("RC", "SERVER", "opModeEnded", options);
@@ -346,6 +347,28 @@ public class Hardware {
         if (!context.isStopRequested() || context.opModeIsActive()) {
             context.requestOpModeStop();
         }
+    }
+
+    // Read in waypoints & splines from json as JSONArray of field edits
+    public static JSONArray readFieldAsEdits(String json) {
+        JSONArray arr = new JSONArray();
+        try {
+            JSONObject root = new JSONObject(json);
+            JSONObject waypointsObject = root.getJSONObject("waypoints");
+            JSONObject splinesObject = root.getJSONObject("splines");
+
+            for (Iterator keys = waypointsObject.keys(); keys.hasNext();) {
+                String key = keys.next().toString();
+                arr.put(new FieldEdit(key, FieldEdit.Type.CREATE, waypointsObject.getJSONArray(key).toString()).toJSONObject());
+            }
+            for (Iterator keys = splinesObject.keys(); keys.hasNext();) {
+                String key = keys.next().toString();
+                arr.put(new FieldEdit(key, FieldEdit.Type.CREATE, splinesObject.getJSONObject(key).toString()).toJSONObject());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return arr;
     }
 
 }

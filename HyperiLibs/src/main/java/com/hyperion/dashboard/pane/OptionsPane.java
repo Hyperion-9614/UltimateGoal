@@ -56,10 +56,15 @@ public class OptionsPane extends VBox {
             Thread updateOptionsThread = new Thread(() -> {
                 try {
                     long start = System.currentTimeMillis();
+                    String save = optionsDisplay.getText();
                     while (true) {
-                        if (System.currentTimeMillis() - start >= 7000) {
-                            UIClient.options.read(new JSONObject(optionsDisplay.getText()));
-                            Utils.writeDataJSON(optionsDisplay.getText(), "options", UIClient.constants);
+                        if (System.currentTimeMillis() - start >= 2000) {
+                            String newStr = optionsDisplay.getText();
+                            if (!newStr.equals(save)) {
+                                UIClient.options.read(new JSONObject(newStr));
+                                Utils.writeDataJSON(optionsDisplay.getText(), "options", UIClient.constants);
+                                save = newStr;
+                            }
                             start = System.currentTimeMillis();
                         }
                     }
@@ -158,11 +163,15 @@ public class OptionsPane extends VBox {
             Thread updateConfigThread = new Thread(() -> {
                 try {
                     long start = System.currentTimeMillis();
+                    String save = UIClient.config;
                     while (true) {
-                        if (System.currentTimeMillis() - start >= 8000) {
+                        if (System.currentTimeMillis() - start >= 2000) {
                             UIClient.config = configDisplay.getText();
-                            UIClient.uiClient.emit("configUpdated", UIClient.config);
-                            Utils.printSocketLog("UI", "SERVER", "configUpdated", UIClient.options);
+                            if (!UIClient.config.equals(save)) {
+                                UIClient.uiClient.emit("configUpdated", UIClient.config);
+                                Utils.printSocketLog("UI", "SERVER", "configUpdated", UIClient.options);
+                                save = UIClient.config;
+                            }
                             start = System.currentTimeMillis();
                         }
                     }

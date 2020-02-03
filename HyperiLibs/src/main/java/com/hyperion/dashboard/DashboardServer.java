@@ -96,7 +96,7 @@ public class DashboardServer {
                         Utils.printSocketLog("SERVER", "RC", "fieldEdited", options);
                     }
 
-                    writeFieldEditsToDashboardJSON(data);
+                    writeEditsToFieldJSON(data);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -182,7 +182,7 @@ public class DashboardServer {
         return arr;
     }
 
-    public static void writeFieldEditsToDashboardJSON(String json) {
+    public static void writeEditsToFieldJSON(String json) {
         try {
             JSONObject field = new JSONObject(Utils.readDataJSON("field", constants));
             JSONArray arr = new JSONArray(json);
