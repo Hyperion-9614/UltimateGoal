@@ -141,12 +141,17 @@ public class Motion {
         ElapsedTime timer = new ElapsedTime();
         while (hw.context.opModeIsActive() && !hw.context.isStopRequested() && timer.milliseconds() <= 5500
                && (robot.pose.distanceTo(target) > hw.constants.END_TRANSLATION_ERROR_THRESHOLD
-               || Utils.optThetaDiff(robot.pose.theta, target.theta) > hw.constants.END_ROTATION_ERROR_THRESHOLD)) {
+               || Math.abs(Utils.optThetaDiff(robot.pose.theta, target.theta)) > hw.constants.END_ROTATION_ERROR_THRESHOLD)) {
             homogeneousPID.controlLoopIteration(robot.pose);
         }
     }
     public void pidMove(Vector2D addVec) {
-        pidMove(robot.pose.addVector(addVec));
+        pidMove(addVec, robot.pose.theta);
+    }
+    public void pidMove(Vector2D addVec, double targetHeading) {
+        Pose target = robot.pose.addVector(addVec);
+        target.setT(targetHeading);
+        pidMove(target);
     }
 
     public void translate(String waypoint) {

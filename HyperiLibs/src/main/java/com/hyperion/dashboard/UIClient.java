@@ -160,18 +160,27 @@ public class UIClient extends Application {
                 readFieldEdits(args[0].toString());
             }).on("opModeEnded", args -> {
                 Utils.printSocketLog("SERVER", "UI", "opModeEnded", options);
-                Iterator<FieldObject> iter = fieldObjects.iterator();
-                while (iter.hasNext()) {
-                    FieldObject o = iter.next();
-                    if (o.id.equals("robot")) {
-                        o.removeDisplayGroup();
-                        iter.remove();
+                Thread deleteRobotThread = new Thread(() -> {
+                    long start = System.currentTimeMillis();
+                    while (true) {
+                        if (System.currentTimeMillis() - start >= 5000) {
+                            Iterator<FieldObject> iter = fieldObjects.iterator();
+                            while (iter.hasNext()) {
+                                FieldObject o = iter.next();
+                                if (o.id.equals("robot")) {
+                                    o.removeDisplayGroup();
+                                    iter.remove();
+                                }
+                            }
+                            if (currentPath != null) {
+                                currentPath.removeDisplayGroup();
+                                currentPath = null;
+                            }
+                            break;
+                        }
                     }
-                }
-                if (currentPath != null) {
-                    currentPath.removeDisplayGroup();
-                    currentPath = null;
-                }
+                });
+                deleteRobotThread.start();
             }).on("unimetryUpdated", args -> {
                 Utils.printSocketLog("SERVER", "UI", "unimetryUpdated", options);
                 readUnimetry(args[0].toString());
@@ -197,7 +206,7 @@ public class UIClient extends Application {
             JSONArray arr = new JSONArray(json);
             for (int i = 0; i < arr.length(); i++) {
                 FieldEdit fieldEdit = new FieldEdit(arr.getJSONObject(i));
-                editUI(fieldEdit);
+                  editUI(fieldEdit);
             }
         } catch (Exception e) {
             e.printStackTrace();

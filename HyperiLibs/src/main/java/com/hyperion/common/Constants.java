@@ -299,4 +299,7 @@ public class Constants {
         return counts / COUNTS_PER_M;
     } // m
 
+    public String toString() {
+        return toJSONObject().toString();
+    }
 }

@@ -56,12 +56,12 @@
         "x": {
             "kD": 0,
             "kI": 0,
-            "kP": 0.2
+            "kP": 0
         },
         "y": {
             "kD": 0,
             "kI": 0,
-            "kP": 0.2
+            "kP": 0.05
         }
     },
     "splinesMotionProfile": {
