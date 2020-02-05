@@ -591,20 +591,122 @@ void&nbsp;setPIDCoefficients(int&nbsp;motor,
 <ul class="blockListLast">
 <li class="blockList">
 <h4>isMotorOverCurrent</h4>
-<pre>boolean&nbsp;isMotorOverCurrent(int&nbsp;motor)</pre>
-<div class="block">Returns whether the indicated motor current consumption has exceeded the alert threshold.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>motor</code> - desired motor</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>whether the indicated motor current consumption has exceeded the alert threshold</dd>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#isOverCurrent--"><code>DcMotorEx.isOverCurrent()</code></a>, 
-<a href="../../../../com/qualcomm/robotcore/hardware/DcMotorControllerEx.html#getMotorCurrentAlert-int-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-"><code>getMotorCurrentAlert(int, CurrentUnit)</code></a>, 
-<a href="../../../../com/qualcomm/robotcore/hardware/DcMotorControllerEx.html#setMotorCurrentAlert-int-double-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-"><code>setMotorCurrentAlert(int, double, CurrentUnit)</code></a></dd>
-</dl>
+    <pre>boolean&nbsp;isMotorOverCurrent(int&nbsp;motor)</pre>
+    <div class="block">Returns whether the indicated motor current consumption has exceeded the alert threshold.</div>
+    <dl>
+        <dt><span class="paramLabel">Parameters:</span></dt>
+        <dd><code>motor</code> - desired motor</dd>
+        <dt><span class="returnLabel">Returns:</span></dt>
+        <dd>whether the indicated motor current consumption has exceeded the alert threshold</dd>
+        <dt><span class="seeLabel">See Also:</span></dt>
+        <dd><a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#isOverCurrent--"><code>DcMotorEx.isOverCurrent()</code></a>,
+            <a href="../../../../com/qualcomm/robotcore/hardware/DcMotorControllerEx.html#getMotorCurrentAlert-int-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-"><code>getMotorCurrentAlert(int,
+                CurrentUnit)</code></a>,
+            <a href="../../../../com/qualcomm/robotcore/hardware/DcMotorControllerEx.html#setMotorCurrentAlert-int-double-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-"><code>setMotorCurrentAlert(int,
+                double, CurrentUnit)</code></a></dd>
+    </dl>
 </li>
 </ul>
+    <a name="getMotorCurrent-int-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-">
+        <!--   -->
+    </a>
+    <ul class="blockList">
+        <li class="blockList">
+            <h4>getMotorCurrent</h4>
+            <pre>double&nbsp;getMotorCurrent(int&nbsp;motor,
+                       <a href="../../../../org/firstinspires/ftc/robotcore/external/navigation/CurrentUnit.html"
+                          title="enum in org.firstinspires.ftc.robotcore.external.navigation">CurrentUnit</a>&nbsp;unit)</pre>
+            <div class="block">Returns the current consumed by the indicated motor.</div>
+            <dl>
+                <dt><span class="paramLabel">Parameters:</span></dt>
+                <dd><code>motor</code> - motor whose current consumption is desired</dd>
+                <dd><code>unit</code> - current units</dd>
+                <dt><span class="returnLabel">Returns:</span></dt>
+                <dd>the current consumed by motor</dd>
+                <dt><span class="seeLabel">See Also:</span></dt>
+                <dd>
+                    <a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#getCurrent-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-"><code>DcMotorEx.getCurrent(CurrentUnit)</code></a>
+                </dd>
+            </dl>
+        </li>
+    </ul>
+    <a name="getMotorCurrentAlert-int-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-">
+        <!--   -->
+    </a>
+    <ul class="blockList">
+        <li class="blockList">
+            <h4>getMotorCurrentAlert</h4>
+            <pre>double&nbsp;getMotorCurrentAlert(int&nbsp;motor,
+                            <a href="../../../../org/firstinspires/ftc/robotcore/external/navigation/CurrentUnit.html"
+                               title="enum in org.firstinspires.ftc.robotcore.external.navigation">CurrentUnit</a>&nbsp;unit)</pre>
+            <div class="block">Returns the current alert for the indicated motor.</div>
+            <dl>
+                <dt><span class="paramLabel">Parameters:</span></dt>
+                <dd><code>motor</code> - motor whose alert is desired</dd>
+                <dd><code>unit</code> - current units</dd>
+                <dt><span class="returnLabel">Returns:</span></dt>
+                <dd>the current alert of motor</dd>
+                <dt><span class="seeLabel">See Also:</span></dt>
+                <dd>
+                    <a href="../../../../com/qualcomm/robotcore/hardware/DcMotorControllerEx.html#setMotorCurrentAlert-int-double-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-"><code>setMotorCurrentAlert(int,
+                        double, CurrentUnit)</code></a>,
+                    <a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#setCurrentAlert-double-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-"><code>DcMotorEx.setCurrentAlert(double,
+                        CurrentUnit)</code></a>,
+                    <a href="../../../../com/qualcomm/robotcore/hardware/DcMotorControllerEx.html#isMotorOverCurrent-int-"><code>isMotorOverCurrent(int)</code></a>
+                </dd>
+            </dl>
+        </li>
+    </ul>
+    <a name="setMotorCurrentAlert-int-double-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-">
+        <!--   -->
+    </a>
+    <ul class="blockList">
+        <li class="blockList">
+            <h4>setMotorCurrentAlert</h4>
+            <pre>void&nbsp;setMotorCurrentAlert(int&nbsp;motor,
+                          double&nbsp;current,
+                          <a href="../../../../org/firstinspires/ftc/robotcore/external/navigation/CurrentUnit.html"
+                             title="enum in org.firstinspires.ftc.robotcore.external.navigation">CurrentUnit</a>&nbsp;unit)</pre>
+            <div class="block">Sets the current alert for the indicated motor</div>
+            <dl>
+                <dt><span class="paramLabel">Parameters:</span></dt>
+                <dd><code>motor</code> - motor whose alert is to be set</dd>
+                <dd><code>current</code> - current alert</dd>
+                <dd><code>unit</code> - current units</dd>
+                <dt><span class="seeLabel">See Also:</span></dt>
+                <dd>
+                    <a href="../../../../com/qualcomm/robotcore/hardware/DcMotorControllerEx.html#getMotorCurrentAlert-int-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-"><code>getMotorCurrentAlert(int,
+                        CurrentUnit)</code></a>,
+                    <a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#getCurrentAlert-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-"><code>DcMotorEx.getCurrentAlert(CurrentUnit)</code></a>,
+                    <a href="../../../../com/qualcomm/robotcore/hardware/DcMotorControllerEx.html#isMotorOverCurrent-int-"><code>isMotorOverCurrent(int)</code></a>
+                </dd>
+            </dl>
+        </li>
+    </ul>
+    <a name="isMotorOverCurrent-int-">
+        <!--   -->
+    </a>
+    <ul class="blockListLast">
+        <li class="blockList">
+            <h4>isMotorOverCurrent</h4>
+            <pre>boolean&nbsp;isMotorOverCurrent(int&nbsp;motor)</pre>
+            <div class="block">Returns whether the indicated motor current consumption has exceeded the alert
+                threshold.
+            </div>
+            <dl>
+                <dt><span class="paramLabel">Parameters:</span></dt>
+                <dd><code>motor</code> - desired motor</dd>
+                <dt><span class="returnLabel">Returns:</span></dt>
+                <dd>whether the indicated motor current consumption has exceeded the alert threshold</dd>
+                <dt><span class="seeLabel">See Also:</span></dt>
+                <dd><a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#isOverCurrent--"><code>DcMotorEx.isOverCurrent()</code></a>,
+                    <a href="../../../../com/qualcomm/robotcore/hardware/DcMotorControllerEx.html#getMotorCurrentAlert-int-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-"><code>getMotorCurrentAlert(int,
+                        CurrentUnit)</code></a>,
+                    <a href="../../../../com/qualcomm/robotcore/hardware/DcMotorControllerEx.html#setMotorCurrentAlert-int-double-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-"><code>setMotorCurrentAlert(int,
+                        double, CurrentUnit)</code></a></dd>
+            </dl>
+        </li>
+    </ul>
 </li>
 </ul>
 </li>

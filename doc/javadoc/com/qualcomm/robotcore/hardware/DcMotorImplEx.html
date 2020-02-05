@@ -833,20 +833,127 @@ implements <a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html" 
 <a name="isOverCurrent--">
 <!--   -->
 </a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>isOverCurrent</h4>
-<pre>public&nbsp;boolean&nbsp;isOverCurrent()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#isOverCurrent--">DcMotorEx</a></code></span></div>
-<div class="block">Returns whether the current consumption of this motor exceeds the alert threshold.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#isOverCurrent--">isOverCurrent</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html" title="interface in com.qualcomm.robotcore.hardware">DcMotorEx</a></code></dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>whether the current consumption of this motor exceeds the alert threshold.</dd>
-</dl>
-</li>
-</ul>
+    <ul class="blockListLast">
+        <li class="blockList">
+            <h4>isOverCurrent</h4>
+            <pre>public&nbsp;boolean&nbsp;isOverCurrent()</pre>
+            <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a
+                    href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#isOverCurrent--">DcMotorEx</a></code></span>
+            </div>
+            <div class="block">Returns whether the current consumption of this motor exceeds the alert threshold.</div>
+            <dl>
+                <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+                <dd><code><a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#isOverCurrent--">isOverCurrent</a></code>&nbsp;in
+                    interface&nbsp;<code><a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html"
+                                            title="interface in com.qualcomm.robotcore.hardware">DcMotorEx</a></code>
+                </dd>
+                <dt><span class="returnLabel">Returns:</span></dt>
+                <dd>whether the current consumption of this motor exceeds the alert threshold.</dd>
+            </dl>
+        </li>
+    </ul>
+    <a name="getCurrent-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-">
+        <!--   -->
+    </a>
+    <ul class="blockList">
+        <li class="blockList">
+            <h4>getCurrent</h4>
+            <pre>public&nbsp;double&nbsp;getCurrent(<a
+                    href="../../../../org/firstinspires/ftc/robotcore/external/navigation/CurrentUnit.html"
+                    title="enum in org.firstinspires.ftc.robotcore.external.navigation">CurrentUnit</a>&nbsp;unit)</pre>
+            <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a
+                    href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#getCurrent-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-">DcMotorEx</a></code></span>
+            </div>
+            <div class="block">Returns the current consumed by this motor.</div>
+            <dl>
+                <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+                <dd><code><a
+                        href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#getCurrent-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-">getCurrent</a></code>&nbsp;in
+                    interface&nbsp;<code><a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html"
+                                            title="interface in com.qualcomm.robotcore.hardware">DcMotorEx</a></code>
+                </dd>
+                <dt><span class="paramLabel">Parameters:</span></dt>
+                <dd><code>unit</code> - current units</dd>
+                <dt><span class="returnLabel">Returns:</span></dt>
+                <dd>the current consumed by this motor.</dd>
+            </dl>
+        </li>
+    </ul>
+    <a name="getCurrentAlert-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-">
+        <!--   -->
+    </a>
+    <ul class="blockList">
+        <li class="blockList">
+            <h4>getCurrentAlert</h4>
+            <pre>public&nbsp;double&nbsp;getCurrentAlert(<a
+                    href="../../../../org/firstinspires/ftc/robotcore/external/navigation/CurrentUnit.html"
+                    title="enum in org.firstinspires.ftc.robotcore.external.navigation">CurrentUnit</a>&nbsp;unit)</pre>
+            <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a
+                    href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#getCurrentAlert-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-">DcMotorEx</a></code></span>
+            </div>
+            <div class="block">Returns the current alert for this motor.</div>
+            <dl>
+                <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+                <dd><code><a
+                        href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#getCurrentAlert-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-">getCurrentAlert</a></code>&nbsp;in
+                    interface&nbsp;<code><a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html"
+                                            title="interface in com.qualcomm.robotcore.hardware">DcMotorEx</a></code>
+                </dd>
+                <dt><span class="paramLabel">Parameters:</span></dt>
+                <dd><code>unit</code> - current units</dd>
+                <dt><span class="returnLabel">Returns:</span></dt>
+                <dd>the current alert for this motor</dd>
+            </dl>
+        </li>
+    </ul>
+    <a name="setCurrentAlert-double-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-">
+        <!--   -->
+    </a>
+    <ul class="blockList">
+        <li class="blockList">
+            <h4>setCurrentAlert</h4>
+            <pre>public&nbsp;void&nbsp;setCurrentAlert(double&nbsp;current,
+                            <a href="../../../../org/firstinspires/ftc/robotcore/external/navigation/CurrentUnit.html"
+                               title="enum in org.firstinspires.ftc.robotcore.external.navigation">CurrentUnit</a>&nbsp;unit)</pre>
+            <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a
+                    href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#setCurrentAlert-double-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-">DcMotorEx</a></code></span>
+            </div>
+            <div class="block">Sets the current alert for this motor</div>
+            <dl>
+                <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+                <dd><code><a
+                        href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#setCurrentAlert-double-org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit-">setCurrentAlert</a></code>&nbsp;in
+                    interface&nbsp;<code><a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html"
+                                            title="interface in com.qualcomm.robotcore.hardware">DcMotorEx</a></code>
+                </dd>
+                <dt><span class="paramLabel">Parameters:</span></dt>
+                <dd><code>current</code> - current alert</dd>
+                <dd><code>unit</code> - current units</dd>
+            </dl>
+        </li>
+    </ul>
+    <a name="isOverCurrent--">
+        <!--   -->
+    </a>
+    <ul class="blockListLast">
+        <li class="blockList">
+            <h4>isOverCurrent</h4>
+            <pre>public&nbsp;boolean&nbsp;isOverCurrent()</pre>
+            <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a
+                    href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#isOverCurrent--">DcMotorEx</a></code></span>
+            </div>
+            <div class="block">Returns whether the current consumption of this motor exceeds the alert threshold.</div>
+            <dl>
+                <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+                <dd><code><a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html#isOverCurrent--">isOverCurrent</a></code>&nbsp;in
+                    interface&nbsp;<code><a href="../../../../com/qualcomm/robotcore/hardware/DcMotorEx.html"
+                                            title="interface in com.qualcomm.robotcore.hardware">DcMotorEx</a></code>
+                </dd>
+                <dt><span class="returnLabel">Returns:</span></dt>
+                <dd>whether the current consumption of this motor exceeds the alert threshold.</dd>
+            </dl>
+        </li>
+    </ul>
 </li>
 </ul>
 </li>

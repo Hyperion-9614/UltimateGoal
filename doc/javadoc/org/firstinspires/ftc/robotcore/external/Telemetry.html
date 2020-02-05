@@ -657,25 +657,68 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>speak</h4>
-<pre>void&nbsp;speak(java.lang.String&nbsp;text,
+    <pre>void&nbsp;speak(java.lang.String&nbsp;text,
            java.lang.String&nbsp;languageCode,
            java.lang.String&nbsp;countryCode)</pre>
-<div class="block">Directs the Driver Station device to speak the given text using TextToSpeech functionality,
- with the given language and country codes.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>text</code> - the text to be spoken</dd>
-<dd><code>languageCode</code> - an ISO 639 alpha-2 or alpha-3 language code, or a language subtag up to
-                      8 characters in length</dd>
-<dd><code>countryCode</code> - an ISO 3166 alpha-2 country code, or a UN M.49 numeric-3 area code</dd>
-</dl>
+    <div class="block">Directs the Driver Station device to speak the given text using TextToSpeech functionality,
+        with the given language and country codes.
+    </div>
+    <dl>
+        <dt><span class="paramLabel">Parameters:</span></dt>
+        <dd><code>text</code> - the text to be spoken</dd>
+        <dd><code>languageCode</code> - an ISO 639 alpha-2 or alpha-3 language code, or a language subtag up to
+            8 characters in length
+        </dd>
+        <dd><code>countryCode</code> - an ISO 3166 alpha-2 country code, or a UN M.49 numeric-3 area code</dd>
+    </dl>
 </li>
 </ul>
-<a name="update--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
+    <a name="speak-java.lang.String-">
+        <!--   -->
+    </a>
+    <ul class="blockList">
+        <li class="blockList">
+            <h4>speak</h4>
+            <pre>void&nbsp;speak(java.lang.String&nbsp;text)</pre>
+            <div class="block">Directs the Driver Station device to speak the given text using TextToSpeech
+                functionality,
+                with the same language and country codes that were previously used, or the default language
+                and country.
+            </div>
+            <dl>
+                <dt><span class="paramLabel">Parameters:</span></dt>
+                <dd><code>text</code> - the text to be spoken</dd>
+            </dl>
+        </li>
+    </ul>
+    <a name="speak-java.lang.String-java.lang.String-java.lang.String-">
+        <!--   -->
+    </a>
+    <ul class="blockList">
+        <li class="blockList">
+            <h4>speak</h4>
+            <pre>void&nbsp;speak(java.lang.String&nbsp;text,
+           java.lang.String&nbsp;languageCode,
+           java.lang.String&nbsp;countryCode)</pre>
+            <div class="block">Directs the Driver Station device to speak the given text using TextToSpeech
+                functionality,
+                with the given language and country codes.
+            </div>
+            <dl>
+                <dt><span class="paramLabel">Parameters:</span></dt>
+                <dd><code>text</code> - the text to be spoken</dd>
+                <dd><code>languageCode</code> - an ISO 639 alpha-2 or alpha-3 language code, or a language subtag up to
+                    8 characters in length
+                </dd>
+                <dd><code>countryCode</code> - an ISO 3166 alpha-2 country code, or a UN M.49 numeric-3 area code</dd>
+            </dl>
+        </li>
+    </ul>
+    <a name="update--">
+        <!--   -->
+    </a>
+    <ul class="blockList">
+        <li class="blockList">
 <h4>update</h4>
 <pre>boolean&nbsp;update()</pre>
 <div class="block">Sends the receiver <a href="../../../../../org/firstinspires/ftc/robotcore/external/Telemetry.html" title="interface in org.firstinspires.ftc.robotcore.external"><code>Telemetry</code></a> to the driver station if more than the <a href="../../../../../org/firstinspires/ftc/robotcore/external/Telemetry.html#getMsTransmissionInterval--"><code>transmission interval</code></a> has elapsed since the last transmission, or schedules the transmission
