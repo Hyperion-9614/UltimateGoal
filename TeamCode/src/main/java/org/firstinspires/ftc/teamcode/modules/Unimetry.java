@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode.modules;
 import com.hyperion.common.Utils;
 
 import org.firstinspires.ftc.teamcode.core.Hardware;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Locale;
+import java.util.*;
 
 /**
  * Custom telemetry for universal usability
@@ -16,8 +16,7 @@ public class Unimetry {
 
     private Hardware hardware;
 
-    public ArrayList<Entry> data = new ArrayList<>();
-    public String json = "";
+    public List<Entry> data = new ArrayList<>();
     public String newLineSpaces = "";
 
     public Unimetry(Hardware hardware) {
@@ -78,25 +77,17 @@ public class Unimetry {
 
     public synchronized void updateTelemetry() {
         try {
-            JSONObject dataObj = new JSONObject();
+            JSONArray dataArr = new JSONArray();
             for (int i = 0; i < data.size(); i++) {
                 Entry entry = data.get(i);
-                JSONObject miniObj = new JSONObject();
                 hardware.context.telemetry.addData(entry.token0, entry.token1);
-                if (entry.token1.isEmpty()) {
-                    miniObj.put("token0", "");
-                    miniObj.put("token1", "");
-                } else {
-                    miniObj.put("token0", entry.token0);
-                    miniObj.put("token1", entry.token1);
-                }
-                dataObj.put("" + i, miniObj);
+                if (hardware.options.debug && hardware.rcClient != null)
+                    dataArr.put(new JSONArray(entry.toArray()));
             }
 
-            json = dataObj.toString();
             hardware.context.telemetry.update();
             if (hardware.options.debug && hardware.rcClient != null) {
-                hardware.rcClient.emit("unimetryUpdated", json);
+                hardware.rcClient.emit("unimetryUpdated", dataArr.toString());
                 Utils.printSocketLog("RC", "SERVER", "unimetryUpdated", hardware.options);
             }
         } catch (Exception e) {
@@ -122,6 +113,10 @@ public class Unimetry {
         public Entry(String token0, Object token1) {
             this.token0 = token0;
             this.token1 = token1 == null ? "" : token1.toString();
+        }
+
+        public String[] toArray() {
+            return new String[]{ token0, token1 };
         }
 
     }

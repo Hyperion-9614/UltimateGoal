@@ -84,10 +84,10 @@ public class Appendages {
         double power = 0;
         switch (compWheelsStatus) {
             case "in":
-                power = 1;
+                power = 0.75;
                 break;
             case "out":
-                power = -1;
+                power = -0.75;
                 break;
         }
         setCompWheelsPower(power);

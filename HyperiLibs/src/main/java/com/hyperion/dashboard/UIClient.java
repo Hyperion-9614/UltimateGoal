@@ -19,9 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -56,8 +54,8 @@ public class UIClient extends Application {
     public static DisplaySpline selectedSpline = null;
     public static Waypoint selectedWaypoint = null;
     public static DisplaySpline currentPath = new DisplaySpline();
-    public static ArrayList<FieldObject> fieldObjects = new ArrayList<>();
-    public static HashMap<String, String> unimetry = new HashMap<>();
+    public static List<FieldObject> fieldObjects = new ArrayList<>();
+    public static Map<String, String> unimetry = new HashMap<>();
     public static String config = "";
     public static boolean isRobotOnField;
 
@@ -296,11 +294,11 @@ public class UIClient extends Application {
     // Read in unimetry from json
     private static void readUnimetry(String json) {
         try {
-            unimetry = new HashMap<>();
-            JSONObject dataObj = new JSONObject(json);
-            for (int i = 0; i < dataObj.length(); i++) {
-                JSONObject miniObj = dataObj.getJSONObject("" + i);
-                unimetry.put(miniObj.getString("token0"), miniObj.getString("token1"));
+            unimetry = new LinkedHashMap<>();
+            JSONArray dataArr = new JSONArray(json);
+            for (int i = 0; i < dataArr.length(); i++) {
+                JSONArray miniObj = dataArr.getJSONArray(i);
+                unimetry.put(miniObj.getString(0), miniObj.getString(1));
             }
 
             FieldEdit robotEdit = new FieldEdit("robot", FieldEdit.Type.EDIT_BODY, new JSONArray(new RigidBody(unimetry.get("Current")).toArray()).toString());
