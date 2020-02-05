@@ -1,6 +1,6 @@
 package com.hyperion.dashboard.pane;
 
-import com.hyperion.dashboard.UIClient;
+import com.hyperion.dashboard.UICMain;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.PiecewiseLineGraph;
 import com.hyperion.motion.math.Piecewise;
@@ -13,11 +13,15 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.VBox;
 
-public class DisplayPane extends VBox {
+/**
+ * Contains motion profile graph
+ */
+
+public class VisualPane extends VBox {
 
     public PiecewiseLineGraph tVdGraph;
 
-    public DisplayPane() {
+    public VisualPane() {
         setBackground(Background.EMPTY);
         setAlignment(Pos.TOP_CENTER);
 
@@ -30,7 +34,7 @@ public class DisplayPane extends VBox {
         tVdGraph.setCreateSymbols(false);
         tVdGraph.setTitle("Translational Magnitude vs. Distance");
 
-        updateGraphs(UIClient.selectedSpline);
+        updateGraphs(UICMain.selectedSpline);
         getChildren().add(tVdGraph);
     }
 

@@ -15,8 +15,7 @@ import org.firstinspires.ftc.teamcode.modules.Localizer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Manages all 2D robot translation & rotation
@@ -32,8 +31,8 @@ public class Motion {
 
     public RigidBody start = new RigidBody(new Pose(0, 0, 0));
     public RigidBody robot = new RigidBody(start);
-    public HashMap<String, Pose> waypoints = new HashMap<>();
-    public HashMap<String, SplineTrajectory> splines = new HashMap<>();
+    public Map<String, Pose> waypoints = new HashMap<>();
+    public Map<String, SplineTrajectory> splines = new HashMap<>();
 
     public Motion(Hardware hw) {
         this.hw = hw;

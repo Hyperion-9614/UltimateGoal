@@ -1,6 +1,6 @@
 package com.hyperion.dashboard.pane;
 
-import com.hyperion.dashboard.UIClient;
+import com.hyperion.dashboard.UICMain;
 
 import java.io.File;
 
@@ -20,12 +20,13 @@ import javafx.stage.Stage;
 public class MenuPane extends BorderPane {
 
     public double xOffset, yOffset;
+    public Label title;
 
     public MenuPane(Stage stage) {
         setBackground(new Background(new BackgroundFill(new Color(1.0, 1.0, 1.0, 1.0), CornerRadii.EMPTY, Insets.EMPTY)));
         setMinWidth(stage.getWidth());
 
-        Label title = new Label("Hyperion Dashboard v" + UIClient.constants.DASHBOARD_VERSION);
+        title = new Label("Hyperion Dashboard v" + UICMain.constants.DASHBOARD_VERSION);
         title.setFont(new Font(14));
         setMargin(title, new Insets(4, 0, 0, 5));
         setLeft(title);
@@ -36,7 +37,7 @@ public class MenuPane extends BorderPane {
             iconify.setBackground(Background.EMPTY);
             iconify.setOnMouseEntered(e -> iconify.setBackground(new Background(new BackgroundFill(new Color(0.5, 0.5, 0.5, 1.0), CornerRadii.EMPTY, Insets.EMPTY))));
             iconify.setOnMouseExited(e -> iconify.setBackground(new Background(new BackgroundFill(new Color(1.0, 1.0, 1.0, 1.0), CornerRadii.EMPTY, Insets.EMPTY))));
-            ImageView iconifyIcon = new ImageView(new File(UIClient.constants.RES_IMG_PREFIX + "/iconify.png").toURI().toURL().toString());
+            ImageView iconifyIcon = new ImageView(new File(UICMain.constants.RES_IMG_PREFIX + "/iconify.png").toURI().toURL().toString());
             iconifyIcon.setFitWidth(20);
             iconifyIcon.setFitHeight(20);
             iconify.setGraphic(iconifyIcon);
@@ -47,13 +48,13 @@ public class MenuPane extends BorderPane {
             close.setBackground(Background.EMPTY);
             close.setOnMouseEntered(e -> close.setBackground(new Background(new BackgroundFill(new Color(0.5, 0.5, 0.5, 1.0), CornerRadii.EMPTY, Insets.EMPTY))));
             close.setOnMouseExited(e -> close.setBackground(new Background(new BackgroundFill(new Color(1.0, 1.0, 1.0, 1.0), CornerRadii.EMPTY, Insets.EMPTY))));
-            ImageView closeIcon = new ImageView(new File(UIClient.constants.RES_IMG_PREFIX + "/close.png").toURI().toURL().toString());
+            ImageView closeIcon = new ImageView(new File(UICMain.constants.RES_IMG_PREFIX + "/close.png").toURI().toURL().toString());
             closeIcon.setFitWidth(20);
             closeIcon.setFitHeight(20);
             close.setGraphic(closeIcon);
             close.setOnMouseClicked(event -> {
-                UIClient.uiClient.disconnect();
-                UIClient.uiClient.close();
+                UICMain.uiClient.disconnect();
+                UICMain.uiClient.close();
                 System.exit(0);
             });
             buttons.getChildren().add(close);

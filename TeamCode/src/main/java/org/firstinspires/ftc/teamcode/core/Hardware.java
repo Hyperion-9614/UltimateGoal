@@ -179,7 +179,7 @@ public class Hardware {
                 Utils.printSocketLog("RC", "SERVER", "disconnected", options);
             }).on("fieldEdited", args -> {
                 Utils.printSocketLog("SERVER", "RC", "fieldEdited", options);
-                writeFieldEditsToDashboardJSON(args[0].toString());
+                writeFieldEditsToFieldJSON(args[0].toString());
             }).on("constantsUpdated", args -> {
                 try {
                     Utils.printSocketLog("SERVER", "RC", "constantsUpdated", options);
@@ -198,7 +198,7 @@ public class Hardware {
     }
 
     // Exactly what the method header says
-    public void writeFieldEditsToDashboardJSON(String json) {
+    public void writeFieldEditsToFieldJSON(String json) {
         try {
             JSONObject field = new JSONObject(Utils.readFile(fieldJSON));
             JSONArray arr = new JSONArray(json);
@@ -321,7 +321,7 @@ public class Hardware {
 
         if (updater != null && updater.isAlive() && !updater.isInterrupted()) updater.interrupt();
 
-        String key = "";
+        String key;
         JSONArray wpArr;
         if (opModeID.startsWith("auto")) {
             try {

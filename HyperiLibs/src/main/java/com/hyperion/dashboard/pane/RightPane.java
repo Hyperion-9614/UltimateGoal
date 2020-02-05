@@ -1,7 +1,9 @@
 package com.hyperion.dashboard.pane;
 
-import com.hyperion.dashboard.UIClient;
+import com.hyperion.common.Utils;
+import com.hyperion.dashboard.UICMain;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javafx.geometry.Insets;
@@ -14,23 +16,23 @@ import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 
 /**
- * Displays text data
+ * Contains unimetry and constants
  */
 
-public class TextPane extends VBox {
+public class RightPane extends VBox {
 
     public TextArea unimetryDisplay;
     public TextArea constantsDisplay;
     public double width;
 
-    public TextPane() {
+    public RightPane() {
         try {
             setBackground(Background.EMPTY);
             setPadding(new Insets(10, 7, 10, 0));
             setSpacing(10);
             setAlignment(Pos.TOP_CENTER);
 
-            width = (Screen.getPrimary().getVisualBounds().getWidth() - UIClient.fieldPane.fieldSize) / 2.0 - 62;
+            width = (Screen.getPrimary().getVisualBounds().getWidth() - UICMain.fieldPane.fieldSize) / 2.0 - 62;
             if (System.getProperty("os.name").startsWith("Windows")) width += 40;
 
             Label unimetryLabel = new Label("Telemetry");
@@ -55,27 +57,11 @@ public class TextPane extends VBox {
             constantsDisplay.setStyle("-fx-font: 14px \"Arial\";");
             constantsDisplay.setPrefSize(width, width);
             constantsDisplay.setEditable(true);
-            Thread updateConstantsThread = new Thread(() -> {
-                try {
-                    long start = System.currentTimeMillis();
-                    String save = constantsDisplay.getText();
-                    while (true) {
-                        if (System.currentTimeMillis() - start >= 2000) {
-                            String newStr = constantsDisplay.getText();
-                            if (!newStr.equals(save)) {
-                                UIClient.constants.read(new JSONObject(newStr));
-                                UIClient.sendConstants();
-                                UIClient.constants.write();
-                                save = newStr;
-                            }
-                            start = System.currentTimeMillis();
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+            constantsDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!oldValue.isEmpty()) {
+                    UICMain.changeSaveStatus(!Utils.condensedEquals(newValue, UICMain.constantsSave));
                 }
             });
-            updateConstantsThread.start();
             getChildren().add(constantsDisplay);
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,8 +71,8 @@ public class TextPane extends VBox {
     public void setUnimetryDisplayText() {
         StringBuilder unimetryStr = new StringBuilder();
 
-        for (String key : UIClient.unimetry.keySet()) {
-            String value = UIClient.unimetry.get(key).trim();
+        for (String key : UICMain.unimetry.keySet()) {
+            String value = UICMain.unimetry.get(key).trim();
             if (!key.isEmpty() && value.isEmpty()) {
                 unimetryStr.append(key);
             } else if (!key.isEmpty()) {

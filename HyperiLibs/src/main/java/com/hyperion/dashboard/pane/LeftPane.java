@@ -2,7 +2,7 @@ package com.hyperion.dashboard.pane;
 
 import com.github.underscore.lodash.U;
 import com.hyperion.common.Utils;
-import com.hyperion.dashboard.UIClient;
+import com.hyperion.dashboard.UICMain;
 import com.hyperion.dashboard.uiobject.FieldEdit;
 import com.hyperion.dashboard.uiobject.FieldObject;
 
@@ -26,16 +26,16 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
 /**
- * Displays field options, unimetry, and config
+ * Contains field controls, options, and config
  */
 
-public class OptionsPane extends VBox {
+public class LeftPane extends VBox {
 
     public TextArea optionsDisplay;
     public TextArea configDisplay;
 
     @SuppressWarnings("unchecked")
-    public OptionsPane() {
+    public LeftPane() {
         try {
             setBackground(Background.EMPTY);
             setPadding(new Insets(10, 0, 10, 0));
@@ -50,29 +50,14 @@ public class OptionsPane extends VBox {
 
             optionsDisplay = new TextArea();
             optionsDisplay.setStyle("-fx-font: 14px \"Arial\";");
-            optionsDisplay.setText(UIClient.options.toJSONObject().toString(4));
+            optionsDisplay.setText(UICMain.options.toJSONObject().toString(4));
             optionsDisplay.setPrefSize(50, 7 * optionsDisplay.getPrefRowCount() + 8);
             optionsDisplay.setEditable(true);
-            Thread updateOptionsThread = new Thread(() -> {
-                try {
-                    long start = System.currentTimeMillis();
-                    String save = optionsDisplay.getText();
-                    while (true) {
-                        if (System.currentTimeMillis() - start >= 2000) {
-                            String newStr = optionsDisplay.getText();
-                            if (!newStr.equals(save)) {
-                                UIClient.options.read(new JSONObject(newStr));
-                                Utils.writeDataJSON(optionsDisplay.getText(), "options", UIClient.constants);
-                                save = newStr;
-                            }
-                            start = System.currentTimeMillis();
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+            optionsDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!oldValue.isEmpty()) {
+                    UICMain.changeSaveStatus(!Utils.condensedEquals(newValue, UICMain.optionsSave));
                 }
             });
-            updateOptionsThread.start();
             getChildren().add(optionsDisplay);
 
             HBox buttons = new HBox();
@@ -83,13 +68,15 @@ public class OptionsPane extends VBox {
             clearOpMode.setStyle("-fx-font: 14px \"Arial\";");
             clearOpMode.setPrefSize(150, 50);
             clearOpMode.setOnMouseClicked(event -> {
-                ArrayList<FieldEdit> toRemove = new ArrayList<>();
-                for (FieldObject o : UIClient.fieldObjects) {
-                    if (o.id.contains(UIClient.opModeID)) {
-                        toRemove.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
+                if (event.getClickCount() == 2) {
+                    ArrayList<FieldEdit> toRemove = new ArrayList<>();
+                    for (FieldObject o : UICMain.fieldObjects) {
+                        if (o.id.contains(UICMain.opModeID)) {
+                            toRemove.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
+                        }
                     }
+                    UICMain.queueFieldEdits(toRemove.toArray(new FieldEdit[0]));
                 }
-                UIClient.sendFieldEdits((FieldEdit[]) toRemove.toArray());
             });
             buttons.getChildren().add(clearOpMode);
 
@@ -98,11 +85,13 @@ public class OptionsPane extends VBox {
             clearAllOpModes.setTextAlignment(TextAlignment.CENTER);
             clearAllOpModes.setPrefSize(150, 50);
             clearAllOpModes.setOnMouseClicked(event -> {
-                ArrayList<FieldEdit> toRemove = new ArrayList<>();
-                for (FieldObject o : UIClient.fieldObjects) {
-                    toRemove.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
+                if (event.getClickCount() == 2) {
+                    ArrayList<FieldEdit> toRemove = new ArrayList<>();
+                    for (FieldObject o : UICMain.fieldObjects) {
+                        toRemove.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
+                    }
+                    UICMain.queueFieldEdits(toRemove.toArray(new FieldEdit[0]));
                 }
-                UIClient.sendFieldEdits((FieldEdit[]) toRemove.toArray());
             });
             buttons.getChildren().add(clearAllOpModes);
 
@@ -113,7 +102,7 @@ public class OptionsPane extends VBox {
             enablePathBuilder.setTextAlignment(TextAlignment.CENTER);
             enablePathBuilder.setTextFill(Color.WHITE);
             enablePathBuilder.setPrefSize(310, 30);
-            enablePathBuilder.selectedProperty().addListener((observable, oldValue, newValue) -> UIClient.isBuildingPaths = newValue);
+            enablePathBuilder.selectedProperty().addListener((observable, oldValue, newValue) -> UICMain.isBuildingPaths = newValue);
             enablePathBuilder.setSelected(false);
             getChildren().add(enablePathBuilder);
 
@@ -122,7 +111,7 @@ public class OptionsPane extends VBox {
             simulationMode.setTextAlignment(TextAlignment.CENTER);
             simulationMode.setTextFill(Color.WHITE);
             simulationMode.setPrefSize(310, 30);
-            simulationMode.selectedProperty().addListener((observable, oldValue, newValue) -> UIClient.isSimulating = newValue);
+            simulationMode.selectedProperty().addListener((observable, oldValue, newValue) -> UICMain.isSimulating = newValue);
             simulationMode.setSelected(false);
             getChildren().add(simulationMode);
 
@@ -138,10 +127,10 @@ public class OptionsPane extends VBox {
             opModeSelector.setStyle("-fx-font: 24px \"Arial\";");
             opModeSelector.setPrefSize(310, 91);
             opModeSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
-                UIClient.fieldPane.deselectAll();
-                UIClient.opModeID = newValue.toString();
-                for (FieldObject o : UIClient.fieldObjects) {
-                    if (o.id.contains(UIClient.opModeID)) {
+                UICMain.fieldPane.deselectAll();
+                UICMain.opModeID = newValue.toString();
+                for (FieldObject o : UICMain.fieldObjects) {
+                    if (o.id.contains(UICMain.opModeID)) {
                         o.addDisplayGroup();
                     } else {
                         o.removeDisplayGroup();
@@ -160,38 +149,23 @@ public class OptionsPane extends VBox {
             configDisplay.setStyle("-fx-font: 14px \"Arial\";");
             configDisplay.setPrefSize(310, 321);
             configDisplay.setEditable(true);
-            Thread updateConfigThread = new Thread(() -> {
-                try {
-                    long start = System.currentTimeMillis();
-                    String save = UIClient.config;
-                    while (true) {
-                        if (System.currentTimeMillis() - start >= 2000) {
-                            UIClient.config = configDisplay.getText();
-                            if (!UIClient.config.equals(save)) {
-                                UIClient.uiClient.emit("configUpdated", UIClient.config);
-                                Utils.printSocketLog("UI", "SERVER", "configUpdated", UIClient.options);
-                                save = UIClient.config;
-                            }
-                            start = System.currentTimeMillis();
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+            configDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!oldValue.isEmpty()) {
+                    UICMain.changeSaveStatus(!Utils.condensedEquals(newValue, UICMain.configSave));
                 }
             });
-            updateConfigThread.start();
             getChildren().add(configDisplay);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void setConfigDisplayText() {
+    public void setConfigDisplayText(String setTo) {
         try {
             int caretPosition = configDisplay.caretPositionProperty().get();
             double scrollLeft = configDisplay.getScrollLeft();
             double scrollTop = configDisplay.getScrollTop();
-            configDisplay.setText(U.formatXml(UIClient.config));
+            configDisplay.setText(U.formatXml(setTo));
             configDisplay.positionCaret(caretPosition);
             configDisplay.setScrollLeft(scrollLeft);
             configDisplay.setScrollTop(scrollTop);

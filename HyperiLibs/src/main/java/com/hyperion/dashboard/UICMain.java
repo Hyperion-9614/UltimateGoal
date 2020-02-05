@@ -3,11 +3,11 @@ package com.hyperion.dashboard;
 import com.hyperion.common.Constants;
 import com.hyperion.common.Options;
 import com.hyperion.common.Utils;
-import com.hyperion.dashboard.pane.DisplayPane;
+import com.hyperion.dashboard.pane.VisualPane;
 import com.hyperion.dashboard.pane.FieldPane;
 import com.hyperion.dashboard.pane.MenuPane;
-import com.hyperion.dashboard.pane.OptionsPane;
-import com.hyperion.dashboard.pane.TextPane;
+import com.hyperion.dashboard.pane.LeftPane;
+import com.hyperion.dashboard.pane.RightPane;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.FieldEdit;
 import com.hyperion.dashboard.uiobject.FieldObject;
@@ -30,6 +30,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -39,13 +40,17 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-public class UIClient extends Application {
+/**
+ * Main UI client class
+ */
+
+public class UICMain extends Application {
 
     public static MenuPane menuPane;
     public static FieldPane fieldPane;
-    public static OptionsPane optionsPane;
-    public static TextPane textPane;
-    public static DisplayPane displayPane;
+    public static LeftPane leftPane;
+    public static RightPane rightPane;
+    public static VisualPane visualPane;
 
     public static Socket uiClient;
     public static Constants constants;
@@ -53,15 +58,19 @@ public class UIClient extends Application {
 
     public static DisplaySpline selectedSpline = null;
     public static Waypoint selectedWaypoint = null;
-    public static DisplaySpline currentPath = new DisplaySpline();
     public static List<FieldObject> fieldObjects = new ArrayList<>();
     public static Map<String, String> unimetry = new HashMap<>();
-    public static String config = "";
     public static boolean isRobotOnField;
 
     public static String opModeID = "auto.blue.full";
     public static boolean isBuildingPaths;
     public static boolean isSimulating;
+
+    public static List<FieldEdit> queuedEdits = new ArrayList<>();
+    public static String configSave = "";
+    public static String optionsSave = "";
+    public static String constantsSave = "";
+    public static boolean hasUnsavedChanges = false;
 
     public static void main(String[] args) {
         constants = new Constants(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
@@ -87,19 +96,19 @@ public class UIClient extends Application {
         sideStuff.setSpacing(10);
         menuPane = new MenuPane(stage);
         fieldPane = new FieldPane(stage);
-        textPane = new TextPane();
-        optionsPane = new OptionsPane();
-        displayPane = new DisplayPane();
+        rightPane = new RightPane();
+        leftPane = new LeftPane();
+        visualPane = new VisualPane();
         all.getChildren().add(menuPane);
         all.getChildren().add(fieldPane);
         FlowPane.setMargin(fieldPane, new Insets(10));
         HBox hbox = new HBox();
         hbox.setBackground(Background.EMPTY);
         hbox.setSpacing(10);
-        hbox.getChildren().add(optionsPane);
-        hbox.getChildren().add(textPane);
+        hbox.getChildren().add(leftPane);
+        hbox.getChildren().add(rightPane);
         sideStuff.getChildren().add(hbox);
-        sideStuff.getChildren().add(displayPane);
+        sideStuff.getChildren().add(visualPane);
 
         ScrollPane sp = new ScrollPane();
         sp.setMaxHeight(fieldPane.fieldSize);
@@ -114,6 +123,11 @@ public class UIClient extends Application {
         all.getChildren().add(sp);
         all.getChildren().add(sideStuff);
         Scene scene = new Scene(all, 1280, 720, Color.TRANSPARENT);
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.S && event.isControlDown()) {
+                saveDashboard();
+            }
+        });
 
         stage.setScene(scene);
         stage.show();
@@ -131,30 +145,15 @@ public class UIClient extends Application {
                 try {
                     Utils.printSocketLog("SERVER", "UI", "constantsUpdated", options);
                     constants.read(new JSONObject(args[0].toString()));
-                    if (textPane != null) {
-                        textPane.setConstantsDisplayText(constants.root.toString(4));
+                    constantsSave = args[0].toString();
+                    if (rightPane != null) {
+                        rightPane.setConstantsDisplayText(constants.root.toString(4));
                     }
-                    constants.write();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }).on("fieldEdited", args -> {
                 Utils.printSocketLog("SERVER", "UI", "fieldEdited", options);
-                readFieldEdits(args[0].toString());
-            }).on("pathFound", args -> {
-                Utils.printSocketLog("SERVER", "UI", "pathFound", options);
-                try {
-                    currentPath = new DisplaySpline(new JSONObject(args[0].toString()), constants);
-                    currentPath.addDisplayGroup();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).on("pathCompleted", args -> {
-                Utils.printSocketLog("SERVER", "UI", "pathCompleted", options);
-                if (currentPath != null) {
-                    currentPath.removeDisplayGroup();
-                    currentPath = null;
-                }
                 readFieldEdits(args[0].toString());
             }).on("opModeEnded", args -> {
                 Utils.printSocketLog("SERVER", "UI", "opModeEnded", options);
@@ -170,10 +169,6 @@ public class UIClient extends Application {
                                     iter.remove();
                                 }
                             }
-                            if (currentPath != null) {
-                                currentPath.removeDisplayGroup();
-                                currentPath = null;
-                            }
                             isRobotOnField = false;
                             break;
                         }
@@ -183,17 +178,34 @@ public class UIClient extends Application {
             }).on("unimetryUpdated", args -> {
                 Utils.printSocketLog("SERVER", "UI", "unimetryUpdated", options);
                 readUnimetry(args[0].toString());
-                Platform.runLater(() -> textPane.setUnimetryDisplayText());
+                Platform.runLater(() -> rightPane.setUnimetryDisplayText());
             }).on("configUpdated", args -> {
                 Utils.printSocketLog("SERVER", "UI", "configUpdated", options);
-                config = args[0].toString();
-                if (optionsPane != null) {
-                    optionsPane.setConfigDisplayText();
+                configSave = args[0].toString();
+                if (leftPane != null) {
+                    leftPane.setConfigDisplayText(configSave);
                 }
-                Utils.writeFile(config, new File(constants.RES_DATA_PREFIX + "/MainConfig.xml"));
             });
 
             uiClient.connect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Read in unimetry from json
+    private static void readUnimetry(String json) {
+        try {
+            unimetry = new LinkedHashMap<>();
+            JSONArray dataArr = new JSONArray(json);
+            for (int i = 0; i < dataArr.length(); i++) {
+                JSONArray miniObj = dataArr.getJSONArray(i);
+                unimetry.put(miniObj.getString(0), miniObj.getString(1));
+            }
+
+            editUI(new FieldEdit("robot", isRobotOnField ? FieldEdit.Type.EDIT_BODY : FieldEdit.Type.CREATE,
+                    new JSONArray(new RigidBody(unimetry.get("Current")).toArray()).toString()));
+            isRobotOnField = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -204,8 +216,7 @@ public class UIClient extends Application {
         try {
             JSONArray arr = new JSONArray(json);
             for (int i = 0; i < arr.length(); i++) {
-                FieldEdit fieldEdit = new FieldEdit(arr.getJSONObject(i));
-                  editUI(fieldEdit);
+                editUI(new FieldEdit(arr.getJSONObject(i)));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -272,11 +283,17 @@ public class UIClient extends Application {
         }
     }
 
-    // Send field edit
-    public static void sendFieldEdits(FieldEdit... fieldEdits) {
+    // Queue field edits
+    public static void queueFieldEdits(FieldEdit... fieldEdits) {
+        queuedEdits.addAll(Arrays.asList(fieldEdits));
+        changeSaveStatus(true);
+    }
+
+    // Send queued field edits
+    public static void sendQueuedFieldEdits() {
         try {
             JSONArray arr = new JSONArray();
-            for (FieldEdit edit : fieldEdits) {
+            for (FieldEdit edit : queuedEdits) {
                 arr.put(edit.toJSONObject());
             }
             uiClient.emit("fieldEdited", arr.toString());
@@ -286,25 +303,38 @@ public class UIClient extends Application {
         }
     }
 
-    // Send constants json
-    public static void sendConstants() {
-        uiClient.emit("constantsUpdated", constants.toJSONObject().toString());
-        Utils.printSocketLog("UI", "SERVER", "constantsUpdated", options);
+    // Set save indicator
+    public static void changeSaveStatus(boolean hazUnsavedChanges) {
+        hasUnsavedChanges = hazUnsavedChanges;
+        Platform.runLater(() -> menuPane.title.setText("Hyperion Dashboard v" + constants.DASHBOARD_VERSION + (hasUnsavedChanges ? " (*)" : "")));
     }
 
-    // Read in unimetry from json
-    private static void readUnimetry(String json) {
+    // Save dashboard upon ctrl + s
+    public void saveDashboard() {
         try {
-            unimetry = new LinkedHashMap<>();
-            JSONArray dataArr = new JSONArray(json);
-            for (int i = 0; i < dataArr.length(); i++) {
-                JSONArray miniObj = dataArr.getJSONArray(i);
-                unimetry.put(miniObj.getString(0), miniObj.getString(1));
-            }
+            if (hasUnsavedChanges) {
+                String newConfig = leftPane.configDisplay.getText();
+                if (!Utils.condensedEquals(newConfig, configSave)) {
+                    uiClient.emit("configUpdated", newConfig);
+                    Utils.printSocketLog("UI", "SERVER", "configUpdated", options);
+                }
 
-            editUI(new FieldEdit("robot", isRobotOnField ? FieldEdit.Type.EDIT_BODY : FieldEdit.Type.CREATE,
-                                     new JSONArray(new RigidBody(unimetry.get("Current")).toArray()).toString()));
-            isRobotOnField = true;
+                String newConstants = rightPane.constantsDisplay.getText();
+                if (!Utils.condensedEquals(newConstants, constantsSave)) {
+                    uiClient.emit("constantsUpdated", newConstants);
+                    Utils.printSocketLog("UI", "SERVER", "constantsUpdated", options);
+                }
+
+                String newOptions = leftPane.optionsDisplay.getText();
+                if (!Utils.condensedEquals(newOptions, optionsSave)) {
+                    UICMain.options.read(new JSONObject(newOptions));
+                    Utils.writeDataJSON(options.toString(), "options", constants);
+                    optionsSave = newOptions;
+                }
+
+                sendQueuedFieldEdits();
+                changeSaveStatus(false);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

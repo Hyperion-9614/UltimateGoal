@@ -19,7 +19,7 @@ import java.util.Iterator;
 /**
  * Runs dashboard server socket
  */
-public class DashboardServer {
+public class ServerMain {
 
     public static SocketIOServer server;
     public static ArrayList<SocketIOClient> dashboardClients = new ArrayList<>();
@@ -86,34 +86,16 @@ public class DashboardServer {
                 String type = (rcClient != null && address.equals(constants.RC_IP)) ? "RC" : "UI";
                 Utils.printSocketLog(type, "SERVER", "fieldEdited", options);
 
-                try {
-                    for (SocketIOClient dashboardClient : dashboardClients) {
-                        dashboardClient.sendEvent("fieldEdited", data);
-                        Utils.printSocketLog("SERVER", "UI", "fieldEdited", options);
-                    }
-                    if (rcClient != null) {
-                        rcClient.sendEvent("fieldEdited", data);
-                        Utils.printSocketLog("SERVER", "RC", "fieldEdited", options);
-                    }
-
-                    writeEditsToFieldJSON(data);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-
-            server.addEventListener("pathFound", String.class, (client, data, ackRequest) -> {
                 for (SocketIOClient dashboardClient : dashboardClients) {
-                    dashboardClient.sendEvent("pathFound", data);
-                    Utils.printSocketLog("SERVER", "UI", "pathFound", options);
+                    dashboardClient.sendEvent("fieldEdited", data);
+                    Utils.printSocketLog("SERVER", "UI", "fieldEdited", options);
                 }
-            });
+                if (rcClient != null) {
+                    rcClient.sendEvent("fieldEdited", data);
+                    Utils.printSocketLog("SERVER", "RC", "fieldEdited", options);
+                }
 
-            server.addEventListener("pathCompleted", String.class, (client, data, ackRequest) -> {
-                for (SocketIOClient dashboardClient : dashboardClients) {
-                    dashboardClient.sendEvent("pathCompleted", data);
-                    Utils.printSocketLog("SERVER", "UI", "pathCompleted", options);
-                }
+                writeEditsToFieldJSON(data);
             });
 
             server.addEventListener("opModeEnded", String.class, (client, data, ackRequest) -> {
@@ -141,6 +123,9 @@ public class DashboardServer {
                     rcClient.sendEvent("constantsUpdated", data);
                     Utils.printSocketLog("SERVER", "RC", "constantsUpdated", options);
                 }
+
+                constants.read(new JSONObject(data));
+                constants.write();
             });
 
             server.addEventListener("configUpdated", String.class, (client, data, ackRequest) -> {

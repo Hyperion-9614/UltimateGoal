@@ -278,4 +278,11 @@ public class Utils {
         return min;
     }
 
+    public static String condense(String str) {
+        return str.replaceAll("(\\s|\n)", "").trim();
+    }
+
+    public static boolean condensedEquals(String s1, String s2) {
+        return condense(s1).equals(condense(s2));
+    }
 }

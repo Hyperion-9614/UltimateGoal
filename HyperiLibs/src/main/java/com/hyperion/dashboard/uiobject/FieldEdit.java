@@ -36,6 +36,10 @@ public class FieldEdit {
         return obj;
     }
 
+    public String toString() {
+        return toJSONObject().toString();
+    }
+
     public enum Type {
         CREATE, EDIT_BODY, EDIT_ID, DELETE
     }

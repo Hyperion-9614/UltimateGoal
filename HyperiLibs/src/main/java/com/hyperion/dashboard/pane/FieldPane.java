@@ -1,7 +1,7 @@
 package com.hyperion.dashboard.pane;
 
 import com.hyperion.common.Utils;
-import com.hyperion.dashboard.UIClient;
+import com.hyperion.dashboard.UICMain;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.FieldEdit;
 import com.hyperion.dashboard.uiobject.FieldObject;
@@ -55,31 +55,31 @@ public class FieldPane extends Pane {
         addEventHandler(MouseEvent.ANY, this::mouseHandler);
 
         try {
-            Image fieldBG = new Image(new File(UIClient.constants.RES_IMG_PREFIX + "/field.png").toURI().toURL().toString());
+            Image fieldBG = new Image(new File(UICMain.constants.RES_IMG_PREFIX + "/field.png").toURI().toURL().toString());
             BackgroundImage bgImg = new BackgroundImage(fieldBG,
                     BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
                     BackgroundPosition.DEFAULT, new BackgroundSize(fieldSize, fieldSize, false, false, false, false));
             setBackground(new Background(bgImg));
 
-            wbbBorder = new Rectangle(robotSize / 2 - UIClient.constants.WAYPOINT_SIZE / 2.0, robotSize / 2 - UIClient.constants.WAYPOINT_SIZE / 2.0, fieldSize - robotSize + UIClient.constants.WAYPOINT_SIZE, fieldSize - robotSize + UIClient.constants.WAYPOINT_SIZE);
+            wbbBorder = new Rectangle(robotSize / 2 - UICMain.constants.WAYPOINT_SIZE / 2.0, robotSize / 2 - UICMain.constants.WAYPOINT_SIZE / 2.0, fieldSize - robotSize + UICMain.constants.WAYPOINT_SIZE, fieldSize - robotSize + UICMain.constants.WAYPOINT_SIZE);
             wbbBorder.getStrokeDashArray().addAll(20d, 15d);
             wbbBorder.setFill(Color.TRANSPARENT);
-            wbbBorder.setStroke(new Color(UIClient.constants.WBB_GRAY_SCALE, UIClient.constants.WBB_GRAY_SCALE, UIClient.constants.WBB_GRAY_SCALE, 0.7));
-            wbbBorder.setStrokeWidth(UIClient.constants.WBB_STROKE_WIDTH);
+            wbbBorder.setStroke(new Color(UICMain.constants.WBB_GRAY_SCALE, UICMain.constants.WBB_GRAY_SCALE, UICMain.constants.WBB_GRAY_SCALE, 0.7));
+            wbbBorder.setStrokeWidth(UICMain.constants.WBB_STROKE_WIDTH);
             getChildren().add(wbbBorder);
 
-            wbbLeftLeg = new Rectangle(12 * fieldSize / 36 - robotSize / 2.0 + UIClient.constants.WAYPOINT_SIZE / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + UIClient.constants.WAYPOINT_SIZE / 6.0, robotSize + fieldSize / 36 - 7.0 * UIClient.constants.WAYPOINT_SIZE / 8.0, robotSize + 4 * fieldSize / 36 - UIClient.constants.WAYPOINT_SIZE / 2.0);
+            wbbLeftLeg = new Rectangle(12 * fieldSize / 36 - robotSize / 2.0 + UICMain.constants.WAYPOINT_SIZE / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + UICMain.constants.WAYPOINT_SIZE / 6.0, robotSize + fieldSize / 36 - 7.0 * UICMain.constants.WAYPOINT_SIZE / 8.0, robotSize + 4 * fieldSize / 36 - UICMain.constants.WAYPOINT_SIZE / 2.0);
             wbbLeftLeg.getStrokeDashArray().addAll(20d, 15d);
             wbbLeftLeg.setFill(Color.TRANSPARENT);
-            wbbLeftLeg.setStroke(new Color(UIClient.constants.WBB_GRAY_SCALE, UIClient.constants.WBB_GRAY_SCALE, UIClient.constants.WBB_GRAY_SCALE, 0.7));
-            wbbLeftLeg.setStrokeWidth(UIClient.constants.WBB_STROKE_WIDTH);
+            wbbLeftLeg.setStroke(new Color(UICMain.constants.WBB_GRAY_SCALE, UICMain.constants.WBB_GRAY_SCALE, UICMain.constants.WBB_GRAY_SCALE, 0.7));
+            wbbLeftLeg.setStrokeWidth(UICMain.constants.WBB_STROKE_WIDTH);
             getChildren().add(wbbLeftLeg);
 
-            wbbRightLeg = new Rectangle(23 * fieldSize / 36 - robotSize / 2.0 + UIClient.constants.WAYPOINT_SIZE / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + UIClient.constants.WAYPOINT_SIZE / 6.0, robotSize + fieldSize / 36 - 7.0 * UIClient.constants.WAYPOINT_SIZE / 8.0, robotSize + 4 * fieldSize / 36 - UIClient.constants.WAYPOINT_SIZE / 2.0);
+            wbbRightLeg = new Rectangle(23 * fieldSize / 36 - robotSize / 2.0 + UICMain.constants.WAYPOINT_SIZE / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + UICMain.constants.WAYPOINT_SIZE / 6.0, robotSize + fieldSize / 36 - 7.0 * UICMain.constants.WAYPOINT_SIZE / 8.0, robotSize + 4 * fieldSize / 36 - UICMain.constants.WAYPOINT_SIZE / 2.0);
             wbbRightLeg.getStrokeDashArray().addAll(20d, 15d);
             wbbRightLeg.setFill(Color.TRANSPARENT);
-            wbbRightLeg.setStroke(new Color(UIClient.constants.WBB_GRAY_SCALE, UIClient.constants.WBB_GRAY_SCALE, UIClient.constants.WBB_GRAY_SCALE, 0.7));
-            wbbRightLeg.setStrokeWidth(UIClient.constants.WBB_STROKE_WIDTH);
+            wbbRightLeg.setStroke(new Color(UICMain.constants.WBB_GRAY_SCALE, UICMain.constants.WBB_GRAY_SCALE, UICMain.constants.WBB_GRAY_SCALE, 0.7));
+            wbbRightLeg.setStrokeWidth(UICMain.constants.WBB_STROKE_WIDTH);
             getChildren().add(wbbRightLeg);
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,10 +93,10 @@ public class FieldPane extends Pane {
                 startDragTime = System.currentTimeMillis();
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_RELEASED) {
                 if (mouseEvent.getButton() == MouseButton.PRIMARY && isDragging && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane)) {
-                    if (UIClient.selectedWaypoint.parentSpline != null) {
-                        UIClient.sendFieldEdits(new FieldEdit(UIClient.selectedSpline.id, FieldEdit.Type.EDIT_BODY, UIClient.selectedSpline.spline.writeJSON().toString()));
+                    if (UICMain.selectedWaypoint.parentSpline != null) {
+                        UICMain.queueFieldEdits(new FieldEdit(UICMain.selectedSpline.id, FieldEdit.Type.EDIT_BODY, UICMain.selectedSpline.spline.writeJSON().toString()));
                     } else {
-                        UIClient.sendFieldEdits(new FieldEdit(UIClient.selectedWaypoint.id, FieldEdit.Type.EDIT_BODY, new JSONArray(UIClient.selectedWaypoint.pose.toArray()).toString()));
+                        UICMain.queueFieldEdits(new FieldEdit(UICMain.selectedWaypoint.id, FieldEdit.Type.EDIT_BODY, new JSONArray(UICMain.selectedWaypoint.pose.toArray()).toString()));
                     }
                 }
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED) {
@@ -104,15 +104,15 @@ public class FieldPane extends Pane {
                 mouseY = mouseEvent.getY();
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED) {
                 isDragging = true;
-                if (mouseEvent.getButton() == MouseButton.PRIMARY && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) && UIClient.selectedWaypoint != null) {
-                    Vector2D vec = new Vector2D(UIClient.selectedWaypoint.pose, displayToPose(mouseEvent.getX(), mouseEvent.getY(), 0));
-                    UIClient.selectedWaypoint.pose.theta = Utils.normalizeTheta(vec.theta, 0, 2 * Math.PI);
-                    if (UIClient.selectedWaypoint.parentSpline != null) {
-                        UIClient.selectedWaypoint.parentSpline.spline.waypoints.get(UIClient.selectedWaypoint.parentSpline.waypoints.indexOf(UIClient.selectedWaypoint)).pose = UIClient.selectedWaypoint.pose;
+                if (mouseEvent.getButton() == MouseButton.PRIMARY && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) && UICMain.selectedWaypoint != null) {
+                    Vector2D vec = new Vector2D(UICMain.selectedWaypoint.pose, displayToPose(mouseEvent.getX(), mouseEvent.getY(), 0));
+                    UICMain.selectedWaypoint.pose.theta = Utils.normalizeTheta(vec.theta, 0, 2 * Math.PI);
+                    if (UICMain.selectedWaypoint.parentSpline != null) {
+                        UICMain.selectedWaypoint.parentSpline.spline.waypoints.get(UICMain.selectedWaypoint.parentSpline.waypoints.indexOf(UICMain.selectedWaypoint)).pose = UICMain.selectedWaypoint.pose;
                     }
-                    UIClient.selectedWaypoint.imgView.setRotate(Math.toDegrees(2 * Math.PI - vec.theta));
-                    UIClient.selectedWaypoint.selectRect.setRotate(UIClient.selectedWaypoint.imgView.getRotate());
-                    UIClient.selectedWaypoint.info.setText(UIClient.selectedWaypoint.pose.toString().replace(" | ", "\n"));
+                    UICMain.selectedWaypoint.imgView.setRotate(Math.toDegrees(2 * Math.PI - vec.theta));
+                    UICMain.selectedWaypoint.selectRect.setRotate(UICMain.selectedWaypoint.imgView.getRotate());
+                    UICMain.selectedWaypoint.info.setText(UICMain.selectedWaypoint.pose.toString().replace(" | ", "\n"));
                 }
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_CLICKED) {
                 if (!isDragging) {
@@ -122,26 +122,26 @@ public class FieldPane extends Pane {
                         }
                     } else if (mouseEvent.getButton() == MouseButton.SECONDARY) {
                         if (mouseEvent.getTarget() instanceof Rectangle && ((Rectangle) mouseEvent.getTarget()).getWidth() == wbbBorder.getWidth()) {
-                            if (isInWBB(mouseX - UIClient.constants.WAYPOINT_SIZE / 2.0, mouseY - UIClient.constants.WAYPOINT_SIZE / 2.0, UIClient.constants.WAYPOINT_SIZE)) {
+                            if (isInWBB(mouseX - UICMain.constants.WAYPOINT_SIZE / 2.0, mouseY - UICMain.constants.WAYPOINT_SIZE / 2.0, UICMain.constants.WAYPOINT_SIZE)) {
                                 Pose newPose = displayToPose(mouseX, mouseY, 0);
-                                Waypoint newWP = new Waypoint(UIClient.opModeID + ".waypoint.", newPose, UIClient.constants, null, true);
-                                if (UIClient.isBuildingPaths) {
-                                    if (UIClient.selectedSpline != null) {
-                                        UIClient.selectedSpline.spline.waypoints.add(new RigidBody(newWP.pose));
-                                        int i = UIClient.selectedWaypoint != null ? UIClient.selectedSpline.waypoints.indexOf(UIClient.selectedWaypoint) : -1;
-                                        UIClient.selectedSpline.refreshDisplayGroup();
+                                Waypoint newWP = new Waypoint(UICMain.opModeID + ".waypoint.", newPose, UICMain.constants, null, true);
+                                if (UICMain.isBuildingPaths) {
+                                    if (UICMain.selectedSpline != null) {
+                                        UICMain.selectedSpline.spline.waypoints.add(new RigidBody(newWP.pose));
+                                        int i = UICMain.selectedWaypoint != null ? UICMain.selectedSpline.waypoints.indexOf(UICMain.selectedWaypoint) : -1;
+                                        UICMain.selectedSpline.refreshDisplayGroup();
                                         if (i >= 0) {
-                                            UIClient.selectedSpline.waypoints.get(i).select();
+                                            UICMain.selectedSpline.waypoints.get(i).select();
                                         }
-                                        UIClient.sendFieldEdits(new FieldEdit(UIClient.selectedSpline.id, FieldEdit.Type.EDIT_BODY, UIClient.selectedSpline.spline.writeJSON().toString()));
+                                        UICMain.queueFieldEdits(new FieldEdit(UICMain.selectedSpline.id, FieldEdit.Type.EDIT_BODY, UICMain.selectedSpline.spline.writeJSON().toString()));
                                     } else {
-                                        DisplaySpline newSpline = new DisplaySpline(newWP.pose, UIClient.constants);
+                                        DisplaySpline newSpline = new DisplaySpline(newWP.pose, UICMain.constants);
                                         newSpline.waypoints.get(0).select();
-                                        UIClient.sendFieldEdits(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON().toString()));
+                                        UICMain.queueFieldEdits(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON().toString()));
                                     }
                                 } else {
                                     deselectAll();
-                                    UIClient.sendFieldEdits(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray()).toString()));
+                                    UICMain.queueFieldEdits(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray()).toString()));
                                 }
                             }
                         }
@@ -155,8 +155,8 @@ public class FieldPane extends Pane {
 
     // Converts pose to view coords
     public double[] poseToDisplay(Pose original, double size) {
-        double x1 = (original.x / (UIClient.constants.COORD_AXIS_LENGTH_UNITS / 2)) * (fieldSize / 2.0);
-        double y1 = (original.y / (UIClient.constants.COORD_AXIS_LENGTH_UNITS / 2)) * (fieldSize / 2.0);
+        double x1 = (original.x / (UICMain.constants.COORD_AXIS_LENGTH_UNITS / 2)) * (fieldSize / 2.0);
+        double y1 = (original.y / (UICMain.constants.COORD_AXIS_LENGTH_UNITS / 2)) * (fieldSize / 2.0);
         double x2 = x1 + (fieldSize / 2.0);
         double y2 = y1 + (fieldSize / 2.0);
         double x3 = x2;
@@ -171,8 +171,8 @@ public class FieldPane extends Pane {
         double y1 = fieldSize - (y + size / 2.0);
         double x2 = x1 - (fieldSize / 2.0);
         double y2 = y1 - (fieldSize / 2.0);
-        double x3 = (x2 / (fieldSize / 2.0)) * (UIClient.constants.COORD_AXIS_LENGTH_UNITS / 2);
-        double y3 = (y2 / (fieldSize / 2.0)) * (UIClient.constants.COORD_AXIS_LENGTH_UNITS / 2);
+        double x3 = (x2 / (fieldSize / 2.0)) * (UICMain.constants.COORD_AXIS_LENGTH_UNITS / 2);
+        double y3 = (y2 / (fieldSize / 2.0)) * (UICMain.constants.COORD_AXIS_LENGTH_UNITS / 2);
 
         return new Pose(Math.round(x3 * 1000.0) / 1000.0, Math.round(y3 * 1000.0) / 1000.0);
     }
@@ -213,10 +213,10 @@ public class FieldPane extends Pane {
     }
 
     public void deselectAll() {
-        UIClient.displayPane.updateGraphs(null);
-        UIClient.selectedWaypoint = null;
-        UIClient.selectedSpline = null;
-        for (FieldObject obj : UIClient.fieldObjects) {
+        UICMain.visualPane.updateGraphs(null);
+        UICMain.selectedWaypoint = null;
+        UICMain.selectedSpline = null;
+        for (FieldObject obj : UICMain.fieldObjects) {
             obj.deselect();
         }
     }
