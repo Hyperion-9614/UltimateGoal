@@ -17,7 +17,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 
 android {
-    buildToolsVersion = '28.0.3'
+    buildToolsVersion = '29.0.2'
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/LICENSE'

@@ -174,6 +174,7 @@ public class UIClient extends Application {
                                 currentPath.removeDisplayGroup();
                                 currentPath = null;
                             }
+                            isRobotOnField = false;
                             break;
                         }
                     }

@@ -103,7 +103,7 @@ public class HomogeneousPID {
         double w = -Utils.clip(uTheta, -1, 1);
 
         Vector2D transVel = new Vector2D(vX, vY, true);
-        transVel.setTheta(-robot.theta + transVel.theta);
+        transVel.setTheta(-robot.theta + transVel.theta + Math.PI / 2);
         transVel.setMagnitude(Math.min(transVel.magnitude, 1));
         hardware.motion.setDrive(transVel, w);
 

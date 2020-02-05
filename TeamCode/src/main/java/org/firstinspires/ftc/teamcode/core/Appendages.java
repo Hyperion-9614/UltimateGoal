@@ -113,11 +113,11 @@ public class Appendages {
     public void setChainBarStatus(String upInOut) {
         chainBarStatus = upInOut.toLowerCase();
         if (chainBarStatus.equals("up")) {
-            setChainBarPosition(0.85);
+            setChainBarPosition(0.8);
         } else if (chainBarStatus.equals("in")) {
-            setChainBarPosition(1.0);
+            setChainBarPosition(0.9);
         } else if (chainBarStatus.equals("out")) {
-            setChainBarPosition(0.4);
+            setChainBarPosition(0.45);
         }
         hardware.context.sleep(300);
     }

@@ -59,15 +59,15 @@
             "kP": 0
         },
         "y": {
-            "kD": 0,
-            "kI": 0,
-            "kP": 0.05
+            "kD": 0.6,
+            "kI": 0.008,
+            "kP": 0.35
         }
     },
     "splinesMotionProfile": {
         "endErrorThresholds": {
-            "rotation": 1,
-            "translation": 1
+            "rotation": 0.5,
+            "translation": 0.5
         },
         "k": {
             "kAa": 0,
