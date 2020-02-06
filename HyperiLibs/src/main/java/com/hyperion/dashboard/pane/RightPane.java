@@ -6,6 +6,8 @@ import com.hyperion.dashboard.UICMain;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Iterator;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -71,7 +73,9 @@ public class RightPane extends VBox {
     public void setUnimetryDisplayText() {
         StringBuilder unimetryStr = new StringBuilder();
 
-        for (String key : UICMain.unimetry.keySet()) {
+        Iterator<String> iter = UICMain.unimetry.keySet().iterator();
+        while (iter.hasNext()) {
+            String key = iter.next();
             String value = UICMain.unimetry.get(key).trim();
             if (!key.isEmpty() && value.isEmpty()) {
                 unimetryStr.append(key);
