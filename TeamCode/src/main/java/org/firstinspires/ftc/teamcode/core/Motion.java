@@ -136,7 +136,7 @@ public class Motion {
         pidMove(getWaypoint(waypoint));
     }
     public void pidMove(Pose target) {
-        homogeneousPID.reset(robot.pose, target);
+        homogeneousPID.reset(target);
         ElapsedTime timer = new ElapsedTime();
         while (hw.context.opModeIsActive() && !hw.context.isStopRequested() && timer.milliseconds() <= 5500
                && (robot.pose.distanceTo(target) > hw.constants.END_TRANSLATION_ERROR_THRESHOLD

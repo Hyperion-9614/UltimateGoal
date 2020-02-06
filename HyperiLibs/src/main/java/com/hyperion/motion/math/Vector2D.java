@@ -74,10 +74,6 @@ public class Vector2D {
         return magnituded(1);
     }
 
-    public Vector2D thetaed(double newTheta) {
-        return new Vector2D(magnitude, newTheta, false);
-    }
-
     public void setMagnitude(double newMag) {
         setVec(new Vector2D(newMag, theta, false));
     }

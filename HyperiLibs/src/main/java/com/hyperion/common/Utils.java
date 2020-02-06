@@ -2,11 +2,8 @@ package com.hyperion.common;
 
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
-import com.hyperion.motion.math.Vector2D;
 
 import org.apache.commons.math3.util.Precision;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -22,8 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-
-import javafx.scene.paint.Color;
 
 public class Utils {
 
@@ -278,11 +273,11 @@ public class Utils {
         return min;
     }
 
-    public static String condense(String str) {
+    public static String condensed(String str) {
         return str.replaceAll("(\\s|\n)", "").trim();
     }
 
     public static boolean condensedEquals(String s1, String s2) {
-        return condense(s1).equals(condense(s2));
+        return condensed(s1).equals(condensed(s2));
     }
 }

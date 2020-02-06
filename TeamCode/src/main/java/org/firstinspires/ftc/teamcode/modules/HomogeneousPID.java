@@ -23,9 +23,7 @@ public class HomogeneousPID {
     private Constants constants;
     private long lastTime;
     private double time;
-
     private Pose goal;
-    private double preHtTheta;
 
     private ArrayList<double[]> xEt;
     public ArrayList<double[]> xUt;
@@ -39,11 +37,10 @@ public class HomogeneousPID {
         this.constants = hardware.constants;
     }
 
-    public void reset(Pose initial, Pose goal) {
+    public void reset(Pose goal) {
         lastTime = -1;
         time = 0;
         this.goal = new Pose(goal);
-        preHtTheta = initial.theta;
         xEt = new ArrayList<>();
         xUt = new ArrayList<>();
         yEt = new ArrayList<>();
@@ -56,23 +53,32 @@ public class HomogeneousPID {
         if (lastTime == -1) lastTime = System.currentTimeMillis();
         double dT = (System.currentTimeMillis() - lastTime) / 1000.0;
 
-        double xError = goal.x - robot.x;
-        double yError = goal.y - robot.y;
+        Vector2D relTransErrVec = new Vector2D(robot, goal);
+        relTransErrVec.setTheta(-robot.theta + relTransErrVec.theta);
+        relTransErrVec.setMagnitude(Math.min(relTransErrVec.magnitude, 1));
         double thetaError = Utils.optThetaDiff(robot.theta, goal.theta);
 
         time += dT;
-        xEt.add(new double[]{ time, xError });
-        yEt.add(new double[]{ time, yError });
+        xEt.add(new double[]{ time, relTransErrVec.x });
+        yEt.add(new double[]{ time, relTransErrVec.y });
         thetaEt.add(new double[]{ time, thetaError });
 
         double uX = pOut(xEt, constants.X_K_P) + iOut(xEt, constants.X_K_I) + dOut(xEt, constants.X_K_D);
         double uY = pOut(yEt, constants.Y_K_P) + iOut(yEt, constants.Y_K_I) + dOut(yEt, constants.Y_K_D);
         double uTheta = pOut(thetaEt, constants.THETA_K_P) + iOut(thetaEt, constants.THETA_K_I) + dOut(thetaEt, constants.THETA_K_D);
 
+        runMotors(uX, uY, uTheta);
         xUt.add(new double[]{ time, uX });
         yUt.add(new double[]{ time, uY });
         thetaUt.add(new double[]{ time, uTheta });
-        runMotors(robot, uX, uY, uTheta);
+    }
+
+    private void runMotors(double uX, double uY, double uTheta) {
+        Vector2D relMoveVec = new Vector2D(uX, uY, true).rotated(Math.PI / 2);
+        relMoveVec.setMagnitude(Math.min(1, relMoveVec.magnitude));
+        double w = -Utils.clip(uTheta, -1, 1);
+
+        hardware.motion.setDrive(relMoveVec, w);
     }
 
     private double pOut(ArrayList<double[]> eT, double kP) {
@@ -95,17 +101,6 @@ public class HomogeneousPID {
             derivative = (eT.get(eT.size() - 1)[1] - eT.get(eT.size() - 2)[1]) / (eT.get(eT.size() - 1)[0] - eT.get(eT.size() - 2)[0]);
         }
         return kD * derivative;
-    }
-
-    private void runMotors(Pose robot, double uX, double uY, double uTheta) {
-        double vX = Utils.clip(uX, -1, 1);
-        double vY = Utils.clip(uY, -1, 1);
-        double w = -Utils.clip(uTheta, -1, 1);
-
-        Vector2D transVel = new Vector2D(vX, vY, true);
-        transVel.setTheta(-robot.theta + transVel.theta + Math.PI / 2);
-        transVel.setMagnitude(Math.min(transVel.magnitude, 1));
-        hardware.motion.setDrive(transVel, w);
     }
 
 }
