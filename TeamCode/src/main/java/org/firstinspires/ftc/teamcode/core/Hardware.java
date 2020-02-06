@@ -40,7 +40,8 @@ public class Hardware {
     public ExpansionHubEx expansionHubR;
     public HardwareMap hwmp;
     public boolean isRunning;
-    public Thread updater;
+    public Thread localizationUpdater;
+    public Thread unimetryUpdater;
     public ElapsedTime autoTime;
 
     public Motion motion;
@@ -87,7 +88,6 @@ public class Hardware {
     public CRServo autoClawGrip;
 
     public int presetPlaceStoneTicks = 2500;
-    public int[] skystonePositions;
 
     public Hardware(LinearOpMode context) {
         this.context = context;
@@ -131,24 +131,34 @@ public class Hardware {
         unimetry = new Unimetry(this);
 
         initCV();
-        initUpdater();
+        initUpdaters();
     }
 
     ///////////////////////// INIT //////////////////////////
 
-    // Initialize updater thread
-    public void initUpdater() {
-        updater = new Thread(() -> {
+    // Initialize localizationUpdater and unimetryUpdater threads
+    public void initUpdaters() {
+        localizationUpdater = new Thread(() -> {
             long lastUpdateTime = System.currentTimeMillis();
-            while (!updater.isInterrupted() && updater.isAlive() && !context.isStopRequested()) {
-                if (System.currentTimeMillis() - lastUpdateTime >= constants.UPDATER_DELAY) {
+            while (!localizationUpdater.isInterrupted() && localizationUpdater.isAlive() && !context.isStopRequested()) {
+                if (System.currentTimeMillis() - lastUpdateTime >= constants.LOCALIZATION_DELAY) {
                     lastUpdateTime = System.currentTimeMillis();
                     motion.localizer.update();
+                }
+            }
+        });
+        localizationUpdater.start();
+
+        unimetryUpdater = new Thread(() -> {
+            long lastUpdateTime = System.currentTimeMillis();
+            while (!unimetryUpdater.isInterrupted() && unimetryUpdater.isAlive() && !context.isStopRequested()) {
+                if (System.currentTimeMillis() - lastUpdateTime >= constants.UNIMETRY_DELAY) {
+                    lastUpdateTime = System.currentTimeMillis();
                     unimetry.update();
                 }
             }
         });
-        updater.start();
+        unimetryUpdater.start();
     }
 
     // Initialize CV pipeline
@@ -319,7 +329,10 @@ public class Hardware {
         status = "Ending";
         isRunning = false;
 
-        if (updater != null && updater.isAlive() && !updater.isInterrupted()) updater.interrupt();
+        if (localizationUpdater != null && localizationUpdater.isAlive() && !localizationUpdater.isInterrupted())
+            localizationUpdater.interrupt();
+        if (unimetryUpdater != null && unimetryUpdater.isAlive() && !unimetryUpdater.isInterrupted())
+            unimetryUpdater.interrupt();
 
         String key;
         JSONArray wpArr;

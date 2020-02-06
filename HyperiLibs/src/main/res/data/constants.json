@@ -12,7 +12,7 @@
             }
         },
         "net": {
-            "hostIP": "192.168.111.159",
+            "hostIP": "192.168.49.156",
             "port": 8080,
             "rcIP": "192.168.49.1"
         },
@@ -59,9 +59,9 @@
             "kP": 0
         },
         "y": {
-            "kD": 0.6,
-            "kI": 0.008,
-            "kP": 0.35
+            "kD": 0.215,
+            "kI": 8.15E-4,
+            "kP": 0.1
         }
     },
     "splinesMotionProfile": {
@@ -86,8 +86,9 @@
     },
     "teamcode": {
         "forceEndTimeLeft": 0,
+        "localizationDelay": 10,
         "stoneVerticalSlideCounts": 200,
-        "updaterDelay": 10,
+        "unimetryDelay": 100,
         "verticalSlidePower": 0.5
     }
 }

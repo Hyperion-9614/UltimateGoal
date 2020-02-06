@@ -106,8 +106,6 @@ public class HomogeneousPID {
         transVel.setTheta(-robot.theta + transVel.theta + Math.PI / 2);
         transVel.setMagnitude(Math.min(transVel.magnitude, 1));
         hardware.motion.setDrive(transVel, w);
-
-        System.out.println("HPID: " + Utils.round(uX, 3) + " " + Utils.round(vX, 3) + " | " + Utils.round(uY, 3) + " " + Utils.round(vY, 3) + " | " + Utils.round(w, 3) + " | " + transVel);
     }
 
 }

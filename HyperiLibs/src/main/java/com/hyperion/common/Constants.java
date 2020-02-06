@@ -65,7 +65,8 @@ public class Constants {
     // TeamCode
     public int STONE_VERT_SLIDE_TICKS; // ticks
     public double VERT_SLIDE_POWER; // power
-    public long UPDATER_DELAY; // ms
+    public long LOCALIZATION_DELAY; // ms
+    public long UNIMETRY_DELAY; // ms
     public long FORCE_END_TIME_LEFT; // ms
 
     // Dashboard
@@ -153,7 +154,8 @@ public class Constants {
             JSONObject teamcode = root.getJSONObject("teamcode");
             STONE_VERT_SLIDE_TICKS = teamcode.getInt("stoneVerticalSlideCounts");
             VERT_SLIDE_POWER = teamcode.getDouble("verticalSlidePower");
-            UPDATER_DELAY = teamcode.getLong("updaterDelay");
+            LOCALIZATION_DELAY = teamcode.getLong("localizationDelay");
+            UNIMETRY_DELAY = teamcode.getLong("unimetryDelay");
             FORCE_END_TIME_LEFT = teamcode.getLong("forceEndTimeLeft");
 
             JSONObject dashboard = root.getJSONObject("dashboard");
@@ -254,7 +256,8 @@ public class Constants {
             JSONObject teamcode = new JSONObject();
             teamcode.put("stoneVerticalSlideCounts", STONE_VERT_SLIDE_TICKS);
             teamcode.put("verticalSlidePower", VERT_SLIDE_POWER);
-            teamcode.put("updaterDelay", UPDATER_DELAY);
+            teamcode.put("localizationDelay", LOCALIZATION_DELAY);
+            teamcode.put("unimetryDelay", UNIMETRY_DELAY);
             teamcode.put("forceEndTimeLeft", FORCE_END_TIME_LEFT);
             root.put("teamcode", teamcode);
 

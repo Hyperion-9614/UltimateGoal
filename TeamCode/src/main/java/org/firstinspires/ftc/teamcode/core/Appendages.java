@@ -31,8 +31,8 @@ public class Appendages {
 
         setCompWheelsStatus("stop");
         setFoundationMoverStatus("up");
-        setChainBarStatus("in");
         setClawStatus("open");
+        setChainBarStatus("in");
         setAutoClawSwingStatus("init");
         setAutoClawGripStatus("open");
     }
@@ -113,7 +113,8 @@ public class Appendages {
     public void setChainBarStatus(String upInOut) {
         chainBarStatus = upInOut.toLowerCase();
         if (chainBarStatus.equals("up")) {
-            setChainBarPosition(0.8);
+            setClawStatus("open");
+            setChainBarPosition(0.7);
         } else if (chainBarStatus.equals("in")) {
             setChainBarPosition(0.9);
         } else if (chainBarStatus.equals("out")) {
