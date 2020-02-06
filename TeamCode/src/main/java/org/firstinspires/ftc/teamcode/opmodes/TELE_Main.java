@@ -152,7 +152,7 @@ public class TELE_Main extends LinearOpMode {
             }
 
             // PID MOVE TESTING
-            if (gamepad1.dpad_up) motion.pidMove(new Vector2D(30, Math.PI / 2, false));
+            if (gamepad1.dpad_up) motion.rotate(Math.PI / 2);
             else if (gamepad1.dpad_down) motion.pidMove(new Vector2D(30, 3 * Math.PI / 2, false));
             else if (gamepad1.dpad_left) motion.pidMove(new Vector2D(30, Math.PI, false));
             else if (gamepad1.dpad_right) motion.pidMove(new Vector2D(30, 0, false));
