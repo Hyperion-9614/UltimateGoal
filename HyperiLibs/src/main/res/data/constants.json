@@ -54,20 +54,20 @@
             "kP": 0.7
         },
         "x": {
-            "kD": 0.07,
-            "kI": 0.0015,
-            "kP": 0.045
+            "kD": 0.05,
+            "kI": 1.0E-4,
+            "kP": 0.038
         },
         "y": {
-            "kD": 0.215,
-            "kI": 8.15E-4,
-            "kP": 0.1
+            "kD": 0.059,
+            "kI": 1.14E-4,
+            "kP": 0.044
         }
     },
     "splinesMotionProfile": {
         "endErrorThresholds": {
-            "rotation": 0.5,
-            "translation": 0.5
+            "rotation": 0.4,
+            "translation": 0.6
         },
         "k": {
             "kAa": 0,

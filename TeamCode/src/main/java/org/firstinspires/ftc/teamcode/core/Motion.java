@@ -143,6 +143,7 @@ public class Motion {
                || Math.abs(Utils.optThetaDiff(robot.pose.theta, target.theta)) > hw.constants.END_ROTATION_ERROR_THRESHOLD)) {
             homogeneousPID.controlLoopIteration(robot.pose);
         }
+        setDrive(0);
     }
     public void pidMove(Vector2D addVec) {
         pidMove(addVec, robot.pose.theta);

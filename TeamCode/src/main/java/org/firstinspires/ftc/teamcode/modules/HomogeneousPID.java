@@ -55,7 +55,6 @@ public class HomogeneousPID {
 
         Vector2D relTransErrVec = new Vector2D(robot, goal);
         relTransErrVec.setTheta(-robot.theta + relTransErrVec.theta);
-        relTransErrVec.setMagnitude(Math.min(relTransErrVec.magnitude, 1));
         double thetaError = Utils.optThetaDiff(robot.theta, goal.theta);
 
         time += dT;
@@ -77,7 +76,6 @@ public class HomogeneousPID {
         Vector2D relMoveVec = new Vector2D(uX, uY, true).rotated(Math.PI / 2);
         relMoveVec.setMagnitude(Math.min(1, relMoveVec.magnitude));
         double w = -Utils.clip(uTheta, -1, 1);
-
         hardware.motion.setDrive(relMoveVec, w);
     }
 
