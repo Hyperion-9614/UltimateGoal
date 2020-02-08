@@ -21,8 +21,13 @@ public class AUTO_Main extends LinearOpMode {
     private Motion motion;
     private Appendages appendages;
 
-    public int firstPath;
-    public int secondPath;
+    public int skyStone0;
+    public int skyStone1;
+
+    private String[] opModeIDs = new String[]{ "auto.blue.full", "auto.red.full",
+                                               "auto.blue.foundation", "auto.red.foundation",
+                                               "auto.blue.brick", "auto.red.brick" };
+    private int opModeSelectorIndex = -1;
 
     @Override
     public void runOpMode() {
@@ -31,18 +36,18 @@ public class AUTO_Main extends LinearOpMode {
         appendages = hw.appendages;
 
         while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hw.isRunning))) {
-            if (gamepad1.b) {
-                hw.initOpMode("auto.red.full");
-            } else if (gamepad1.x) {
-                hw.initOpMode("auto.blue.full");
-            } else if (gamepad1.y) {
-                hw.initOpMode("auto.red.foundation");
-            } else if (gamepad1.a) {
-                hw.initOpMode("auto.blue.foundation");
-            } else if (gamepad1.dpad_right) {
-                hw.initOpMode("auto.red.brick");
-            } else if (gamepad1.dpad_left) {
-                hw.initOpMode("auto.blue.brick");
+            if (gamepad1.dpad_up) {
+                opModeSelectorIndex++;
+                if (opModeSelectorIndex >= opModeIDs.length)
+                    opModeSelectorIndex = 0;
+                hw.initOpMode(opModeIDs[opModeSelectorIndex]);
+                sleep(250);
+            } else if (gamepad1.dpad_down) {
+                opModeSelectorIndex--;
+                if (opModeSelectorIndex < 0)
+                    opModeSelectorIndex = opModeIDs.length - 1;
+                hw.initOpMode(opModeIDs[opModeSelectorIndex]);
+                sleep(250);
             }
         }
 
@@ -53,38 +58,28 @@ public class AUTO_Main extends LinearOpMode {
 
     public void execute() {
         try {
-            //TODO: Test this shit out, its jank af
             if (hw.cvPipeline.getPipelineActive()) {
                 hw.cvPipeline.setPipelineActive(false);
-                if (hw.opModeID.contains("blue")) {
-                    firstPath = hw.cvPipeline.getDetectedSkystonePosition() + 3;
-                    secondPath = hw.cvPipeline.getDetectedSkystonePosition();
-                } else if (hw.opModeID.contains("red")) {
-                    firstPath = hw.cvPipeline.getDetectedSkystonePosition();
-                    secondPath = hw.cvPipeline.getDetectedSkystonePosition() + 3;
-                }
-
+                skyStone0 = hw.cvPipeline.getDetectedSkystonePosition();
+                if (hw.opModeID.contains("red"))
+                    skyStone0 = 2 - skyStone0;
+                skyStone1 = skyStone0 + 3;
             }
             hw.killCV();
             hw.autoTime = new ElapsedTime();
 
             if (hw.opModeID.endsWith("full")) {
-                goToStone(firstPath);
+                hw.compWheelsR.setPower(0.6);
+                sleep(750);
+                appendages.setCompWheelsStatus("off");
+
+                goToStone(skyStone0);
                 pickUpBlock();
                 dragFoundation();
-                hw.preset_placeStone();
 
-                goToStone(secondPath);
-                pickUpBlock();
-                hw.preset_placeStone();
-
-//                for (int i = 0; i < 6; i++) {
-//                    if (i != skystonePositions[0] && i != skystonePositions[1]) {
-//                        goToStone(i);
-//                        pickUpBlock();
-//                        hw.preset_placeStone();
-//                    }
-//                }
+//                goToStone(skyStone1);
+//                pickUpBlock();
+//                placeStone(true);
             } else if (hw.opModeID.endsWith("foundation")) {
                 dragFoundation();
             }
@@ -95,25 +90,38 @@ public class AUTO_Main extends LinearOpMode {
 
     // Pick up a block
     private void pickUpBlock() {
-        appendages.setAutoClawSwingStatus("down");
-        appendages.setAutoClawGripStatus("closed");
-        appendages.setAutoClawSwingStatus("up");
-        motion.pidMove(motion.robot.pose.addVector(new Vector2D(20, hw.opModeID.contains("blue") ? 0 : Math.PI, false)));
+        appendages.setCompWheelsStatus("in");
+        motion.pidMove(45, 7 * Math.PI / 4, 5 * Math.PI / 4);
+        sleep(500);
+        appendages.cycleChainBar();
+        appendages.setClawStatus("closed");
+        appendages.setCompWheelsStatus("off");
+        motion.pidMove(50, Math.PI, 0);
     }
 
     // Pivot drag foundation & push into building zone
     private void dragFoundation() {
         motion.pidMove("drag0");
+        if (hw.opModeID.contains("full"))
+            placeStone(false);
         appendages.setFoundationMoverStatus("down");
-        motion.translate("drag1");
-        motion.rotate("drag1");
+        motion.pidMove("drag1");
+        motion.pidMove("drag2");
         appendages.setFoundationMoverStatus("up");
-        motion.pidMove(new Vector2D(10, Math.PI / 2, false));
     }
 
     // Go to a stone position
     private void goToStone(int position) {
         motion.pidMove(motion.getWaypoint("pickup0").addVector(new Vector2D(position * 20.32, 3 * Math.PI / 2, false)));
+    }
+
+    // Place a stone on foundation
+    public void placeStone(boolean goToWaypoint) {
+        if (goToWaypoint)
+            motion.pidMove("place");
+        appendages.cycleChainBar();
+        appendages.setClawStatus("open");
+        appendages.cycleChainBar();
     }
 
 }

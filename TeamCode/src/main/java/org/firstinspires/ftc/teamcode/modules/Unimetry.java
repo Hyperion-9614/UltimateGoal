@@ -52,8 +52,7 @@ public class Unimetry {
         data.add(new Entry("Foundation Mover Status", hardware.appendages.foundationMoverStatus));
         data.add(new Entry("Chain Bar Status", hardware.appendages.chainBarStatus));
         data.add(new Entry("Claw Status", hardware.appendages.clawStatus));
-        data.add(new Entry("Auto Claw Swing Status", hardware.appendages.autoClawSwingStatus));
-        data.add(new Entry("Auto Claw Grip Status", hardware.appendages.autoClawGripStatus));
+        data.add(new Entry("Capstone Status", hardware.appendages.capstoneStatus));
         data.add(new Entry());
 
         data.add(new Entry("Gamepad 1"));
@@ -65,8 +64,8 @@ public class Unimetry {
         data.add(new Entry());
 
         data.add(new Entry("Vision"));
-        data.add(new Entry("Skystone Position 1", hardware.cvPipeline.getDetectedSkystonePosition()));
-        data.add(new Entry("Skystone Position 2", (hardware.cvPipeline.getDetectedSkystonePosition() + 3)));
+        data.add(new Entry("Skystone 0", hardware.cvPipeline.getDetectedSkystonePosition()));
+        data.add(new Entry("Skystone 1", (hardware.cvPipeline.getDetectedSkystonePosition() + 3)));
         data.add(new Entry("Theoretical max FPS", hardware.phoneCam.getCurrentPipelineMaxFps()));
         data.add(new Entry("Current FPS", String.format(Locale.US, "%.2f", hardware.phoneCam.getFps())));
         data.add(new Entry("Total frame time ms", hardware.phoneCam.getTotalFrameTimeMs()));

@@ -17,37 +17,50 @@ import org.firstinspires.ftc.teamcode.core.Motion;
 @TeleOp
 public class TELE_Main extends LinearOpMode {
 
-    private Hardware hardware;
+    private Hardware hw;
     private Motion motion;
     private Appendages appendages;
 
     private boolean isHtStarted;
     private double preHtTheta;
 
-    private boolean presetPlaceStoneToggle;
     private boolean resetVertSlidesToggle;
     private boolean intakeToggle;
     private boolean outtakeToggle;
     private boolean foundationMoverToggle;
     private boolean chainBarToggle;
     private boolean clawToggle;
+    private boolean capstoneToggle;
+
+    private String[] opModeIDs = new String[]{ "tele.blue", "tele.red" };
+    private int opModeSelectorIndex = -1;
 
     @Override
     public void runOpMode() {
-        hardware = new Hardware(this);
-        motion = hardware.motion;
-        appendages = hardware.appendages;
-        while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hardware.isRunning))) {
-            if (gamepad1.b) {
-                hardware.initOpMode("tele.red");
-            } else if (gamepad1.x) {
-                hardware.initOpMode("tele.blue");
+        hw = new Hardware(this);
+        motion = hw.motion;
+        appendages = hw.appendages;
+
+        while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hw.isRunning))) {
+            if (gamepad1.dpad_up) {
+                opModeSelectorIndex++;
+                if (opModeSelectorIndex >= opModeIDs.length)
+                    opModeSelectorIndex = 0;
+                hw.initOpMode(opModeIDs[opModeSelectorIndex]);
+                sleep(250);
+            } else if (gamepad1.dpad_down) {
+                opModeSelectorIndex--;
+                if (opModeSelectorIndex < 0)
+                    opModeSelectorIndex = opModeIDs.length - 1;
+                hw.initOpMode(opModeIDs[opModeSelectorIndex]);
+                sleep(250);
             }
         }
+        hw.initOpMode(opModeIDs[opModeSelectorIndex]);
 
         executeLoop();
 
-        hardware.end();
+        hw.end();
     }
 
     public void executeLoop() {
@@ -71,51 +84,21 @@ public class TELE_Main extends LinearOpMode {
             motion.setDrive(vel, rot);
 
             /*
-             * GAMEPAD 2
-             * LEFT TRIGGER : Vertical slides down
-             * RIGHT TRIGGER : Vertical slides up
-             */
-            double vertSlidePower = Math.pow(gamepad2.right_trigger - gamepad2.left_trigger, 3);
-            appendages.setVerticalSlidePower(vertSlidePower);
-
-            /*
-             * GAMEPAD 2
-             * RIGHT STICK BUTTON : Reset vertical slide encoders
-             */
-            if (gamepad2.right_stick_button && !resetVertSlidesToggle) {
-                appendages.resetVerticalSlideEncoders();
-                resetVertSlidesToggle = true;
-            } else if (!gamepad2.right_stick_button) {
-                resetVertSlidesToggle = false;
-            }
-
-            /*
              * GAMEPAD 1
              * RIGHT BUMPER : Intake
              * LEFT BUMPER : Outtake
              */
             if (gamepad1.right_bumper && !intakeToggle) {
-                appendages.setCompWheelsStatus(appendages.compWheelsStatus.equals("in") ? "stop" : "in");
+                appendages.setCompWheelsStatus(appendages.compWheelsStatus.equals("in") ? "off" : "in");
                 intakeToggle = true;
             } else if (!gamepad1.right_bumper) {
                 intakeToggle = false;
             }
             if (gamepad1.left_bumper && !outtakeToggle) {
-                appendages.setCompWheelsStatus(appendages.compWheelsStatus.equals("out") ? "stop" : "out");
+                appendages.setCompWheelsStatus(appendages.compWheelsStatus.equals("out") ? "off" : "out");
                 outtakeToggle = true;
             } else if (!gamepad1.left_bumper) {
                 outtakeToggle = false;
-            }
-
-            /*
-             * GAMEPAD 1
-             * Y : Place stone preset
-             */
-            if (gamepad1.y && !presetPlaceStoneToggle) {
-                hardware.preset_placeStone();
-                presetPlaceStoneToggle = true;
-            } else if (!gamepad1.y) {
-                presetPlaceStoneToggle = false;
             }
 
             /*
@@ -127,6 +110,28 @@ public class TELE_Main extends LinearOpMode {
                 foundationMoverToggle = true;
             } else if (!gamepad1.a) {
                 foundationMoverToggle = false;
+            }
+
+            /*
+             * GAMEPAD 2
+             * LEFT TRIGGER : Vertical slides down
+             * RIGHT TRIGGER : Vertical slides up
+             */
+            double vertSlidePower = Math.pow(gamepad2.right_trigger - gamepad2.left_trigger, 3);
+            appendages.setVerticalSlidePower(vertSlidePower);
+
+            /*
+             * GAMEPAD 2
+             * DPAD UP : Go to save position/increment slides ticks
+             * DPAD DOWN : Go to save position/decrement slides ticks
+             */
+            if (gamepad2.dpad_up) {
+                appendages.setVerticalSlidePosition(Math.max(hw.vertSlideL.getCurrentPosition(), appendages.slidesSaveTicks));
+                appendages.slidesSaveTicks += hw.constants.SLIDES_PRESET_INCREMENT_TICKS;
+            }
+            if (gamepad2.dpad_down) {
+                appendages.setVerticalSlidePosition(Math.max(hw.vertSlideL.getCurrentPosition(), appendages.slidesSaveTicks));
+                appendages.slidesSaveTicks -= hw.constants.SLIDES_PRESET_INCREMENT_TICKS;
             }
             
             /*
@@ -151,11 +156,27 @@ public class TELE_Main extends LinearOpMode {
                 chainBarToggle = false;
             }
 
-            // PID MOVE TESTING
-            if (gamepad1.dpad_up) motion.rotate(Math.PI / 2);
-            else if (gamepad1.dpad_down) motion.pidMove(new Vector2D(30, 3 * Math.PI / 2, false));
-            else if (gamepad1.dpad_left) motion.pidMove(new Vector2D(30, Math.PI, false));
-            else if (gamepad1.dpad_right) motion.pidMove(new Vector2D(30, 0, false));
+            /*
+             * GAMEPAD 2
+             * RIGHT STICK BUTTON : Reset vertical slide encoders
+             */
+            if (gamepad2.right_stick_button && !resetVertSlidesToggle) {
+                appendages.resetVerticalSlideEncoders();
+                resetVertSlidesToggle = true;
+            } else if (!gamepad2.right_stick_button) {
+                resetVertSlidesToggle = false;
+            }
+
+            /*
+             * GAMEPAD 2
+             * Y : Capstone toggle
+             */
+            if (gamepad2.y && !capstoneToggle) {
+                appendages.setCapstoneStatus(appendages.capstoneStatus.equals("down") ? "up" : "down");
+                capstoneToggle = true;
+            } else if (!gamepad2.y) {
+                capstoneToggle = false;
+            }
         }
     }
 

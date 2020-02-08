@@ -167,6 +167,7 @@ public class UICMain extends Application {
                                 if (o.id.equals("robot")) {
                                     o.removeDisplayGroup();
                                     iter.remove();
+                                    break;
                                 }
                             }
                             isRobotOnField = false;
@@ -239,6 +240,7 @@ public class UICMain extends Application {
             }
             switch (edit.type) {
                 case CREATE:
+                    clearAllFieldObjectsWithID(edit.id);
                     fieldObjects.add(newObj);
                     newObj.addDisplayGroup();
                     break;
@@ -258,6 +260,7 @@ public class UICMain extends Application {
                     }
                     break;
                 case EDIT_ID:
+                    clearAllFieldObjectsWithID(edit.id);
                     for (int i = 0; i < fieldObjects.size(); i++) {
                         if (fieldObjects.get(i).id.equals(edit.id)) {
                             fieldObjects.get(i).id = edit.body;
@@ -267,12 +270,12 @@ public class UICMain extends Application {
                     }
                     break;
                 case DELETE:
-                    Iterator<FieldObject> iter = fieldObjects.iterator();
-                    while (iter.hasNext()) {
-                        FieldObject next = iter.next();
+                    Iterator<FieldObject> iter2 = fieldObjects.iterator();
+                    while (iter2.hasNext()) {
+                        FieldObject next = iter2.next();
                         if (next.id.equals(edit.id)) {
                             next.removeDisplayGroup();
-                            iter.remove();
+                            iter2.remove();
                             break;
                         }
                     }
@@ -296,6 +299,7 @@ public class UICMain extends Application {
             for (FieldEdit edit : queuedEdits) {
                 arr.put(edit.toJSONObject());
             }
+            queuedEdits.clear();
             uiClient.emit("fieldEdited", arr.toString());
             Utils.printSocketLog("UI", "SERVER", "fieldEdited", options);
         } catch (Exception e) {
@@ -337,6 +341,17 @@ public class UICMain extends Application {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void clearAllFieldObjectsWithID(String id) {
+        Iterator<FieldObject> iter = fieldObjects.iterator();
+        while (iter.hasNext()) {
+            FieldObject next = iter.next();
+            if (next.id.equals(id)) {
+                next.removeDisplayGroup();
+                iter.remove();
+            }
         }
     }
 

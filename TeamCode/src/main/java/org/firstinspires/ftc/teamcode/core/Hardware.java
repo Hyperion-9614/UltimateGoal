@@ -24,14 +24,12 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.revextensions2.ExpansionHubEx;
 
 import java.io.File;
-import java.util.Iterator;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
 
 /**
  * Handles all hw interfacing and robot/external initialization
- * Also contains presets
  */
 
 public class Hardware {
@@ -83,11 +81,8 @@ public class Hardware {
     public Servo foundationMoverR;
     public Servo chainBarL;
     public Servo chainBarR;
+    public Servo capstone;
     public CRServo claw;
-    public Servo autoClawSwing;
-    public CRServo autoClawGrip;
-
-    public int presetPlaceStoneTicks = 2500;
 
     public Hardware(LinearOpMode context) {
         this.context = context;
@@ -118,9 +113,8 @@ public class Hardware {
         foundationMoverR = hwmp.servo.get("foundationMoverR");
         chainBarL = hwmp.servo.get("chainBarL");
         chainBarR = hwmp.servo.get("chainBarR");
+        capstone = hwmp.servo.get("capstone");
         claw = hwmp.crservo.get("claw");
-        autoClawSwing = hwmp.servo.get("autoClawSwing");
-        autoClawGrip = hwmp.crservo.get("autoClawGrip");
 
         // Init dashboard
         if (options.debug) initDashboard();
@@ -261,19 +255,6 @@ public class Hardware {
 
     ///////////////////////// GENERAL & PRESETS //////////////////////////
 
-    // Force park & end when 3.5 seconds are left
-    public void checkForceEnd() {
-        if (opModeID.contains("auto") && autoTime.milliseconds() >= 30000 - constants.FORCE_END_TIME_LEFT) {
-            try {
-                Thread forceEndThread = new Thread(this::end);
-                forceEndThread.start();
-                forceEndThread.join();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     // Init all files & resources
     public void initFiles() {
         try {
@@ -291,20 +272,6 @@ public class Hardware {
     // Choose between two values depending on opMode color
     public double choose(double blue, double red) {
         return opModeID.contains("blue") ? blue : red;
-    }
-
-    // Place a stone on foundation
-    public void preset_placeStone() {
-        if (opModeID.contains("auto")) {
-            motion.pidMove("place");
-            appendages.setAutoClawSwingStatus("down");
-            appendages.setAutoClawGripStatus("open");
-            appendages.setAutoClawSwingStatus("up");
-        } else {
-            appendages.setVerticalSlidePosition(presetPlaceStoneTicks);
-            appendages.setVerticalSlidePosition(0);
-            presetPlaceStoneTicks += constants.STONE_VERT_SLIDE_TICKS;
-        }
     }
 
     ///////////////////////// END //////////////////////////
@@ -334,54 +301,28 @@ public class Hardware {
         if (unimetryUpdater != null && unimetryUpdater.isAlive() && !unimetryUpdater.isInterrupted())
             unimetryUpdater.interrupt();
 
-        String key;
-        JSONArray wpArr;
-        if (opModeID.startsWith("auto")) {
-            try {
+        try {
+            if (opModeID.startsWith("auto")) {
                 JSONObject obj = new JSONObject(Utils.readFile(fieldJSON));
                 JSONObject wpObj = obj.getJSONObject("waypoints");
-                key = "tele." + (opModeID.contains("red") ? "red" : "blue") + ".waypoint.start";
-                wpArr = new JSONArray(motion.robot.pose.toArray());
+                String key = "tele." + (opModeID.contains("red") ? "red" : "blue") + ".waypoint.start";
+                JSONArray wpArr = new JSONArray(motion.robot.pose.toArray());
                 wpObj.put(key, wpArr);
                 obj.put("waypoints", wpObj);
                 Utils.writeFile(obj.toString(), fieldJSON);
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-        }
-        if (options.debug) {
-            rcClient.emit("fieldEdited", readFieldAsEdits(Utils.readFile(fieldJSON)).toString());
-            Utils.printSocketLog("RC", "SERVER", "fieldEdited", options);
-            rcClient.emit("opModeEnded", "{}");
-            Utils.printSocketLog("RC", "SERVER", "opModeEnded", options);
-            rcClient.close();
+            if (options.debug) {
+                rcClient.emit("opModeEnded", "{}");
+                Utils.printSocketLog("RC", "SERVER", "opModeEnded", options);
+                rcClient.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         if (!context.isStopRequested() || context.opModeIsActive()) {
             context.requestOpModeStop();
         }
-    }
-
-    // Read in waypoints & splines from json as JSONArray of field edits
-    public static JSONArray readFieldAsEdits(String json) {
-        JSONArray arr = new JSONArray();
-        try {
-            JSONObject root = new JSONObject(json);
-            JSONObject waypointsObject = root.getJSONObject("waypoints");
-            JSONObject splinesObject = root.getJSONObject("splines");
-
-            for (Iterator keys = waypointsObject.keys(); keys.hasNext();) {
-                String key = keys.next().toString();
-                arr.put(new FieldEdit(key, FieldEdit.Type.CREATE, waypointsObject.getJSONArray(key).toString()).toJSONObject());
-            }
-            for (Iterator keys = splinesObject.keys(); keys.hasNext();) {
-                String key = keys.next().toString();
-                arr.put(new FieldEdit(key, FieldEdit.Type.CREATE, splinesObject.getJSONObject(key).toString()).toJSONObject());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return arr;
     }
 
 }

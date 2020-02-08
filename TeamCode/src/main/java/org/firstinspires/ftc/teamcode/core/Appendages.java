@@ -12,29 +12,29 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class Appendages {
 
     public Hardware hardware;
+    public int slidesSaveTicks;
 
     public String compWheelsStatus = "";
     public String foundationMoverStatus = "";
     public String chainBarStatus = "";
     public String clawStatus = "";
-    public String autoClawSwingStatus = "";
-    public String autoClawGripStatus = "";
+    public String capstoneStatus = "";
 
-    public Appendages(Hardware hardware) {
-        this.hardware = hardware;
+    public Appendages(Hardware hw) {
+        this.hardware = hw;
+        slidesSaveTicks = hw.constants.SLIDES_PRESET_START_TICKS;
 
         resetVerticalSlideEncoders();
 
-        hardware.compWheelsL.setDirection(DcMotorSimple.Direction.REVERSE);
-        hardware.foundationMoverL.setDirection(Servo.Direction.REVERSE);
-        hardware.chainBarL.setDirection(Servo.Direction.REVERSE);
+        hw.compWheelsL.setDirection(DcMotorSimple.Direction.REVERSE);
+        hw.foundationMoverL.setDirection(Servo.Direction.REVERSE);
+        hw.chainBarL.setDirection(Servo.Direction.REVERSE);
 
         setCompWheelsStatus("stop");
         setFoundationMoverStatus("up");
         setClawStatus("open");
-        setChainBarStatus("in");
-        setAutoClawSwingStatus("init");
-        setAutoClawGripStatus("open");
+        setChainBarStatus("up");
+        setCapstoneStatus("up");
     }
 
     //////////////////////// APPENDAGE CONTROL //////////////////////////
@@ -79,15 +79,15 @@ public class Appendages {
         hardware.compWheelsR.setPower(power);
     }
 
-    public void setCompWheelsStatus(String inStopOut) {
-        compWheelsStatus = inStopOut.toLowerCase();
+    public void setCompWheelsStatus(String inOffOut) {
+        compWheelsStatus = inOffOut.toLowerCase();
         double power = 0;
         switch (compWheelsStatus) {
             case "in":
-                power = 0.75;
+                power = -0.65;
                 break;
             case "out":
-                power = -0.75;
+                power = 0.65;
                 break;
         }
         setCompWheelsPower(power);
@@ -96,12 +96,13 @@ public class Appendages {
     public void setFoundationMoverStatus(String downUp) {
         foundationMoverStatus = downUp.toLowerCase();
         if (foundationMoverStatus.equals("down")) {
-            hardware.foundationMoverL.setPosition(1.0);
-            hardware.foundationMoverR.setPosition(1.0);
+            hardware.foundationMoverL.setPosition(0.95);
+            hardware.foundationMoverR.setPosition(0.95);
         } else {
             hardware.foundationMoverL.setPosition(0.3);
             hardware.foundationMoverR.setPosition(0.3);
         }
+        hardware.context.sleep(500);
     }
 
     public void setChainBarPosition(double position) {
@@ -114,13 +115,13 @@ public class Appendages {
         chainBarStatus = upInOut.toLowerCase();
         if (chainBarStatus.equals("up")) {
             setClawStatus("open");
-            setChainBarPosition(0.7);
+            setChainBarPosition(0.75);
         } else if (chainBarStatus.equals("in")) {
             setChainBarPosition(0.9);
         } else if (chainBarStatus.equals("out")) {
             setChainBarPosition(0.45);
         }
-        hardware.context.sleep(300);
+        hardware.context.sleep(500);
     }
 
     public void cycleChainBar() {
@@ -144,29 +145,16 @@ public class Appendages {
         } else {
             hardware.claw.setPower(1.0);
         }
-        hardware.context.sleep(300);
+        hardware.context.sleep(500);
     }
 
-    public void setAutoClawSwingStatus(String downUp) {
-        autoClawSwingStatus = downUp.toLowerCase();
-        if (autoClawSwingStatus.equals("down")) {
-            hardware.autoClawSwing.setPosition(1.0);
-        } else if (autoClawSwingStatus.equals("up")) {
-            hardware.autoClawSwing.setPosition(0.75);
-        } else if (autoClawSwingStatus.equals("init")) {
-            hardware.autoClawSwing.setPosition(0.5);
-        }
-        hardware.context.sleep(300);
-    }
-
-    public void setAutoClawGripStatus(String openClosed) {
-        autoClawGripStatus = openClosed.toLowerCase();
-        if (autoClawGripStatus.equals("open")) {
-            hardware.autoClawGrip.setPower(1.0);
+    public void setCapstoneStatus(String upDown) {
+        capstoneStatus = upDown.toLowerCase();
+        if (capstoneStatus.equals("up")) {
+            hardware.capstone.setPosition(0.35);
         } else {
-            hardware.autoClawGrip.setPower(-0.9);
+            hardware.capstone.setPosition(0.5);
         }
-        hardware.context.sleep(300);
     }
 
 }

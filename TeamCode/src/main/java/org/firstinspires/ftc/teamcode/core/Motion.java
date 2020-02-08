@@ -110,7 +110,6 @@ public class Motion {
             hw.fRDrive.setPower(powers[1]);
             hw.bRDrive.setPower(powers[1]);
         }
-        hw.checkForceEnd();
     }
     public void setDrive(Vector2D relMoveVec, double rot) {
         setDrive(new double[]{
@@ -132,13 +131,13 @@ public class Motion {
     ///////////////////////// ADVANCED MOTION /////////////////////////
 
     public void pidMove(String waypoint) {
-        hw.status = "Moving to waypoint" + waypoint;
+        hw.status = "Moving to waypoint " + waypoint;
         pidMove(getWaypoint(waypoint));
     }
     public void pidMove(Pose target) {
         homogeneousPID.reset(target);
         ElapsedTime timer = new ElapsedTime();
-        while (hw.context.opModeIsActive() && !hw.context.isStopRequested() && timer.milliseconds() <= 5500
+        while (hw.context.opModeIsActive() && !hw.context.isStopRequested() && timer.milliseconds() <= 3000
                && (robot.pose.distanceTo(target) > hw.constants.END_TRANSLATION_ERROR_THRESHOLD
                || Math.abs(Utils.optThetaDiff(robot.pose.theta, target.theta)) > hw.constants.END_ROTATION_ERROR_THRESHOLD)) {
             homogeneousPID.controlLoopIteration(robot.pose);
@@ -147,6 +146,12 @@ public class Motion {
     }
     public void pidMove(Vector2D addVec) {
         pidMove(addVec, robot.pose.theta);
+    }
+    public void pidMove(double coords, double blueDir, double redDir) {
+        pidMove(new Vector2D(coords, hw.choose(blueDir, redDir), false));
+    }
+    public void pidMove(double coords, double dir) {
+        pidMove(coords, dir, dir);
     }
     public void pidMove(Vector2D addVec, double targetHeading) {
         Pose target = robot.pose.addVector(addVec);

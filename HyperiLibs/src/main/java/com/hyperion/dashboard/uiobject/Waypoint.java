@@ -200,6 +200,7 @@ public class Waypoint extends FieldObject {
         imgView.relocate(poseToDisplay[0], poseToDisplay[1]);
         imgView.setRotate(poseToDisplay[2]);
         if (renderID) {
+            idField.setText(id.replace(UICMain.opModeID + ".", ""));
             idField.relocate(poseToDisplay[0] + constants.WAYPOINT_SIZE + 3, poseToDisplay[1] - 24);
         }
         info.setText(pose.toString().replace(" | ", "\n"));

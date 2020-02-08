@@ -30,7 +30,7 @@ public class Vector2D {
             magnitude = Math.round(Math.sqrt(x * x + y * y) * 1000.0) / 1000.0;
             theta = Utils.normalizeTheta(Math.atan2(y, x), 0, 2 * Math.PI);
         } else {
-            magnitude = Math.round(a * 1000.0) / 1000.0;
+            magnitude = Math.abs(Math.round(a * 1000.0) / 1000.0);
             theta = Utils.normalizeTheta(b, 0, 2 * Math.PI);
 
             x = magnitude * Math.cos(theta);

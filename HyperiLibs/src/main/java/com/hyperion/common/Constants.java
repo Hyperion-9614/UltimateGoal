@@ -54,16 +54,14 @@ public class Constants {
     public double END_TRANSLATION_ERROR_THRESHOLD; // coords
     public double END_ROTATION_ERROR_THRESHOLD; // degrees
 
-    // CV
-    public double BLACK_THRESHOLD; // threshold
-
     // I/O
     public File RES_PREFIX; // file
     public File RES_DATA_PREFIX; // file
     public File RES_IMG_PREFIX; // file
 
     // TeamCode
-    public int STONE_VERT_SLIDE_TICKS; // ticks
+    public int SLIDES_PRESET_START_TICKS; // ticks
+    public int SLIDES_PRESET_INCREMENT_TICKS; // ticks
     public double VERT_SLIDE_POWER; // power
     public long LOCALIZATION_DELAY; // ms
     public long UNIMETRY_DELAY; // ms
@@ -73,7 +71,6 @@ public class Constants {
     public String HOST_IP; // IP Address
     public int PORT; // Port
     public String ADDRESS; // Web Address
-    public String RC_IP;
     public String DASHBOARD_VERSION;
     public double WAYPOINT_SIZE; // pixels
     public double PLANNINGPOINT_SIZE; // pixels
@@ -152,7 +149,9 @@ public class Constants {
             RES_IMG_PREFIX = new File(RES_PREFIX + filePaths.getString("resImgPrefix"));
 
             JSONObject teamcode = root.getJSONObject("teamcode");
-            STONE_VERT_SLIDE_TICKS = teamcode.getInt("stoneVerticalSlideCounts");
+            JSONObject slidesPreset = teamcode.getJSONObject("slidesPreset");
+            SLIDES_PRESET_START_TICKS = slidesPreset.getInt("startTicks");
+            SLIDES_PRESET_INCREMENT_TICKS = slidesPreset.getInt("incrementTicks");
             VERT_SLIDE_POWER = teamcode.getDouble("verticalSlidePower");
             LOCALIZATION_DELAY = teamcode.getLong("localizationDelay");
             UNIMETRY_DELAY = teamcode.getLong("unimetryDelay");
@@ -168,7 +167,6 @@ public class Constants {
             System.out.println("Host IP: " + HOST_IP);
             PORT = net.getInt("port");
             ADDRESS = "http://" + HOST_IP + ":" + PORT;
-            RC_IP = net.getString("rcIP");
             JSONObject gui = dashboard.getJSONObject("gui");
             JSONObject sizes = gui.getJSONObject("sizes");
             WAYPOINT_SIZE = sizes.getDouble("waypoint");
@@ -254,11 +252,14 @@ public class Constants {
             root.put("io", io);
 
             JSONObject teamcode = new JSONObject();
-            teamcode.put("stoneVerticalSlideCounts", STONE_VERT_SLIDE_TICKS);
+            JSONObject slidesPreset = new JSONObject();
+            slidesPreset.put("startTicks", SLIDES_PRESET_START_TICKS);
+            slidesPreset.put("incrementTicks", SLIDES_PRESET_INCREMENT_TICKS);
             teamcode.put("verticalSlidePower", VERT_SLIDE_POWER);
             teamcode.put("localizationDelay", LOCALIZATION_DELAY);
             teamcode.put("unimetryDelay", UNIMETRY_DELAY);
             teamcode.put("forceEndTimeLeft", FORCE_END_TIME_LEFT);
+            teamcode.put("slidesPreset", slidesPreset);
             root.put("teamcode", teamcode);
 
             JSONObject dashboard = new JSONObject();
@@ -266,7 +267,6 @@ public class Constants {
             JSONObject net = new JSONObject();
             net.put("hostIP", HOST_IP);
             net.put("port", PORT);
-            net.put("rcIP", RC_IP);
             dashboard.put("net", net);
             JSONObject gui = new JSONObject();
             JSONObject sizes = new JSONObject();

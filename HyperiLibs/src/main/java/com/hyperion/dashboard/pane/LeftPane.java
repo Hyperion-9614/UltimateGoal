@@ -6,8 +6,6 @@ import com.hyperion.dashboard.UICMain;
 import com.hyperion.dashboard.uiobject.FieldEdit;
 import com.hyperion.dashboard.uiobject.FieldObject;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 
 import javafx.collections.FXCollections;
@@ -120,7 +118,7 @@ public class LeftPane extends VBox {
                             "auto.blue.full", "auto.red.full",
                             "auto.blue.foundation", "auto.red.foundation",
                             "auto.blue.brick", "auto.red.brick",
-                            "tele.red", "tele.blue"
+                            "tele.blue", "tele.red"
                     );
             final ComboBox opModeSelector = new ComboBox(options);
             opModeSelector.valueProperty().setValue("auto.blue.full");

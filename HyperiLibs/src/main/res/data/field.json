@@ -2,8 +2,8 @@
     "splines": {},
     "waypoints": {
         "auto.blue.brick.waypoint.park": [
-            -84.985,
-            0,
+            -93.053,
+            0.538,
             0
         ],
         "auto.blue.brick.waypoint.start": [
@@ -12,17 +12,22 @@
             0
         ],
         "auto.blue.foundation.waypoint.drag0": [
-            -64.546,
-            123.175,
+            -80.145,
+            122.637,
             3.141592653589793
         ],
         "auto.blue.foundation.waypoint.drag1": [
-            -118.872,
-            108.115,
+            -123.713,
+            107.577,
+            3.141592653589793
+        ],
+        "auto.blue.foundation.waypoint.drag2": [
+            -154.91,
+            85.523,
             4.71238898038469
         ],
         "auto.blue.foundation.waypoint.park": [
-            -87.137,
+            -93.054,
             -1.076,
             4.71238898038469
         ],
@@ -32,24 +37,29 @@
             3.1416277314626564
         ],
         "auto.blue.full.waypoint.drag0": [
-            -65.084,
-            122.099,
+            -79.069,
+            122.098,
             3.141592653589793
         ],
         "auto.blue.full.waypoint.drag1": [
-            -118.872,
+            -122.1,
             108.115,
+            3.141592653589793
+        ],
+        "auto.blue.full.waypoint.drag2": [
+            -153.834,
+            84.448,
             4.71238898038469
         ],
         "auto.blue.full.waypoint.park": [
-            -84.985,
-            0,
+            -93.054,
+            -1.615,
             4.71238898038469
         ],
         "auto.blue.full.waypoint.pickup0": [
-            -87.136,
-            -54.326,
-            4.712376246559831
+            -95.204,
+            -42.491,
+            5.497761322004056
         ],
         "auto.blue.full.waypoint.place": [
             -126.403,
@@ -58,11 +68,11 @@
         ],
         "auto.blue.full.waypoint.start": [
             -159.751,
-            -91.439,
+            -96.279,
             0
         ],
         "auto.red.brick.waypoint.park": [
-            86.599,
+            93.054,
             0,
             3.141592653589793
         ],
@@ -72,44 +82,54 @@
             3.141592653589793
         ],
         "auto.red.foundation.waypoint.drag0": [
-            67.773,
-            122.638,
+            80.144,
+            121.024,
             0
         ],
         "auto.red.foundation.waypoint.drag1": [
-            121.023,
-            111.88,
+            120.486,
+            109.19,
+            0
+        ],
+        "auto.red.foundation.waypoint.drag2": [
+            148.456,
+            92.516,
             4.71238898038469
         ],
         "auto.red.foundation.waypoint.park": [
-            86.599,
+            93.054,
             -1.076,
             4.71238898038469
         ],
         "auto.red.foundation.waypoint.start": [
             159.752,
-            98.97,
-            3.141592653589793
+            98.432,
+            1.2231368565984724E-5
         ],
         "auto.red.full.waypoint.drag0": [
-            67.773,
-            122.638,
+            81.22,
+            121.025,
             0
         ],
         "auto.red.full.waypoint.drag1": [
-            121.023,
-            111.88,
+            119.947,
+            110.266,
+            0
+        ],
+        "auto.red.full.waypoint.drag2": [
+            150.607,
+            87.675,
             4.71238898038469
         ],
         "auto.red.full.waypoint.park": [
-            86.599,
+            93.054,
             0,
             4.71238898038469
         ],
         "auto.red.full.waypoint.pickup0": [
-            88.213,
-            -53.788,
-            4.71238898038469
+            96.281,
+            -42.495,
+            3.9269790502048685
         ],
         "auto.red.full.waypoint.place": [
             114.569,
@@ -118,13 +138,18 @@
         ],
         "auto.red.full.waypoint.start": [
             159.751,
-            -91.439,
+            -88.75,
             3.141592653589793
         ],
         "tele.blue.waypoint.place": [
             -114.031,
             109.19,
             4.71238898038469
+        ],
+        "tele.blue.waypoint.start": [
+            -90.58234914046108,
+            -0.26146602624509524,
+            6.273775340849387
         ],
         "tele.red.waypoint.place": [
             113.493,

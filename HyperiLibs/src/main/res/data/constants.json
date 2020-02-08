@@ -13,10 +13,9 @@
         },
         "net": {
             "hostIP": "192.168.49.156",
-            "port": 8080,
-            "rcIP": "192.168.49.1"
+            "port": 8080
         },
-        "version": "2.6.0"
+        "version": "3.5.0"
     },
     "io": {"filePaths": {
         "resDataPrefix": "\\data",
@@ -49,25 +48,25 @@
     },
     "pid": {
         "theta": {
-            "kD": 0.12,
-            "kI": 0.002,
-            "kP": 0.7
+            "kD": 0.16,
+            "kI": 1.0E-5,
+            "kP": 0.5
         },
         "x": {
-            "kD": 0.05,
+            "kD": 0.23,
             "kI": 1.0E-4,
-            "kP": 0.038
+            "kP": 0.025
         },
         "y": {
-            "kD": 0.059,
-            "kI": 1.14E-4,
-            "kP": 0.044
+            "kD": 0.01,
+            "kI": 7.0E-5,
+            "kP": 0.03
         }
     },
     "splinesMotionProfile": {
         "endErrorThresholds": {
-            "rotation": 0.4,
-            "translation": 0.6
+            "rotation": 1.75,
+            "translation": 1.75
         },
         "k": {
             "kAa": 0,
@@ -85,9 +84,12 @@
         }
     },
     "teamcode": {
-        "forceEndTimeLeft": 0,
+        "forceEndTimeLeft": 3500,
         "localizationDelay": 10,
-        "stoneVerticalSlideCounts": 200,
+        "slidesPreset": {
+            "incrementTicks": 200,
+            "startTicks": 1300
+        },
         "unimetryDelay": 100,
         "verticalSlidePower": 0.5
     }

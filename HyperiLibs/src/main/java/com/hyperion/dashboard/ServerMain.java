@@ -44,7 +44,7 @@ public class ServerMain {
                                  .substring(0, client.getRemoteAddress().toString().indexOf(":"))
                                  .replace("/", "");
                 String type;
-                if (rcClient == null && address.equals(constants.RC_IP)) {
+                if (rcClient == null && address.equals("192.168.49.1")) {
                     rcClient = client;
                     type = "RC";
                 } else {
@@ -70,7 +70,7 @@ public class ServerMain {
                 String address = client.getRemoteAddress().toString()
                         .substring(0, client.getRemoteAddress().toString().indexOf(":"))
                         .replace("/", "");
-                if (rcClient != null && address.equals(constants.RC_IP)) {
+                if (rcClient != null && address.equals("192.168.49.1")) {
                     rcClient = null;
                     Utils.printSocketLog("RC", "SERVER", "disconnected", options);
                 } else {
@@ -83,7 +83,7 @@ public class ServerMain {
                 String address = client.getRemoteAddress().toString()
                         .substring(0, client.getRemoteAddress().toString().indexOf(":"))
                         .replace("/", "");
-                String type = (rcClient != null && address.equals(constants.RC_IP)) ? "RC" : "UI";
+                String type = (rcClient != null && address.equals("192.168.49.1")) ? "RC" : "UI";
                 Utils.printSocketLog(type, "SERVER", "fieldEdited", options);
 
                 for (SocketIOClient dashboardClient : dashboardClients) {
