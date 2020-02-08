@@ -151,9 +151,9 @@ public class Appendages {
     public void setCapstoneStatus(String upDown) {
         capstoneStatus = upDown.toLowerCase();
         if (capstoneStatus.equals("up")) {
-            hardware.capstone.setPosition(0.35);
+            hardware.capstone.setPosition(0.25);
         } else {
-            hardware.capstone.setPosition(0.5);
+            hardware.capstone.setPosition(0.45);
         }
     }
 
