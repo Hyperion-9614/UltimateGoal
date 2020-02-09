@@ -6,8 +6,8 @@ import org.opencv.imgproc.Imgproc
 class RectangleSampling : CvPipeline() {
     private val matYCrCb = Mat()
     private val matCb = Mat()
-    private val samplingRectWidth = 85 //This is displayed as vertical on phone TODO: Tune this value for more room for error
-    private val samplingRectHeight = 55 //This is displayed as horizontal on phone TODO: Tune this value for more room for error
+    private val samplingRectWidth = 175 //This is displayed as vertical on phone
+    private val samplingRectHeight = 115 //This is displayed as horizontal on phone
     private val samplingRectColor = Scalar(0.0, 0.0, 255.0)
     private val samplingRectThickness = 1
 
