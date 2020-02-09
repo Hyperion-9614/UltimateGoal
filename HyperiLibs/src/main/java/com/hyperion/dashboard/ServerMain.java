@@ -4,7 +4,6 @@ import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.hyperion.common.Constants;
-import com.hyperion.common.Options;
 import com.hyperion.common.Utils;
 import com.hyperion.dashboard.uiobject.FieldEdit;
 
@@ -24,19 +23,16 @@ public class ServerMain {
     public static SocketIOServer server;
     public static ArrayList<SocketIOClient> dashboardClients = new ArrayList<>();
     public static SocketIOClient rcClient;
-    public static Constants constants;
-    public static Options options;
 
     public static void main(String[] args) {
-        constants = new Constants(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
-        options = new Options(new File(constants.RES_DATA_PREFIX + "/options.json"));
+        Constants.init(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/Constants.json"));
 
         try {
             Configuration configuration = new Configuration();
-            constants.HOST_IP = InetAddress.getLocalHost().getHostAddress();
-            constants.write();
-            configuration.setHostname(constants.HOST_IP);
-            configuration.setPort(constants.PORT);
+            Constants.HOST_IP = InetAddress.getLocalHost().getHostAddress();
+            Constants.write();
+            configuration.setHostname(Constants.HOST_IP);
+            configuration.setPort(Constants.PORT);
             server = new SocketIOServer(configuration);
 
             server.addConnectListener(client -> {
@@ -51,19 +47,19 @@ public class ServerMain {
                     dashboardClients.add(client);
                     type = "UI";
                 }
-                Utils.printSocketLog(type, "SERVER", address + " connected", options);
+                Utils.printSocketLog(type, "SERVER", address + " connected");
 
-                client.sendEvent("constantsUpdated", Utils.readDataJSON("constants", constants));
-                Utils.printSocketLog("SERVER", type, "constantsUpdated", options);
+                client.sendEvent("constantsUpdated", Utils.readDataJSON("constants"));
+                Utils.printSocketLog("SERVER", type, "constantsUpdated");
 
-                client.sendEvent("optionsUpdated", Utils.readDataJSON("options", constants));
-                Utils.printSocketLog("SERVER", type, "optionsUpdated", options);
+                client.sendEvent("optionsUpdated", Utils.readDataJSON("options"));
+                Utils.printSocketLog("SERVER", type, "optionsUpdated");
 
-                client.sendEvent("configUpdated", Utils.readFile(new File(constants.RES_DATA_PREFIX + "/MainConfig.xml")));
-                Utils.printSocketLog("SERVER", type, "configUpdated", options);
+                client.sendEvent("configUpdated", Utils.readFile(new File(Constants.RES_DATA_PREFIX + "/MainConfig.xml")));
+                Utils.printSocketLog("SERVER", type, "configUpdated");
 
-                client.sendEvent("fieldEdited", readDashboardAsFieldEdits(Utils.readDataJSON("field", constants)).toString());
-                Utils.printSocketLog("SERVER", type, "fieldEdited", options);
+                client.sendEvent("fieldEdited", readDashboardAsFieldEdits(Utils.readDataJSON("field")).toString());
+                Utils.printSocketLog("SERVER", type, "fieldEdited");
             });
 
             server.addDisconnectListener(client -> {
@@ -72,9 +68,9 @@ public class ServerMain {
                         .replace("/", "");
                 if (rcClient != null && address.equals("192.168.49.1")) {
                     rcClient = null;
-                    Utils.printSocketLog("RC", "SERVER", "disconnected", options);
+                    Utils.printSocketLog("RC", "SERVER", "disconnected");
                 } else {
-                    Utils.printSocketLog("UI", "SERVER", "disconnected", options);
+                    Utils.printSocketLog("UI", "SERVER", "disconnected");
                     dashboardClients.remove(client);
                 }
             });
@@ -84,15 +80,15 @@ public class ServerMain {
                         .substring(0, client.getRemoteAddress().toString().indexOf(":"))
                         .replace("/", "");
                 String type = (rcClient != null && address.equals("192.168.49.1")) ? "RC" : "UI";
-                Utils.printSocketLog(type, "SERVER", "fieldEdited", options);
+                Utils.printSocketLog(type, "SERVER", "fieldEdited");
 
                 for (SocketIOClient dashboardClient : dashboardClients) {
                     dashboardClient.sendEvent("fieldEdited", data);
-                    Utils.printSocketLog("SERVER", "UI", "fieldEdited", options);
+                    Utils.printSocketLog("SERVER", "UI", "fieldEdited");
                 }
                 if (rcClient != null) {
                     rcClient.sendEvent("fieldEdited", data);
-                    Utils.printSocketLog("SERVER", "RC", "fieldEdited", options);
+                    Utils.printSocketLog("SERVER", "RC", "fieldEdited");
                 }
 
                 writeEditsToFieldJSON(data);
@@ -101,41 +97,41 @@ public class ServerMain {
             server.addEventListener("opModeEnded", String.class, (client, data, ackRequest) -> {
                 for (SocketIOClient dashboardClient : dashboardClients) {
                     dashboardClient.sendEvent("opModeEnded", data);
-                    Utils.printSocketLog("SERVER", "UI", "opModeEnded", options);
+                    Utils.printSocketLog("SERVER", "UI", "opModeEnded");
                 }
             });
 
             server.addEventListener("unimetryUpdated", String.class, (client, data, ackRequest) -> {
-                Utils.printSocketLog("RC", "SERVER", "unimetryUpdated", options);
+                Utils.printSocketLog("RC", "SERVER", "unimetryUpdated");
 
                 for (SocketIOClient dashboardClient : dashboardClients) {
                     dashboardClient.sendEvent("unimetryUpdated", data);
-                    Utils.printSocketLog("SERVER", "UI", "unimetryUpdated", options);
+                    Utils.printSocketLog("SERVER", "UI", "unimetryUpdated");
                 }
             });
 
-            server.addEventListener("constantsUpdated", String.class, (client, data, ackRequest) -> {
+            server.addEventListener("ConstantsUpdated", String.class, (client, data, ackRequest) -> {
                 for (SocketIOClient dashboardClient : dashboardClients) {
-                    dashboardClient.sendEvent("constantsUpdated", data);
-                    Utils.printSocketLog("SERVER", "UI", "constantsUpdated", options);
+                    dashboardClient.sendEvent("ConstantsUpdated", data);
+                    Utils.printSocketLog("SERVER", "UI", "ConstantsUpdated");
                 }
                 if (rcClient != null) {
-                    rcClient.sendEvent("constantsUpdated", data);
-                    Utils.printSocketLog("SERVER", "RC", "constantsUpdated", options);
+                    rcClient.sendEvent("ConstantsUpdated", data);
+                    Utils.printSocketLog("SERVER", "RC", "ConstantsUpdated");
                 }
 
-                constants.read(new JSONObject(data));
-                constants.write();
+                Constants.read(new JSONObject(data));
+                Constants.write();
             });
 
             server.addEventListener("configUpdated", String.class, (client, data, ackRequest) -> {
                 for (SocketIOClient dashboardClient : dashboardClients) {
                     dashboardClient.sendEvent("configUpdated", data);
-                    Utils.printSocketLog("SERVER", "UI", "configUpdated", options);
+                    Utils.printSocketLog("SERVER", "UI", "configUpdated");
                 }
                 if (rcClient != null) {
                     rcClient.sendEvent("configUpdated", data);
-                    Utils.printSocketLog("SERVER", "RC", "configUpdated", options);
+                    Utils.printSocketLog("SERVER", "RC", "configUpdated");
                 }
             });
 
@@ -169,7 +165,7 @@ public class ServerMain {
 
     public static void writeEditsToFieldJSON(String json) {
         try {
-            JSONObject field = new JSONObject(Utils.readDataJSON("field", constants));
+            JSONObject field = new JSONObject(Utils.readDataJSON("field"));
             JSONArray arr = new JSONArray(json);
             for (int i = 0; i < arr.length(); i++) {
                 FieldEdit edit = new FieldEdit(arr.getJSONObject(i));
@@ -199,7 +195,7 @@ public class ServerMain {
                     field.put(o, target);
                 }
             }
-            Utils.writeDataJSON(field.toString(), "field", constants);
+            Utils.writeDataJSON(field.toString(), "field");
         } catch (Exception e) {
             e.printStackTrace();
         }

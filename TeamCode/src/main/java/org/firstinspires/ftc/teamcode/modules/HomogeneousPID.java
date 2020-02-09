@@ -7,6 +7,7 @@ import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 
 import org.firstinspires.ftc.teamcode.core.Hardware;
+import org.firstinspires.ftc.teamcode.core.Motion;
 
 import java.util.ArrayList;
 
@@ -20,7 +21,6 @@ import java.util.ArrayList;
 public class HomogeneousPID {
 
     public Hardware hardware;
-    private Constants constants;
     private long lastTime;
     private double time;
     private Pose goal;
@@ -34,7 +34,6 @@ public class HomogeneousPID {
 
     public HomogeneousPID(Hardware hardware) {
         this.hardware = hardware;
-        this.constants = hardware.constants;
     }
 
     public void reset(Pose goal) {
@@ -62,9 +61,9 @@ public class HomogeneousPID {
         yEt.add(new double[]{ time, relTransErrVec.y });
         thetaEt.add(new double[]{ time, thetaError });
 
-        double uX = pOut(xEt, constants.X_K_P) + iOut(xEt, constants.X_K_I) + dOut(xEt, constants.X_K_D);
-        double uY = pOut(yEt, constants.Y_K_P) + iOut(yEt, constants.Y_K_I) + dOut(yEt, constants.Y_K_D);
-        double uTheta = pOut(thetaEt, constants.THETA_K_P) + iOut(thetaEt, constants.THETA_K_I) + dOut(thetaEt, constants.THETA_K_D);
+        double uX = pOut(xEt, Constants.X_K_P) + iOut(xEt, Constants.X_K_I) + dOut(xEt, Constants.X_K_D);
+        double uY = pOut(yEt, Constants.Y_K_P) + iOut(yEt, Constants.Y_K_I) + dOut(yEt, Constants.Y_K_D);
+        double uTheta = pOut(thetaEt, Constants.THETA_K_P) + iOut(thetaEt, Constants.THETA_K_I) + dOut(thetaEt, Constants.THETA_K_D);
 
         runMotors(uX, uY, uTheta);
         xUt.add(new double[]{ time, uX });
@@ -76,7 +75,7 @@ public class HomogeneousPID {
         Vector2D relMoveVec = new Vector2D(uX, uY, true).rotated(Math.PI / 2);
         relMoveVec.setMagnitude(Math.min(1, relMoveVec.magnitude));
         double w = -Utils.clip(uTheta, -1, 1);
-        hardware.motion.setDrive(relMoveVec, w);
+        Motion.setDrive(relMoveVec, w);
     }
 
     private double pOut(ArrayList<double[]> eT, double kP) {

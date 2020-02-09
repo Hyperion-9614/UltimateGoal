@@ -30,24 +30,21 @@ public class DisplaySpline extends FieldObject {
 
     }
 
-    public DisplaySpline(JSONObject obj, Constants constants) {
-        this.constants = constants;
-        spline = new SplineTrajectory(obj, constants);
+    public DisplaySpline(JSONObject obj) {
+        spline = new SplineTrajectory(obj);
         displayGroup = new Group();
         refreshDisplayGroup();
     }
 
-    public DisplaySpline(String id, SplineTrajectory spline, Constants constants) {
+    public DisplaySpline(String id, SplineTrajectory spline) {
         this.id = id;
         this.spline = spline;
-        this.constants = constants;
         displayGroup = new Group();
         refreshDisplayGroup();
     }
 
-    public DisplaySpline(Pose start, Constants constants) {
+    public DisplaySpline(Pose start) {
         this.id = UICMain.opModeID + ".spline.";
-        this.constants = constants;
         ArrayList<RigidBody> wps = new ArrayList<>();
         wps.add(new RigidBody(start));
         spline = new SplineTrajectory(wps, constants);
@@ -55,8 +52,8 @@ public class DisplaySpline extends FieldObject {
         refreshDisplayGroup();
     }
 
-    public DisplaySpline(String key, JSONObject obj) {
-        this(key, new SplineTrajectory(obj, UICMain.constants), UICMain.constants);
+    public DisplaySpline(String id, JSONObject obj) {
+        this(id, new SplineTrajectory(obj));
     }
 
     public void createDisplayGroup() {
@@ -64,7 +61,7 @@ public class DisplaySpline extends FieldObject {
             Color tauPathPointColor = new Color(0.3, 0.3, 0.3, 0.5);
             for (double t = 0; t <= spline.waypoints.size() - 1; t += 0.2) {
                 double[] poseArr = UICMain.fieldPane.poseToDisplay(spline.getTPose(t), 0);
-                Circle pathPoint = new Circle(poseArr[0], poseArr[1], UICMain.constants.PATHPOINT_SIZE);
+                Circle pathPoint = new Circle(poseArr[0], poseArr[1], Constants.PATHPOINT_SIZE);
                 pathPoint.setFill(tauPathPointColor);
                 displayGroup.getChildren().add(pathPoint);
             }
@@ -72,7 +69,7 @@ public class DisplaySpline extends FieldObject {
             Color distancePathPointColor = new Color(1.0, 1.0, 1.0, 0.5);
             for (double d = 0; d <= spline.waypoints.get(spline.waypoints.size() - 1).distance; d += 10) {
                 double[] poseArr = UICMain.fieldPane.poseToDisplay(spline.getDPose(d), 0);
-                Circle pathPoint = new Circle(poseArr[0], poseArr[1], UICMain.constants.PATHPOINT_SIZE);
+                Circle pathPoint = new Circle(poseArr[0], poseArr[1], Constants.PATHPOINT_SIZE);
                 pathPoint.setFill(distancePathPointColor);
                 displayGroup.getChildren().add(pathPoint);
             }
@@ -87,12 +84,12 @@ public class DisplaySpline extends FieldObject {
                 segment.toBack();
 
                 if (i == 1) {
-                    Circle pp0 = new Circle(poseArr[0], poseArr[1], UICMain.constants.PLANNINGPOINT_SIZE);
+                    Circle pp0 = new Circle(poseArr[0], poseArr[1], Constants.PLANNINGPOINT_SIZE);
                     pp0.setFill(Color.WHITE);
                     displayGroup.getChildren().add(pp0);
                 }
 
-                Circle pp = new Circle(poseArr[0], poseArr[1], UICMain.constants.PLANNINGPOINT_SIZE);
+                Circle pp = new Circle(poseArr[0], poseArr[1], Constants.PLANNINGPOINT_SIZE);
                 pp.setFill(Color.WHITE);
                 displayGroup.getChildren().add(pp);
 
@@ -123,7 +120,7 @@ public class DisplaySpline extends FieldObject {
 
         for (int i = 0; i < spline.waypoints.size(); i++) {
             RigidBody wpPP = spline.waypoints.get(i);
-            Waypoint waypoint = new Waypoint("", wpPP.pose, constants, this, (i == 0));
+            Waypoint waypoint = new Waypoint("", wpPP.pose, this, (i == 0));
             if (waypoint.renderID) {
                 waypoint.idField.setText(id.replace(UICMain.opModeID + ".spline.", ""));
                 waypoint.idField.setOnKeyPressed(event -> {

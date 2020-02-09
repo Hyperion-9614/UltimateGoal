@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.modules;
 
 import com.hyperion.common.Utils;
 
+import org.firstinspires.ftc.teamcode.core.Appendages;
 import org.firstinspires.ftc.teamcode.core.Hardware;
+import org.firstinspires.ftc.teamcode.core.Motion;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -36,23 +38,23 @@ public class Unimetry {
         data.add(new Entry());
 
         data.add(new Entry("Motion"));
-        data.add(new Entry("Current", hardware.motion.robot.toString()));
-        data.add(new Entry("Start", hardware.motion.start.toString()));
-        data.add(new Entry("Max Acceleration", hardware.motion.localizer.maxAccel));
-        data.add(new Entry("Max Deceleration", hardware.motion.localizer.maxDecel));
-        data.add(new Entry("Max Velocity", hardware.motion.localizer.maxVel));
+        data.add(new Entry("Current", Motion.robot));
+        data.add(new Entry("Start", Motion.start));
+        data.add(new Entry("Max Acceleration", Motion.localizer.maxAccel));
+        data.add(new Entry("Max Deceleration", Motion.localizer.maxDecel));
+        data.add(new Entry("Max Velocity", Motion.localizer.maxVel));
         data.add(new Entry("Wheel Velocities (fL/fR/bL/bR)", Utils.round(hardware.fLDrive.getPower(), 2) + " " + Utils.round(hardware.fRDrive.getPower(), 2) + " " + Utils.round(hardware.bLDrive.getPower(), 2) + " " + Utils.round(hardware.bRDrive.getPower(), 2)));
-        data.add(new Entry("Odometry Counts (xL/xR/y)", hardware.motion.localizer.oldxlCounts + " " + hardware.motion.localizer.oldxrCounts + " " + hardware.motion.localizer.oldyCounts));
+        data.add(new Entry("Odometry Counts (xL/xR/y)", Motion.localizer.oldxlCounts + " " + Motion.localizer.oldxrCounts + " " + Motion.localizer.oldyCounts));
         data.add(new Entry());
 
         data.add(new Entry("Appendages"));
         data.add(new Entry("Vertical Slides (lPower/rPower/lTicks/rTicks)", Utils.round(hardware.vertSlideL.getPower(), 2) + " " + Utils.round(hardware.vertSlideR.getPower(), 2)
                             + " " + hardware.vertSlideL.getCurrentPosition() + " " + hardware.vertSlideR.getCurrentPosition()));
-        data.add(new Entry("Compliant Wheels Status", hardware.appendages.compWheelsStatus));
-        data.add(new Entry("Foundation Mover Status", hardware.appendages.foundationMoverStatus));
-        data.add(new Entry("Chain Bar Status", hardware.appendages.chainBarStatus));
-        data.add(new Entry("Claw Status", hardware.appendages.clawStatus));
-        data.add(new Entry("Capstone Status", hardware.appendages.capstoneStatus));
+        data.add(new Entry("Compliant Wheels Status", Appendages.compWheelsStatus));
+        data.add(new Entry("Foundation Mover Status", Appendages.foundationMoverStatus));
+        data.add(new Entry("Chain Bar Status", Appendages.chainBarStatus));
+        data.add(new Entry("Claw Status", Appendages.clawStatus));
+        data.add(new Entry("Capstone Status", Appendages.capstoneStatus));
         data.add(new Entry());
 
         data.add(new Entry("Gamepad 1"));
@@ -80,14 +82,14 @@ public class Unimetry {
             for (int i = 0; i < data.size(); i++) {
                 Entry entry = data.get(i);
                 hardware.context.telemetry.addData(entry.token0, entry.token1);
-                if (hardware.options.debug && hardware.rcClient != null)
+                if (hardware.rcClient != null)
                     dataArr.put(new JSONArray(entry.toArray()));
             }
-
             hardware.context.telemetry.update();
-            if (hardware.options.debug && hardware.rcClient != null) {
+
+            if (hardware.rcClient != null) {
                 hardware.rcClient.emit("unimetryUpdated", dataArr.toString());
-                Utils.printSocketLog("RC", "SERVER", "unimetryUpdated", hardware.options);
+                Utils.printSocketLog("RC", "SERVER", "unimetryUpdated");
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.core;
 
 import com.hyperion.common.Constants;
-import com.hyperion.common.Options;
 import com.hyperion.common.Utils;
 import com.hyperion.dashboard.uiobject.FieldEdit;
 import com.hyperion.motion.math.Pose;
@@ -52,8 +51,6 @@ public class Hardware {
     public CvPipeline cvPipeline;
 
     public Socket rcClient;
-    public Constants constants;
-    public Options options;
     public Unimetry unimetry;
     public String status = opModeID;
 
@@ -116,14 +113,11 @@ public class Hardware {
         capstone = hwmp.servo.get("capstone");
         claw = hwmp.crservo.get("claw");
 
-        // Init dashboard
-        if (options.debug) initDashboard();
-
-        // Init control, telemetry, & settings
-        motion = new Motion(this);
-        appendages = new Appendages(this);
+        // Init control, dashboard, telemetry, CV, & threads
+        Motion.init(this);
+        Appendages.init(this);
+        initDashboard();
         unimetry = new Unimetry(this);
-
         initCV();
         initUpdaters();
     }
@@ -135,9 +129,9 @@ public class Hardware {
         localizationUpdater = new Thread(() -> {
             long lastUpdateTime = System.currentTimeMillis();
             while (!localizationUpdater.isInterrupted() && localizationUpdater.isAlive() && !context.isStopRequested()) {
-                if (System.currentTimeMillis() - lastUpdateTime >= constants.LOCALIZATION_DELAY) {
+                if (System.currentTimeMillis() - lastUpdateTime >= Constants.LOCALIZATION_DELAY) {
                     lastUpdateTime = System.currentTimeMillis();
-                    motion.localizer.update();
+                    Motion.localizer.update();
                 }
             }
         });
@@ -146,7 +140,7 @@ public class Hardware {
         unimetryUpdater = new Thread(() -> {
             long lastUpdateTime = System.currentTimeMillis();
             while (!unimetryUpdater.isInterrupted() && unimetryUpdater.isAlive() && !context.isStopRequested()) {
-                if (System.currentTimeMillis() - lastUpdateTime >= constants.UNIMETRY_DELAY) {
+                if (System.currentTimeMillis() - lastUpdateTime >= Constants.UNIMETRY_DELAY) {
                     lastUpdateTime = System.currentTimeMillis();
                     unimetry.update();
                 }
@@ -175,20 +169,20 @@ public class Hardware {
     // Initialize dashboard RC client socket
     public void initDashboard() {
         try {
-            rcClient = IO.socket(constants.ADDRESS);
+            rcClient = IO.socket(Constants.ADDRESS);
 
             rcClient.on(Socket.EVENT_CONNECT, args -> {
-                Utils.printSocketLog("RC", "SERVER", "connected", options);
+                Utils.printSocketLog("RC", "SERVER", "connected");
             }).on(Socket.EVENT_DISCONNECT, args -> {
-                Utils.printSocketLog("RC", "SERVER", "disconnected", options);
+                Utils.printSocketLog("RC", "SERVER", "disconnected");
             }).on("fieldEdited", args -> {
-                Utils.printSocketLog("SERVER", "RC", "fieldEdited", options);
+                Utils.printSocketLog("SERVER", "RC", "fieldEdited");
                 writeFieldEditsToFieldJSON(args[0].toString());
             }).on("constantsUpdated", args -> {
                 try {
-                    Utils.printSocketLog("SERVER", "RC", "constantsUpdated", options);
-                    constants.read(new JSONObject(args[0].toString()));
-                    constants.write();
+                    Utils.printSocketLog("SERVER", "RC", "constantsUpdated");
+                    Constants.read(new JSONObject(args[0].toString()));
+                    Constants.write();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -247,10 +241,10 @@ public class Hardware {
         this.opModeID = opModeID;
         status = "Running " + opModeID;
 
-        Pose startPose = motion.waypoints.get(opModeID + ".waypoint.start");
+        Pose startPose = Motion.waypoints.get(opModeID + ".waypoint.start");
         if (startPose == null) startPose = new Pose();
-        motion.start = new RigidBody(startPose);
-        motion.robot = new RigidBody(motion.start);
+        Motion.start = new RigidBody(startPose);
+        Motion.robot = new RigidBody(Motion.start);
     }
 
     ///////////////////////// GENERAL & PRESETS //////////////////////////
@@ -258,10 +252,8 @@ public class Hardware {
     // Init all files & resources
     public void initFiles() {
         try {
-            constants = new Constants(new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/constants.json"));
+            Constants.init(new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/Constants.json"));
             fieldJSON = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/field.json");
-            optionsJson = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/options.json");
-            options = new Options(optionsJson);
             nnConfigJson = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/model/config.json");
             modelConfig = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/model/model.config");
         } catch (Exception e) {
@@ -289,8 +281,8 @@ public class Hardware {
 
     // Wrap up OpMode
     public void end() {
-        if (opModeID.contains("auto") && motion.robot.pose.distanceTo(motion.getWaypoint("park")) > 3) {
-            motion.pidMove("park");
+        if (opModeID.contains("auto") && Motion.robot.pose.distanceTo(Motion.getWaypoint("park")) > 3) {
+            Motion.pidMove("park");
         }
 
         status = "Ending";
@@ -306,16 +298,18 @@ public class Hardware {
                 JSONObject obj = new JSONObject(Utils.readFile(fieldJSON));
                 JSONObject wpObj = obj.getJSONObject("waypoints");
                 String key = "tele." + (opModeID.contains("red") ? "red" : "blue") + ".waypoint.start";
-                JSONArray wpArr = new JSONArray(motion.robot.pose.toArray());
+                JSONArray wpArr = new JSONArray(Motion.robot.pose.toArray());
                 wpObj.put(key, wpArr);
                 obj.put("waypoints", wpObj);
                 Utils.writeFile(obj.toString(), fieldJSON);
             }
-            if (options.debug) {
+
+            if (rcClient != null) {
                 rcClient.emit("opModeEnded", "{}");
-                Utils.printSocketLog("RC", "SERVER", "opModeEnded", options);
+                Utils.printSocketLog("RC", "SERVER", "opModeEnded");
                 rcClient.close();
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

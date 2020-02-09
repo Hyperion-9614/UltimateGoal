@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.core;
 
+import com.hyperion.common.Constants;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -11,18 +12,18 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Appendages {
 
-    public Hardware hardware;
-    public int slidesSaveTicks;
+    public static Hardware hw;
+    public static int slidesSaveTicks;
 
-    public String compWheelsStatus = "";
-    public String foundationMoverStatus = "";
-    public String chainBarStatus = "";
-    public String clawStatus = "";
-    public String capstoneStatus = "";
+    public static String compWheelsStatus = "";
+    public static String foundationMoverStatus = "";
+    public static String chainBarStatus = "";
+    public static String clawStatus = "";
+    public static String capstoneStatus = "";
 
-    public Appendages(Hardware hw) {
-        this.hardware = hw;
-        slidesSaveTicks = hw.constants.SLIDES_PRESET_START_TICKS;
+    public static void init(Hardware hardware) {
+        hw = hardware;
+        slidesSaveTicks = Constants.SLIDES_PRESET_START_TICKS;
 
         resetVerticalSlideEncoders();
 
@@ -39,29 +40,29 @@ public class Appendages {
 
     //////////////////////// APPENDAGE CONTROL //////////////////////////
 
-    public void setVerticalSlidePower(double power) {
-        hardware.vertSlideL.setPower(power);
-        hardware.vertSlideR.setPower(power);
+    public static void setVerticalSlidePower(double power) {
+        hw.vertSlideL.setPower(power);
+        hw.vertSlideR.setPower(power);
     }
 
-    public void setVerticalSlideMode(DcMotor.RunMode mode) {
-        hardware.vertSlideL.setMode(mode);
-        hardware.vertSlideR.setMode(mode);
+    public static void setVerticalSlideMode(DcMotor.RunMode mode) {
+        hw.vertSlideL.setMode(mode);
+        hw.vertSlideR.setMode(mode);
     }
 
-    public void setVerticalSlideTarget(int target) {
-        hardware.vertSlideL.setTargetPosition(target);
-        hardware.vertSlideR.setTargetPosition(target);
+    public static void setVerticalSlideTarget(int target) {
+        hw.vertSlideL.setTargetPosition(target);
+        hw.vertSlideR.setTargetPosition(target);
     }
 
-    public void setVerticalSlidePosition(int target) {
+    public static void setVerticalSlidePosition(int target) {
         setVerticalSlideTarget(target);
         setVerticalSlideMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         setVerticalSlidePower(1);
         ElapsedTime timer = new ElapsedTime();
-        while ((hardware.vertSlideL.isBusy() || hardware.vertSlideR.isBusy()) && timer.milliseconds() <= 4000
-                && (hardware.context.gamepad1.left_stick_x == 0 && hardware.context.gamepad1.left_stick_y == 0 && hardware.context.gamepad1.right_stick_x == 0)) {
+        while ((hw.vertSlideL.isBusy() || hw.vertSlideR.isBusy()) && timer.milliseconds() <= 4000
+                && (hw.context.gamepad1.left_stick_x == 0 && hw.context.gamepad1.left_stick_y == 0 && hw.context.gamepad1.right_stick_x == 0)) {
 
         }
 
@@ -69,49 +70,50 @@ public class Appendages {
         setVerticalSlideMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void resetVerticalSlideEncoders() {
+    public static void resetVerticalSlideEncoders() {
         setVerticalSlideMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         setVerticalSlideMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void setCompWheelsPower(double power) {
-        hardware.compWheelsL.setPower(power);
-        hardware.compWheelsR.setPower(power);
+    public static void setCompWheelsPower(double power) {
+        hw.compWheelsL.setPower(power);
+        hw.compWheelsR.setPower(power);
     }
 
-    public void setCompWheelsStatus(String inOffOut) {
+    public static void setCompWheelsStatus(String inOffOut) {
         compWheelsStatus = inOffOut.toLowerCase();
         double power = 0;
         switch (compWheelsStatus) {
             case "in":
-                power = -0.65;
+                power = -0.73;
+                setChainBarStatus("up");
                 break;
             case "out":
-                power = 0.65;
+                power = 0.73;
                 break;
         }
         setCompWheelsPower(power);
     }
 
-    public void setFoundationMoverStatus(String downUp) {
+    public static void setFoundationMoverStatus(String downUp) {
         foundationMoverStatus = downUp.toLowerCase();
         if (foundationMoverStatus.equals("down")) {
-            hardware.foundationMoverL.setPosition(0.95);
-            hardware.foundationMoverR.setPosition(0.95);
+            hw.foundationMoverL.setPosition(0.9);
+            hw.foundationMoverR.setPosition(0.9);
         } else {
-            hardware.foundationMoverL.setPosition(0.3);
-            hardware.foundationMoverR.setPosition(0.3);
+            hw.foundationMoverL.setPosition(0.3);
+            hw.foundationMoverR.setPosition(0.3);
         }
-        hardware.context.sleep(500);
+        hw.context.sleep(500);
     }
 
-    public void setChainBarPosition(double position) {
-        hardware.chainBarL.setPosition(position);
-        hardware.chainBarR.setPosition(position);
-        hardware.context.sleep(500);
+    public static void setChainBarPosition(double position) {
+        hw.chainBarL.setPosition(position);
+        hw.chainBarR.setPosition(position);
+        hw.context.sleep(500);
     }
 
-    public void setChainBarStatus(String upInOut) {
+    public static void setChainBarStatus(String upInOut) {
         chainBarStatus = upInOut.toLowerCase();
         if (chainBarStatus.equals("up")) {
             setClawStatus("open");
@@ -121,10 +123,10 @@ public class Appendages {
         } else if (chainBarStatus.equals("out")) {
             setChainBarPosition(0.45);
         }
-        hardware.context.sleep(500);
+        hw.context.sleep(500);
     }
 
-    public void cycleChainBar() {
+    public static void cycleChainBar() {
         switch (chainBarStatus) {
             case "up":
                 setChainBarStatus("in");
@@ -138,22 +140,22 @@ public class Appendages {
         }
     }
 
-    public void setClawStatus(String openClosed) {
+    public static void setClawStatus(String openClosed) {
         clawStatus = openClosed.toLowerCase();
         if (clawStatus.equals("open")) {
-            hardware.claw.setPower(-1.0);
+            hw.claw.setPower(-1.0);
         } else {
-            hardware.claw.setPower(1.0);
+            hw.claw.setPower(1.0);
         }
-        hardware.context.sleep(500);
+        hw.context.sleep(500);
     }
 
-    public void setCapstoneStatus(String upDown) {
+    public static void setCapstoneStatus(String upDown) {
         capstoneStatus = upDown.toLowerCase();
         if (capstoneStatus.equals("up")) {
-            hardware.capstone.setPosition(0.25);
+            hw.capstone.setPosition(0.34);
         } else {
-            hardware.capstone.setPosition(0.45);
+            hw.capstone.setPosition(0.5);
         }
     }
 

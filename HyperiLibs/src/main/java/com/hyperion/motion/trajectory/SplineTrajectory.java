@@ -28,7 +28,6 @@ import java.util.Arrays;
 
 public class SplineTrajectory {
 
-    public Constants constants;
     public ArrayList<RigidBody> waypoints;
     public ArrayList<RigidBody> planningPoints;
     public Piecewise tauX = new Piecewise();
@@ -39,22 +38,19 @@ public class SplineTrajectory {
     public double segmentLength;
     public double length;
 
-    public SplineTrajectory(ArrayList<RigidBody> waypoints, Constants constants) {
-        this.constants = constants;
+    public SplineTrajectory(ArrayList<RigidBody> waypoints) {
         this.waypoints = waypoints;
         motionProfile = new MotionProfile(this);
         endPath();
     }
 
-    public SplineTrajectory(Constants constants, RigidBody... rigidBodies) {
-        this.constants = constants;
+    public SplineTrajectory(RigidBody... rigidBodies) {
         this.waypoints = new ArrayList<>(Arrays.asList(rigidBodies));
         motionProfile = new MotionProfile(this);
         endPath();
     }
 
-    public SplineTrajectory(JSONObject obj, Constants constants) {
-        this.constants = constants;
+    public SplineTrajectory(JSONObject obj) {
         motionProfile = new MotionProfile(this);
         readJSON(obj);
     }
@@ -258,7 +254,7 @@ public class SplineTrajectory {
         planningPoints = new ArrayList<>();
 
         double L = arcDistance(waypoints.size() - 1);
-        int numSegments = (int) Math.ceil(L / constants.MAX_SEGMENT_LENGTH);
+        int numSegments = (int) Math.ceil(L / Constants.MAX_SEGMENT_LENGTH);
         segmentLength = L / numSegments;
         for (int i = 0; i < numSegments; i++) {
             double l = i * segmentLength;
@@ -273,7 +269,7 @@ public class SplineTrajectory {
             double tRight = tJ + 1;
             double tMiddle = (tLeft + tRight) / 2.0;
             double tMiddleLength = arcDistance(tMiddle);
-            while (Math.abs(tMiddleLength - l) > constants.MAX_BISECTION_ERROR) {
+            while (Math.abs(tMiddleLength - l) > Constants.MAX_BISECTION_ERROR) {
                 if (l > tMiddleLength) {
                     tLeft = tMiddle;
                 } else if (l < tMiddleLength) {

@@ -73,9 +73,7 @@ public class RightPane extends VBox {
     public void setUnimetryDisplayText() {
         StringBuilder unimetryStr = new StringBuilder();
 
-        Iterator<String> iter = UICMain.unimetry.keySet().iterator();
-        while (iter.hasNext()) {
-            String key = iter.next();
+        for (String key : UICMain.unimetry.keySet()) {
             String value = UICMain.unimetry.get(key).trim();
             if (!key.isEmpty() && value.isEmpty()) {
                 unimetryStr.append(key);

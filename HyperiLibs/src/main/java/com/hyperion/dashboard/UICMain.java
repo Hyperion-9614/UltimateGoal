@@ -1,7 +1,6 @@
 package com.hyperion.dashboard;
 
 import com.hyperion.common.Constants;
-import com.hyperion.common.Options;
 import com.hyperion.common.Utils;
 import com.hyperion.dashboard.pane.VisualPane;
 import com.hyperion.dashboard.pane.FieldPane;
@@ -51,10 +50,7 @@ public class UICMain extends Application {
     public static LeftPane leftPane;
     public static RightPane rightPane;
     public static VisualPane visualPane;
-
     public static Socket uiClient;
-    public static Constants constants;
-    public static Options options;
 
     public static DisplaySpline selectedSpline = null;
     public static Waypoint selectedWaypoint = null;
@@ -73,8 +69,7 @@ public class UICMain extends Application {
     public static boolean hasUnsavedChanges = false;
 
     public static void main(String[] args) {
-        constants = new Constants(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
-        options = new Options(new File(constants.RES_DATA_PREFIX + "/options.json"));
+        Constants.init(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
         startClient();
         launch(args);
     }
@@ -135,28 +130,28 @@ public class UICMain extends Application {
 
     private static void startClient() {
         try {
-            uiClient = IO.socket(constants.ADDRESS);
+            uiClient = IO.socket(Constants.ADDRESS);
 
             uiClient.on(Socket.EVENT_CONNECT, args -> {
-                Utils.printSocketLog("UI", "SERVER", "connected", options);
+                Utils.printSocketLog("UI", "SERVER", "connected");
             }).on(Socket.EVENT_DISCONNECT, args -> {
-                Utils.printSocketLog("UI", "SERVER", "disconnected", options);
+                Utils.printSocketLog("UI", "SERVER", "disconnected");
             }).on("constantsUpdated", args -> {
                 try {
-                    Utils.printSocketLog("SERVER", "UI", "constantsUpdated", options);
-                    constants.read(new JSONObject(args[0].toString()));
+                    Utils.printSocketLog("SERVER", "UI", "constantsUpdated");
+                    Constants.read(new JSONObject(args[0].toString()));
                     constantsSave = args[0].toString();
                     if (rightPane != null) {
-                        rightPane.setConstantsDisplayText(constants.root.toString(4));
+                        rightPane.setConstantsDisplayText(Constants.root.toString(4));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }).on("fieldEdited", args -> {
-                Utils.printSocketLog("SERVER", "UI", "fieldEdited", options);
+                Utils.printSocketLog("SERVER", "UI", "fieldEdited");
                 readFieldEdits(args[0].toString());
             }).on("opModeEnded", args -> {
-                Utils.printSocketLog("SERVER", "UI", "opModeEnded", options);
+                Utils.printSocketLog("SERVER", "UI", "opModeEnded");
                 Thread deleteRobotThread = new Thread(() -> {
                     long start = System.currentTimeMillis();
                     while (true) {
@@ -177,11 +172,11 @@ public class UICMain extends Application {
                 });
                 deleteRobotThread.start();
             }).on("unimetryUpdated", args -> {
-                Utils.printSocketLog("SERVER", "UI", "unimetryUpdated", options);
+                Utils.printSocketLog("SERVER", "UI", "unimetryUpdated");
                 readUnimetry(args[0].toString());
                 Platform.runLater(() -> rightPane.setUnimetryDisplayText());
             }).on("configUpdated", args -> {
-                Utils.printSocketLog("SERVER", "UI", "configUpdated", options);
+                Utils.printSocketLog("SERVER", "UI", "configUpdated");
                 configSave = args[0].toString();
                 if (leftPane != null) {
                     leftPane.setConfigDisplayText(configSave);
@@ -301,7 +296,7 @@ public class UICMain extends Application {
             }
             queuedEdits.clear();
             uiClient.emit("fieldEdited", arr.toString());
-            Utils.printSocketLog("UI", "SERVER", "fieldEdited", options);
+            Utils.printSocketLog("UI", "SERVER", "fieldEdited");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -310,7 +305,7 @@ public class UICMain extends Application {
     // Set save indicator
     public static void changeSaveStatus(boolean hazUnsavedChanges) {
         hasUnsavedChanges = hazUnsavedChanges;
-        Platform.runLater(() -> menuPane.title.setText("Hyperion Dashboard v" + constants.DASHBOARD_VERSION + (hasUnsavedChanges ? " (*)" : "")));
+        Platform.runLater(() -> menuPane.title.setText("Hyperion Dashboard v" + Constants.DASHBOARD_VERSION + (hasUnsavedChanges ? " (*)" : "")));
     }
 
     // Save dashboard upon ctrl + s
@@ -320,20 +315,13 @@ public class UICMain extends Application {
                 String newConfig = leftPane.configDisplay.getText();
                 if (!Utils.condensedEquals(newConfig, configSave)) {
                     uiClient.emit("configUpdated", newConfig);
-                    Utils.printSocketLog("UI", "SERVER", "configUpdated", options);
+                    Utils.printSocketLog("UI", "SERVER", "configUpdated");
                 }
 
                 String newConstants = rightPane.constantsDisplay.getText();
                 if (!Utils.condensedEquals(newConstants, constantsSave)) {
                     uiClient.emit("constantsUpdated", newConstants);
-                    Utils.printSocketLog("UI", "SERVER", "constantsUpdated", options);
-                }
-
-                String newOptions = leftPane.optionsDisplay.getText();
-                if (!Utils.condensedEquals(newOptions, optionsSave)) {
-                    UICMain.options.read(new JSONObject(newOptions));
-                    Utils.writeDataJSON(options.toString(), "options", constants);
-                    optionsSave = newOptions;
+                    Utils.printSocketLog("UI", "SERVER", "constantsUpdated");
                 }
 
                 sendQueuedFieldEdits();

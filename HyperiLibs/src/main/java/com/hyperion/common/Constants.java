@@ -11,85 +11,85 @@ import java.net.InetAddress;
 
 public class Constants {
 
-    public File file;
-    public JSONObject root;
+    public static File file;
+    public static JSONObject root;
 
     // Localization
-    public Pose XL_REL; // cm, cm, degrees
-    public Pose XR_REL; // cm, cm, degrees
-    public Pose Y_REL ; // cm, cm, degrees
-    public double TRACK_WIDTH; // cm
-    public double DRIVE_BASE; // cm
-    public double ODO_WHEEL_RADIUS; // cm
-    public double ODO_WHEEL_CIRCUMFERENCE; // cm
-    public int ODO_CYCLES_PER_REV; // cycles
-    public int ODO_CPR; // counts
-    public double COUNTS_PER_M; // counts
-    public double FIELD_SIDE_LENGTH; // cm
-    public double COORD_AXIS_LENGTH_UNITS; // coords
-    public double M_PER_COORD; // cm
+    public static Pose XL_REL; // cm, cm, degrees
+    public static Pose XR_REL; // cm, cm, degrees
+    public static Pose Y_REL ; // cm, cm, degrees
+    public static double TRACK_WIDTH; // cm
+    public static double DRIVE_BASE; // cm
+    public static double ODO_WHEEL_RADIUS; // cm
+    public static double ODO_WHEEL_CIRCUMFERENCE; // cm
+    public static int ODO_CYCLES_PER_REV; // cycles
+    public static int ODO_CPR; // counts
+    public static double COUNTS_PER_M; // counts
+    public static double FIELD_SIDE_LENGTH; // cm
+    public static double COORD_AXIS_LENGTH_UNITS; // coords
+    public static double M_PER_COORD; // cm
 
     // PID
-    public double X_K_P; // coefficient
-    public double X_K_I; // coefficient
-    public double X_K_D; // coefficient
-    public double Y_K_P; // coefficient
-    public double Y_K_I; // coefficient
-    public double Y_K_D; // coefficient
-    public double THETA_K_P; // coefficient
-    public double THETA_K_I; // coefficient
-    public double THETA_K_D; // coefficient
+    public static double X_K_P; // coefficient
+    public static double X_K_I; // coefficient
+    public static double X_K_D; // coefficient
+    public static double Y_K_P; // coefficient
+    public static double Y_K_I; // coefficient
+    public static double Y_K_D; // coefficient
+    public static double THETA_K_P; // coefficient
+    public static double THETA_K_I; // coefficient
+    public static double THETA_K_D; // coefficient
 
     // Motion Profile
-    public double MP_K_TA; // coefficient
-    public double MP_K_TV; // coefficient
-    public double MP_K_AA; // coefficient
-    public double MP_K_AV; // coefficient
-    public double MAX_SEGMENT_LENGTH; // cm
-    public double MAX_BISECTION_ERROR; // cm
-    public double MAX_TRANSLATIONAL_VELOCITY; // cm/s
-    public double MAX_TRANSLATIONAL_ACCELERATION; // cm/s^2
-    public double MAX_ANGULAR_VELOCITY; // rad/s
-    public double MAX_ANGULAR_ACCELERATION; // rad/s^2
-    public double END_TRANSLATION_ERROR_THRESHOLD; // coords
-    public double END_ROTATION_ERROR_THRESHOLD; // degrees
+    public static double MP_K_TA; // coefficient
+    public static double MP_K_TV; // coefficient
+    public static double MP_K_AA; // coefficient
+    public static double MP_K_AV; // coefficient
+    public static double MAX_SEGMENT_LENGTH; // cm
+    public static double MAX_BISECTION_ERROR; // cm
+    public static double MAX_TRANSLATIONAL_VELOCITY; // cm/s
+    public static double MAX_TRANSLATIONAL_ACCELERATION; // cm/s^2
+    public static double MAX_ANGULAR_VELOCITY; // rad/s
+    public static double MAX_ANGULAR_ACCELERATION; // rad/s^2
+    public static double END_TRANSLATION_ERROR_THRESHOLD; // coords
+    public static double END_ROTATION_ERROR_THRESHOLD; // degrees
 
     // I/O
-    public File RES_PREFIX; // file
-    public File RES_DATA_PREFIX; // file
-    public File RES_IMG_PREFIX; // file
+    public static File RES_PREFIX; // file
+    public static File RES_DATA_PREFIX; // file
+    public static File RES_IMG_PREFIX; // file
 
     // TeamCode
-    public int SLIDES_PRESET_START_TICKS; // ticks
-    public int SLIDES_PRESET_INCREMENT_TICKS; // ticks
-    public double VERT_SLIDE_POWER; // power
-    public long LOCALIZATION_DELAY; // ms
-    public long UNIMETRY_DELAY; // ms
-    public long FORCE_END_TIME_LEFT; // ms
+    public static int SLIDES_PRESET_START_TICKS; // ticks
+    public static int SLIDES_PRESET_INCREMENT_TICKS; // ticks
+    public static double VERT_SLIDE_POWER; // power
+    public static long LOCALIZATION_DELAY; // ms
+    public static long UNIMETRY_DELAY; // ms
+    public static long FORCE_END_TIME_LEFT; // ms
 
     // Dashboard
-    public String HOST_IP; // IP Address
-    public int PORT; // Port
-    public String ADDRESS; // Web Address
-    public String DASHBOARD_VERSION;
-    public double WAYPOINT_SIZE; // pixels
-    public double PLANNINGPOINT_SIZE; // pixels
-    public double PATHPOINT_SIZE; // pixels
-    public double WBB_STROKE_WIDTH; // pixels
-    public double WBB_GRAY_SCALE; // pixels
+    public static String HOST_IP; // IP Address
+    public static int PORT; // Port
+    public static String ADDRESS; // Web Address
+    public static String DASHBOARD_VERSION;
+    public static double WAYPOINT_SIZE; // pixels
+    public static double PLANNINGPOINT_SIZE; // pixels
+    public static double PATHPOINT_SIZE; // pixels
+    public static double WBB_STROKE_WIDTH; // pixels
+    public static double WBB_GRAY_SCALE; // pixels
 
-    public Constants(File file) {
+    public static void init(File file) {
         try {
-            this.file = file;
+            Constants.file = file;
             JSONTokener tokener = new JSONTokener(Utils.readFile(file));
-            this.root = new JSONObject(tokener);
+            Constants.root = new JSONObject(tokener);
             init();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void init() {
+    public static void init() {
         try {
             JSONObject localization = root.getJSONObject("localization");
             JSONObject odometryPoses = localization.getJSONObject("odometryPoses");
@@ -180,12 +180,12 @@ public class Constants {
         }
     }
 
-    public void read(JSONObject root) {
-        this.root = root;
+    public static void read(JSONObject root) {
+        Constants.root = root;
         init();
     }
 
-    public JSONObject toJSONObject() {
+    public static JSONObject toJSONObject() {
         JSONObject root = new JSONObject();
         try {
             JSONObject localization = new JSONObject();
@@ -286,7 +286,7 @@ public class Constants {
         return root;
     }
 
-    public void write() {
+    public static void write() {
         try {
             root = toJSONObject();
             Utils.writeFile(root.toString(4), file);
@@ -295,10 +295,10 @@ public class Constants {
         }
     }
 
-    public double mToCoords(double m) {
+    public static double mToCoords(double m) {
         return m / M_PER_COORD;
     } // coords
-    public double countsToM(double counts) {
+    public static double countsToM(double counts) {
         return counts / COUNTS_PER_M;
     } // m
 

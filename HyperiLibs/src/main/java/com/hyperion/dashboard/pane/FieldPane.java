@@ -1,5 +1,6 @@
 package com.hyperion.dashboard.pane;
 
+import com.hyperion.common.Constants;
 import com.hyperion.common.Utils;
 import com.hyperion.dashboard.UICMain;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
@@ -55,31 +56,31 @@ public class FieldPane extends Pane {
         addEventHandler(MouseEvent.ANY, this::mouseHandler);
 
         try {
-            Image fieldBG = new Image(new File(UICMain.constants.RES_IMG_PREFIX + "/field.png").toURI().toURL().toString());
+            Image fieldBG = new Image(new File(Constants.RES_IMG_PREFIX + "/field.png").toURI().toURL().toString());
             BackgroundImage bgImg = new BackgroundImage(fieldBG,
                     BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
                     BackgroundPosition.DEFAULT, new BackgroundSize(fieldSize, fieldSize, false, false, false, false));
             setBackground(new Background(bgImg));
 
-            wbbBorder = new Rectangle(robotSize / 2 - UICMain.constants.WAYPOINT_SIZE / 2.0, robotSize / 2 - UICMain.constants.WAYPOINT_SIZE / 2.0, fieldSize - robotSize + UICMain.constants.WAYPOINT_SIZE, fieldSize - robotSize + UICMain.constants.WAYPOINT_SIZE);
+            wbbBorder = new Rectangle(robotSize / 2 - Constants.WAYPOINT_SIZE / 2.0, robotSize / 2 - Constants.WAYPOINT_SIZE / 2.0, fieldSize - robotSize + Constants.WAYPOINT_SIZE, fieldSize - robotSize + Constants.WAYPOINT_SIZE);
             wbbBorder.getStrokeDashArray().addAll(20d, 15d);
             wbbBorder.setFill(Color.TRANSPARENT);
-            wbbBorder.setStroke(new Color(UICMain.constants.WBB_GRAY_SCALE, UICMain.constants.WBB_GRAY_SCALE, UICMain.constants.WBB_GRAY_SCALE, 0.7));
-            wbbBorder.setStrokeWidth(UICMain.constants.WBB_STROKE_WIDTH);
+            wbbBorder.setStroke(new Color(Constants.WBB_GRAY_SCALE, Constants.WBB_GRAY_SCALE, Constants.WBB_GRAY_SCALE, 0.7));
+            wbbBorder.setStrokeWidth(Constants.WBB_STROKE_WIDTH);
             getChildren().add(wbbBorder);
 
-            wbbLeftLeg = new Rectangle(12 * fieldSize / 36 - robotSize / 2.0 + UICMain.constants.WAYPOINT_SIZE / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + UICMain.constants.WAYPOINT_SIZE / 6.0, robotSize + fieldSize / 36 - 7.0 * UICMain.constants.WAYPOINT_SIZE / 8.0, robotSize + 4 * fieldSize / 36 - UICMain.constants.WAYPOINT_SIZE / 2.0);
+            wbbLeftLeg = new Rectangle(12 * fieldSize / 36 - robotSize / 2.0 + Constants.WAYPOINT_SIZE / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + Constants.WAYPOINT_SIZE / 6.0, robotSize + fieldSize / 36 - 7.0 * Constants.WAYPOINT_SIZE / 8.0, robotSize + 4 * fieldSize / 36 - Constants.WAYPOINT_SIZE / 2.0);
             wbbLeftLeg.getStrokeDashArray().addAll(20d, 15d);
             wbbLeftLeg.setFill(Color.TRANSPARENT);
-            wbbLeftLeg.setStroke(new Color(UICMain.constants.WBB_GRAY_SCALE, UICMain.constants.WBB_GRAY_SCALE, UICMain.constants.WBB_GRAY_SCALE, 0.7));
-            wbbLeftLeg.setStrokeWidth(UICMain.constants.WBB_STROKE_WIDTH);
+            wbbLeftLeg.setStroke(new Color(Constants.WBB_GRAY_SCALE, Constants.WBB_GRAY_SCALE, Constants.WBB_GRAY_SCALE, 0.7));
+            wbbLeftLeg.setStrokeWidth(Constants.WBB_STROKE_WIDTH);
             getChildren().add(wbbLeftLeg);
 
-            wbbRightLeg = new Rectangle(23 * fieldSize / 36 - robotSize / 2.0 + UICMain.constants.WAYPOINT_SIZE / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + UICMain.constants.WAYPOINT_SIZE / 6.0, robotSize + fieldSize / 36 - 7.0 * UICMain.constants.WAYPOINT_SIZE / 8.0, robotSize + 4 * fieldSize / 36 - UICMain.constants.WAYPOINT_SIZE / 2.0);
+            wbbRightLeg = new Rectangle(23 * fieldSize / 36 - robotSize / 2.0 + Constants.WAYPOINT_SIZE / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + Constants.WAYPOINT_SIZE / 6.0, robotSize + fieldSize / 36 - 7.0 * Constants.WAYPOINT_SIZE / 8.0, robotSize + 4 * fieldSize / 36 - Constants.WAYPOINT_SIZE / 2.0);
             wbbRightLeg.getStrokeDashArray().addAll(20d, 15d);
             wbbRightLeg.setFill(Color.TRANSPARENT);
-            wbbRightLeg.setStroke(new Color(UICMain.constants.WBB_GRAY_SCALE, UICMain.constants.WBB_GRAY_SCALE, UICMain.constants.WBB_GRAY_SCALE, 0.7));
-            wbbRightLeg.setStrokeWidth(UICMain.constants.WBB_STROKE_WIDTH);
+            wbbRightLeg.setStroke(new Color(Constants.WBB_GRAY_SCALE, Constants.WBB_GRAY_SCALE, Constants.WBB_GRAY_SCALE, 0.7));
+            wbbRightLeg.setStrokeWidth(Constants.WBB_STROKE_WIDTH);
             getChildren().add(wbbRightLeg);
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,7 +122,7 @@ public class FieldPane extends Pane {
                             deselectAll();
                         }
                     } else if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.getTarget().equals(wbbBorder)) {
-                        if (isInWBB(mouseX - UICMain.constants.WAYPOINT_SIZE / 2.0, mouseY - UICMain.constants.WAYPOINT_SIZE / 2.0, UICMain.constants.WAYPOINT_SIZE)) {
+                        if (isInWBB(mouseX - Constants.WAYPOINT_SIZE / 2.0, mouseY - Constants.WAYPOINT_SIZE / 2.0, Constants.WAYPOINT_SIZE)) {
                             Pose newPose = displayToPose(mouseX, mouseY, 0);
                             if (UICMain.isBuildingPaths) {
                                 if (UICMain.selectedSpline != null) {
@@ -133,14 +134,14 @@ public class FieldPane extends Pane {
                                     }
                                     UICMain.queueFieldEdits(new FieldEdit(UICMain.selectedSpline.id, FieldEdit.Type.EDIT_BODY, UICMain.selectedSpline.spline.writeJSON().toString()));
                                 } else {
-                                    DisplaySpline newSpline = new DisplaySpline(newPose, UICMain.constants);
+                                    DisplaySpline newSpline = new DisplaySpline(newPose);
                                     UICMain.fieldObjects.add(newSpline);
                                     newSpline.waypoints.get(0).select();
                                     UICMain.queueFieldEdits(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON().toString()));
                                 }
                             } else {
                                 deselectAll();
-                                Waypoint newWP = new Waypoint(UICMain.opModeID + ".waypoint.", newPose, UICMain.constants, null, true);
+                                Waypoint newWP = new Waypoint(UICMain.opModeID + ".waypoint.", newPose, null, true);
                                 UICMain.fieldObjects.add(newWP);
                                 newWP.addDisplayGroup();
                                 UICMain.queueFieldEdits(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray()).toString()));
@@ -156,8 +157,8 @@ public class FieldPane extends Pane {
 
     // Converts pose to view coords
     public double[] poseToDisplay(Pose original, double size) {
-        double x1 = (original.x / (UICMain.constants.COORD_AXIS_LENGTH_UNITS / 2)) * (fieldSize / 2.0);
-        double y1 = (original.y / (UICMain.constants.COORD_AXIS_LENGTH_UNITS / 2)) * (fieldSize / 2.0);
+        double x1 = (original.x / (Constants.COORD_AXIS_LENGTH_UNITS / 2)) * (fieldSize / 2.0);
+        double y1 = (original.y / (Constants.COORD_AXIS_LENGTH_UNITS / 2)) * (fieldSize / 2.0);
         double x2 = x1 + (fieldSize / 2.0);
         double y2 = y1 + (fieldSize / 2.0);
         double x3 = x2;
@@ -172,8 +173,8 @@ public class FieldPane extends Pane {
         double y1 = fieldSize - (y + size / 2.0);
         double x2 = x1 - (fieldSize / 2.0);
         double y2 = y1 - (fieldSize / 2.0);
-        double x3 = (x2 / (fieldSize / 2.0)) * (UICMain.constants.COORD_AXIS_LENGTH_UNITS / 2);
-        double y3 = (y2 / (fieldSize / 2.0)) * (UICMain.constants.COORD_AXIS_LENGTH_UNITS / 2);
+        double x3 = (x2 / (fieldSize / 2.0)) * (Constants.COORD_AXIS_LENGTH_UNITS / 2);
+        double y3 = (y2 / (fieldSize / 2.0)) * (Constants.COORD_AXIS_LENGTH_UNITS / 2);
 
         return new Pose(Math.round(x3 * 1000.0) / 1000.0, Math.round(y3 * 1000.0) / 1000.0);
     }

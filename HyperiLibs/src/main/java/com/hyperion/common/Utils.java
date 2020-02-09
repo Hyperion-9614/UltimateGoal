@@ -83,8 +83,8 @@ public class Utils {
         return difference;
     }
 
-    public static String readDataJSON(String fileName, Constants constants) {
-        return readFile(new File(constants.RES_DATA_PREFIX + "/" + fileName + ".json"));
+    public static String readDataJSON(String fileName) {
+        return readFile(new File(Constants.RES_DATA_PREFIX + "/" + fileName + ".json"));
     }
 
     public static String readFile(File file) {
@@ -111,9 +111,9 @@ public class Utils {
         return json;
     }
 
-    public static void writeDataJSON(String json, String fileName, Constants constants) {
+    public static void writeDataJSON(String json, String fileName) {
         try {
-            writeFile(new JSONObject(json).toString(4), new File(constants.RES_DATA_PREFIX + "/" + fileName + ".json"));
+            writeFile(new JSONObject(json).toString(4), new File(Constants.RES_DATA_PREFIX + "/" + fileName + ".json"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -162,10 +162,8 @@ public class Utils {
         return simpleDateFormat.format(new Date());
     }
 
-    public static void printSocketLog(String from, String to, String message, Options options) {
-        if (options.socketLog) {
-            System.out.println("[" + Utils.getFormattedDate() + "] " + from.toUpperCase() + " -> " + to.toUpperCase() + ": " + message);
-        }
+    public static void printSocketLog(String from, String to, String message) {
+        System.out.println("[" + Utils.getFormattedDate() + "] " + from.toUpperCase() + " -> " + to.toUpperCase() + ": " + message);
     }
 
     public static double clip(double n, double min, double max) {

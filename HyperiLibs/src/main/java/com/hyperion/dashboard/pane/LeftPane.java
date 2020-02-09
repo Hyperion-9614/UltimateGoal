@@ -29,7 +29,6 @@ import javafx.scene.text.TextAlignment;
 
 public class LeftPane extends VBox {
 
-    public TextArea optionsDisplay;
     public TextArea configDisplay;
 
     @SuppressWarnings("unchecked")
@@ -45,18 +44,6 @@ public class LeftPane extends VBox {
             optionsLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
             optionsLabel.setPrefWidth(getPrefWidth());
             getChildren().add(optionsLabel);
-
-            optionsDisplay = new TextArea();
-            optionsDisplay.setStyle("-fx-font: 14px \"Arial\";");
-            optionsDisplay.setText(UICMain.options.toJSONObject().toString(4));
-            optionsDisplay.setPrefSize(50, 7 * optionsDisplay.getPrefRowCount() + 8);
-            optionsDisplay.setEditable(true);
-            optionsDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
-                if (!oldValue.isEmpty()) {
-                    UICMain.changeSaveStatus(!Utils.condensedEquals(newValue, UICMain.optionsSave));
-                }
-            });
-            getChildren().add(optionsDisplay);
 
             HBox buttons = new HBox();
             buttons.setSpacing(10);

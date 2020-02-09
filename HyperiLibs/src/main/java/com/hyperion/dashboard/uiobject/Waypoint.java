@@ -36,8 +36,7 @@ public class Waypoint extends FieldObject {
     private long startDragTime;
     private double dragDx, dragDy;
 
-    public Waypoint(String id, double x, double y, double theta, Constants constants, DisplaySpline parentSpline, boolean renderID) {
-        this.constants = constants;
+    public Waypoint(String id, double x, double y, double theta, DisplaySpline parentSpline, boolean renderID) {
         this.id = id;
         this.pose = new Pose(x, y, theta);
         this.renderID = renderID;
@@ -45,21 +44,21 @@ public class Waypoint extends FieldObject {
         createDisplayGroup();
     }
 
-    public Waypoint(String id, Pose pose, Constants constants, DisplaySpline parentSpline, boolean renderID) {
-        this(id, pose.x, pose.y, pose.theta, constants, parentSpline, renderID);
+    public Waypoint(String id, Pose pose, DisplaySpline parentSpline, boolean renderID) {
+        this(id, pose.x, pose.y, pose.theta, parentSpline, renderID);
     }
 
     public Waypoint(String key, JSONArray wpArr) throws Exception {
-        this(key, wpArr.getDouble(0), wpArr.getDouble(1), wpArr.getDouble(2), UICMain.constants, null, true);
+        this(key, wpArr.getDouble(0), wpArr.getDouble(1), wpArr.getDouble(2), null, true);
     }
 
     public void createDisplayGroup() {
         try {
             displayGroup = new Group();
 
-            imgView = new ImageView(new File(UICMain.constants.RES_IMG_PREFIX + "/waypoint.png").toURI().toURL().toString());
-            imgView.setFitWidth(constants.WAYPOINT_SIZE);
-            imgView.setFitHeight(constants.WAYPOINT_SIZE);
+            imgView = new ImageView(new File(Constants.RES_IMG_PREFIX + "/waypoint.png").toURI().toURL().toString());
+            imgView.setFitWidth(Constants.WAYPOINT_SIZE);
+            imgView.setFitHeight(Constants.WAYPOINT_SIZE);
             displayGroup.getChildren().add(imgView);
 
             if (renderID) {
@@ -121,7 +120,7 @@ public class Waypoint extends FieldObject {
         }
     }
 
-    public void setListeners() {
+    private void setListeners() {
         displayGroup.setOnMouseClicked((event -> {
             try {
                 if (event.getButton() == MouseButton.SECONDARY) {
@@ -158,13 +157,13 @@ public class Waypoint extends FieldObject {
             double newX = event.getSceneX() + dragDx;
             double newY = event.getSceneY() + dragDy;
 
-            Rectangle rect = new Rectangle(newX, newY, UICMain.constants.WAYPOINT_SIZE, UICMain.constants.WAYPOINT_SIZE);
-            Rectangle rectX = new Rectangle(newX, imgView.getLayoutY(), UICMain.constants.WAYPOINT_SIZE, UICMain.constants.WAYPOINT_SIZE);
-            Rectangle rectY = new Rectangle(imgView.getLayoutX(), newY, UICMain.constants.WAYPOINT_SIZE, UICMain.constants.WAYPOINT_SIZE);
+            Rectangle rect = new Rectangle(newX, newY, Constants.WAYPOINT_SIZE, Constants.WAYPOINT_SIZE);
+            Rectangle rectX = new Rectangle(newX, imgView.getLayoutY(), Constants.WAYPOINT_SIZE, Constants.WAYPOINT_SIZE);
+            Rectangle rectY = new Rectangle(imgView.getLayoutX(), newY, Constants.WAYPOINT_SIZE, Constants.WAYPOINT_SIZE);
             boolean[] intersects = UICMain.fieldPane.getWBBIntersects(rect, rectX, rectY);
             if (intersects[0]) imgView.setLayoutX(newX);
             if (intersects[1]) imgView.setLayoutY(newY);
-            pose = UICMain.fieldPane.viewToPose(imgView, UICMain.constants.WAYPOINT_SIZE);
+            pose = UICMain.fieldPane.viewToPose(imgView, Constants.WAYPOINT_SIZE);
             refreshDisplayGroup();
         }));
 
@@ -196,17 +195,17 @@ public class Waypoint extends FieldObject {
     }
 
     public void refreshDisplayGroup() {
-        double[] poseToDisplay = UICMain.fieldPane.poseToDisplay(pose, constants.WAYPOINT_SIZE);
+        double[] poseToDisplay = UICMain.fieldPane.poseToDisplay(pose, Constants.WAYPOINT_SIZE);
         imgView.relocate(poseToDisplay[0], poseToDisplay[1]);
         imgView.setRotate(poseToDisplay[2]);
         if (renderID) {
             idField.setText(id.replace(UICMain.opModeID + ".", ""));
-            idField.relocate(poseToDisplay[0] + constants.WAYPOINT_SIZE + 3, poseToDisplay[1] - 24);
+            idField.relocate(poseToDisplay[0] + Constants.WAYPOINT_SIZE + 3, poseToDisplay[1] - 24);
         }
         info.setText(pose.toString().replace(" | ", "\n"));
-        info.relocate(poseToDisplay[0] + constants.WAYPOINT_SIZE + 3, poseToDisplay[1] + constants.WAYPOINT_SIZE - 21);
-        selectRect.relocate(poseToDisplay[0] + constants.WAYPOINT_SIZE / 2.0 - UICMain.fieldPane.robotSize / 2.0,
-                            poseToDisplay[1] + constants.WAYPOINT_SIZE / 2.0 - UICMain.fieldPane.robotSize / 2.0);
+        info.relocate(poseToDisplay[0] + Constants.WAYPOINT_SIZE + 3, poseToDisplay[1] + Constants.WAYPOINT_SIZE - 21);
+        selectRect.relocate(poseToDisplay[0] + Constants.WAYPOINT_SIZE / 2.0 - UICMain.fieldPane.robotSize / 2.0,
+                            poseToDisplay[1] + Constants.WAYPOINT_SIZE / 2.0 - UICMain.fieldPane.robotSize / 2.0);
         selectRect.setRotate(poseToDisplay[2]);
     }
 

@@ -18,8 +18,6 @@ import org.firstinspires.ftc.teamcode.core.Motion;
 public class AUTO_Main extends LinearOpMode {
 
     private Hardware hw;
-    private Motion motion;
-    private Appendages appendages;
 
     public int skyStone0;
     public int skyStone1;
@@ -32,8 +30,6 @@ public class AUTO_Main extends LinearOpMode {
     @Override
     public void runOpMode() {
         hw = new Hardware(this);
-        motion = hw.motion;
-        appendages = hw.appendages;
 
         while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hw.isRunning))) {
             if (gamepad1.dpad_up) {
@@ -70,8 +66,8 @@ public class AUTO_Main extends LinearOpMode {
 
             if (hw.opModeID.endsWith("full")) {
                 hw.compWheelsR.setPower(0.6);
-                sleep(750);
-                appendages.setCompWheelsStatus("off");
+                sleep(500);
+                Appendages.setCompWheelsStatus("off");
 
                 goToStone(skyStone0);
                 pickUpBlock();
@@ -90,38 +86,37 @@ public class AUTO_Main extends LinearOpMode {
 
     // Pick up a block
     private void pickUpBlock() {
-        appendages.setCompWheelsStatus("in");
-        motion.pidMove(45, 7 * Math.PI / 4, 5 * Math.PI / 4);
-        sleep(500);
-        appendages.cycleChainBar();
-        appendages.setClawStatus("closed");
-        appendages.setCompWheelsStatus("off");
-        motion.pidMove(50, Math.PI, 0);
+        Appendages.setCompWheelsStatus("in");
+        Motion.pidMove(37, 7 * Math.PI / 4, 5 * Math.PI / 4);
+        Appendages.cycleChainBar();
+        Appendages.setClawStatus("closed");
+        Appendages.setCompWheelsStatus("off");
+        Motion.pidMove(40, Math.PI, 0);
     }
 
     // Pivot drag foundation & push into building zone
     private void dragFoundation() {
-        motion.pidMove("drag0");
+        Motion.pidMove("drag0");
         if (hw.opModeID.contains("full"))
             placeStone(false);
-        appendages.setFoundationMoverStatus("down");
-        motion.pidMove("drag1");
-        motion.pidMove("drag2");
-        appendages.setFoundationMoverStatus("up");
+        Appendages.setFoundationMoverStatus("down");
+        Motion.pidMove("drag1");
+        Motion.pidMove("drag2");
+        Appendages.setFoundationMoverStatus("up");
     }
 
     // Go to a stone position
     private void goToStone(int position) {
-        motion.pidMove(motion.getWaypoint("pickup0").addVector(new Vector2D(position * 20.32, 3 * Math.PI / 2, false)));
+        Motion.pidMove(Motion.getWaypoint("pickup0").addVector(new Vector2D(position * 20.32, 3 * Math.PI / 2, false)));
     }
 
     // Place a stone on foundation
     public void placeStone(boolean goToWaypoint) {
         if (goToWaypoint)
-            motion.pidMove("place");
-        appendages.cycleChainBar();
-        appendages.setClawStatus("open");
-        appendages.cycleChainBar();
+            Motion.pidMove("place");
+        Appendages.cycleChainBar();
+        Appendages.setClawStatus("open");
+        Appendages.cycleChainBar();
     }
 
 }

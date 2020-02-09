@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.hyperion.common.Constants;
 import com.hyperion.motion.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -18,9 +19,6 @@ import org.firstinspires.ftc.teamcode.core.Motion;
 public class TELE_Main extends LinearOpMode {
 
     private Hardware hw;
-    private Motion motion;
-    private Appendages appendages;
-
     private boolean isHtStarted;
     private double preHtTheta;
 
@@ -38,8 +36,6 @@ public class TELE_Main extends LinearOpMode {
     @Override
     public void runOpMode() {
         hw = new Hardware(this);
-        motion = hw.motion;
-        appendages = hw.appendages;
 
         while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hw.isRunning))) {
             if (gamepad1.dpad_up) {
@@ -75,13 +71,13 @@ public class TELE_Main extends LinearOpMode {
             if (rot == 0) {
                 isHtStarted = false;
             } else if (rot != 0 && !isHtStarted) {
-                preHtTheta = motion.robot.pose.theta;
+                preHtTheta = Motion.robot.pose.theta;
                 isHtStarted = true;
             }
             if (isHtStarted) {
-                vel.rotate(preHtTheta - motion.robot.pose.theta);
+                vel.rotate(preHtTheta - Motion.robot.pose.theta);
             }
-            motion.setDrive(vel, rot);
+            Motion.setDrive(vel, rot);
 
             /*
              * GAMEPAD 1
@@ -89,13 +85,13 @@ public class TELE_Main extends LinearOpMode {
              * LEFT BUMPER : Outtake
              */
             if (gamepad1.right_bumper && !intakeToggle) {
-                appendages.setCompWheelsStatus(appendages.compWheelsStatus.equals("in") ? "off" : "in");
+                Appendages.setCompWheelsStatus(Appendages.compWheelsStatus.equals("in") ? "off" : "in");
                 intakeToggle = true;
             } else if (!gamepad1.right_bumper) {
                 intakeToggle = false;
             }
             if (gamepad1.left_bumper && !outtakeToggle) {
-                appendages.setCompWheelsStatus(appendages.compWheelsStatus.equals("out") ? "off" : "out");
+                Appendages.setCompWheelsStatus(Appendages.compWheelsStatus.equals("out") ? "off" : "out");
                 outtakeToggle = true;
             } else if (!gamepad1.left_bumper) {
                 outtakeToggle = false;
@@ -106,7 +102,7 @@ public class TELE_Main extends LinearOpMode {
              * A : Foundation mover toggle
              */
             if (gamepad1.a && !foundationMoverToggle) {
-                appendages.setFoundationMoverStatus(appendages.foundationMoverStatus.equals("down") ? "up" : "down");
+                Appendages.setFoundationMoverStatus(Appendages.foundationMoverStatus.equals("down") ? "up" : "down");
                 foundationMoverToggle = true;
             } else if (!gamepad1.a) {
                 foundationMoverToggle = false;
@@ -118,7 +114,7 @@ public class TELE_Main extends LinearOpMode {
              * RIGHT TRIGGER : Vertical slides up
              */
             double vertSlidePower = Math.pow(gamepad2.right_trigger - gamepad2.left_trigger, 3);
-            appendages.setVerticalSlidePower(vertSlidePower);
+            Appendages.setVerticalSlidePower(vertSlidePower);
 
             /*
              * GAMEPAD 2
@@ -126,12 +122,12 @@ public class TELE_Main extends LinearOpMode {
              * DPAD DOWN : Go to save position/decrement slides ticks
              */
             if (gamepad2.dpad_up) {
-                appendages.setVerticalSlidePosition(Math.max(hw.vertSlideL.getCurrentPosition(), appendages.slidesSaveTicks));
-                appendages.slidesSaveTicks += hw.constants.SLIDES_PRESET_INCREMENT_TICKS;
+                Appendages.setVerticalSlidePosition(Math.max(hw.vertSlideL.getCurrentPosition(), Appendages.slidesSaveTicks));
+                Appendages.slidesSaveTicks += Constants.SLIDES_PRESET_INCREMENT_TICKS;
             }
             if (gamepad2.dpad_down) {
-                appendages.setVerticalSlidePosition(Math.max(hw.vertSlideL.getCurrentPosition(), appendages.slidesSaveTicks));
-                appendages.slidesSaveTicks -= hw.constants.SLIDES_PRESET_INCREMENT_TICKS;
+                Appendages.setVerticalSlidePosition(Math.max(hw.vertSlideL.getCurrentPosition(), Appendages.slidesSaveTicks));
+                Appendages.slidesSaveTicks -= Constants.SLIDES_PRESET_INCREMENT_TICKS;
             }
             
             /*
@@ -139,7 +135,7 @@ public class TELE_Main extends LinearOpMode {
              * B : Claw toggle
              */
             if (gamepad2.b && !clawToggle) {
-                appendages.setClawStatus(appendages.clawStatus.equals("open") ? "closed" : "open");
+                Appendages.setClawStatus(Appendages.clawStatus.equals("open") ? "closed" : "open");
                 clawToggle = true;
             } else if (!gamepad2.b) {
                 clawToggle = false;
@@ -150,7 +146,7 @@ public class TELE_Main extends LinearOpMode {
              * X : Chain bar toggle
              */
             if (gamepad2.x && !chainBarToggle) {
-                appendages.cycleChainBar();
+                Appendages.cycleChainBar();
                 chainBarToggle = true;
             } else if (!gamepad2.x) {
                 chainBarToggle = false;
@@ -161,7 +157,7 @@ public class TELE_Main extends LinearOpMode {
              * RIGHT STICK BUTTON : Reset vertical slide encoders
              */
             if (gamepad2.right_stick_button && !resetVertSlidesToggle) {
-                appendages.resetVerticalSlideEncoders();
+                Appendages.resetVerticalSlideEncoders();
                 resetVertSlidesToggle = true;
             } else if (!gamepad2.right_stick_button) {
                 resetVertSlidesToggle = false;
@@ -172,7 +168,7 @@ public class TELE_Main extends LinearOpMode {
              * Y : Capstone toggle
              */
             if (gamepad2.y && !capstoneToggle) {
-                appendages.setCapstoneStatus(appendages.capstoneStatus.equals("down") ? "up" : "down");
+                Appendages.setCapstoneStatus(Appendages.capstoneStatus.equals("down") ? "up" : "down");
                 capstoneToggle = true;
             } else if (!gamepad2.y) {
                 capstoneToggle = false;

@@ -19,14 +19,11 @@ import org.json.JSONObject;
 public class MotionProfile {
 
     public SplineTrajectory spline;
-    public Constants constants;
-
     public Piecewise tVelProfile;
     public Piecewise tAccProfile;
 
     public MotionProfile(SplineTrajectory spline) {
         this.spline = spline;
-        constants = spline.constants;
         tVelProfile = new Piecewise();
         tAccProfile = new Piecewise();
     }
@@ -46,7 +43,7 @@ public class MotionProfile {
             RigidBody p = spline.planningPoints.get(i);
             double dX = spline.distanceX.evaluate(p.distance, 1, true);
             double dY = spline.distanceY.evaluate(p.distance, 1, true);
-            p.tVel = new Vector2D(constants.MAX_TRANSLATIONAL_VELOCITY, Utils.normalizeTheta(Math.atan2(dY, dX), 0, 2 * Math.PI), false);
+            p.tVel = new Vector2D(Constants.MAX_TRANSLATIONAL_VELOCITY, Utils.normalizeTheta(Math.atan2(dY, dX), 0, 2 * Math.PI), false);
         }
         spline.planningPoints.get(0).tVel.setMagnitude(0);
     }
@@ -56,7 +53,7 @@ public class MotionProfile {
         for (int i = 0; i < spline.planningPoints.size() - 1; i++) {
             RigidBody p0 = spline.planningPoints.get(i);
             RigidBody p1 = spline.planningPoints.get(i + 1);
-            p1.tVel.setMagnitude(Math.min(constants.MAX_TRANSLATIONAL_VELOCITY, Math.sqrt(Math.pow(p0.tVel.magnitude, 2) + 2 * constants.MAX_TRANSLATIONAL_ACCELERATION * (p1.distance - p0.distance))));
+            p1.tVel.setMagnitude(Math.min(Constants.MAX_TRANSLATIONAL_VELOCITY, Math.sqrt(Math.pow(p0.tVel.magnitude, 2) + 2 * Constants.MAX_TRANSLATIONAL_ACCELERATION * (p1.distance - p0.distance))));
         }
     }
 
@@ -66,7 +63,7 @@ public class MotionProfile {
         for (int i = spline.planningPoints.size() - 1; i > 0; i--) {
             RigidBody p1 = spline.planningPoints.get(i);
             RigidBody p0 = spline.planningPoints.get(i - 1);
-            p0.tVel.setMagnitude(Math.min(p0.tVel.magnitude, Math.sqrt(Math.pow(p1.tVel.magnitude, 2) + 2 * constants.MAX_TRANSLATIONAL_ACCELERATION * (p1.distance - p0.distance))));
+            p0.tVel.setMagnitude(Math.min(p0.tVel.magnitude, Math.sqrt(Math.pow(p1.tVel.magnitude, 2) + 2 * Constants.MAX_TRANSLATIONAL_ACCELERATION * (p1.distance - p0.distance))));
         }
 
         spline.planningPoints.get(0).tVel.setMagnitude(0);
@@ -78,7 +75,7 @@ public class MotionProfile {
         for (int i = 0; i < spline.planningPoints.size() - 1; i++) {
             RigidBody p0 = spline.planningPoints.get(i);
             RigidBody p1 = spline.planningPoints.get(i + 1);
-            double maxAcceleration = Math.min(constants.MAX_TRANSLATIONAL_ACCELERATION, Math.abs(Math.pow(p1.tVel.magnitude, 2) - Math.pow(p0.tVel.magnitude, 2)) / (2 * (p1.distance - p0.distance)));
+            double maxAcceleration = Math.min(Constants.MAX_TRANSLATIONAL_ACCELERATION, Math.abs(Math.pow(p1.tVel.magnitude, 2) - Math.pow(p0.tVel.magnitude, 2)) / (2 * (p1.distance - p0.distance)));
             p0.tAcc.setMagnitude(maxAcceleration);
             p0.tAcc.setTheta(p0.tVel.theta + (p1.tVel.magnitude < p0.tVel.magnitude ? Math.PI : 0));
         }

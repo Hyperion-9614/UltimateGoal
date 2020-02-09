@@ -7,15 +7,18 @@ import org.firstinspires.ftc.teamcode.core.Hardware;
 
 @TeleOp
 public class Vision extends LinearOpMode {
-    private Hardware hardware;
+
+    private Hardware hw;
 
     @Override
     public void runOpMode() {
-        hardware = new Hardware(this);
-        hardware.initCV();
+        hw = new Hardware(this);
+
         waitForStart();
+
         while (opModeIsActive()) {
             sleep(100);
-            }
         }
     }
+
+}
