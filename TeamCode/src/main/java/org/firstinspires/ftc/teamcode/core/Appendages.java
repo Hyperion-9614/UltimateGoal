@@ -62,7 +62,7 @@ public class Appendages {
         setVerticalSlidePower(1);
         ElapsedTime timer = new ElapsedTime();
         while ((hw.vertSlideL.isBusy() || hw.vertSlideR.isBusy()) && timer.milliseconds() <= 4000
-                && (hw.context.gamepad1.left_stick_x == 0 && hw.context.gamepad1.left_stick_y == 0 && hw.context.gamepad1.right_stick_x == 0)) {
+                && (hw.ctx.gamepad1.left_stick_x == 0 && hw.ctx.gamepad1.left_stick_y == 0 && hw.ctx.gamepad1.right_stick_x == 0)) {
 
         }
 
@@ -104,13 +104,13 @@ public class Appendages {
             hw.foundationMoverL.setPosition(0.3);
             hw.foundationMoverR.setPosition(0.3);
         }
-        hw.context.sleep(500);
+        hw.ctx.sleep(500);
     }
 
     public static void setChainBarPosition(double position) {
         hw.chainBarL.setPosition(position);
         hw.chainBarR.setPosition(position);
-        hw.context.sleep(500);
+        hw.ctx.sleep(500);
     }
 
     public static void setChainBarStatus(String upInOut) {
@@ -123,7 +123,7 @@ public class Appendages {
         } else if (chainBarStatus.equals("out")) {
             setChainBarPosition(0.45);
         }
-        hw.context.sleep(500);
+        hw.ctx.sleep(500);
     }
 
     public static void cycleChainBar() {
@@ -147,7 +147,7 @@ public class Appendages {
         } else {
             hw.claw.setPower(1.0);
         }
-        hw.context.sleep(500);
+        hw.ctx.sleep(500);
     }
 
     public static void setCapstoneStatus(String upDown) {

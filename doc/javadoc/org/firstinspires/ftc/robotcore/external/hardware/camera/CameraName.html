@@ -125,7 +125,7 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../org/firstinspires/ftc/robotcore/external/hardware/camera/CameraName.html#asyncRequestCameraPermission-android.content.Context-Deadline--">asyncRequestCameraPermission</a></span>(android.content.Context&nbsp;context,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../org/firstinspires/ftc/robotcore/external/hardware/camera/CameraName.html#asyncRequestCameraPermission-android.content.Context-Deadline--">asyncRequestCameraPermission</a></span>(android.content.Context&nbsp;ctx,
                             Deadline&nbsp;deadline,
                             &lt;any&gt;&nbsp;continuation)</code>
 <div class="block">Requests from the user permission to use the camera if same has not already been granted.</div>
@@ -253,7 +253,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>asyncRequestCameraPermission</h4>
-<pre>void&nbsp;asyncRequestCameraPermission(android.content.Context&nbsp;context,
+<pre>void&nbsp;asyncRequestCameraPermission(android.content.Context&nbsp;ctx,
                                   Deadline&nbsp;deadline,
                                   &lt;any&gt;&nbsp;continuation)</pre>
 <div class="block">Requests from the user permission to use the camera if same has not already been granted.
@@ -263,7 +263,7 @@ var activeTableTab = "activeTableTab";
  be delivered using the indicated <code>Continuation</code></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - the context in which the permission request should run</dd>
+<dd><code>ctx</code> - the ctx in which the permission request should run</dd>
 <dd><code>deadline</code> - the time by which the request must be honored or given up as ungranted.
                       If this <code>Deadline</code> is cancelled while the request is outstanding,
                       then the permission request will be aborted and false reported as

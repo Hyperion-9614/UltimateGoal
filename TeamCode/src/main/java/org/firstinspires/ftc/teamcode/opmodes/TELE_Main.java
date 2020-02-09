@@ -30,32 +30,13 @@ public class TELE_Main extends LinearOpMode {
     private boolean clawToggle;
     private boolean capstoneToggle;
 
-    private String[] opModeIDs = new String[]{ "tele.blue", "tele.red" };
-    private int opModeSelectorIndex = -1;
-
     @Override
     public void runOpMode() {
         hw = new Hardware(this);
-
         while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hw.isRunning))) {
-            if (gamepad1.dpad_up) {
-                opModeSelectorIndex++;
-                if (opModeSelectorIndex >= opModeIDs.length)
-                    opModeSelectorIndex = 0;
-                hw.initOpMode(opModeIDs[opModeSelectorIndex]);
-                sleep(250);
-            } else if (gamepad1.dpad_down) {
-                opModeSelectorIndex--;
-                if (opModeSelectorIndex < 0)
-                    opModeSelectorIndex = opModeIDs.length - 1;
-                hw.initOpMode(opModeIDs[opModeSelectorIndex]);
-                sleep(250);
-            }
+            hw.initLoop(false);
         }
-        hw.initOpMode(opModeIDs[opModeSelectorIndex]);
-
         executeLoop();
-
         hw.end();
     }
 

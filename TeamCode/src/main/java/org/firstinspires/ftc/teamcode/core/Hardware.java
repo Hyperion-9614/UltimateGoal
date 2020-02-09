@@ -41,10 +41,7 @@ public class Hardware {
     public Thread unimetryUpdater;
     public ElapsedTime autoTime;
 
-    public Motion motion;
-    public Appendages appendages;
-
-    public LinearOpMode context;
+    public LinearOpMode ctx;
     public String opModeID = "Choose OpMode";
 
     public OpenCvInternalCamera phoneCam;
@@ -55,7 +52,6 @@ public class Hardware {
     public String status = opModeID;
 
     public File fieldJSON;
-    public File optionsJson;
     public File nnConfigJson;
     public File modelConfig;
 
@@ -81,9 +77,15 @@ public class Hardware {
     public Servo capstone;
     public CRServo claw;
 
-    public Hardware(LinearOpMode context) {
-        this.context = context;
-        this.hwmp = context.hardwareMap;
+    public int opModeSelectorIndex = -1;
+    public String[] autoOpModeIDs = new String[]{ "auto.blue.full", "auto.red.full",
+                                                  "auto.blue.foundation", "auto.red.foundation",
+                                                  "auto.blue.brick", "auto.red.brick" };
+    public String[] teleOpModeIDs = new String[]{ "tele.blue", "tele.red" };
+
+    public Hardware(LinearOpMode ctx) {
+        this.ctx = ctx;
+        this.hwmp = ctx.hardwareMap;
 
         initFiles();
 
@@ -128,7 +130,7 @@ public class Hardware {
     public void initUpdaters() {
         localizationUpdater = new Thread(() -> {
             long lastUpdateTime = System.currentTimeMillis();
-            while (!localizationUpdater.isInterrupted() && localizationUpdater.isAlive() && !context.isStopRequested()) {
+            while (!localizationUpdater.isInterrupted() && localizationUpdater.isAlive() && !ctx.isStopRequested()) {
                 if (System.currentTimeMillis() - lastUpdateTime >= Constants.LOCALIZATION_DELAY) {
                     lastUpdateTime = System.currentTimeMillis();
                     Motion.localizer.update();
@@ -139,7 +141,7 @@ public class Hardware {
 
         unimetryUpdater = new Thread(() -> {
             long lastUpdateTime = System.currentTimeMillis();
-            while (!unimetryUpdater.isInterrupted() && unimetryUpdater.isAlive() && !context.isStopRequested()) {
+            while (!unimetryUpdater.isInterrupted() && unimetryUpdater.isAlive() && !ctx.isStopRequested()) {
                 if (System.currentTimeMillis() - lastUpdateTime >= Constants.UNIMETRY_DELAY) {
                     lastUpdateTime = System.currentTimeMillis();
                     unimetry.update();
@@ -247,8 +249,6 @@ public class Hardware {
         Motion.robot = new RigidBody(Motion.start);
     }
 
-    ///////////////////////// GENERAL & PRESETS //////////////////////////
-
     // Init all files & resources
     public void initFiles() {
         try {
@@ -260,6 +260,37 @@ public class Hardware {
             e.printStackTrace();
         }
     }
+
+    public void initLoop(boolean isAuto) {
+        String[] opModeIDs = isAuto ? autoOpModeIDs : teleOpModeIDs;
+        if (ctx.gamepad1.dpad_up) {
+            opModeSelectorIndex++;
+            if (opModeSelectorIndex >= opModeIDs.length)
+                opModeSelectorIndex = 0;
+            initOpMode(opModeIDs[opModeSelectorIndex]);
+            ctx.sleep(250);
+        } else if (ctx.gamepad1.dpad_down) {
+            opModeSelectorIndex--;
+            if (opModeSelectorIndex < 0)
+                opModeSelectorIndex = opModeIDs.length - 1;
+            initOpMode(opModeIDs[opModeSelectorIndex]);
+            ctx.sleep(250);
+        }
+
+        if (isAuto) {
+            if (ctx.gamepad1.dpad_right) {
+                if (!opModeID.equals("Choose OpMode") && Motion.getWaypoint("parkEast") != null) {
+                    Motion.waypoints.put("park", Motion.getWaypoint("parkEast"));
+                }
+            } else if (ctx.gamepad1.dpad_left) {
+                if (!opModeID.equals("Choose OpMode") && Motion.getWaypoint("parkWest") != null) {
+                    Motion.waypoints.put("park", Motion.getWaypoint("parkWest"));
+                }
+            }
+        }
+    }
+
+    ///////////////////////// GENERAL & PRESETS //////////////////////////
 
     // Choose between two values depending on opMode color
     public double choose(double blue, double red) {
@@ -314,8 +345,8 @@ public class Hardware {
             e.printStackTrace();
         }
 
-        if (!context.isStopRequested() || context.opModeIsActive()) {
-            context.requestOpModeStop();
+        if (!ctx.isStopRequested() || ctx.opModeIsActive()) {
+            ctx.requestOpModeStop();
         }
     }
 

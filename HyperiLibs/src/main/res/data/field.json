@@ -1,9 +1,14 @@
 {
     "splines": {},
     "waypoints": {
-        "auto.blue.brick.waypoint.park": [
+        "auto.blue.brick.waypoint.parkWest": [
             -151.145,
             -0.538,
+            0
+        ],
+        "auto.blue.brick.waypoint.parkEast": [
+            -92.516,
+            0,
             0
         ],
         "auto.blue.brick.waypoint.start": [
@@ -21,9 +26,14 @@
             87.137,
             4.71238898038469
         ],
-        "auto.blue.foundation.waypoint.park": [
-            -151.146,
+        "auto.blue.foundation.waypoint.parkWest": [
+            -152.76,
             -1.076,
+            4.71238898038469
+        ],
+        "auto.blue.foundation.waypoint.parkEast": [
+            -90.902,
+            -0.538,
             4.71238898038469
         ],
         "auto.blue.foundation.waypoint.start": [
@@ -41,7 +51,12 @@
             84.448,
             4.71238898038469
         ],
-        "auto.blue.full.waypoint.park": [
+        "auto.blue.full.waypoint.parkWest": [
+            -150.607,
+            -0.538,
+            4.71238898038469
+        ],
+        "auto.blue.full.waypoint.parkEast": [
             -93.054,
             -1.615,
             4.71238898038469
@@ -61,8 +76,13 @@
             -96.279,
             0
         ],
-        "auto.red.brick.waypoint.park": [
+        "auto.red.brick.waypoint.parkWest": [
             93.054,
+            0,
+            3.141592653589793
+        ],
+        "auto.red.brick.waypoint.parkEast": [
+            144.69,
             0,
             3.141592653589793
         ],
@@ -81,9 +101,14 @@
             88.213,
             4.71238898038469
         ],
-        "auto.red.foundation.waypoint.park": [
-            153.834,
-            -1.613,
+        "auto.red.foundation.waypoint.parkWest": [
+            93.591,
+            -1.076,
+            4.71238898038469
+        ],
+        "auto.red.foundation.waypoint.parkEast": [
+            152.758,
+            -0.537,
             4.71238898038469
         ],
         "auto.red.foundation.waypoint.start": [
@@ -101,9 +126,14 @@
             91.978,
             4.71238898038469
         ],
-        "auto.red.full.waypoint.park": [
-            93.054,
-            0,
+        "auto.red.full.waypoint.parkWest": [
+            91.978,
+            -1.076,
+            4.71238898038469
+        ],
+        "auto.red.full.waypoint.parkEast": [
+            154.91,
+            -0.538,
             4.71238898038469
         ],
         "auto.red.full.waypoint.pickup0": [

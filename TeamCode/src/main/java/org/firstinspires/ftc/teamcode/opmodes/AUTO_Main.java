@@ -22,33 +22,13 @@ public class AUTO_Main extends LinearOpMode {
     public int skyStone0;
     public int skyStone1;
 
-    private String[] opModeIDs = new String[]{ "auto.blue.full", "auto.red.full",
-                                               "auto.blue.foundation", "auto.red.foundation",
-                                               "auto.blue.brick", "auto.red.brick" };
-    private int opModeSelectorIndex = -1;
-
     @Override
     public void runOpMode() {
         hw = new Hardware(this);
-
-        while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hw.isRunning))) {
-            if (gamepad1.dpad_up) {
-                opModeSelectorIndex++;
-                if (opModeSelectorIndex >= opModeIDs.length)
-                    opModeSelectorIndex = 0;
-                hw.initOpMode(opModeIDs[opModeSelectorIndex]);
-                sleep(250);
-            } else if (gamepad1.dpad_down) {
-                opModeSelectorIndex--;
-                if (opModeSelectorIndex < 0)
-                    opModeSelectorIndex = opModeIDs.length - 1;
-                hw.initOpMode(opModeIDs[opModeSelectorIndex]);
-                sleep(250);
-            }
+        while ((!isStopRequested() && (!isStarted() || (opModeIsActive() && !hw.isRunning))) || Motion.getWaypoint("park") == null) {
+            hw.initLoop(true);
         }
-
         execute();
-
         hw.end();
     }
 

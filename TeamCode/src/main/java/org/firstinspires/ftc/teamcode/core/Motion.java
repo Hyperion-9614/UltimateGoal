@@ -65,7 +65,7 @@ public class Motion {
         waypoints.clear();
 
         Iterator keys = wpObj.keys();
-        while (!hw.context.isStarted() && !hw.context.isStopRequested() && keys.hasNext()) {
+        while (!hw.ctx.isStarted() && !hw.ctx.isStopRequested() && keys.hasNext()) {
             String key = keys.next().toString();
             JSONArray waypointArray = wpObj.getJSONArray(key);
             Pose waypoint = new Pose(waypointArray.getDouble(0), waypointArray.getDouble(1), waypointArray.getDouble(2));
@@ -79,7 +79,7 @@ public class Motion {
         splines.clear();
 
         Iterator keys = splinesObj.keys();
-        while (!hw.context.isStarted() && !hw.context.isStopRequested() && keys.hasNext()) {
+        while (!hw.ctx.isStarted() && !hw.ctx.isStopRequested() && keys.hasNext()) {
             String key = keys.next().toString();
             SplineTrajectory spline = new SplineTrajectory(splinesObj.getJSONObject(key));
             splines.put(key, spline);
@@ -138,7 +138,7 @@ public class Motion {
     public static void pidMove(Pose target) {
         homogeneousPID.reset(target);
         ElapsedTime timer = new ElapsedTime();
-        while (hw.context.opModeIsActive() && !hw.context.isStopRequested() && timer.milliseconds() <= 2250
+        while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 2250
                && (robot.pose.distanceTo(target) > Constants.END_TRANSLATION_ERROR_THRESHOLD
                || Math.abs(Utils.optThetaDiff(robot.pose.theta, target.theta)) > Constants.END_ROTATION_ERROR_THRESHOLD)) {
             homogeneousPID.controlLoopIteration(robot.pose);

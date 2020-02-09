@@ -47,7 +47,7 @@ public class DisplaySpline extends FieldObject {
         this.id = UICMain.opModeID + ".spline.";
         ArrayList<RigidBody> wps = new ArrayList<>();
         wps.add(new RigidBody(start));
-        spline = new SplineTrajectory(wps, constants);
+        spline = new SplineTrajectory(wps);
         displayGroup = new Group();
         refreshDisplayGroup();
     }

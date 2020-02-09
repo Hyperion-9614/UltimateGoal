@@ -6,7 +6,6 @@ import org.firstinspires.ftc.teamcode.core.Appendages;
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.firstinspires.ftc.teamcode.core.Motion;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.*;
 
@@ -58,11 +57,11 @@ public class Unimetry {
         data.add(new Entry());
 
         data.add(new Entry("Gamepad 1"));
-        data.add(new Entry("Left Stick X", Utils.round(hardware.context.gamepad1.left_stick_x, 3)));
-        data.add(new Entry("-Left Stick Y", Utils.round(-hardware.context.gamepad1.left_stick_y, 3)));
-        data.add(new Entry("Right Stick X", Utils.round(hardware.context.gamepad1.right_stick_x, 3)));
-        data.add(new Entry("Left Trigger", Utils.round(hardware.context.gamepad1.left_trigger, 3)));
-        data.add(new Entry("Right Trigger", Utils.round(hardware.context.gamepad1.right_trigger, 3)));
+        data.add(new Entry("Left Stick X", Utils.round(hardware.ctx.gamepad1.left_stick_x, 3)));
+        data.add(new Entry("-Left Stick Y", Utils.round(-hardware.ctx.gamepad1.left_stick_y, 3)));
+        data.add(new Entry("Right Stick X", Utils.round(hardware.ctx.gamepad1.right_stick_x, 3)));
+        data.add(new Entry("Left Trigger", Utils.round(hardware.ctx.gamepad1.left_trigger, 3)));
+        data.add(new Entry("Right Trigger", Utils.round(hardware.ctx.gamepad1.right_trigger, 3)));
         data.add(new Entry());
 
         data.add(new Entry("Vision"));
@@ -81,11 +80,11 @@ public class Unimetry {
             JSONArray dataArr = new JSONArray();
             for (int i = 0; i < data.size(); i++) {
                 Entry entry = data.get(i);
-                hardware.context.telemetry.addData(entry.token0, entry.token1);
+                hardware.ctx.telemetry.addData(entry.token0, entry.token1);
                 if (hardware.rcClient != null)
                     dataArr.put(new JSONArray(entry.toArray()));
             }
-            hardware.context.telemetry.update();
+            hardware.ctx.telemetry.update();
 
             if (hardware.rcClient != null) {
                 hardware.rcClient.emit("unimetryUpdated", dataArr.toString());
