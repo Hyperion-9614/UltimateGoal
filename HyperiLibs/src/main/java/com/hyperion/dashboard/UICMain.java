@@ -63,8 +63,6 @@ public class UICMain extends Application {
     public static boolean isSimulating;
 
     public static List<FieldEdit> queuedEdits = new ArrayList<>();
-    public static String configSave = "";
-    public static String optionsSave = "";
     public static String constantsSave = "";
     public static boolean hasUnsavedChanges = false;
 
@@ -175,12 +173,6 @@ public class UICMain extends Application {
                 Utils.printSocketLog("SERVER", "UI", "unimetryUpdated");
                 readUnimetry(args[0].toString());
                 Platform.runLater(() -> rightPane.setUnimetryDisplayText());
-            }).on("configUpdated", args -> {
-                Utils.printSocketLog("SERVER", "UI", "configUpdated");
-                configSave = args[0].toString();
-                if (leftPane != null) {
-                    leftPane.setConfigDisplayText(configSave);
-                }
             });
 
             uiClient.connect();
@@ -255,7 +247,6 @@ public class UICMain extends Application {
                     }
                     break;
                 case EDIT_ID:
-                    clearAllFieldObjectsWithID(edit.id);
                     for (int i = 0; i < fieldObjects.size(); i++) {
                         if (fieldObjects.get(i).id.equals(edit.id)) {
                             fieldObjects.get(i).id = edit.body;
@@ -312,12 +303,6 @@ public class UICMain extends Application {
     public void saveDashboard() {
         try {
             if (hasUnsavedChanges) {
-                String newConfig = leftPane.configDisplay.getText();
-                if (!Utils.condensedEquals(newConfig, configSave)) {
-                    uiClient.emit("configUpdated", newConfig);
-                    Utils.printSocketLog("UI", "SERVER", "configUpdated");
-                }
-
                 String newConstants = rightPane.constantsDisplay.getText();
                 if (!Utils.condensedEquals(newConstants, constantsSave)) {
                     uiClient.emit("constantsUpdated", newConstants);

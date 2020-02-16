@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.modules;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.Utils;
-import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 
@@ -48,7 +47,7 @@ public class HomogeneousPID {
         thetaUt = new ArrayList<>();
     }
 
-    public void controlLoopIteration(Pose robot) {
+    public double[] pidWheelCorrections(Pose robot) {
         if (lastTime == -1) lastTime = System.currentTimeMillis();
         double dT = (System.currentTimeMillis() - lastTime) / 1000.0;
 
@@ -65,17 +64,17 @@ public class HomogeneousPID {
         double uY = pOut(yEt, Constants.Y_K_P) + iOut(yEt, Constants.Y_K_I) + dOut(yEt, Constants.Y_K_D);
         double uTheta = pOut(thetaEt, Constants.THETA_K_P) + iOut(thetaEt, Constants.THETA_K_I) + dOut(thetaEt, Constants.THETA_K_D);
 
-        runMotors(uX, uY, uTheta);
         xUt.add(new double[]{ time, uX });
         yUt.add(new double[]{ time, uY });
         thetaUt.add(new double[]{ time, uTheta });
+        return wheelCorrections(uX, uY, uTheta);
     }
 
-    private void runMotors(double uX, double uY, double uTheta) {
+    private double[] wheelCorrections(double uX, double uY, double uTheta) {
         Vector2D relMoveVec = new Vector2D(uX, uY, true).rotated(Math.PI / 2);
-        relMoveVec.setMagnitude(Math.min(1, relMoveVec.magnitude));
-        double w = -Utils.clip(uTheta, -1, 1);
-        Motion.setDrive(relMoveVec, w);
+        relMoveVec.setMagnitude(Math.min(0.75, relMoveVec.magnitude));
+        double w = -Utils.clip(uTheta, -0.75, 0.75);
+        return Motion.toMotorPowers(relMoveVec, w);
     }
 
     private double pOut(ArrayList<double[]> eT, double kP) {

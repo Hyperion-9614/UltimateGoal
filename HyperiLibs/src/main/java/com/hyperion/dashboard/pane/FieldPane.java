@@ -136,6 +136,7 @@ public class FieldPane extends Pane {
                                 } else {
                                     DisplaySpline newSpline = new DisplaySpline(newPose);
                                     UICMain.fieldObjects.add(newSpline);
+                                    newSpline.addDisplayGroup();
                                     newSpline.waypoints.get(0).select();
                                     UICMain.queueFieldEdits(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON().toString()));
                                 }

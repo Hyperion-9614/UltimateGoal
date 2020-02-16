@@ -29,8 +29,6 @@ import javafx.scene.text.TextAlignment;
 
 public class LeftPane extends VBox {
 
-    public TextArea configDisplay;
-
     @SuppressWarnings("unchecked")
     public LeftPane() {
         try {
@@ -123,37 +121,6 @@ public class LeftPane extends VBox {
                 }
             });
             getChildren().add(opModeSelector);
-
-            Label configLabel = new Label("Config");
-            configLabel.setTextFill(Color.WHITE);
-            configLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
-            configLabel.setPrefWidth(getPrefWidth());
-            getChildren().add(configLabel);
-
-            configDisplay = new TextArea();
-            configDisplay.setStyle("-fx-font: 14px \"Arial\";");
-            configDisplay.setPrefSize(310, 321);
-            configDisplay.setEditable(true);
-            configDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
-                if (!oldValue.isEmpty()) {
-                    UICMain.changeSaveStatus(!Utils.condensedEquals(newValue, UICMain.configSave));
-                }
-            });
-            getChildren().add(configDisplay);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void setConfigDisplayText(String setTo) {
-        try {
-            int caretPosition = configDisplay.caretPositionProperty().get();
-            double scrollLeft = configDisplay.getScrollLeft();
-            double scrollTop = configDisplay.getScrollTop();
-            configDisplay.setText(U.formatXml(setTo));
-            configDisplay.positionCaret(caretPosition);
-            configDisplay.setScrollLeft(scrollLeft);
-            configDisplay.setScrollTop(scrollTop);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -271,6 +271,16 @@ public class Utils {
         return min;
     }
 
+    public static double[] addArrs(double[]... arrs) {
+        double[] arr0 = arrs[0];
+        for (int i = 1; i < arrs.length; i++) {
+            for (int j = 0; j < arr0.length; j++) {
+                arr0[j] += arrs[i][j];
+            }
+        }
+        return arr0;
+    }
+
     public static String condensed(String str) {
         return str.replaceAll("(\\s|\n)", "").trim();
     }

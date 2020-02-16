@@ -129,13 +129,17 @@ public class Waypoint extends FieldObject {
                     if (parentSpline != null) {
                         parentSpline.spline.waypoints.remove(parentSpline.waypoints.indexOf(this));
                         parentSpline.waypoints.remove(this);
+                        parentSpline.spline.endPath();
+                        parentSpline.refreshDisplayGroup();
                         edit = new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString());
                         if (parentSpline.waypoints.size() == 0) {
                             parentSpline.removeDisplayGroup();
-                            edit = new FieldEdit(id, FieldEdit.Type.DELETE, "{}");
+                            edit = new FieldEdit(parentSpline.id, FieldEdit.Type.DELETE, "{}");
                         } else if (parentSpline.waypoints.size() == 1) {
                             parentSpline.waypoints.get(0).select();
                         }
+                    } else {
+                        UICMain.fieldObjects.remove(this);
                     }
                     UICMain.queueFieldEdits(edit);
                 }
@@ -169,10 +173,12 @@ public class Waypoint extends FieldObject {
 
         displayGroup.setOnMouseReleased((event -> {
             try {
-                if (System.currentTimeMillis() - startDragTime > 200) {
+                if (System.currentTimeMillis() - startDragTime > 200 && event.getButton() == MouseButton.PRIMARY) {
                     FieldEdit edit = new FieldEdit(id, FieldEdit.Type.EDIT_BODY, new JSONArray(pose.toArray()).toString());
                     if (parentSpline != null) {
                         parentSpline.spline.waypoints.get(parentSpline.waypoints.indexOf(this)).pose = pose;
+                        parentSpline.spline.endPath();
+                        parentSpline.refreshDisplayGroup();
                         edit = new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString());
                     }
                     UICMain.queueFieldEdits(edit);
@@ -185,7 +191,11 @@ public class Waypoint extends FieldObject {
 
     public void addDisplayGroup() {
         Platform.runLater(() -> {
-            idField.setText(id.replace(UICMain.opModeID + ".waypoint.", ""));
+            if (renderID && parentSpline == null) {
+                idField.setText(id.replace(UICMain.opModeID + ".waypoint.", ""));
+            } else if (renderID) {
+                idField.setText(parentSpline.id.replace(UICMain.opModeID + ".spline.", ""));
+            }
             if (parentSpline != null && parentSpline.id.startsWith(UICMain.opModeID)) {
                 parentSpline.displayGroup.getChildren().add(displayGroup);
             } else if (id.startsWith(UICMain.opModeID)) {
@@ -199,7 +209,11 @@ public class Waypoint extends FieldObject {
         imgView.relocate(poseToDisplay[0], poseToDisplay[1]);
         imgView.setRotate(poseToDisplay[2]);
         if (renderID) {
-            idField.setText(id.replace(UICMain.opModeID + ".", ""));
+            if (parentSpline != null) {
+                idField.setText(parentSpline.id.replace(UICMain.opModeID + ".spline.", ""));
+            } else {
+                idField.setText(id.replace(UICMain.opModeID + ".waypoint.", ""));
+            }
             idField.relocate(poseToDisplay[0] + Constants.WAYPOINT_SIZE + 3, poseToDisplay[1] - 24);
         }
         info.setText(pose.toString().replace(" | ", "\n"));

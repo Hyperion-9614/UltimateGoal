@@ -79,7 +79,11 @@ public class Vector2D {
     }
 
     public void setTheta(double newTheta) {
-        setVec(new Vector2D(magnitude, newTheta, false));
+        setVec(thetaed(newTheta));
+    }
+
+    public Vector2D thetaed(double newTheta) {
+        return new Vector2D(magnitude, newTheta, false);
     }
 
     public void rotate(double dTheta) {

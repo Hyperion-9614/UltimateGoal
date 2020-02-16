@@ -27,7 +27,7 @@ public class Motion {
     public static Hardware hw;
 
     public static Localizer localizer;
-    public static HomogeneousPID homogeneousPID;
+    public static HomogeneousPID pid;
     public static DStarLite dStarLite;
 
     public static RigidBody start = new RigidBody(new Pose(0, 0, 0));
@@ -47,7 +47,7 @@ public class Motion {
 
         localizer = new Localizer(hw);
         dStarLite = new DStarLite();
-        homogeneousPID = new HomogeneousPID(hw);
+        pid = new HomogeneousPID(hw);
 
         for (DcMotor motor : hw.hwmp.dcMotor) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -112,13 +112,19 @@ public class Motion {
             hw.bRDrive.setPower(powers[1]);
         }
     }
-    public static void setDrive(Vector2D relMoveVec, double rot) {
-        setDrive(new double[]{
+    public static double[] toMotorPowers(Vector2D relMoveVec, double rot) {
+        return new double[]{
             relMoveVec.x + relMoveVec.y + rot,
             -relMoveVec.x + relMoveVec.y - rot,
             -relMoveVec.x + relMoveVec.y + rot,
             relMoveVec.x + relMoveVec.y - rot
-        });
+        };
+    }
+    public static Vector2D toRelVec(Vector2D worldVec) {
+        return worldVec.thetaed(-robot.pose.theta + worldVec.theta + Math.PI / 2);
+    }
+    public static void setDrive(Vector2D relMoveVec, double rot) {
+        setDrive(toMotorPowers(relMoveVec, rot));
     }
 
     // Getters
@@ -136,12 +142,12 @@ public class Motion {
         pidMove(getWaypoint(waypoint));
     }
     public static void pidMove(Pose target) {
-        homogeneousPID.reset(target);
+        pid.reset(target);
         ElapsedTime timer = new ElapsedTime();
         while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 2250
                && (robot.pose.distanceTo(target) > Constants.END_TRANSLATION_ERROR_THRESHOLD
                || Math.abs(Utils.optThetaDiff(robot.pose.theta, target.theta)) > Constants.END_ROTATION_ERROR_THRESHOLD)) {
-            homogeneousPID.controlLoopIteration(robot.pose);
+            setDrive(pid.pidWheelCorrections(robot.pose));
         }
         setDrive(0);
     }
@@ -174,6 +180,44 @@ public class Motion {
     public static void rotate(double targetTheta) {
         hw.status = "Rotating to " + Math.toDegrees(targetTheta) + "\u00B0";
         pidMove(new Pose(robot.pose.x, robot.pose.y, targetTheta));
+    }
+
+    public static void followSpline(String spline) {
+        followSpline(getSpline(spline));
+    }
+    public static void followSpline(SplineTrajectory spline) {
+        double distance = 0;
+        Pose last = new Pose(robot.pose);
+        Pose goal = new Pose(spline.waypoints.get(spline.waypoints.size() - 1).pose);
+
+        ElapsedTime timer = new ElapsedTime();
+        while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 3000
+                && (robot.pose.distanceTo(goal) > Constants.END_TRANSLATION_ERROR_THRESHOLD
+                || Math.abs(Utils.optThetaDiff(robot.pose.theta, goal.theta)) > Constants.END_ROTATION_ERROR_THRESHOLD)) {
+            distance += last.distanceTo(robot.pose);
+            last = new Pose(robot.pose);
+
+            Pose setPoint = spline.getDPose(distance + 1);
+            pid.reset(setPoint);
+
+            Vector2D transVel = spline.motionProfile.getTranslationalVelocity(distance + 1);
+            Vector2D transAcc = spline.motionProfile.getTranslationalAcceleration(distance + 1);
+            Vector2D transVec = toRelVec(transVel.added(transAcc));
+
+            double[] motionProfilePowers = toMotorPowers(transVec, 0);
+            double[] pidCorrection = pid.pidWheelCorrections(robot.pose);
+            double[] finalWheelPowers = Utils.addArrs(motionProfilePowers, pidCorrection);
+            setDrive(finalWheelPowers);
+        }
+        setDrive(0);
+    }
+    public static void splineToWaypoint(String waypoint) {
+        hw.status = "Going to waypoint" + waypoint;
+        splineToWaypoint(getWaypoint(waypoint));
+    }
+    public static void splineToWaypoint(Pose waypoint) {
+        SplineTrajectory spline = new SplineTrajectory(robot, new RigidBody(waypoint));
+        followSpline(spline);
     }
 
 }

@@ -76,18 +76,17 @@ public class AUTO_Main extends LinearOpMode {
 
     // Pivot drag foundation & push into building zone
     private void dragFoundation() {
-        Motion.pidMove("drag0");
+        Motion.splineToWaypoint(Motion.getSpline("drag").waypoints.get(0).pose);
         if (hw.opModeID.contains("full"))
             placeStone(false);
         Appendages.setFoundationMoverStatus("down");
-        Motion.pidMove("drag1");
-        Motion.pidMove("drag2");
+        Motion.followSpline("drag");
         Appendages.setFoundationMoverStatus("up");
     }
 
     // Go to a stone position
     private void goToStone(int position) {
-        Motion.pidMove(Motion.getWaypoint("pickup0").addVector(new Vector2D(position * 20.32, 3 * Math.PI / 2, false)));
+        Motion.splineToWaypoint(Motion.getWaypoint("pickup0").addVector(new Vector2D(position * 20.32, 3 * Math.PI / 2, false)));
     }
 
     // Place a stone on foundation
