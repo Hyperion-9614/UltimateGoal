@@ -27,11 +27,7 @@ public class Localizer {
     public double oldxrCounts;
     public double oldyCounts;
     public double oldT;
-
     public Vector2D lastTvel = new Vector2D();
-    public Vector2D maxAccel = new Vector2D();
-    public Vector2D maxDecel = new Vector2D();
-    public Vector2D maxVel = new Vector2D();
 
     public RealMatrix AInv;
 
@@ -80,25 +76,16 @@ public class Localizer {
 
             Motion.robot.tVel = new Vector2D(dR[0], dR[1], true).scaled(1.0 / dT);
             Motion.robot.tAcc = new Vector2D(Math.abs(Motion.robot.tVel.magnitude - lastTvel.magnitude),
-                                                     Utils.normalizeTheta(Motion.robot.tVel.theta + (Motion.robot.tVel.magnitude < lastTvel.magnitude ? Math.PI : 0), 0, 2 * Math.PI),
-                                                     false).scaled(1.0 / dT);
-
-            if (Motion.robot.tVel.magnitude > maxVel.magnitude) {
-                maxVel = new Vector2D(Motion.robot.tVel);
-            }
-            if (Motion.robot.tAcc.theta == Motion.robot.tVel.theta + Math.PI && Motion.robot.tAcc.magnitude >= maxDecel.magnitude) {
-                maxDecel = new Vector2D(Motion.robot.tAcc);
-            } else if (Motion.robot.tAcc.theta == Motion.robot.tVel.theta && Motion.robot.tAcc.magnitude >= maxAccel.magnitude) {
-                maxAccel = new Vector2D(Motion.robot.tAcc);
-            }
-
+                                                      Utils.norm(Motion.robot.tVel.theta + (Motion.robot.tVel.magnitude < lastTvel.magnitude ? Math.PI : 0), 0, 2 * Math.PI),
+                                                false).scaled(1.0 / dT);
             lastTvel = new Vector2D(Motion.robot.tVel);
+
             double dXr = Constants.mToCoords(dR[0]);
             double dYr = Constants.mToCoords(dR[1]);
             double theta = -Motion.robot.pose.theta;
             Motion.robot.pose.addXYT(dXr * Math.cos(theta) + dYr * Math.sin(theta),
-                                        dYr * Math.cos(theta) - dXr * Math.sin(theta), dR[2]);
-            Motion.robot.pose.theta = Utils.normalizeTheta(Motion.robot.pose.theta, 0, 2 * Math.PI);
+                                     dYr * Math.cos(theta) - dXr * Math.sin(theta), dR[2]);
+            Motion.robot.pose.theta = Utils.norm(Motion.robot.pose.theta, 0, 2 * Math.PI);
         }
     }
 

@@ -43,8 +43,8 @@ public class VisualPane extends VBox {
             tVdGraph.getData().clear();
             if (displaySpline != null && displaySpline.waypoints.size() >= 2) {
                 HashMap<String, Piecewise> map = new HashMap<>();
-                map.put("Velocity (cm/s)", displaySpline.spline.motionProfile.tVelProfile);
-                map.put("Acceleration (cm/s\u00B2)", displaySpline.spline.motionProfile.tAccProfile);
+                map.put("Velocity (cm/s)", displaySpline.spline.mP.tVelProfile);
+                map.put("Acceleration (cm/s\u00B2)", displaySpline.spline.mP.tAccProfile);
                 tVdGraph.rePlot(map);
             }
         });

@@ -65,8 +65,8 @@
     },
     "splinesMotionProfile": {
         "endErrorThresholds": {
-            "rotation": 1.75,
-            "translation": 1.75
+            "rotation": 1,
+            "translation": 1
         },
         "k": {
             "kAa": 0,
@@ -86,11 +86,6 @@
     "teamcode": {
         "forceEndTimeLeft": 3500,
         "localizationDelay": 10,
-        "slidesPreset": {
-            "incrementTicks": 200,
-            "startTicks": 1300
-        },
-        "unimetryDelay": 100,
-        "verticalSlidePower": 0.5
+        "unimetryDelay": 100
     }
 }

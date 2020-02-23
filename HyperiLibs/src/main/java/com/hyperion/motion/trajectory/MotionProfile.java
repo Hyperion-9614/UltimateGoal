@@ -6,9 +6,6 @@ import com.hyperion.motion.math.Piecewise;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Vector2D;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 /**
  * Full feed-forward motion profile
  * Essentially, input: current distance along path, output: expected pose, velocity, & acceleration
@@ -43,7 +40,7 @@ public class MotionProfile {
             RigidBody p = spline.planningPoints.get(i);
             double dX = spline.distanceX.evaluate(p.distance, 1, true);
             double dY = spline.distanceY.evaluate(p.distance, 1, true);
-            p.tVel = new Vector2D(Constants.MAX_TRANSLATIONAL_VELOCITY, Utils.normalizeTheta(Math.atan2(dY, dX), 0, 2 * Math.PI), false);
+            p.tVel = new Vector2D(Constants.MAX_TRANSLATIONAL_VELOCITY, Utils.norm(Math.atan2(dY, dX), 0, 2 * Math.PI), false);
         }
         spline.planningPoints.get(0).tVel.setMagnitude(0);
     }
@@ -112,14 +109,14 @@ public class MotionProfile {
         profile.setInterval(pp0.distance, pp1.distance, "(" + slope + ")*t + (" + -(slope * pp0.distance) + ") + (" + pp0.tVel.magnitude + ")");
     }
 
-    public Vector2D getTranslationalVelocity(double distance) {
+    public Vector2D getTransVel(double distance) {
         double paramD = spline.paramDistance(distance);
         double dX = spline.distanceX.evaluate(paramD, 1, true);
         double dY = spline.distanceY.evaluate(paramD, 1, true);
-        return new Vector2D(tVelProfile.evaluate(distance, 0, true), Utils.normalizeTheta(Math.atan2(dY, dX), 0, 2 * Math.PI), false);
+        return new Vector2D(tVelProfile.evaluate(distance, 0, true), Utils.norm(Math.atan2(dY, dX), 0, 2 * Math.PI), false);
     }
 
-    public Vector2D getTranslationalAcceleration(double distance) {
+    public Vector2D getTransAcc(double distance) {
         RigidBody floored = spline.planningPoints.get(0);
         for (int i = spline.planningPoints.size() - 1; i >= 0; i--) {
             if (spline.planningPoints.get(i).distance <= distance) {
@@ -129,21 +126,21 @@ public class MotionProfile {
         return new Vector2D(tAccProfile.evaluate(distance, 0, true), floored.tAcc.theta, false);
     }
 
-    public double getAngularVelocity(double distance) {
+    public double getAngVel(double distance) {
         return 0;
     }
 
-    public double getAngularAcceleration(double distance) {
+    public double getAngAcc(double distance) {
         return 0;
     }
 
     public RigidBody getRigidBody(double distance) {
         RigidBody toReturn = new RigidBody(distance);
         toReturn.pose = spline.getDPose(distance);
-        toReturn.tVel = getTranslationalVelocity(distance);
-        toReturn.tAcc = getTranslationalAcceleration(distance);
-        toReturn.aVel = getAngularVelocity(distance);
-        toReturn.aAcc = getAngularAcceleration(distance);
+        toReturn.tVel = getTransVel(distance);
+        toReturn.tAcc = getTransAcc(distance);
+        toReturn.aVel = getAngVel(distance);
+        toReturn.aAcc = getAngAcc(distance);
         return toReturn;
     }
 

@@ -64,24 +64,14 @@ public class Hardware {
     public DcMotor xROdo;
     public DcMotor yOdo;
 
-    public DcMotor vertSlideL;
-    public DcMotor vertSlideR;
-
-    public DcMotor compWheelsL;
-    public DcMotor compWheelsR;
-
-    public Servo foundationMoverL;
-    public Servo foundationMoverR;
-    public Servo chainBarL;
-    public Servo chainBarR;
-    public Servo capstone;
-    public CRServo claw;
-
     public int opModeSelectorIndex = -1;
     public String[] autoOpModeIDs = new String[]{ "auto.blue.full", "auto.red.full",
                                                   "auto.blue.foundation", "auto.red.foundation",
-                                                  "auto.blue.brick", "auto.red.brick" };
-    public String[] teleOpModeIDs = new String[]{ "tele.blue", "tele.red" };
+                                                  "auto.blue.brick", "auto.red.brick",
+                                                };
+    public String[] teleOpModeIDs = new String[]{ "tele.blue", "tele.red",
+                                                  "tele.test"
+                                                };
 
     public Hardware(LinearOpMode ctx) {
         this.ctx = ctx;
@@ -101,19 +91,6 @@ public class Hardware {
         xLOdo = fLDrive;
         xROdo = fRDrive;
         yOdo = bLDrive;
-
-        vertSlideL = hwmp.dcMotor.get("vertSlideL");
-        vertSlideR = hwmp.dcMotor.get("vertSlideR");
-
-        compWheelsL = hwmp.dcMotor.get("compWheelsL");
-        compWheelsR = hwmp.dcMotor.get("compWheelsR");
-
-        foundationMoverL = hwmp.servo.get("foundationMoverL");
-        foundationMoverR = hwmp.servo.get("foundationMoverR");
-        chainBarL = hwmp.servo.get("chainBarL");
-        chainBarR = hwmp.servo.get("chainBarR");
-        capstone = hwmp.servo.get("capstone");
-        claw = hwmp.crservo.get("claw");
 
         // Init control, dashboard, telemetry, CV, & threads
         Motion.init(this);
@@ -246,7 +223,7 @@ public class Hardware {
         Pose startPose = Motion.waypoints.get(opModeID + ".waypoint.start");
         if (startPose == null) startPose = new Pose();
         Motion.start = new RigidBody(startPose);
-        Motion.robot = new RigidBody(Motion.start);
+        Motion.robot = new RigidBody(startPose);
     }
 
     // Init all files & resources
@@ -267,14 +244,14 @@ public class Hardware {
             opModeSelectorIndex++;
             if (opModeSelectorIndex >= opModeIDs.length)
                 opModeSelectorIndex = 0;
-            initOpMode(opModeIDs[opModeSelectorIndex]);
             ctx.sleep(250);
+            initOpMode(opModeIDs[opModeSelectorIndex]);
         } else if (ctx.gamepad1.dpad_down) {
             opModeSelectorIndex--;
             if (opModeSelectorIndex < 0)
                 opModeSelectorIndex = opModeIDs.length - 1;
-            initOpMode(opModeIDs[opModeSelectorIndex]);
             ctx.sleep(250);
+            initOpMode(opModeIDs[opModeSelectorIndex]);
         }
 
         if (isAuto) {

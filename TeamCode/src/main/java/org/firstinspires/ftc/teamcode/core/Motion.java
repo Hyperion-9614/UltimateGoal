@@ -112,6 +112,11 @@ public class Motion {
             hw.bRDrive.setPower(powers[1]);
         }
     }
+    public static void setDrive(double fLPower, double fRPower, double bLPower, double bRPower, long time) {
+        setDrive(fLPower, fRPower, bLPower, bRPower);
+        hw.ctx.sleep(time);
+        setDrive(0);
+    }
     public static double[] toMotorPowers(Vector2D relMoveVec, double rot) {
         return new double[]{
             relMoveVec.x + relMoveVec.y + rot,
@@ -200,11 +205,11 @@ public class Motion {
             Pose setPoint = spline.getDPose(distance + 1);
             pid.reset(setPoint);
 
-            Vector2D transVel = spline.motionProfile.getTranslationalVelocity(distance + 1);
-            Vector2D transAcc = spline.motionProfile.getTranslationalAcceleration(distance + 1);
-            Vector2D transVec = toRelVec(transVel.added(transAcc));
+            Vector2D transVel = spline.mP.getTransVel(distance + 1);
+            Vector2D transAcc = spline.mP.getTransAcc(distance + 1);
+            Vector2D translation = toRelVec(transVel.added(transAcc));
 
-            double[] motionProfilePowers = toMotorPowers(transVec, 0);
+            double[] motionProfilePowers = toMotorPowers(translation, 0);
             double[] pidCorrection = pid.pidWheelCorrections(robot.pose);
             double[] finalWheelPowers = Utils.addArrs(motionProfilePowers, pidCorrection);
             setDrive(finalWheelPowers);
@@ -217,6 +222,10 @@ public class Motion {
     }
     public static void splineToWaypoint(Pose waypoint) {
         SplineTrajectory spline = new SplineTrajectory(robot, new RigidBody(waypoint));
+        followSpline(spline);
+    }
+    public static void splineThroughWaypoints(Pose... waypoints) {
+        SplineTrajectory spline = new SplineTrajectory(waypoints);
         followSpline(spline);
     }
 

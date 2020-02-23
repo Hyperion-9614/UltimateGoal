@@ -107,7 +107,7 @@ public class FieldPane extends Pane {
                 isDragging = true;
                 if (mouseEvent.getButton() == MouseButton.PRIMARY && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget().equals(this)) && UICMain.selectedWaypoint != null) {
                     Vector2D vec = new Vector2D(UICMain.selectedWaypoint.pose, displayToPose(mouseEvent.getX(), mouseEvent.getY(), 0));
-                    UICMain.selectedWaypoint.pose.theta = Utils.normalizeTheta(vec.theta, 0, 2 * Math.PI);
+                    UICMain.selectedWaypoint.pose.theta = Utils.norm(vec.theta, 0, 2 * Math.PI);
                     if (UICMain.selectedWaypoint.parentSpline != null) {
                         UICMain.selectedWaypoint.parentSpline.spline.waypoints.get(UICMain.selectedWaypoint.parentSpline.waypoints.indexOf(UICMain.selectedWaypoint)).pose = UICMain.selectedWaypoint.pose;
                     }
@@ -165,7 +165,7 @@ public class FieldPane extends Pane {
         double x3 = x2;
         double y3 = fieldSize - y2;
 
-        return new double[]{ x3 - size / 2.0, y3 - size / 2.0, Math.toDegrees(Utils.normalizeTheta(2 * Math.PI - original.theta, 0, 2 * Math.PI))};
+        return new double[]{ x3 - size / 2.0, y3 - size / 2.0, Math.toDegrees(Utils.norm(2 * Math.PI - original.theta, 0, 2 * Math.PI))};
     }
 
     // Converts display xy to pose
@@ -183,7 +183,7 @@ public class FieldPane extends Pane {
     // Converts view to pose
     public Pose viewToPose(ImageView view, double size) {
         Pose toReturn = displayToPose(view.getLayoutX(), view.getLayoutY(), size);
-        toReturn.theta = Utils.normalizeTheta(2 * Math.PI - Math.toRadians(view.getRotate()), 0, 2 * Math.PI);
+        toReturn.theta = Utils.norm(2 * Math.PI - Math.toRadians(view.getRotate()), 0, 2 * Math.PI);
         return toReturn;
     }
 

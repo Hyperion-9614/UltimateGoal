@@ -34,24 +34,33 @@ public class SplineTrajectory {
     public Piecewise tauY = new Piecewise();
     public Piecewise distanceX = new Piecewise();
     public Piecewise distanceY = new Piecewise();
-    public MotionProfile motionProfile;
+    public MotionProfile mP;
     public double segmentLength;
     public double length;
 
     public SplineTrajectory(ArrayList<RigidBody> waypoints) {
         this.waypoints = waypoints;
-        motionProfile = new MotionProfile(this);
+        mP = new MotionProfile(this);
         endPath();
     }
 
     public SplineTrajectory(RigidBody... rigidBodies) {
-        this.waypoints = new ArrayList<>(Arrays.asList(rigidBodies));
-        motionProfile = new MotionProfile(this);
+        this.waypoints = (ArrayList<RigidBody>) Arrays.asList(rigidBodies);
+        mP = new MotionProfile(this);
+        endPath();
+    }
+
+    public SplineTrajectory(Pose... poses) {
+        this.waypoints = new ArrayList<>();
+        for (Pose p : poses) {
+            waypoints.add(new RigidBody(p));
+        }
+        mP = new MotionProfile(this);
         endPath();
     }
 
     public SplineTrajectory(JSONObject obj) {
-        motionProfile = new MotionProfile(this);
+        mP = new MotionProfile(this);
         readJSON(obj);
     }
 
@@ -128,7 +137,7 @@ public class SplineTrajectory {
                 distanceX = new Piecewise(coefficientsObj.getJSONArray("distanceX"));
                 distanceY = new Piecewise(coefficientsObj.getJSONArray("distanceY"));
 
-                motionProfile.recreate();
+                mP.recreate();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -246,7 +255,7 @@ public class SplineTrajectory {
                 calculatePlanningPoints();
                 interpolate(this.planningPoints, false);
             } else {
-                motionProfile.recreate();
+                mP.recreate();
             }
         }
     }
@@ -335,7 +344,7 @@ public class SplineTrajectory {
     public Pose getDPose(double distance) {
         if (distance == waypoints.get(waypoints.size() - 1).distance) return waypoints.get(waypoints.size() - 1).pose;
         int interval = getPlanningPointInterval(distance);
-        double theta = Utils.normalizeTheta(planningPoints.get(interval).pose.theta + Utils.optThetaDiff(planningPoints.get(interval).pose.theta, planningPoints.get(interval + 1).pose.theta)
+        double theta = Utils.norm(planningPoints.get(interval).pose.theta + Utils.optThetaDiff(planningPoints.get(interval).pose.theta, planningPoints.get(interval + 1).pose.theta)
                                                   * ((distance - planningPoints.get(interval).distance) / (planningPoints.get(interval + 1).distance - planningPoints.get(interval).distance)), 0, 2 * Math.PI);
         distance = paramDistance(distance);
         return new Pose(distanceX.evaluate(distance, 0, true), distanceY.evaluate(distance, 0, true), theta);

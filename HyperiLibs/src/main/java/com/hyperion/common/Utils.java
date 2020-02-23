@@ -70,14 +70,14 @@ public class Utils {
         return new Pose((o1.x + o2.x) / 2.0, (o1.y + o2.y) / 2.0);
     }
 
-    public static double normalizeTheta(double theta, double min, double max) {
+    public static double norm(double theta, double min, double max) {
         while (theta < min) theta += 2 * Math.PI;
         while (theta >= max) theta -= 2 * Math.PI;
         return theta;
     }
 
     public static double optThetaDiff(double thetaStart, double thetaEnd) {
-        double difference = normalizeTheta(thetaEnd, 0, 2 * Math.PI) - normalizeTheta(thetaStart, 0, 2 * Math.PI);
+        double difference = norm(thetaEnd, 0, 2 * Math.PI) - norm(thetaStart, 0, 2 * Math.PI);
         if (difference < -Math.PI) difference += 2 * Math.PI;
         if (difference > Math.PI) difference -= 2 * Math.PI;
         return difference;

@@ -34,28 +34,17 @@ public class AUTO_Main extends LinearOpMode {
 
     public void execute() {
         try {
-            if (hw.cvPipeline.getPipelineActive()) {
-                hw.cvPipeline.setPipelineActive(false);
-                skyStone0 = hw.cvPipeline.getDetectedSkystonePosition();
-                if (hw.opModeID.contains("red"))
-                    skyStone0 = 2 - skyStone0;
-                skyStone1 = skyStone0 + 3;
-            }
-            hw.killCV();
             hw.autoTime = new ElapsedTime();
+            scan();
 
             if (hw.opModeID.endsWith("full")) {
-                hw.compWheelsR.setPower(0.6);
-                sleep(500);
-                Appendages.setCompWheelsStatus("off");
-
                 goToStone(skyStone0);
                 pickUpBlock();
                 dragFoundation();
 
 //                goToStone(skyStone1);
 //                pickUpBlock();
-//                placeStone(true);
+//                placeStone();
             } else if (hw.opModeID.endsWith("foundation")) {
                 dragFoundation();
             }
@@ -64,38 +53,36 @@ public class AUTO_Main extends LinearOpMode {
         }
     }
 
+    // Determine skystone positions
+    private void scan() {
+        if (hw.cvPipeline.getPipelineActive()) {
+            hw.cvPipeline.setPipelineActive(false);
+            skyStone0 = hw.cvPipeline.getDetectedSkystonePosition();
+            if (hw.opModeID.contains("red"))
+                skyStone0 = 2 - skyStone0;
+            skyStone1 = skyStone0 + 3;
+        }
+        hw.killCV();
+    }
+
     // Pick up a block
     private void pickUpBlock() {
-        Appendages.setCompWheelsStatus("in");
-        Motion.pidMove(37, 7 * Math.PI / 4, 5 * Math.PI / 4);
-        Appendages.cycleChainBar();
-        Appendages.setClawStatus("closed");
-        Appendages.setCompWheelsStatus("off");
-        Motion.pidMove(40, Math.PI, 0);
+
     }
 
     // Pivot drag foundation & push into building zone
     private void dragFoundation() {
-        Motion.splineToWaypoint(Motion.getSpline("drag").waypoints.get(0).pose);
-        if (hw.opModeID.contains("full"))
-            placeStone(false);
-        Appendages.setFoundationMoverStatus("down");
-        Motion.followSpline("drag");
-        Appendages.setFoundationMoverStatus("up");
+
     }
 
     // Go to a stone position
     private void goToStone(int position) {
-        Motion.splineToWaypoint(Motion.getWaypoint("pickup0").addVector(new Vector2D(position * 20.32, 3 * Math.PI / 2, false)));
+
     }
 
     // Place a stone on foundation
-    public void placeStone(boolean goToWaypoint) {
-        if (goToWaypoint)
-            Motion.pidMove("place");
-        Appendages.cycleChainBar();
-        Appendages.setClawStatus("open");
-        Appendages.cycleChainBar();
+    public void placeStone() {
+
     }
 
 }

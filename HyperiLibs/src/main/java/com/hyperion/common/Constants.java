@@ -60,9 +60,6 @@ public class Constants {
     public static File RES_IMG_PREFIX; // file
 
     // TeamCode
-    public static int SLIDES_PRESET_START_TICKS; // ticks
-    public static int SLIDES_PRESET_INCREMENT_TICKS; // ticks
-    public static double VERT_SLIDE_POWER; // power
     public static long LOCALIZATION_DELAY; // ms
     public static long UNIMETRY_DELAY; // ms
     public static long FORCE_END_TIME_LEFT; // ms
@@ -150,9 +147,6 @@ public class Constants {
 
             JSONObject teamcode = root.getJSONObject("teamcode");
             JSONObject slidesPreset = teamcode.getJSONObject("slidesPreset");
-            SLIDES_PRESET_START_TICKS = slidesPreset.getInt("startTicks");
-            SLIDES_PRESET_INCREMENT_TICKS = slidesPreset.getInt("incrementTicks");
-            VERT_SLIDE_POWER = teamcode.getDouble("verticalSlidePower");
             LOCALIZATION_DELAY = teamcode.getLong("localizationDelay");
             UNIMETRY_DELAY = teamcode.getLong("unimetryDelay");
             FORCE_END_TIME_LEFT = teamcode.getLong("forceEndTimeLeft");
@@ -253,9 +247,6 @@ public class Constants {
 
             JSONObject teamcode = new JSONObject();
             JSONObject slidesPreset = new JSONObject();
-            slidesPreset.put("startTicks", SLIDES_PRESET_START_TICKS);
-            slidesPreset.put("incrementTicks", SLIDES_PRESET_INCREMENT_TICKS);
-            teamcode.put("verticalSlidePower", VERT_SLIDE_POWER);
             teamcode.put("localizationDelay", LOCALIZATION_DELAY);
             teamcode.put("unimetryDelay", UNIMETRY_DELAY);
             teamcode.put("forceEndTimeLeft", FORCE_END_TIME_LEFT);

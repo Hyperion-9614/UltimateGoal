@@ -35,28 +35,18 @@ public class Unimetry {
 
         data.add(new Entry("Status", hw.status));
         if (hw.opModeID.contains("auto")) {
-            data.add(new Entry("Park", Motion.getWaypoint("park")));
+            data.add(new Entry("Park", Motion.getWaypoint("park") == null ? "null" : Motion.getWaypoint("park")));
         }
         data.add(new Entry());
 
         data.add(new Entry("Motion"));
         data.add(new Entry("Current", Motion.robot));
         data.add(new Entry("Start", Motion.start));
-        data.add(new Entry("Max Acceleration", Motion.localizer.maxAccel));
-        data.add(new Entry("Max Deceleration", Motion.localizer.maxDecel));
-        data.add(new Entry("Max Velocity", Motion.localizer.maxVel));
         data.add(new Entry("Wheel Velocities (fL/fR/bL/bR)", Utils.round(hw.fLDrive.getPower(), 2) + " " + Utils.round(hw.fRDrive.getPower(), 2) + " " + Utils.round(hw.bLDrive.getPower(), 2) + " " + Utils.round(hw.bRDrive.getPower(), 2)));
         data.add(new Entry("Odometry Counts (xL/xR/y)", Motion.localizer.oldxlCounts + " " + Motion.localizer.oldxrCounts + " " + Motion.localizer.oldyCounts));
         data.add(new Entry());
 
         data.add(new Entry("Appendages"));
-        data.add(new Entry("Vertical Slides (lPower/rPower/lTicks/rTicks)", Utils.round(hw.vertSlideL.getPower(), 2) + " " + Utils.round(hw.vertSlideR.getPower(), 2)
-                            + " " + hw.vertSlideL.getCurrentPosition() + " " + hw.vertSlideR.getCurrentPosition()));
-        data.add(new Entry("Compliant Wheels Status", Appendages.compWheelsStatus));
-        data.add(new Entry("Foundation Mover Status", Appendages.foundationMoverStatus));
-        data.add(new Entry("Chain Bar Status", Appendages.chainBarStatus));
-        data.add(new Entry("Claw Status", Appendages.clawStatus));
-        data.add(new Entry("Capstone Status", Appendages.capstoneStatus));
         data.add(new Entry());
 
         data.add(new Entry("Gamepad 1"));

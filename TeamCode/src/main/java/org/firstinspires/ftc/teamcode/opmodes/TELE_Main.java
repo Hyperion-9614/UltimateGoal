@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.hyperion.common.Constants;
+import com.hyperion.common.Utils;
+import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.core.Appendages;
 import org.firstinspires.ftc.teamcode.core.Hardware;
@@ -21,14 +24,6 @@ public class TELE_Main extends LinearOpMode {
     private Hardware hw;
     private boolean isHtStarted;
     private double preHtTheta;
-
-    private boolean resetVertSlidesToggle;
-    private boolean intakeToggle;
-    private boolean outtakeToggle;
-    private boolean foundationMoverToggle;
-    private boolean chainBarToggle;
-    private boolean clawToggle;
-    private boolean capstoneToggle;
 
     @Override
     public void runOpMode() {
@@ -60,99 +55,28 @@ public class TELE_Main extends LinearOpMode {
             }
             Motion.setDrive(vel, rot);
 
-            /*
-             * GAMEPAD 1
-             * RIGHT BUMPER : Intake
-             * LEFT BUMPER : Outtake
-             */
-            if (gamepad1.right_bumper && !intakeToggle) {
-                Appendages.setCompWheelsStatus(Appendages.compWheelsStatus.equals("in") ? "off" : "in");
-                intakeToggle = true;
-            } else if (!gamepad1.right_bumper) {
-                intakeToggle = false;
-            }
-            if (gamepad1.left_bumper && !outtakeToggle) {
-                Appendages.setCompWheelsStatus(Appendages.compWheelsStatus.equals("out") ? "off" : "out");
-                outtakeToggle = true;
-            } else if (!gamepad1.left_bumper) {
-                outtakeToggle = false;
-            }
+            if (hw.opModeID.contains("test")) {
+                if (gamepad1.right_stick_button) {
+                    double maxTransVel = 0;
+                    double maxTransAcc = 0;
+                    double maxAngVel = 0;
+                    double maxAngAcc = 0;
 
-            /*
-             * GAMEPAD 1
-             * A : Foundation mover toggle
-             */
-            if (gamepad1.a && !foundationMoverToggle) {
-                Appendages.setFoundationMoverStatus(Appendages.foundationMoverStatus.equals("down") ? "up" : "down");
-                foundationMoverToggle = true;
-            } else if (!gamepad1.a) {
-                foundationMoverToggle = false;
-            }
+                    Motion.setDrive(1, 1);
+                    ElapsedTime timer = new ElapsedTime();
+                    while (timer.milliseconds() <= 1000) {
+                        maxTransVel = Math.max(maxTransVel, Motion.robot.tVel.magnitude);
+                        maxTransAcc = Math.max(maxTransAcc, Motion.robot.tAcc.magnitude);
+                        maxAngVel = Math.max(maxAngVel, Motion.robot.aVel);
+                        maxAngAcc = Math.max(maxAngAcc, Motion.robot.aAcc);
+                    }
 
-            /*
-             * GAMEPAD 2
-             * LEFT TRIGGER : Vertical slides down
-             * RIGHT TRIGGER : Vertical slides up
-             */
-            double vertSlidePower = Math.pow(gamepad2.right_trigger - gamepad2.left_trigger, 3);
-            Appendages.setVerticalSlidePower(vertSlidePower);
-
-            /*
-             * GAMEPAD 2
-             * DPAD UP : Go to save position/increment slides ticks
-             * DPAD DOWN : Go to save position/decrement slides ticks
-             */
-            if (gamepad2.dpad_up) {
-                Appendages.setVerticalSlidePosition(Math.max(hw.vertSlideL.getCurrentPosition(), Appendages.slidesSaveTicks));
-                Appendages.slidesSaveTicks += Constants.SLIDES_PRESET_INCREMENT_TICKS;
-            }
-            if (gamepad2.dpad_down) {
-                Appendages.setVerticalSlidePosition(Math.max(hw.vertSlideL.getCurrentPosition(), Appendages.slidesSaveTicks));
-                Appendages.slidesSaveTicks -= Constants.SLIDES_PRESET_INCREMENT_TICKS;
-            }
-            
-            /*
-             * GAMEPAD 2
-             * B : Claw toggle
-             */
-            if (gamepad2.b && !clawToggle) {
-                Appendages.setClawStatus(Appendages.clawStatus.equals("open") ? "closed" : "open");
-                clawToggle = true;
-            } else if (!gamepad2.b) {
-                clawToggle = false;
-            }
-
-            /*
-             * GAMEPAD 2
-             * X : Chain bar toggle
-             */
-            if (gamepad2.x && !chainBarToggle) {
-                Appendages.cycleChainBar();
-                chainBarToggle = true;
-            } else if (!gamepad2.x) {
-                chainBarToggle = false;
-            }
-
-            /*
-             * GAMEPAD 2
-             * RIGHT STICK BUTTON : Reset vertical slide encoders
-             */
-            if (gamepad2.right_stick_button && !resetVertSlidesToggle) {
-                Appendages.resetVerticalSlideEncoders();
-                resetVertSlidesToggle = true;
-            } else if (!gamepad2.right_stick_button) {
-                resetVertSlidesToggle = false;
-            }
-
-            /*
-             * GAMEPAD 2
-             * Y : Capstone toggle
-             */
-            if (gamepad2.y && !capstoneToggle) {
-                Appendages.setCapstoneStatus(Appendages.capstoneStatus.equals("down") ? "up" : "down");
-                capstoneToggle = true;
-            } else if (!gamepad2.y) {
-                capstoneToggle = false;
+                    System.out.println("MAX MOTION VALUES");
+                    System.out.println("tVel: " + Utils.round(maxTransVel, 3));
+                    System.out.println("tAcc: " + Utils.round(maxTransAcc, 3));
+                    System.out.println("aVel: " + Utils.round(maxAngVel, 3));
+                    System.out.println("aAcc: " + Utils.round(maxAngAcc, 3));
+                }
             }
         }
     }
