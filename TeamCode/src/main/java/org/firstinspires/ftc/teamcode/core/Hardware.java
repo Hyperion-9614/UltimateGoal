@@ -6,10 +6,8 @@ import com.hyperion.dashboard.uiobject.FieldEdit;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.modules.CvPipeline;
@@ -229,7 +227,7 @@ public class Hardware {
     // Init all files & resources
     public void initFiles() {
         try {
-            Constants.init(new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/Constants.json"));
+            Constants.init(new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/constants.json"));
             fieldJSON = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/field.json");
             nnConfigJson = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/model/config.json");
             modelConfig = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/model/model.config");
@@ -289,7 +287,7 @@ public class Hardware {
 
     // Wrap up OpMode
     public void end() {
-        if (opModeID.contains("auto") && Motion.robot.pose.distanceTo(Motion.getWaypoint("park")) > 3) {
+        if (opModeID.contains("auto") && Motion.robot.pose.distanceTo(Motion.getWaypoint("park")) > Constants.END_TRANSLATION_ERROR_THRESHOLD) {
             Motion.pidMove("park");
         }
 

@@ -46,8 +46,8 @@ public class Localizer {
         bulkDataR = hw.expansionHubR.getBulkInputData();
 
         if (hw != null && bulkDataL != null && bulkDataR != null) {
-            double xLNew = bulkDataL.getMotorCurrentPosition(hw.xLOdo);
-            double xRNew = bulkDataR.getMotorCurrentPosition(hw.xROdo);
+            double xLNew = -bulkDataL.getMotorCurrentPosition(hw.xLOdo);
+            double xRNew = -bulkDataR.getMotorCurrentPosition(hw.xROdo);
             double yNew = bulkDataL.getMotorCurrentPosition(hw.yOdo);
             double tNew = System.currentTimeMillis();
             double dxL = Constants.countsToM(xLNew - oldxlCounts);

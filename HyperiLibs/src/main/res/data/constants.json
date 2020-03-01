@@ -12,7 +12,7 @@
             }
         },
         "net": {
-            "hostIP": "192.168.111.123",
+            "hostIP": "192.168.1.201",
             "port": 8080
         },
         "version": "3.5.0"
@@ -28,18 +28,18 @@
         "odometryCyclesPerRevolution": 360,
         "odometryPoses": {
             "xLRelativePose": [
-                -5.556,
-                11.43,
+                4.445,
+                18.415,
                 0
             ],
             "xRRelativePose": [
-                -5.556,
-                -11.43,
+                4.445,
+                -19.05,
                 0
             ],
             "yRelativePose": [
-                -17.939,
-                0,
+                -3.4925,
+                -18.0975,
                 90
             ]
         },
@@ -86,6 +86,7 @@
     "teamcode": {
         "forceEndTimeLeft": 3500,
         "localizationDelay": 10,
+        "slidesPreset": {},
         "unimetryDelay": 100
     }
 }

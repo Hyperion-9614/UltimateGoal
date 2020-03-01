@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -202,20 +203,28 @@ public class Utils {
         return spliced;
     }
 
-    public static double[] combineArrs(double[] a, double[] b){
+    public static double[] combineArrs(double[] a, double[] b) {
         double[] result = new double[a.length + b.length];
         System.arraycopy(a, 0, result, 0, a.length);
         System.arraycopy(b, 0, result, a.length, b.length);
         return result;
     }
-    public static double[][] combineArrs(double[][] a, double[][] b){
+
+    public static <T> T[] combineArrs(T[] a, T[] b) {
+        @SuppressWarnings("unchecked")
+        T[] result = (T[]) new Object[a.length + b.length];
+        System.arraycopy(a, 0, result, 0, a.length);
+        System.arraycopy(b, 0, result, a.length, b.length);
+        return result;
+    }
+    public static double[][] combineArrs(double[][] a, double[][] b) {
         double[][] result = new double[a.length + b.length][];
         System.arraycopy(a, 0, result, 0, a.length);
         System.arraycopy(b, 0, result, a.length, b.length);
         return result;
     }
 
-    public static double[][] combineArrs(double[][] a, double[] b){
+    public static double[][] combineArrs(double[][] a, double[] b) {
         double[][] result = new double[a.length + 1][];
         System.arraycopy(a, 0, result, 0, a.length);
         result[result.length - 1] = b;

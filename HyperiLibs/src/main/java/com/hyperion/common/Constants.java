@@ -146,7 +146,6 @@ public class Constants {
             RES_IMG_PREFIX = new File(RES_PREFIX + filePaths.getString("resImgPrefix"));
 
             JSONObject teamcode = root.getJSONObject("teamcode");
-            JSONObject slidesPreset = teamcode.getJSONObject("slidesPreset");
             LOCALIZATION_DELAY = teamcode.getLong("localizationDelay");
             UNIMETRY_DELAY = teamcode.getLong("unimetryDelay");
             FORCE_END_TIME_LEFT = teamcode.getLong("forceEndTimeLeft");

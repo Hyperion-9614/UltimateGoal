@@ -53,8 +53,8 @@ public class Motion {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
-        hw.fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-        hw.bRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        hw.fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        hw.bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     //////////////////////// INIT ////////////////////////////
@@ -225,6 +225,7 @@ public class Motion {
         followSpline(spline);
     }
     public static void splineThroughWaypoints(Pose... waypoints) {
+        waypoints = Utils.combineArrs(new Pose[]{ new Pose(robot.pose) }, waypoints);
         SplineTrajectory spline = new SplineTrajectory(waypoints);
         followSpline(spline);
     }
