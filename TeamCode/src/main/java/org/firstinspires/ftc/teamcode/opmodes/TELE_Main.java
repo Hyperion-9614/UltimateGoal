@@ -47,11 +47,11 @@ public class TELE_Main extends LinearOpMode {
             if (rot == 0) {
                 isHtStarted = false;
             } else if (rot != 0 && !isHtStarted) {
-                preHtTheta = Motion.robot.pose.theta;
+                preHtTheta = Motion.robot.theta;
                 isHtStarted = true;
             }
             if (isHtStarted) {
-                vel.rotate(preHtTheta - Motion.robot.pose.theta);
+                vel.rotate(preHtTheta - Motion.robot.theta);
             }
             Motion.setDrive(vel, rot);
 

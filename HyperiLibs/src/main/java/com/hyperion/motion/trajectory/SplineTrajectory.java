@@ -186,8 +186,8 @@ public class SplineTrajectory {
 
         // Goes through points
         for (int i = 0; i < numIntervals; i++) {
-            double fStart = (isX) ? rigidBodies.get(i).pose.x : rigidBodies.get(i).pose.y;
-            double fEnd = (isX) ? rigidBodies.get(i + 1).pose.x : rigidBodies.get(i + 1).pose.y;
+            double fStart = (isX) ? rigidBodies.get(i).x : rigidBodies.get(i).y;
+            double fEnd = (isX) ? rigidBodies.get(i + 1).x : rigidBodies.get(i + 1).y;
             XY = Utils.combineArrs(XY, new double[] { fStart, fEnd });
         }
 
@@ -225,10 +225,10 @@ public class SplineTrajectory {
         Piecewise pwY = (shouldReparameterize ? tauY : distanceY);
 
         if (numIntervals == 1) {
-            double dX = rigidBodies.get(1).pose.x - rigidBodies.get(0).pose.x;
-            double dY = rigidBodies.get(1).pose.y - rigidBodies.get(0).pose.y;
-            pwX.setInterval(0, 1, buildPolynomialExpression(Utils.roundArr(new double[] { 0, 0, dX, rigidBodies.get(0).pose.x }, 3)));
-            pwY.setInterval(0, 1, buildPolynomialExpression(Utils.roundArr(new double[] { 0, 0, dY, rigidBodies.get(0).pose.y }, 3)));
+            double dX = rigidBodies.get(1).x - rigidBodies.get(0).x;
+            double dY = rigidBodies.get(1).y - rigidBodies.get(0).y;
+            pwX.setInterval(0, 1, buildPolynomialExpression(Utils.roundArr(new double[] { 0, 0, dX, rigidBodies.get(0).x }, 3)));
+            pwY.setInterval(0, 1, buildPolynomialExpression(Utils.roundArr(new double[] { 0, 0, dY, rigidBodies.get(0).y }, 3)));
         } else if (numIntervals > 1) {
             double[][] M = calculateM(numIntervals);
             double[] X = calculateXY(rigidBodies, numIntervals, true);
@@ -287,11 +287,11 @@ public class SplineTrajectory {
                 tMiddle = (tLeft + tRight) / 2.0;
                 tMiddleLength = arcDistance(tMiddle);
             }
-            double theta = waypoints.get(tJ).pose.theta + Utils.optThetaDiff(waypoints.get(tJ).pose.theta, waypoints.get(tJ + 1).pose.theta)
+            double theta = waypoints.get(tJ).theta + Utils.optThetaDiff(waypoints.get(tJ).theta, waypoints.get(tJ + 1).theta)
                            * ((l - waypoints.get(tJ).distance) / (waypoints.get(tJ + 1).distance - waypoints.get(tJ).distance));
             planningPoints.add(new RigidBody(tMiddle, l, theta, this));
         }
-        planningPoints.add(new RigidBody(waypoints.size() - 1, segmentLength * numSegments, waypoints.get(waypoints.size() - 1).pose.theta, this));
+        planningPoints.add(new RigidBody(waypoints.size() - 1, segmentLength * numSegments, waypoints.get(waypoints.size() - 1).theta, this));
     }
 
     ///////////////////////// SPLINE INTERPRETATION //////////////////////////
@@ -338,13 +338,13 @@ public class SplineTrajectory {
         return (distance / segmentLength) + count;
     }
     public Pose getTPose(double T) {
-        if (T == waypoints.size()) return waypoints.get(waypoints.size() - 1).pose;
+        if (T == waypoints.size()) return waypoints.get(waypoints.size() - 1);
         return new Pose(tauX.evaluate(T, 0, true), tauY.evaluate(T, 0, true), 0);
     }
     public Pose getDPose(double distance) {
-        if (distance == waypoints.get(waypoints.size() - 1).distance) return waypoints.get(waypoints.size() - 1).pose;
+        if (distance == waypoints.get(waypoints.size() - 1).distance) return waypoints.get(waypoints.size() - 1);
         int interval = getPlanningPointInterval(distance);
-        double theta = Utils.norm(planningPoints.get(interval).pose.theta + Utils.optThetaDiff(planningPoints.get(interval).pose.theta, planningPoints.get(interval + 1).pose.theta)
+        double theta = Utils.norm(planningPoints.get(interval).theta + Utils.optThetaDiff(planningPoints.get(interval).theta, planningPoints.get(interval + 1).theta)
                                                   * ((distance - planningPoints.get(interval).distance) / (planningPoints.get(interval + 1).distance - planningPoints.get(interval).distance)), 0, 2 * Math.PI);
         distance = paramDistance(distance);
         return new Pose(distanceX.evaluate(distance, 0, true), distanceY.evaluate(distance, 0, true), theta);

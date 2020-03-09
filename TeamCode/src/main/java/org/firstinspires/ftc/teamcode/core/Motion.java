@@ -126,7 +126,7 @@ public class Motion {
         };
     }
     public static Vector2D toRelVec(Vector2D worldVec) {
-        return worldVec.thetaed(-robot.pose.theta + worldVec.theta + Math.PI / 2);
+        return worldVec.thetaed(-robot.theta + worldVec.theta + Math.PI / 2);
     }
     public static void setDrive(Vector2D relMoveVec, double rot) {
         setDrive(toMotorPowers(relMoveVec, rot));
@@ -150,14 +150,14 @@ public class Motion {
         pid.reset(target);
         ElapsedTime timer = new ElapsedTime();
         while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 2250
-               && (robot.pose.distanceTo(target) > Constants.END_TRANSLATION_ERROR_THRESHOLD
-               || Math.abs(Utils.optThetaDiff(robot.pose.theta, target.theta)) > Constants.END_ROTATION_ERROR_THRESHOLD)) {
-            setDrive(pid.pidWheelCorrections(robot.pose));
+               && (robot.distanceTo(target) > Constants.END_TRANSLATION_ERROR_THRESHOLD
+               || Math.abs(Utils.optThetaDiff(robot.theta, target.theta)) > Constants.END_ROTATION_ERROR_THRESHOLD)) {
+            setDrive(pid.pidWheelCorrections(robot));
         }
         setDrive(0);
     }
     public static void pidMove(Vector2D addVec) {
-        pidMove(addVec, robot.pose.theta);
+        pidMove(addVec, robot.theta);
     }
     public static void pidMove(double coords, double blueDir, double redDir) {
         pidMove(new Vector2D(coords, hw.choose(blueDir, redDir), false));
@@ -166,7 +166,7 @@ public class Motion {
         pidMove(coords, dir, dir);
     }
     public static void pidMove(Vector2D addVec, double targetHeading) {
-        Pose target = robot.pose.addVector(addVec);
+        Pose target = robot.addVector(addVec);
         target.setT(targetHeading);
         pidMove(target);
     }
@@ -176,7 +176,7 @@ public class Motion {
         translate(getWaypoint(waypoint));
     }
     public static void translate(Pose target) {
-        pidMove(new Pose(target.x, target.y, robot.pose.theta));
+        pidMove(new Pose(target.x, target.y, robot.theta));
     }
 
     public static void rotate(String waypoint) {
@@ -184,7 +184,7 @@ public class Motion {
     }
     public static void rotate(double targetTheta) {
         hw.status = "Rotating to " + Math.toDegrees(targetTheta) + "\u00B0";
-        pidMove(new Pose(robot.pose.x, robot.pose.y, targetTheta));
+        pidMove(new Pose(robot.x, robot.y, targetTheta));
     }
 
     public static void followSpline(String spline) {
@@ -192,15 +192,15 @@ public class Motion {
     }
     public static void followSpline(SplineTrajectory spline) {
         double distance = 0;
-        Pose last = new Pose(robot.pose);
-        Pose goal = new Pose(spline.waypoints.get(spline.waypoints.size() - 1).pose);
+        Pose last = new Pose(robot);
+        Pose goal = new Pose(spline.waypoints.get(spline.waypoints.size() - 1));
 
         ElapsedTime timer = new ElapsedTime();
         while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 3000
-                && (robot.pose.distanceTo(goal) > Constants.END_TRANSLATION_ERROR_THRESHOLD
-                || Math.abs(Utils.optThetaDiff(robot.pose.theta, goal.theta)) > Constants.END_ROTATION_ERROR_THRESHOLD)) {
-            distance += last.distanceTo(robot.pose);
-            last = new Pose(robot.pose);
+                && (robot.distanceTo(goal) > Constants.END_TRANSLATION_ERROR_THRESHOLD
+                || Math.abs(Utils.optThetaDiff(robot.theta, goal.theta)) > Constants.END_ROTATION_ERROR_THRESHOLD)) {
+            distance += last.distanceTo(robot);
+            last = new Pose(robot);
 
             Pose setPoint = spline.getDPose(distance + 1);
             pid.reset(setPoint);
@@ -210,7 +210,7 @@ public class Motion {
             Vector2D translation = toRelVec(transVel.added(transAcc));
 
             double[] motionProfilePowers = toMotorPowers(translation, 0);
-            double[] pidCorrection = pid.pidWheelCorrections(robot.pose);
+            double[] pidCorrection = pid.pidWheelCorrections(robot);
             double[] finalWheelPowers = Utils.addArrs(motionProfilePowers, pidCorrection);
             setDrive(finalWheelPowers);
         }
@@ -225,7 +225,7 @@ public class Motion {
         followSpline(spline);
     }
     public static void splineThroughWaypoints(Pose... waypoints) {
-        waypoints = Utils.combineArrs(new Pose[]{ new Pose(robot.pose) }, waypoints);
+        waypoints = Utils.combineArrs(new Pose[]{ new Pose(robot) }, waypoints);
         SplineTrajectory spline = new SplineTrajectory(waypoints);
         followSpline(spline);
     }

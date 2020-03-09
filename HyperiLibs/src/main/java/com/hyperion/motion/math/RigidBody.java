@@ -8,11 +8,10 @@ import org.json.JSONObject;
 
 import java.util.Scanner;
 
-public class RigidBody {
+public class RigidBody extends Pose {
 
     public double T = 0;
     public double distance = 0;
-    public Pose pose = new Pose();
     public Vector2D tVel = new Vector2D();
     public Vector2D tAcc = new Vector2D();
     public double aVel = 0;
@@ -23,26 +22,26 @@ public class RigidBody {
     }
 
     public RigidBody(Pose pose) {
-        this.pose = new Pose(pose);
+        setPose(pose);
     }
 
     public RigidBody(double T, double distance, Pose pose) {
         this.T = T;
         this.distance = distance;
-        this.pose = pose;
+        setPose(pose);
     }
 
     public RigidBody(double T, double distance, double theta, SplineTrajectory sT) {
         this.T = T;
-        this.pose = sT.getTPose(T);
-        this.pose.setT(theta);
+        setPose(sT.getTPose(T));
+        this.theta = theta;
         this.distance = distance;
     }
 
     public RigidBody(RigidBody rigidBody) {
         this.T = rigidBody.T;
         this.distance = rigidBody.distance;
-        this.pose = new Pose(rigidBody.pose);
+        setPose(rigidBody);
         this.tVel = new Vector2D(rigidBody.tVel);
         this.tAcc = new Vector2D(rigidBody.tAcc);
         this.aVel = rigidBody.aVel;
@@ -53,7 +52,9 @@ public class RigidBody {
         try {
             this.T = arr.getDouble(0);
             this.distance = arr.getDouble(1);
-            this.pose = new Pose(arr.getDouble(2), arr.getDouble(3), arr.getDouble(4));
+            this.x = arr.getDouble(2);
+            this.y = arr.getDouble(3);
+            this.theta = arr.getDouble(4);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,7 +63,9 @@ public class RigidBody {
     public RigidBody(String str) {
         str = str.replaceAll("[^\\d. -]", "");
         Scanner scanner = new Scanner(str);
-        this.pose = new Pose(scanner.nextDouble(), scanner.nextDouble(), Math.toRadians(scanner.nextDouble()));
+        this.x = scanner.nextDouble();
+        this.y = scanner.nextDouble();
+        this.theta = Math.toRadians(scanner.nextDouble());
         this.tVel = new Vector2D(scanner.nextDouble(), Math.toRadians(scanner.nextDouble()), false);
         this.tAcc = new Vector2D(scanner.nextDouble(), Math.toRadians(scanner.nextDouble()), false);
         this.aVel = scanner.nextDouble();
@@ -71,12 +74,12 @@ public class RigidBody {
     }
 
     public double[] toArray() {
-        return Utils.combineArrs(new double[]{ T, distance }, pose.toArray());
+        return Utils.combineArrs(new double[]{ T, distance }, new double[]{ x, y, theta });
     }
 
     @Override
     public String toString() {
-        return pose.toString() + " | tVel: " + tVel + " | tAcc: " + tAcc + " | aVel: " + aVel + " | aAcc: " + aAcc;
+        return new Pose(x, y, theta).toString() + " | tVel: " + tVel + " | tAcc: " + tAcc + " | aVel: " + aVel + " | aAcc: " + aAcc;
     }
 
 }

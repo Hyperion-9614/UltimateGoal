@@ -74,9 +74,9 @@ public class DisplaySpline extends FieldObject {
                 displayGroup.getChildren().add(pathPoint);
             }
 
-            double[] lastPoseArr = UICMain.fieldPane.poseToDisplay(spline.planningPoints.get(0).pose, 0);
+            double[] lastPoseArr = UICMain.fieldPane.poseToDisplay(spline.planningPoints.get(0), 0);
             for (int i = 1; i < spline.planningPoints.size(); i++) {
-                double[] poseArr = UICMain.fieldPane.poseToDisplay(spline.planningPoints.get(i).pose, 0);
+                double[] poseArr = UICMain.fieldPane.poseToDisplay(spline.planningPoints.get(i), 0);
                 Line segment = new Line(lastPoseArr[0], lastPoseArr[1], poseArr[0], poseArr[1]);
                 segment.setStroke(Color.hsb(360 * (i - 1.0) / spline.planningPoints.size(), 1.0, 1.0));
                 segment.setStrokeWidth(2);
@@ -106,7 +106,7 @@ public class DisplaySpline extends FieldObject {
                 selectRects.add(selectRect);
 
                 if (i == spline.planningPoints.size() - 1) {
-                    double[] lastParr = UICMain.fieldPane.poseToDisplay(spline.waypoints.get(spline.waypoints.size() - 1).pose, 0);
+                    double[] lastParr = UICMain.fieldPane.poseToDisplay(spline.waypoints.get(spline.waypoints.size() - 1), 0);
                     Line lastSeg = new Line(poseArr[0], poseArr[1], lastParr[0], lastParr[1]);
                     lastSeg.setStroke(Color.hsb(360 * i / spline.planningPoints.size(), 1.0, 1.0));
                     lastSeg.setStrokeWidth(3);
@@ -120,7 +120,7 @@ public class DisplaySpline extends FieldObject {
 
         for (int i = 0; i < spline.waypoints.size(); i++) {
             RigidBody wpPP = spline.waypoints.get(i);
-            Waypoint waypoint = new Waypoint("", wpPP.pose, this, (i == 0));
+            Waypoint waypoint = new Waypoint("", wpPP, this, (i == 0));
             if (waypoint.renderID) {
                 waypoint.idField.setText(id.replace(UICMain.opModeID + ".spline.", ""));
                 waypoint.idField.setOnKeyPressed(event -> {

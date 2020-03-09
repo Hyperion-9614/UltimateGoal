@@ -136,7 +136,7 @@ public class MotionProfile {
 
     public RigidBody getRigidBody(double distance) {
         RigidBody toReturn = new RigidBody(distance);
-        toReturn.pose = spline.getDPose(distance);
+        toReturn.setPose(spline.getDPose(distance));
         toReturn.tVel = getTransVel(distance);
         toReturn.tAcc = getTransAcc(distance);
         toReturn.aVel = getAngVel(distance);

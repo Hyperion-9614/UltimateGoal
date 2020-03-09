@@ -287,7 +287,7 @@ public class Hardware {
 
     // Wrap up OpMode
     public void end() {
-        if (opModeID.contains("auto") && Motion.robot.pose.distanceTo(Motion.getWaypoint("park")) > Constants.END_TRANSLATION_ERROR_THRESHOLD) {
+        if (opModeID.contains("auto") && Motion.robot.distanceTo(Motion.getWaypoint("park")) > Constants.END_TRANSLATION_ERROR_THRESHOLD) {
             Motion.pidMove("park");
         }
 
@@ -304,7 +304,7 @@ public class Hardware {
                 JSONObject obj = new JSONObject(Utils.readFile(fieldJSON));
                 JSONObject wpObj = obj.getJSONObject("waypoints");
                 String key = "tele." + (opModeID.contains("red") ? "red" : "blue") + ".waypoint.start";
-                JSONArray wpArr = new JSONArray(Motion.robot.pose.toArray());
+                JSONArray wpArr = new JSONArray(Motion.robot.toArray());
                 wpObj.put(key, wpArr);
                 obj.put("waypoints", wpObj);
                 Utils.writeFile(obj.toString(), fieldJSON);

@@ -43,7 +43,7 @@ public class Robot extends FieldObject {
     }
 
     public void refreshDisplayGroup() {
-        double[] display = UICMain.fieldPane.poseToDisplay(rigidBody.pose, UICMain.fieldPane.robotSize);
+        double[] display = UICMain.fieldPane.poseToDisplay(rigidBody, UICMain.fieldPane.robotSize);
         imgView.relocate(display[0], display[1]);
         imgView.setRotate(display[2]);
     }

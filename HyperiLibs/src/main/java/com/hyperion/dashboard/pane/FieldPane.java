@@ -109,7 +109,7 @@ public class FieldPane extends Pane {
                     Vector2D vec = new Vector2D(UICMain.selectedWaypoint.pose, displayToPose(mouseEvent.getX(), mouseEvent.getY(), 0));
                     UICMain.selectedWaypoint.pose.theta = Utils.norm(vec.theta, 0, 2 * Math.PI);
                     if (UICMain.selectedWaypoint.parentSpline != null) {
-                        UICMain.selectedWaypoint.parentSpline.spline.waypoints.get(UICMain.selectedWaypoint.parentSpline.waypoints.indexOf(UICMain.selectedWaypoint)).pose = UICMain.selectedWaypoint.pose;
+                        UICMain.selectedWaypoint.parentSpline.spline.waypoints.get(UICMain.selectedWaypoint.parentSpline.waypoints.indexOf(UICMain.selectedWaypoint)).setPose(UICMain.selectedWaypoint.pose);
                     }
                     UICMain.selectedWaypoint.imgView.setRotate(Math.toDegrees(2 * Math.PI - vec.theta));
                     UICMain.selectedWaypoint.selectRect.setRotate(UICMain.selectedWaypoint.imgView.getRotate());

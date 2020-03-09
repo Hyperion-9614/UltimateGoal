@@ -383,7 +383,7 @@ public class DStarLite {
         return (Math.abs(x - y) < Math.pow(10, -5));
     }
 
-    public ArrayList<RigidBody> optimalPath(Pose start, Pose goal) {
+    public ArrayList<Pose> optimalPath(Pose start, Pose goal) {
 //        init(start.x, start.y, goal.x, goal.y);
 //        for (Node obstacle : obstacles) {
 //            updateCell(obstacle.x, obstacle.y, -1);
@@ -391,12 +391,12 @@ public class DStarLite {
 //        replan();
 //        updateGoal();
 
-        ArrayList<RigidBody> toReturn = new ArrayList<>();
+        ArrayList<Pose> toReturn = new ArrayList<>();
 //        for (Node node : path) {
 //            toReturn.add(new RigidBody(new Pose(node.x, node.y)));
 //        }
-        toReturn.add(new RigidBody(start));
-        toReturn.add(new RigidBody(goal));
+        toReturn.add(start);
+        toReturn.add(goal);
         return toReturn;
     }
 

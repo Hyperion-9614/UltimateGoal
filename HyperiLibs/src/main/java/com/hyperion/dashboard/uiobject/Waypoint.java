@@ -176,7 +176,7 @@ public class Waypoint extends FieldObject {
                 if (System.currentTimeMillis() - startDragTime > 200 && event.getButton() == MouseButton.PRIMARY) {
                     FieldEdit edit = new FieldEdit(id, FieldEdit.Type.EDIT_BODY, new JSONArray(pose.toArray()).toString());
                     if (parentSpline != null) {
-                        parentSpline.spline.waypoints.get(parentSpline.waypoints.indexOf(this)).pose = pose;
+                        parentSpline.spline.waypoints.get(parentSpline.waypoints.indexOf(this)).setPose(pose);
                         parentSpline.spline.endPath();
                         parentSpline.refreshDisplayGroup();
                         edit = new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString());

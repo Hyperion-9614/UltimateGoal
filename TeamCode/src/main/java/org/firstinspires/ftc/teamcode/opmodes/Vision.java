@@ -17,7 +17,7 @@ public class Vision extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            sleep(100);
+
         }
     }
 

@@ -82,10 +82,10 @@ public class Localizer {
 
             double dXr = Constants.mToCoords(dR[0]);
             double dYr = Constants.mToCoords(dR[1]);
-            double theta = -Motion.robot.pose.theta;
-            Motion.robot.pose.addXYT(dXr * Math.cos(theta) + dYr * Math.sin(theta),
+            double theta = -Motion.robot.theta;
+            Motion.robot.addXYT(dXr * Math.cos(theta) + dYr * Math.sin(theta),
                                      dYr * Math.cos(theta) - dXr * Math.sin(theta), dR[2]);
-            Motion.robot.pose.theta = Utils.norm(Motion.robot.pose.theta, 0, 2 * Math.PI);
+            Motion.robot.theta = Utils.norm(Motion.robot.theta, 0, 2 * Math.PI);
         }
     }
 

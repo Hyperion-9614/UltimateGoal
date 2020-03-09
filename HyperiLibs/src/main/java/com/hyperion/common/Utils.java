@@ -149,14 +149,6 @@ public class Utils {
         return joined.toString();
     }
 
-    public static ArrayList<RigidBody> toPlanningPointList(ArrayList<Pose> poses) {
-        ArrayList<RigidBody> rigidBodies = new ArrayList<>();
-        for (Pose p : poses) {
-            rigidBodies.add(new RigidBody(p));
-        }
-        return rigidBodies;
-    }
-
     public static String getFormattedDate() {
         String pattern = "MM/dd/yyyy h:mm:ss:S a";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern, Locale.getDefault());
