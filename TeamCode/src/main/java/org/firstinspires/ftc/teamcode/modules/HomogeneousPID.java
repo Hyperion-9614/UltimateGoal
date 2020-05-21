@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import com.hyperion.common.Constants;
-import com.hyperion.common.Utils;
+import com.hyperion.common.MathUtils;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 
@@ -53,16 +53,16 @@ public class HomogeneousPID {
 
         Vector2D relTransErrVec = new Vector2D(robot, goal);
         relTransErrVec.setTheta(-robot.theta + relTransErrVec.theta);
-        double thetaError = Utils.optThetaDiff(robot.theta, goal.theta);
+        double thetaError = MathUtils.optThetaDiff(robot.theta, goal.theta);
 
         time += dT;
         xEt.add(new double[]{ time, relTransErrVec.x });
         yEt.add(new double[]{ time, relTransErrVec.y });
         thetaEt.add(new double[]{ time, thetaError });
 
-        double uX = pOut(xEt, Constants.X_K_P) + iOut(xEt, Constants.X_K_I) + dOut(xEt, Constants.X_K_D);
-        double uY = pOut(yEt, Constants.Y_K_P) + iOut(yEt, Constants.Y_K_I) + dOut(yEt, Constants.Y_K_D);
-        double uTheta = pOut(thetaEt, Constants.THETA_K_P) + iOut(thetaEt, Constants.THETA_K_I) + dOut(thetaEt, Constants.THETA_K_D);
+        double uX = pOut(xEt, Constants.getDouble("pid.x.kP")) + iOut(xEt, Constants.getDouble("pid.x.kI")) + dOut(xEt, Constants.getDouble("pid.x.kD"));
+        double uY = pOut(yEt, Constants.getDouble("pid.y.kP")) + iOut(yEt, Constants.getDouble("pid.y.kI")) + dOut(yEt, Constants.getDouble("pid.y.kD"));
+        double uTheta = pOut(thetaEt, Constants.getDouble("pid.theta.kP")) + iOut(thetaEt, Constants.getDouble("pid.theta.kI")) + dOut(thetaEt, Constants.getDouble("pid.theta.kD"));
 
         xUt.add(new double[]{ time, uX });
         yUt.add(new double[]{ time, uY });
@@ -73,7 +73,7 @@ public class HomogeneousPID {
     private double[] wheelCorrections(double uX, double uY, double uTheta) {
         Vector2D relMoveVec = new Vector2D(uX, uY, true).rotated(Math.PI / 2);
         relMoveVec.setMagnitude(Math.min(0.75, relMoveVec.magnitude));
-        double w = -Utils.clip(uTheta, -0.75, 0.75);
+        double w = -MathUtils.clip(uTheta, -0.75, 0.75);
         return Motion.toMotorPowers(relMoveVec, w);
     }
 

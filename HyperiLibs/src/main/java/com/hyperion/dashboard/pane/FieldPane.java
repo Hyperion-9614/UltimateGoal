@@ -1,19 +1,17 @@
 package com.hyperion.dashboard.pane;
 
 import com.hyperion.common.Constants;
-import com.hyperion.common.Utils;
+import com.hyperion.common.MathUtils;
 import com.hyperion.dashboard.UICMain;
+import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
-import com.hyperion.dashboard.uiobject.FieldEdit;
 import com.hyperion.dashboard.uiobject.FieldObject;
 import com.hyperion.dashboard.uiobject.Waypoint;
-import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
+import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Vector2D;
 
 import org.json.JSONArray;
-
-import java.io.File;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -35,16 +33,16 @@ import javafx.stage.Stage;
 
 public class FieldPane extends Pane {
 
-    public Stage stage;
+    private Stage stage;
     public double fieldSize;
     public double robotSize;
 
-    public Rectangle wbbBorder;
-    public Rectangle wbbLeftLeg;
-    public Rectangle wbbRightLeg;
+    private Rectangle wbbBorder;
+    private Rectangle wbbLeftLeg;
+    private Rectangle wbbRightLeg;
 
     public double mouseX, mouseY;
-    private long startDragTime;
+    public long startDragTime;
     public boolean isDragging;
 
     public FieldPane(Stage stage) {
@@ -56,31 +54,31 @@ public class FieldPane extends Pane {
         addEventHandler(MouseEvent.ANY, this::mouseHandler);
 
         try {
-            Image fieldBG = new Image(new File(Constants.RES_IMG_PREFIX + "/field.png").toURI().toURL().toString());
+            Image fieldBG = new Image(Constants.getFile("img", "field.png").toURI().toURL().toString());
             BackgroundImage bgImg = new BackgroundImage(fieldBG,
                     BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
                     BackgroundPosition.DEFAULT, new BackgroundSize(fieldSize, fieldSize, false, false, false, false));
             setBackground(new Background(bgImg));
 
-            wbbBorder = new Rectangle(robotSize / 2 - Constants.WAYPOINT_SIZE / 2.0, robotSize / 2 - Constants.WAYPOINT_SIZE / 2.0, fieldSize - robotSize + Constants.WAYPOINT_SIZE, fieldSize - robotSize + Constants.WAYPOINT_SIZE);
+            wbbBorder = new Rectangle(robotSize / 2 - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, robotSize / 2 - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, fieldSize - robotSize + Constants.getDouble("dashboard.gui.sizes.waypoint"), fieldSize - robotSize + Constants.getDouble("dashboard.gui.sizes.waypoint"));
             wbbBorder.getStrokeDashArray().addAll(20d, 15d);
             wbbBorder.setFill(Color.TRANSPARENT);
-            wbbBorder.setStroke(new Color(Constants.WBB_GRAY_SCALE, Constants.WBB_GRAY_SCALE, Constants.WBB_GRAY_SCALE, 0.7));
-            wbbBorder.setStrokeWidth(Constants.WBB_STROKE_WIDTH);
+            wbbBorder.setStroke(new Color(Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), 0.7));
+            wbbBorder.setStrokeWidth(Constants.getDouble("dashboard.gui.wbb.strokeWidth"));
             getChildren().add(wbbBorder);
 
-            wbbLeftLeg = new Rectangle(12 * fieldSize / 36 - robotSize / 2.0 + Constants.WAYPOINT_SIZE / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + Constants.WAYPOINT_SIZE / 6.0, robotSize + fieldSize / 36 - 7.0 * Constants.WAYPOINT_SIZE / 8.0, robotSize + 4 * fieldSize / 36 - Constants.WAYPOINT_SIZE / 2.0);
+            wbbLeftLeg = new Rectangle(12 * fieldSize / 36 - robotSize / 2.0 + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + Constants.getDouble("dashboard.gui.sizes.waypoint") / 6.0, robotSize + fieldSize / 36 - 7.0 * Constants.getDouble("dashboard.gui.sizes.waypoint") / 8.0, robotSize + 4 * fieldSize / 36 - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0);
             wbbLeftLeg.getStrokeDashArray().addAll(20d, 15d);
             wbbLeftLeg.setFill(Color.TRANSPARENT);
-            wbbLeftLeg.setStroke(new Color(Constants.WBB_GRAY_SCALE, Constants.WBB_GRAY_SCALE, Constants.WBB_GRAY_SCALE, 0.7));
-            wbbLeftLeg.setStrokeWidth(Constants.WBB_STROKE_WIDTH);
+            wbbLeftLeg.setStroke(new Color(Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), 0.7));
+            wbbLeftLeg.setStrokeWidth(Constants.getDouble("dashboard.gui.wbb.strokeWidth"));
             getChildren().add(wbbLeftLeg);
 
-            wbbRightLeg = new Rectangle(23 * fieldSize / 36 - robotSize / 2.0 + Constants.WAYPOINT_SIZE / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + Constants.WAYPOINT_SIZE / 6.0, robotSize + fieldSize / 36 - 7.0 * Constants.WAYPOINT_SIZE / 8.0, robotSize + 4 * fieldSize / 36 - Constants.WAYPOINT_SIZE / 2.0);
+            wbbRightLeg = new Rectangle(23 * fieldSize / 36 - robotSize / 2.0 + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + Constants.getDouble("dashboard.gui.sizes.waypoint") / 6.0, robotSize + fieldSize / 36 - 7.0 * Constants.getDouble("dashboard.gui.sizes.waypoint") / 8.0, robotSize + 4 * fieldSize / 36 - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0);
             wbbRightLeg.getStrokeDashArray().addAll(20d, 15d);
             wbbRightLeg.setFill(Color.TRANSPARENT);
-            wbbRightLeg.setStroke(new Color(Constants.WBB_GRAY_SCALE, Constants.WBB_GRAY_SCALE, Constants.WBB_GRAY_SCALE, 0.7));
-            wbbRightLeg.setStrokeWidth(Constants.WBB_STROKE_WIDTH);
+            wbbRightLeg.setStroke(new Color(Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), 0.7));
+            wbbRightLeg.setStrokeWidth(Constants.getDouble("dashboard.gui.wbb.strokeWidth"));
             getChildren().add(wbbRightLeg);
         } catch (Exception e) {
             e.printStackTrace();
@@ -107,7 +105,7 @@ public class FieldPane extends Pane {
                 isDragging = true;
                 if (mouseEvent.getButton() == MouseButton.PRIMARY && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget().equals(this)) && UICMain.selectedWaypoint != null) {
                     Vector2D vec = new Vector2D(UICMain.selectedWaypoint.pose, displayToPose(mouseEvent.getX(), mouseEvent.getY(), 0));
-                    UICMain.selectedWaypoint.pose.theta = Utils.norm(vec.theta, 0, 2 * Math.PI);
+                    UICMain.selectedWaypoint.pose.theta = MathUtils.norm(vec.theta, 0, 2 * Math.PI);
                     if (UICMain.selectedWaypoint.parentSpline != null) {
                         UICMain.selectedWaypoint.parentSpline.spline.waypoints.get(UICMain.selectedWaypoint.parentSpline.waypoints.indexOf(UICMain.selectedWaypoint)).setPose(UICMain.selectedWaypoint.pose);
                     }
@@ -122,7 +120,7 @@ public class FieldPane extends Pane {
                             deselectAll();
                         }
                     } else if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.getTarget().equals(wbbBorder)) {
-                        if (isInWBB(mouseX - Constants.WAYPOINT_SIZE / 2.0, mouseY - Constants.WAYPOINT_SIZE / 2.0, Constants.WAYPOINT_SIZE)) {
+                        if (isInWBB(mouseX - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, mouseY - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, Constants.getDouble("dashboard.gui.sizes.waypoint"))) {
                             Pose newPose = displayToPose(mouseX, mouseY, 0);
                             if (UICMain.isBuildingPaths) {
                                 if (UICMain.selectedSpline != null) {
@@ -158,14 +156,14 @@ public class FieldPane extends Pane {
 
     // Converts pose to view coords
     public double[] poseToDisplay(Pose original, double size) {
-        double x1 = (original.x / (Constants.COORD_AXIS_LENGTH_UNITS / 2)) * (fieldSize / 2.0);
-        double y1 = (original.y / (Constants.COORD_AXIS_LENGTH_UNITS / 2)) * (fieldSize / 2.0);
+        double x1 = (original.x / (Constants.getDouble("localization.fieldSideLength") / 2)) * (fieldSize / 2.0);
+        double y1 = (original.y / (Constants.getDouble("localization.fieldSideLength")  / 2)) * (fieldSize / 2.0);
         double x2 = x1 + (fieldSize / 2.0);
         double y2 = y1 + (fieldSize / 2.0);
         double x3 = x2;
         double y3 = fieldSize - y2;
 
-        return new double[]{ x3 - size / 2.0, y3 - size / 2.0, Math.toDegrees(Utils.norm(2 * Math.PI - original.theta, 0, 2 * Math.PI))};
+        return new double[]{ x3 - size / 2.0, y3 - size / 2.0, Math.toDegrees(MathUtils.norm(2 * Math.PI - original.theta, 0, 2 * Math.PI))};
     }
 
     // Converts display xy to pose
@@ -174,8 +172,8 @@ public class FieldPane extends Pane {
         double y1 = fieldSize - (y + size / 2.0);
         double x2 = x1 - (fieldSize / 2.0);
         double y2 = y1 - (fieldSize / 2.0);
-        double x3 = (x2 / (fieldSize / 2.0)) * (Constants.COORD_AXIS_LENGTH_UNITS / 2);
-        double y3 = (y2 / (fieldSize / 2.0)) * (Constants.COORD_AXIS_LENGTH_UNITS / 2);
+        double x3 = (x2 / (fieldSize / 2.0)) * (Constants.getDouble("localization.fieldSideLength") / 2);
+        double y3 = (y2 / (fieldSize / 2.0)) * (Constants.getDouble("localization.fieldSideLength") / 2);
 
         return new Pose(Math.round(x3 * 1000.0) / 1000.0, Math.round(y3 * 1000.0) / 1000.0);
     }
@@ -183,7 +181,7 @@ public class FieldPane extends Pane {
     // Converts view to pose
     public Pose viewToPose(ImageView view, double size) {
         Pose toReturn = displayToPose(view.getLayoutX(), view.getLayoutY(), size);
-        toReturn.theta = Utils.norm(2 * Math.PI - Math.toRadians(view.getRotate()), 0, 2 * Math.PI);
+        toReturn.theta = MathUtils.norm(2 * Math.PI - Math.toRadians(view.getRotate()), 0, 2 * Math.PI);
         return toReturn;
     }
 

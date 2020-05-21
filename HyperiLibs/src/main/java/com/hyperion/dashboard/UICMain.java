@@ -1,14 +1,14 @@
 package com.hyperion.dashboard;
 
 import com.hyperion.common.Constants;
-import com.hyperion.common.Utils;
+import com.hyperion.common.TextUtils;
 import com.hyperion.dashboard.pane.VisualPane;
 import com.hyperion.dashboard.pane.FieldPane;
 import com.hyperion.dashboard.pane.MenuPane;
 import com.hyperion.dashboard.pane.LeftPane;
 import com.hyperion.dashboard.pane.RightPane;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
-import com.hyperion.dashboard.uiobject.FieldEdit;
+import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.dashboard.uiobject.FieldObject;
 import com.hyperion.dashboard.uiobject.Robot;
 import com.hyperion.dashboard.uiobject.Waypoint;
@@ -55,7 +55,7 @@ public class UICMain extends Application {
     public static DisplaySpline selectedSpline = null;
     public static Waypoint selectedWaypoint = null;
     public static List<FieldObject> fieldObjects = new ArrayList<>();
-    public static Map<String, String> unimetry = new HashMap<>();
+    public static Map<String, String> metrics = new HashMap<>();
     public static boolean isRobotOnField;
 
     public static String opModeID = "auto.blue.full";
@@ -128,16 +128,16 @@ public class UICMain extends Application {
 
     private static void startClient() {
         try {
-            uiClient = IO.socket(Constants.ADDRESS);
+            uiClient = IO.socket("http://" + Constants.getString("dashboard.net.hostIP") + ":" + Constants.getString("dashboard.net.port"));
 
             uiClient.on(Socket.EVENT_CONNECT, args -> {
-                Utils.printSocketLog("UI", "SERVER", "connected");
+                TextUtils.printSocketLog("UI", "SERVER", "connected");
             }).on(Socket.EVENT_DISCONNECT, args -> {
-                Utils.printSocketLog("UI", "SERVER", "disconnected");
+                TextUtils.printSocketLog("UI", "SERVER", "disconnected");
             }).on("constantsUpdated", args -> {
                 try {
-                    Utils.printSocketLog("SERVER", "UI", "constantsUpdated");
-                    Constants.read(new JSONObject(args[0].toString()));
+                    TextUtils.printSocketLog("SERVER", "UI", "constantsUpdated");
+                    Constants.init(new JSONObject(args[0].toString()));
                     constantsSave = args[0].toString();
                     if (rightPane != null) {
                         rightPane.setConstantsDisplayText(Constants.root.toString(4));
@@ -146,10 +146,10 @@ public class UICMain extends Application {
                     e.printStackTrace();
                 }
             }).on("fieldEdited", args -> {
-                Utils.printSocketLog("SERVER", "UI", "fieldEdited");
+                TextUtils.printSocketLog("SERVER", "UI", "fieldEdited");
                 readFieldEdits(args[0].toString());
             }).on("opModeEnded", args -> {
-                Utils.printSocketLog("SERVER", "UI", "opModeEnded");
+                TextUtils.printSocketLog("SERVER", "UI", "opModeEnded");
                 Thread deleteRobotThread = new Thread(() -> {
                     long start = System.currentTimeMillis();
                     while (true) {
@@ -170,9 +170,9 @@ public class UICMain extends Application {
                 });
                 deleteRobotThread.start();
             }).on("unimetryUpdated", args -> {
-                Utils.printSocketLog("SERVER", "UI", "unimetryUpdated");
+                TextUtils.printSocketLog("SERVER", "UI", "unimetryUpdated");
                 readUnimetry(args[0].toString());
-                Platform.runLater(() -> rightPane.setUnimetryDisplayText());
+                Platform.runLater(() -> rightPane.setMetricsDisplayText());
             });
 
             uiClient.connect();
@@ -184,15 +184,15 @@ public class UICMain extends Application {
     // Read in unimetry from json
     private static void readUnimetry(String json) {
         try {
-            unimetry = new LinkedHashMap<>();
+            metrics = new LinkedHashMap<>();
             JSONArray dataArr = new JSONArray(json);
             for (int i = 0; i < dataArr.length(); i++) {
                 JSONArray miniObj = dataArr.getJSONArray(i);
-                unimetry.put(miniObj.getString(0), miniObj.getString(1));
+                metrics.put(miniObj.getString(0), miniObj.getString(1));
             }
 
             editUI(new FieldEdit("robot", isRobotOnField ? FieldEdit.Type.EDIT_BODY : FieldEdit.Type.CREATE,
-                    new JSONArray(new RigidBody(unimetry.get("Current")).toArray()).toString()));
+                    new JSONArray(new RigidBody(metrics.get("Current")).toArray()).toString()));
             isRobotOnField = true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -287,7 +287,7 @@ public class UICMain extends Application {
             }
             queuedEdits.clear();
             uiClient.emit("fieldEdited", arr.toString());
-            Utils.printSocketLog("UI", "SERVER", "fieldEdited");
+            TextUtils.printSocketLog("UI", "SERVER", "fieldEdited");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -296,7 +296,7 @@ public class UICMain extends Application {
     // Set save indicator
     public static void changeSaveStatus(boolean hazUnsavedChanges) {
         hasUnsavedChanges = hazUnsavedChanges;
-        Platform.runLater(() -> menuPane.title.setText("Hyperion Dashboard v" + Constants.DASHBOARD_VERSION + (hasUnsavedChanges ? " (*)" : "")));
+        Platform.runLater(() -> menuPane.title.setText("Hyperion Dashboard v" + Constants.getString("dashboard.version") + (hasUnsavedChanges ? " (*)" : "")));
     }
 
     // Save dashboard upon ctrl + s
@@ -304,9 +304,9 @@ public class UICMain extends Application {
         try {
             if (hasUnsavedChanges) {
                 String newConstants = rightPane.constantsDisplay.getText();
-                if (!Utils.condensedEquals(newConstants, constantsSave)) {
+                if (!TextUtils.condensedEquals(newConstants, constantsSave)) {
                     uiClient.emit("constantsUpdated", newConstants);
-                    Utils.printSocketLog("UI", "SERVER", "constantsUpdated");
+                    TextUtils.printSocketLog("UI", "SERVER", "constantsUpdated");
                 }
 
                 sendQueuedFieldEdits();

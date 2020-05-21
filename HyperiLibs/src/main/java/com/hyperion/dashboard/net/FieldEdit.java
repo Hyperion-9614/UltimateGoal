@@ -1,4 +1,4 @@
-package com.hyperion.dashboard.uiobject;
+package com.hyperion.dashboard.net;
 
 import org.json.JSONObject;
 

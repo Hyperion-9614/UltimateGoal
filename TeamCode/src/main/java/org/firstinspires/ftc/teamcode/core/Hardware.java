@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.core;
 
 import com.hyperion.common.Constants;
-import com.hyperion.common.Utils;
-import com.hyperion.dashboard.uiobject.FieldEdit;
+import com.hyperion.common.IOUtils;
+import com.hyperion.common.TextUtils;
+import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -12,7 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.modules.CvPipeline;
 import org.firstinspires.ftc.teamcode.modules.RectangleSampling;
-import org.firstinspires.ftc.teamcode.modules.Unimetry;
+import org.firstinspires.ftc.teamcode.modules.Metrics;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -46,7 +47,7 @@ public class Hardware {
     public CvPipeline cvPipeline;
 
     public Socket rcClient;
-    public Unimetry unimetry;
+    public Metrics metrics;
     public String status = opModeID;
 
     public File fieldJSON;
@@ -94,7 +95,7 @@ public class Hardware {
         Motion.init(this);
         Appendages.init(this);
         initDashboard();
-        unimetry = new Unimetry(this);
+        metrics = new Metrics(this);
         initCV();
         initUpdaters();
     }
@@ -106,7 +107,7 @@ public class Hardware {
         localizationUpdater = new Thread(() -> {
             long lastUpdateTime = System.currentTimeMillis();
             while (!localizationUpdater.isInterrupted() && localizationUpdater.isAlive() && !ctx.isStopRequested()) {
-                if (System.currentTimeMillis() - lastUpdateTime >= Constants.LOCALIZATION_DELAY) {
+                if (System.currentTimeMillis() - lastUpdateTime >= Constants.getInt("teamcode.localizationDelay")) {
                     lastUpdateTime = System.currentTimeMillis();
                     Motion.localizer.update();
                 }
@@ -117,9 +118,9 @@ public class Hardware {
         unimetryUpdater = new Thread(() -> {
             long lastUpdateTime = System.currentTimeMillis();
             while (!unimetryUpdater.isInterrupted() && unimetryUpdater.isAlive() && !ctx.isStopRequested()) {
-                if (System.currentTimeMillis() - lastUpdateTime >= Constants.UNIMETRY_DELAY) {
+                if (System.currentTimeMillis() - lastUpdateTime >= Constants.getInt("teamcode.unimetryDelay")) {
                     lastUpdateTime = System.currentTimeMillis();
-                    unimetry.update();
+                    metrics.update();
                 }
             }
         });
@@ -146,19 +147,19 @@ public class Hardware {
     // Initialize dashboard RC client socket
     public void initDashboard() {
         try {
-            rcClient = IO.socket(Constants.ADDRESS);
+            rcClient = IO.socket("http://" + Constants.getString("dashboard.net.hostIP") + ":" + Constants.getString("dashboard.net.port"));
 
             rcClient.on(Socket.EVENT_CONNECT, args -> {
-                Utils.printSocketLog("RC", "SERVER", "connected");
+                TextUtils.printSocketLog("RC", "SERVER", "connected");
             }).on(Socket.EVENT_DISCONNECT, args -> {
-                Utils.printSocketLog("RC", "SERVER", "disconnected");
+                TextUtils.printSocketLog("RC", "SERVER", "disconnected");
             }).on("fieldEdited", args -> {
-                Utils.printSocketLog("SERVER", "RC", "fieldEdited");
+                TextUtils.printSocketLog("SERVER", "RC", "fieldEdited");
                 writeFieldEditsToFieldJSON(args[0].toString());
             }).on("constantsUpdated", args -> {
                 try {
-                    Utils.printSocketLog("SERVER", "RC", "constantsUpdated");
-                    Constants.read(new JSONObject(args[0].toString()));
+                    TextUtils.printSocketLog("SERVER", "RC", "constantsUpdated");
+                    Constants.init(new JSONObject(args[0].toString()));
                     Constants.write();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -175,7 +176,7 @@ public class Hardware {
     // Exactly what the method header says
     public void writeFieldEditsToFieldJSON(String json) {
         try {
-            JSONObject field = new JSONObject(Utils.readFile(fieldJSON));
+            JSONObject field = new JSONObject(IOUtils.readFile(fieldJSON));
             JSONArray arr = new JSONArray(json);
             for (int i = 0; i < arr.length(); i++) {
                 FieldEdit edit = new FieldEdit(arr.getJSONObject(i));
@@ -205,7 +206,7 @@ public class Hardware {
                     field.put(o, target);
                 }
             }
-            Utils.writeFile(field.toString(), fieldJSON);
+            IOUtils.writeFile(field.toString(), fieldJSON);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -287,7 +288,7 @@ public class Hardware {
 
     // Wrap up OpMode
     public void end() {
-        if (opModeID.contains("auto") && Motion.robot.distanceTo(Motion.getWaypoint("park")) > Constants.END_TRANSLATION_ERROR_THRESHOLD) {
+        if (opModeID.contains("auto") && Motion.robot.distanceTo(Motion.getWaypoint("park")) > Constants.getDouble("motionProfile.endErrorThresholds.translation")) {
             Motion.pidMove("park");
         }
 
@@ -301,18 +302,18 @@ public class Hardware {
 
         try {
             if (opModeID.startsWith("auto")) {
-                JSONObject obj = new JSONObject(Utils.readFile(fieldJSON));
+                JSONObject obj = new JSONObject(IOUtils.readFile(fieldJSON));
                 JSONObject wpObj = obj.getJSONObject("waypoints");
                 String key = "tele." + (opModeID.contains("red") ? "red" : "blue") + ".waypoint.start";
                 JSONArray wpArr = new JSONArray(Motion.robot.toArray());
                 wpObj.put(key, wpArr);
                 obj.put("waypoints", wpObj);
-                Utils.writeFile(obj.toString(), fieldJSON);
+                IOUtils.writeFile(obj.toString(), fieldJSON);
             }
 
             if (rcClient != null) {
                 rcClient.emit("opModeEnded", "{}");
-                Utils.printSocketLog("RC", "SERVER", "opModeEnded");
+                TextUtils.printSocketLog("RC", "SERVER", "opModeEnded");
                 rcClient.close();
             }
 

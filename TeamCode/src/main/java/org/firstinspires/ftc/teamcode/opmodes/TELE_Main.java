@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.hyperion.common.Constants;
-import com.hyperion.common.Utils;
-import com.hyperion.motion.math.Pose;
+import com.hyperion.common.MathUtils;
 import com.hyperion.motion.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.core.Appendages;
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.firstinspires.ftc.teamcode.core.Motion;
 
@@ -72,10 +69,10 @@ public class TELE_Main extends LinearOpMode {
                     }
 
                     System.out.println("MAX MOTION VALUES");
-                    System.out.println("tVel: " + Utils.round(maxTransVel, 3));
-                    System.out.println("tAcc: " + Utils.round(maxTransAcc, 3));
-                    System.out.println("aVel: " + Utils.round(maxAngVel, 3));
-                    System.out.println("aAcc: " + Utils.round(maxAngAcc, 3));
+                    System.out.println("tVel: " + MathUtils.round(maxTransVel, 3));
+                    System.out.println("tAcc: " + MathUtils.round(maxTransAcc, 3));
+                    System.out.println("aVel: " + MathUtils.round(maxAngVel, 3));
+                    System.out.println("aAcc: " + MathUtils.round(maxAngAcc, 3));
                 }
             }
         }

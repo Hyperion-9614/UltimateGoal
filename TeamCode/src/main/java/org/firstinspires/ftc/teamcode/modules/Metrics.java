@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.modules;
 
-import com.hyperion.common.Utils;
+import com.hyperion.common.*;
 
-import org.firstinspires.ftc.teamcode.core.Appendages;
-import org.firstinspires.ftc.teamcode.core.Hardware;
-import org.firstinspires.ftc.teamcode.core.Motion;
+import org.firstinspires.ftc.teamcode.core.*;
 import org.json.JSONArray;
 
 import java.util.*;
@@ -13,14 +11,14 @@ import java.util.*;
  * Custom telemetry for universal usability
  */
 
-public class Unimetry {
+public class Metrics {
 
     private Hardware hw;
 
     public List<Entry> data = new ArrayList<>();
     public String newLineSpaces = "";
 
-    public Unimetry(Hardware hardware) {
+    public Metrics(Hardware hardware) {
         this.hw = hardware;
     }
 
@@ -42,7 +40,7 @@ public class Unimetry {
         data.add(new Entry("Motion"));
         data.add(new Entry("Current", Motion.robot));
         data.add(new Entry("Start", Motion.start));
-        data.add(new Entry("Wheel Velocities (fL/fR/bL/bR)", Utils.round(hw.fLDrive.getPower(), 2) + " " + Utils.round(hw.fRDrive.getPower(), 2) + " " + Utils.round(hw.bLDrive.getPower(), 2) + " " + Utils.round(hw.bRDrive.getPower(), 2)));
+        data.add(new Entry("Wheel Velocities (fL/fR/bL/bR)", MathUtils.round(hw.fLDrive.getPower(), 2) + " " + MathUtils.round(hw.fRDrive.getPower(), 2) + " " + MathUtils.round(hw.bLDrive.getPower(), 2) + " " + MathUtils.round(hw.bRDrive.getPower(), 2)));
         data.add(new Entry("Odometry Counts (xL/xR/y)", Motion.localizer.oldxlCounts + " " + Motion.localizer.oldxrCounts + " " + Motion.localizer.oldyCounts));
         data.add(new Entry());
 
@@ -50,11 +48,11 @@ public class Unimetry {
         data.add(new Entry());
 
         data.add(new Entry("Gamepad 1"));
-        data.add(new Entry("Left Stick X", Utils.round(hw.ctx.gamepad1.left_stick_x, 3)));
-        data.add(new Entry("-Left Stick Y", Utils.round(-hw.ctx.gamepad1.left_stick_y, 3)));
-        data.add(new Entry("Right Stick X", Utils.round(hw.ctx.gamepad1.right_stick_x, 3)));
-        data.add(new Entry("Left Trigger", Utils.round(hw.ctx.gamepad1.left_trigger, 3)));
-        data.add(new Entry("Right Trigger", Utils.round(hw.ctx.gamepad1.right_trigger, 3)));
+        data.add(new Entry("Left Stick X", MathUtils.round(hw.ctx.gamepad1.left_stick_x, 3)));
+        data.add(new Entry("-Left Stick Y", MathUtils.round(-hw.ctx.gamepad1.left_stick_y, 3)));
+        data.add(new Entry("Right Stick X", MathUtils.round(hw.ctx.gamepad1.right_stick_x, 3)));
+        data.add(new Entry("Left Trigger", MathUtils.round(hw.ctx.gamepad1.left_trigger, 3)));
+        data.add(new Entry("Right Trigger", MathUtils.round(hw.ctx.gamepad1.right_trigger, 3)));
         data.add(new Entry());
 
         data.add(new Entry("Vision"));
@@ -81,7 +79,7 @@ public class Unimetry {
 
             if (hw.rcClient != null) {
                 hw.rcClient.emit("unimetryUpdated", dataArr.toString());
-                Utils.printSocketLog("RC", "SERVER", "unimetryUpdated");
+                TextUtils.printSocketLog("RC", "SERVER", "unimetryUpdated");
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,9 +1,7 @@
 package com.hyperion.dashboard.pane;
 
-import com.github.underscore.lodash.U;
-import com.hyperion.common.Utils;
 import com.hyperion.dashboard.UICMain;
-import com.hyperion.dashboard.uiobject.FieldEdit;
+import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.dashboard.uiobject.FieldObject;
 
 import java.util.ArrayList;
@@ -16,7 +14,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;

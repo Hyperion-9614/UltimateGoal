@@ -1,22 +1,26 @@
 package org.firstinspires.ftc.teamcode.core;
 
+import com.hyperion.common.ArrayUtils;
 import com.hyperion.common.Constants;
-import com.hyperion.common.Utils;
-import com.hyperion.motion.math.RigidBody;
-import org.firstinspires.ftc.teamcode.modules.HomogeneousPID;
-import com.hyperion.motion.math.Pose;
-import com.hyperion.motion.math.Vector2D;
+import com.hyperion.common.IOUtils;
+import com.hyperion.common.MathUtils;
 import com.hyperion.motion.dstarlite.DStarLite;
+import com.hyperion.motion.math.Pose;
+import com.hyperion.motion.math.RigidBody;
+import com.hyperion.motion.math.Vector2D;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.modules.HomogeneousPID;
 import org.firstinspires.ftc.teamcode.modules.Localizer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Manages all 2D robot translation & rotation
@@ -38,7 +42,7 @@ public class Motion {
     public static void init(Hardware hardware) {
         hw = hardware;
         try {
-            JSONObject jsonObject = new JSONObject(Utils.readFile(hw.fieldJSON));
+            JSONObject jsonObject = new JSONObject(IOUtils.readFile(hw.fieldJSON));
             readWaypoints(jsonObject);
             readSplines(jsonObject);
         } catch (Exception e) {
@@ -150,8 +154,8 @@ public class Motion {
         pid.reset(target);
         ElapsedTime timer = new ElapsedTime();
         while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 2250
-               && (robot.distanceTo(target) > Constants.END_TRANSLATION_ERROR_THRESHOLD
-               || Math.abs(Utils.optThetaDiff(robot.theta, target.theta)) > Constants.END_ROTATION_ERROR_THRESHOLD)) {
+               && (robot.distanceTo(target) > Constants.getDouble("motionProfile.endErrorThresholds.translation")
+               || Math.abs(MathUtils.optThetaDiff(robot.theta, target.theta)) > Constants.getDouble("motionProfile.endErrorThresholds.rotation"))) {
             setDrive(pid.pidWheelCorrections(robot));
         }
         setDrive(0);
@@ -197,8 +201,8 @@ public class Motion {
 
         ElapsedTime timer = new ElapsedTime();
         while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 3000
-                && (robot.distanceTo(goal) > Constants.END_TRANSLATION_ERROR_THRESHOLD
-                || Math.abs(Utils.optThetaDiff(robot.theta, goal.theta)) > Constants.END_ROTATION_ERROR_THRESHOLD)) {
+                && (robot.distanceTo(goal) > Constants.getDouble("motionProfile.endErrorThresholds.translation")
+                || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Constants.getDouble("motionProfile.endErrorThresholds.rotation"))) {
             distance += last.distanceTo(robot);
             last = new Pose(robot);
 
@@ -211,7 +215,7 @@ public class Motion {
 
             double[] motionProfilePowers = toMotorPowers(translation, 0);
             double[] pidCorrection = pid.pidWheelCorrections(robot);
-            double[] finalWheelPowers = Utils.addArrs(motionProfilePowers, pidCorrection);
+            double[] finalWheelPowers = ArrayUtils.addArrs(motionProfilePowers, pidCorrection);
             setDrive(finalWheelPowers);
         }
         setDrive(0);
@@ -225,7 +229,7 @@ public class Motion {
         followSpline(spline);
     }
     public static void splineThroughWaypoints(Pose... waypoints) {
-        waypoints = Utils.combineArrs(new Pose[]{ new Pose(robot) }, waypoints);
+        waypoints = ArrayUtils.combineArrs(new Pose[]{ new Pose(robot) }, waypoints);
         SplineTrajectory spline = new SplineTrajectory(waypoints);
         followSpline(spline);
     }

@@ -1,10 +1,11 @@
 package com.hyperion.motion.trajectory;
 
+import com.hyperion.common.ArrayUtils;
 import com.hyperion.common.Constants;
-import com.hyperion.common.Utils;
+import com.hyperion.common.MathUtils;
 import com.hyperion.motion.math.Piecewise;
-import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
+import com.hyperion.motion.math.RigidBody;
 
 import org.apache.commons.math3.analysis.integration.SimpsonIntegrator;
 import org.apache.commons.math3.linear.LUDecomposition;
@@ -153,31 +154,31 @@ public class SplineTrajectory {
         for (int i = 0; i < numIntervals; i++) {
             double[] cStart = plugIn(i, 0);
             double[] cEnd = plugIn(i + 1, 0);
-            double[][] traversion2Rows = new double[][]{ Utils.pad(cStart, 4 * i, 4 * numIntervals - 4 * i - 4),
-                                                         Utils.pad(cEnd, 4 * i, 4 * numIntervals - 4 * i - 4) };
-            M = Utils.combineArrs(M, traversion2Rows);
+            double[][] traversion2Rows = new double[][]{ ArrayUtils.pad(cStart, 4 * i, 4 * numIntervals - 4 * i - 4),
+                    ArrayUtils.pad(cEnd, 4 * i, 4 * numIntervals - 4 * i - 4) };
+            M = ArrayUtils.combineArrs(M, traversion2Rows);
         }
 
         // First derivative continuity
         for (int i = 1; i < numIntervals; i++) {
             double[] c = plugIn(i, 1);
-            double[] cLR = Utils.combineArrs(c, Utils.coeffArr(c, -1.0));
-            double[][] firstDerivCont1Row = new double[][]{ Utils.pad(cLR, 4 * (i - 1), 4 * numIntervals - 4 * (i - 1) - 8) };
-            M = Utils.combineArrs(M, firstDerivCont1Row);
+            double[] cLR = ArrayUtils.combineArrs(c, ArrayUtils.coeffArr(c, -1.0));
+            double[][] firstDerivCont1Row = new double[][]{ ArrayUtils.pad(cLR, 4 * (i - 1), 4 * numIntervals - 4 * (i - 1) - 8) };
+            M = ArrayUtils.combineArrs(M, firstDerivCont1Row);
         }
 
         // Second derivative continuity
         for (int i = 1; i < numIntervals; i++) {
             double[] c = plugIn(i, 2);
-            double[] cLR = Utils.combineArrs(c, Utils.coeffArr(c, -1.0));
-            double[][] secondDerivCont1Row = new double[][]{ Utils.pad(cLR, 4 * (i - 1), 4 * numIntervals - 4 * (i - 1) - 8) };
-            M = Utils.combineArrs(M, secondDerivCont1Row);
+            double[] cLR = ArrayUtils.combineArrs(c, ArrayUtils.coeffArr(c, -1.0));
+            double[][] secondDerivCont1Row = new double[][]{ ArrayUtils.pad(cLR, 4 * (i - 1), 4 * numIntervals - 4 * (i - 1) - 8) };
+            M = ArrayUtils.combineArrs(M, secondDerivCont1Row);
         }
 
         // Boundary condition
-        double[][] startPoint0Cont = new double[][]{ Utils.pad(plugIn(0, 2), 0, 4 * (numIntervals - 1)) };
-        double[][] endPoint0Cont = new double[][]{ Utils.pad(plugIn(numIntervals + 1, 2), 4 * (numIntervals - 1), 0) };
-        M = Utils.combineArrs(M, Utils.combineArrs(startPoint0Cont, endPoint0Cont));
+        double[][] startPoint0Cont = new double[][]{ ArrayUtils.pad(plugIn(0, 2), 0, 4 * (numIntervals - 1)) };
+        double[][] endPoint0Cont = new double[][]{ ArrayUtils.pad(plugIn(numIntervals + 1, 2), 4 * (numIntervals - 1), 0) };
+        M = ArrayUtils.combineArrs(M, ArrayUtils.combineArrs(startPoint0Cont, endPoint0Cont));
 
         return M;
     }
@@ -188,21 +189,21 @@ public class SplineTrajectory {
         for (int i = 0; i < numIntervals; i++) {
             double fStart = (isX) ? rigidBodies.get(i).x : rigidBodies.get(i).y;
             double fEnd = (isX) ? rigidBodies.get(i + 1).x : rigidBodies.get(i + 1).y;
-            XY = Utils.combineArrs(XY, new double[] { fStart, fEnd });
+            XY = ArrayUtils.combineArrs(XY, new double[] { fStart, fEnd });
         }
 
         // First derivative continuity
         for (int i = 1; i < numIntervals; i++) {
-            XY = Utils.combineArrs(XY, new double[] { 0 });
+            XY = ArrayUtils.combineArrs(XY, new double[] { 0 });
         }
 
         // Second derivative continuity
         for (int i = 1; i < numIntervals; i++) {
-            XY = Utils.combineArrs(XY, new double[] { 0 });
+            XY = ArrayUtils.combineArrs(XY, new double[] { 0 });
         }
 
         // Boundary condition
-        XY = Utils.combineArrs(XY, new double[] { 0, 0 });
+        XY = ArrayUtils.combineArrs(XY, new double[] { 0, 0 });
 
         return XY;
     }
@@ -227,8 +228,8 @@ public class SplineTrajectory {
         if (numIntervals == 1) {
             double dX = rigidBodies.get(1).x - rigidBodies.get(0).x;
             double dY = rigidBodies.get(1).y - rigidBodies.get(0).y;
-            pwX.setInterval(0, 1, buildPolynomialExpression(Utils.roundArr(new double[] { 0, 0, dX, rigidBodies.get(0).x }, 3)));
-            pwY.setInterval(0, 1, buildPolynomialExpression(Utils.roundArr(new double[] { 0, 0, dY, rigidBodies.get(0).y }, 3)));
+            pwX.setInterval(0, 1, buildPolynomialExpression(ArrayUtils.roundArr(new double[] { 0, 0, dX, rigidBodies.get(0).x }, 3)));
+            pwY.setInterval(0, 1, buildPolynomialExpression(ArrayUtils.roundArr(new double[] { 0, 0, dY, rigidBodies.get(0).y }, 3)));
         } else if (numIntervals > 1) {
             double[][] M = calculateM(numIntervals);
             double[] X = calculateXY(rigidBodies, numIntervals, true);
@@ -238,11 +239,11 @@ public class SplineTrajectory {
             RealMatrix XMat = MatrixUtils.createColumnRealMatrix(X);
             RealMatrix YMat = MatrixUtils.createColumnRealMatrix(Y);
 
-            double[] xCoeffs = Utils.roundArr(MMatInv.multiply(XMat).getColumn(0), 3);
-            double[] yCoeffs = Utils.roundArr(MMatInv.multiply(YMat).getColumn(0), 3);
+            double[] xCoeffs = ArrayUtils.roundArr(MMatInv.multiply(XMat).getColumn(0), 3);
+            double[] yCoeffs = ArrayUtils.roundArr(MMatInv.multiply(YMat).getColumn(0), 3);
             for (int i = 0; i < numIntervals; i++) {
-                pwX.setInterval(i, i + 1, buildPolynomialExpression(Utils.spliceArr(xCoeffs, i * 4, i * 4 + 4)));
-                pwY.setInterval(i, i + 1, buildPolynomialExpression(Utils.spliceArr(yCoeffs, i * 4, i * 4 + 4)));
+                pwX.setInterval(i, i + 1, buildPolynomialExpression(ArrayUtils.spliceArr(xCoeffs, i * 4, i * 4 + 4)));
+                pwY.setInterval(i, i + 1, buildPolynomialExpression(ArrayUtils.spliceArr(yCoeffs, i * 4, i * 4 + 4)));
             }
         }
 
@@ -263,7 +264,7 @@ public class SplineTrajectory {
         planningPoints = new ArrayList<>();
 
         double L = arcDistance(waypoints.size() - 1);
-        int numSegments = (int) Math.ceil(L / Constants.MAX_SEGMENT_LENGTH);
+        int numSegments = (int) Math.ceil(L / Constants.getDouble("motionProfile.maxes.segmentLength"));
         segmentLength = L / numSegments;
         for (int i = 0; i < numSegments; i++) {
             double l = i * segmentLength;
@@ -278,7 +279,7 @@ public class SplineTrajectory {
             double tRight = tJ + 1;
             double tMiddle = (tLeft + tRight) / 2.0;
             double tMiddleLength = arcDistance(tMiddle);
-            while (Math.abs(tMiddleLength - l) > Constants.MAX_BISECTION_ERROR) {
+            while (Math.abs(tMiddleLength - l) > Constants.getDouble("motionProfile.maxes.bisectionError")) {
                 if (l > tMiddleLength) {
                     tLeft = tMiddle;
                 } else if (l < tMiddleLength) {
@@ -287,7 +288,7 @@ public class SplineTrajectory {
                 tMiddle = (tLeft + tRight) / 2.0;
                 tMiddleLength = arcDistance(tMiddle);
             }
-            double theta = waypoints.get(tJ).theta + Utils.optThetaDiff(waypoints.get(tJ).theta, waypoints.get(tJ + 1).theta)
+            double theta = waypoints.get(tJ).theta + MathUtils.optThetaDiff(waypoints.get(tJ).theta, waypoints.get(tJ + 1).theta)
                            * ((l - waypoints.get(tJ).distance) / (waypoints.get(tJ + 1).distance - waypoints.get(tJ).distance));
             planningPoints.add(new RigidBody(tMiddle, l, theta, this));
         }
@@ -306,7 +307,7 @@ public class SplineTrajectory {
         }
 
         length += arcLengthInterval(t2, T1);
-        return Utils.round(length, 3);
+        return MathUtils.round(length, 3);
     }
     private double arcLengthInterval(int Tstart, double Tend) {
         if (Tstart < tauX.size() && Tend > Tstart) {
@@ -344,7 +345,7 @@ public class SplineTrajectory {
     public Pose getDPose(double distance) {
         if (distance == waypoints.get(waypoints.size() - 1).distance) return waypoints.get(waypoints.size() - 1);
         int interval = getPlanningPointInterval(distance);
-        double theta = Utils.norm(planningPoints.get(interval).theta + Utils.optThetaDiff(planningPoints.get(interval).theta, planningPoints.get(interval + 1).theta)
+        double theta = MathUtils.norm(planningPoints.get(interval).theta + MathUtils.optThetaDiff(planningPoints.get(interval).theta, planningPoints.get(interval + 1).theta)
                                                   * ((distance - planningPoints.get(interval).distance) / (planningPoints.get(interval + 1).distance - planningPoints.get(interval).distance)), 0, 2 * Math.PI);
         distance = paramDistance(distance);
         return new Pose(distanceX.evaluate(distance, 0, true), distanceY.evaluate(distance, 0, true), theta);

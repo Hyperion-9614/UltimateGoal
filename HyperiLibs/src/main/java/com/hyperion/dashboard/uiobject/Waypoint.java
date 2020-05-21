@@ -2,6 +2,7 @@ package com.hyperion.dashboard.uiobject;
 
 import com.hyperion.common.Constants;
 import com.hyperion.dashboard.UICMain;
+import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.motion.math.Pose;
 import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
@@ -56,7 +57,7 @@ public class Waypoint extends FieldObject {
         try {
             displayGroup = new Group();
 
-            imgView = new ImageView(new File(Constants.RES_IMG_PREFIX + "/waypoint.png").toURI().toURL().toString());
+            imgView = new ImageView(new File(Constants.RES_IMG + "/waypoint.png").toURI().toURL().toString());
             imgView.setFitWidth(Constants.WAYPOINT_SIZE);
             imgView.setFitHeight(Constants.WAYPOINT_SIZE);
             displayGroup.getChildren().add(imgView);

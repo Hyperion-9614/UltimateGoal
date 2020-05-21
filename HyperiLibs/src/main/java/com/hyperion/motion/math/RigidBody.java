@@ -1,10 +1,9 @@
 package com.hyperion.motion.math;
 
-import com.hyperion.common.Utils;
+import com.hyperion.common.ArrayUtils;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.Scanner;
 
@@ -74,7 +73,7 @@ public class RigidBody extends Pose {
     }
 
     public double[] toArray() {
-        return Utils.combineArrs(new double[]{ T, distance }, new double[]{ x, y, theta });
+        return ArrayUtils.combineArrs(new double[]{ T, distance }, new double[]{ x, y, theta });
     }
 
     @Override

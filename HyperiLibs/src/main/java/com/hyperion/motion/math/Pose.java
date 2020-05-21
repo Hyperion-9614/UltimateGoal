@@ -1,8 +1,6 @@
 package com.hyperion.motion.math;
 
-import com.hyperion.common.Utils;
-
-import java.util.Scanner;
+import com.hyperion.common.MathUtils;
 
 /**
  * Orientation object for global positioning, pathing, etc.
@@ -90,8 +88,8 @@ public class Pose {
 
     @Override
     public String toString() {
-        return "X: " + Utils.round(x, 2) + " | Y: " + Utils.round(y, 2)
-                + " | Theta: " + Utils.round(Math.toDegrees(theta), 2) + "\u00B0";
+        return "X: " + MathUtils.round(x, 2) + " | Y: " + MathUtils.round(y, 2)
+                + " | Theta: " + MathUtils.round(Math.toDegrees(theta), 2) + "\u00B0";
     }
 
 }

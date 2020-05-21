@@ -1,6 +1,6 @@
 package com.hyperion.motion.math;
 
-import com.hyperion.common.Utils;
+import com.hyperion.common.*;
 
 /**
  * 2D vector object
@@ -26,10 +26,10 @@ public class Vector2D {
             y = b;
 
             magnitude = Math.round(Math.sqrt(x * x + y * y) * 1000.0) / 1000.0;
-            theta = Utils.norm(Math.atan2(y, x), 0, 2 * Math.PI);
+            theta = MathUtils.norm(Math.atan2(y, x), 0, 2 * Math.PI);
         } else {
             magnitude = Math.abs(Math.round(a * 1000.0) / 1000.0);
-            theta = Utils.norm(b, 0, 2 * Math.PI);
+            theta = MathUtils.norm(b, 0, 2 * Math.PI);
 
             x = magnitude * Math.cos(theta);
             y = magnitude * Math.sin(theta);
@@ -96,11 +96,11 @@ public class Vector2D {
         x = newVec.x;
         y = newVec.y;
         magnitude = newVec.magnitude;
-        theta = Utils.norm(newVec.theta, 0, 2 * Math.PI);
+        theta = MathUtils.norm(newVec.theta, 0, 2 * Math.PI);
     }
 
     public boolean equals(Vector2D other) {
-        return (Utils.round(other.magnitude, 3) == Utils.round(magnitude, 3)) && (Utils.round(Utils.norm(other.theta, 0, 2 * Math.PI), 3) == Utils.round(Utils.norm(theta, 0, 2 * Math.PI), 3));
+        return (MathUtils.round(other.magnitude, 3) == MathUtils.round(magnitude, 3)) && (MathUtils.round(MathUtils.norm(other.theta, 0, 2 * Math.PI), 3) == MathUtils.round(MathUtils.norm(theta, 0, 2 * Math.PI), 3));
     }
 
     @Override

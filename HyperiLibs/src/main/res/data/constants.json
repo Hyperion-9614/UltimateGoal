@@ -17,27 +17,27 @@
         },
         "version": "3.5.0"
     },
-    "io": {"filePaths": {
-        "resDataPrefix": "\\data",
-        "resImgPrefix": "\\img",
-        "resPrefix": "\\HyperiLibs\\src\\main\\res"
-    }},
+    "io": {
+        "filePaths": {
+            "resPrefix": "\\HyperiLibs\\src\\main\\res"
+        }
+    },
     "localization": {
         "driveBase": 31.29,
         "fieldSideLength": 365.76,
         "odometryCyclesPerRevolution": 360,
         "odometryPoses": {
-            "xLRelativePose": [
+            "xL": [
                 4.445,
                 18.415,
                 0
             ],
-            "xRRelativePose": [
+            "xR": [
                 4.445,
                 -19.05,
                 0
             ],
-            "yRelativePose": [
+            "y": [
                 -3.4925,
                 -18.0975,
                 90
@@ -63,9 +63,9 @@
             "kP": 0.03
         }
     },
-    "splinesMotionProfile": {
+    "motionProfile": {
         "endErrorThresholds": {
-            "rotation": 1,
+            "rotation": 0.0174533,
             "translation": 1
         },
         "k": {
@@ -75,18 +75,13 @@
             "kTv": 0.002857
         },
         "maxes": {
-            "aAcc": 0.523599,
-            "aVel": 0.3,
             "bisectionError": 1,
-            "segmentLength": 50,
-            "tAcc": 50,
-            "tVel": 330.12
+            "segmentLength": 50
         }
     },
     "teamcode": {
         "forceEndTimeLeft": 3500,
         "localizationDelay": 10,
-        "slidesPreset": {},
         "unimetryDelay": 100
     }
 }

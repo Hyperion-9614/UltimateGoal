@@ -2,6 +2,7 @@ package com.hyperion.dashboard.uiobject;
 
 import com.hyperion.common.Constants;
 import com.hyperion.dashboard.UICMain;
+import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.trajectory.SplineTrajectory;

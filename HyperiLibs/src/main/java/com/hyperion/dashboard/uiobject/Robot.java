@@ -28,7 +28,7 @@ public class Robot extends FieldObject {
         try {
             displayGroup = new Group();
 
-            imgView = new ImageView(new File(Constants.RES_IMG_PREFIX + "/robot.png").toURI().toURL().toString());
+            imgView = new ImageView(new File(Constants.RES_IMG + "/robot.png").toURI().toURL().toString());
             imgView.setFitWidth(UICMain.fieldPane.robotSize);
             imgView.setFitHeight(UICMain.fieldPane.robotSize);
             imgView.setPickOnBounds(true);

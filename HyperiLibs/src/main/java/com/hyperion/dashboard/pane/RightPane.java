@@ -1,12 +1,7 @@
 package com.hyperion.dashboard.pane;
 
-import com.hyperion.common.Utils;
+import com.hyperion.common.TextUtils;
 import com.hyperion.dashboard.UICMain;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Iterator;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -23,7 +18,7 @@ import javafx.stage.Screen;
 
 public class RightPane extends VBox {
 
-    public TextArea unimetryDisplay;
+    public TextArea metricsDisplay;
     public TextArea constantsDisplay;
     public double width;
 
@@ -43,11 +38,11 @@ public class RightPane extends VBox {
             unimetryLabel.setPrefWidth(width);
             getChildren().add(unimetryLabel);
 
-            unimetryDisplay = new TextArea();
-            unimetryDisplay.setStyle("-fx-font: 14px \"Arial\";");
-            unimetryDisplay.setPrefSize(width, width);
-            unimetryDisplay.setEditable(false);
-            getChildren().add(unimetryDisplay);
+            metricsDisplay = new TextArea();
+            metricsDisplay.setStyle("-fx-font: 14px \"Arial\";");
+            metricsDisplay.setPrefSize(width, width);
+            metricsDisplay.setEditable(false);
+            getChildren().add(metricsDisplay);
 
             Label constantsLabel = new Label("Constants");
             constantsLabel.setTextFill(Color.WHITE);
@@ -61,7 +56,7 @@ public class RightPane extends VBox {
             constantsDisplay.setEditable(true);
             constantsDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
                 if (!oldValue.isEmpty()) {
-                    UICMain.changeSaveStatus(!Utils.condensedEquals(newValue, UICMain.constantsSave));
+                    UICMain.changeSaveStatus(!TextUtils.condensedEquals(newValue, UICMain.constantsSave));
                 }
             });
             getChildren().add(constantsDisplay);
@@ -70,28 +65,28 @@ public class RightPane extends VBox {
         }
     }
 
-    public void setUnimetryDisplayText() {
-        StringBuilder unimetryStr = new StringBuilder();
+    public void setMetricsDisplayText() {
+        StringBuilder metricsStr = new StringBuilder();
 
-        for (String key : UICMain.unimetry.keySet()) {
-            String value = UICMain.unimetry.get(key).trim();
+        for (String key : UICMain.metrics.keySet()) {
+            String value = UICMain.metrics.get(key).trim();
             if (!key.isEmpty() && value.isEmpty()) {
-                unimetryStr.append(key);
+                metricsStr.append(key);
             } else if (!key.isEmpty()) {
-                unimetryStr.append(key).append(" : ").append(value);
+                metricsStr.append(key).append(" : ").append(value);
             } else if (value.isEmpty()) {
-                unimetryStr.append("\n");
+                metricsStr.append("\n");
             }
-            unimetryStr.append("\n");
+            metricsStr.append("\n");
         }
 
-        int caretPosition = unimetryDisplay.caretPositionProperty().get();
-        double scrollLeft = unimetryDisplay.getScrollLeft();
-        double scrollTop = unimetryDisplay.getScrollTop();
-        unimetryDisplay.setText(unimetryStr.toString().trim());
-        unimetryDisplay.positionCaret(caretPosition);
-        unimetryDisplay.setScrollLeft(scrollLeft);
-        unimetryDisplay.setScrollTop(scrollTop);
+        int caretPosition = metricsDisplay.caretPositionProperty().get();
+        double scrollLeft = metricsDisplay.getScrollLeft();
+        double scrollTop = metricsDisplay.getScrollTop();
+        metricsDisplay.setText(metricsStr.toString().trim());
+        metricsDisplay.positionCaret(caretPosition);
+        metricsDisplay.setScrollLeft(scrollLeft);
+        metricsDisplay.setScrollTop(scrollTop);
     }
 
     public void setConstantsDisplayText(String text) {
