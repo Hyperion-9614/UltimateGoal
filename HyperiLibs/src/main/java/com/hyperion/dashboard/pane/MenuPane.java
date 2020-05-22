@@ -3,8 +3,6 @@ package com.hyperion.dashboard.pane;
 import com.hyperion.common.Constants;
 import com.hyperion.dashboard.UICMain;
 
-import java.io.File;
-
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -38,7 +36,7 @@ public class MenuPane extends BorderPane {
             iconify.setBackground(Background.EMPTY);
             iconify.setOnMouseEntered(e -> iconify.setBackground(new Background(new BackgroundFill(new Color(0.5, 0.5, 0.5, 1.0), CornerRadii.EMPTY, Insets.EMPTY))));
             iconify.setOnMouseExited(e -> iconify.setBackground(new Background(new BackgroundFill(new Color(1.0, 1.0, 1.0, 1.0), CornerRadii.EMPTY, Insets.EMPTY))));
-            ImageView iconifyIcon = new ImageView(new File(Constants.RES_IMG + "/iconify.png").toURI().toURL().toString());
+            ImageView iconifyIcon = new ImageView(Constants.getFile("img", "iconify.png").toURI().toURL().toString());
             iconifyIcon.setFitWidth(20);
             iconifyIcon.setFitHeight(20);
             iconify.setGraphic(iconifyIcon);
@@ -49,13 +47,14 @@ public class MenuPane extends BorderPane {
             close.setBackground(Background.EMPTY);
             close.setOnMouseEntered(e -> close.setBackground(new Background(new BackgroundFill(new Color(0.5, 0.5, 0.5, 1.0), CornerRadii.EMPTY, Insets.EMPTY))));
             close.setOnMouseExited(e -> close.setBackground(new Background(new BackgroundFill(new Color(1.0, 1.0, 1.0, 1.0), CornerRadii.EMPTY, Insets.EMPTY))));
-            ImageView closeIcon = new ImageView(new File(Constants.RES_IMG + "/close.png").toURI().toURL().toString());
+            ImageView closeIcon = new ImageView(Constants.getFile("img", "close.png").toURI().toURL().toString());
             closeIcon.setFitWidth(20);
             closeIcon.setFitHeight(20);
             close.setGraphic(closeIcon);
             close.setOnMouseClicked(event -> {
                 UICMain.uiClient.disconnect();
                 UICMain.uiClient.close();
+
                 System.exit(0);
             });
             buttons.getChildren().add(close);

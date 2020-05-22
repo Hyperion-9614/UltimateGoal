@@ -8,6 +8,7 @@ dependencies {
     implementation 'io.socket:socket.io-client:1.0.0'
     implementation 'com.corundumstudio.socketio:netty-socketio:1.7.18'
     implementation 'com.github.javadev:underscore:1.54'
+    implementation 'net.sf.bluecove:bluecove:2.1.0'
 }
 
 sourceCompatibility = "8"
