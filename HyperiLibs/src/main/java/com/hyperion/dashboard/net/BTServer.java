@@ -1,57 +1,56 @@
 package com.hyperion.dashboard.net;
 
 import com.hyperion.common.Constants;
+import com.hyperion.common.TextUtils;
 
-import java.io.*;
+import org.json.JSONObject;
 
-import javax.bluetooth.*;
-import javax.microedition.io.*;
+import javax.bluetooth.UUID;
+import javax.microedition.io.Connector;
+import javax.microedition.io.StreamConnectionNotifier;
 
 public class BTServer extends BTEndpoint {
 
-    @Override
-    public void init() {
-        try {
-            UUID serviceUUID = new UUID(Constants.getString("dashboard.net.serviceUUID"), false);
-            String serviceURL = "btspp://localhost:" + serviceUUID.toString() + ";name=HyperionSPP";
-            StreamConnectionNotifier notifier = (StreamConnectionNotifier) Connector.open(serviceURL);
-            conn = notifier.acceptAndOpen();
-
-            in = new BufferedReader(new InputStreamReader(conn.openInputStream()));
-            out = new PrintWriter(new OutputStreamWriter(conn.openOutputStream()));
-
-            startMessageHandlerThread();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public BTServer() {
+        super();
     }
 
     @Override
-    public void startMessageHandlerThread() {
-        msgHandler = new Thread(() -> {
-            try {
-                Message msg;
-                while ((msg = new Message(in.readLine())).event != Message.Event.NULL) {
-                    switch (msg.event) {
-                        case CONNECTED:
-                            break;
-                        case DISCONNECTED:
-                            break;
-                        case CONSTANTS_UPDATED:
-                            break;
-                        case FIELD_EDITED:
-                            break;
-                        case OPMODE_ENDED:
-                            break;
-                        case METRICS_UPDATED:
-                            break;
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        msgHandler.start();
+    public void btInit() throws Exception {
+        UUID serviceUUID = new UUID(Constants.getString("dashboard.net.serviceUUID"), false);
+        String serviceURL = "btspp://localhost:" + serviceUUID.toString() + ";name=HyperionSPP";
+        StreamConnectionNotifier notifier = (StreamConnectionNotifier) Connector.open(serviceURL);
+        conn = notifier.acceptAndOpen();
+    }
+
+    @Override
+    protected void onConnected(JSONObject json) throws Exception {
+        TextUtils.printBTLog("Connected to device \"" + json.getString("friendlyName") + "\"");
+    }
+
+    @Override
+    protected void onDisconnected(JSONObject json) {
+
+    }
+
+    @Override
+    protected void onConstantsUpdated(JSONObject json) {
+
+    }
+
+    @Override
+    protected void onFieldEdited(JSONObject json) {
+
+    }
+
+    @Override
+    protected void onMetricsUpdated(JSONObject json) {
+
+    }
+
+    @Override
+    protected void onOpModeEnded(JSONObject json) {
+
     }
 
 }

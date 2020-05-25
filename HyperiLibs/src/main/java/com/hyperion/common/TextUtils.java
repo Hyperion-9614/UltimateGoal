@@ -27,6 +27,10 @@ public class TextUtils {
         System.out.println("[" + TextUtils.getFormattedDate() + "] " + from.toUpperCase() + " -> " + to.toUpperCase() + ": " + message);
     }
 
+    public static void printBTLog(String message) {
+        System.out.println("[BT -- " + TextUtils.getFormattedDate() + "] " + message);
+    }
+
     public static String condensed(String str) {
         return str.replaceAll("(\\s|\n)", "").trim();
     }
