@@ -12,9 +12,10 @@
             }
         },
         "net": {
-            "serviceUUID": "2d26618601fb47c28d9f10b8ec891363",
+            "serviceUUID": "2d26618601fb47c28d9f10b8ec891363"
         },
-        "version": "4.1"
+        "version": "4.1",
+        "isDebugging": true
     },
     "io": {
         "filePaths": {

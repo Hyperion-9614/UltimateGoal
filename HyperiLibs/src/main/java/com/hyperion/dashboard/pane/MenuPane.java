@@ -1,7 +1,7 @@
 package com.hyperion.dashboard.pane;
 
 import com.hyperion.common.Constants;
-import com.hyperion.dashboard.UICMain;
+import com.hyperion.dashboard.UIMain;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
@@ -52,8 +52,8 @@ public class MenuPane extends BorderPane {
             closeIcon.setFitHeight(20);
             close.setGraphic(closeIcon);
             close.setOnMouseClicked(event -> {
-                UICMain.uiClient.disconnect();
-                UICMain.uiClient.close();
+                UIMain.uiClient.disconnect();
+                UIMain.uiClient.close();
 
                 System.exit(0);
             });

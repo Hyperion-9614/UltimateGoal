@@ -2,13 +2,15 @@ package com.hyperion.dashboard;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.TextUtils;
-import com.hyperion.dashboard.pane.VisualPane;
-import com.hyperion.dashboard.pane.FieldPane;
-import com.hyperion.dashboard.pane.MenuPane;
-import com.hyperion.dashboard.pane.LeftPane;
-import com.hyperion.dashboard.pane.RightPane;
-import com.hyperion.dashboard.uiobject.DisplaySpline;
+import com.hyperion.dashboard.net.BTServer;
 import com.hyperion.dashboard.net.FieldEdit;
+import com.hyperion.dashboard.net.Message;
+import com.hyperion.dashboard.pane.FieldPane;
+import com.hyperion.dashboard.pane.LeftPane;
+import com.hyperion.dashboard.pane.MenuPane;
+import com.hyperion.dashboard.pane.RightPane;
+import com.hyperion.dashboard.pane.VisualPane;
+import com.hyperion.dashboard.uiobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.FieldObject;
 import com.hyperion.dashboard.uiobject.Robot;
 import com.hyperion.dashboard.uiobject.Waypoint;
@@ -18,10 +20,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-import io.socket.client.IO;
-import io.socket.client.Socket;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -43,14 +49,14 @@ import javafx.stage.StageStyle;
  * Main UI client class
  */
 
-public class UICMain extends Application {
+public class UIMain extends Application {
 
     public static MenuPane menuPane;
     public static FieldPane fieldPane;
     public static LeftPane leftPane;
     public static RightPane rightPane;
     public static VisualPane visualPane;
-    public static Socket uiClient;
+    public static BTServer btServer;
 
     public static DisplaySpline selectedSpline = null;
     public static Waypoint selectedWaypoint = null;
@@ -68,7 +74,7 @@ public class UICMain extends Application {
 
     public static void main(String[] args) {
         Constants.init(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
-        startClient();
+        btServer = new BTServer();
         launch(args);
     }
 
@@ -126,63 +132,8 @@ public class UICMain extends Application {
         stage.show();
     }
 
-    private static void startClient() {
-        try {
-            uiClient = IO.socket("http://" + Constants.getString("dashboard.net.hostIP") + ":" + Constants.getString("dashboard.net.port"));
-
-            uiClient.on(Socket.EVENT_CONNECT, args -> {
-                TextUtils.printSocketLog("UI", "SERVER", "connected");
-            }).on(Socket.EVENT_DISCONNECT, args -> {
-                TextUtils.printSocketLog("UI", "SERVER", "disconnected");
-            }).on("constantsUpdated", args -> {
-                try {
-                    TextUtils.printSocketLog("SERVER", "UI", "constantsUpdated");
-                    Constants.init(new JSONObject(args[0].toString()));
-                    constantsSave = args[0].toString();
-                    if (rightPane != null) {
-                        rightPane.setConstantsDisplayText(Constants.root.toString(4));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).on("fieldEdited", args -> {
-                TextUtils.printSocketLog("SERVER", "UI", "fieldEdited");
-                readFieldEdits(args[0].toString());
-            }).on("opModeEnded", args -> {
-                TextUtils.printSocketLog("SERVER", "UI", "opModeEnded");
-                Thread deleteRobotThread = new Thread(() -> {
-                    long start = System.currentTimeMillis();
-                    while (true) {
-                        if (System.currentTimeMillis() - start >= 5000) {
-                            Iterator<FieldObject> iter = fieldObjects.iterator();
-                            while (iter.hasNext()) {
-                                FieldObject o = iter.next();
-                                if (o.id.equals("robot")) {
-                                    o.removeDisplayGroup();
-                                    iter.remove();
-                                    break;
-                                }
-                            }
-                            isRobotOnField = false;
-                            break;
-                        }
-                    }
-                });
-                deleteRobotThread.start();
-            }).on("unimetryUpdated", args -> {
-                TextUtils.printSocketLog("SERVER", "UI", "unimetryUpdated");
-                readUnimetry(args[0].toString());
-                Platform.runLater(() -> rightPane.setMetricsDisplayText());
-            });
-
-            uiClient.connect();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     // Read in unimetry from json
-    private static void readUnimetry(String json) {
+    public static void readUnimetry(String json) {
         try {
             metrics = new LinkedHashMap<>();
             JSONArray dataArr = new JSONArray(json);
@@ -192,20 +143,8 @@ public class UICMain extends Application {
             }
 
             editUI(new FieldEdit("robot", isRobotOnField ? FieldEdit.Type.EDIT_BODY : FieldEdit.Type.CREATE,
-                    new JSONArray(new RigidBody(metrics.get("Current")).toArray()).toString()));
+                   new JSONArray(new RigidBody(metrics.get("Current")).toArray()).toString()));
             isRobotOnField = true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Read field edits from json
-    public static void readFieldEdits(String json) {
-        try {
-            JSONArray arr = new JSONArray(json);
-            for (int i = 0; i < arr.length(); i++) {
-                editUI(new FieldEdit(arr.getJSONObject(i)));
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -286,8 +225,7 @@ public class UICMain extends Application {
                 arr.put(edit.toJSONObject());
             }
             queuedEdits.clear();
-            uiClient.emit("fieldEdited", arr.toString());
-            TextUtils.printSocketLog("UI", "SERVER", "fieldEdited");
+            btServer.sendMessage(Message.Event.FIELD_EDITED, arr);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -305,8 +243,7 @@ public class UICMain extends Application {
             if (hasUnsavedChanges) {
                 String newConstants = rightPane.constantsDisplay.getText();
                 if (!TextUtils.condensedEquals(newConstants, constantsSave)) {
-                    uiClient.emit("constantsUpdated", newConstants);
-                    TextUtils.printSocketLog("UI", "SERVER", "constantsUpdated");
+                    btServer.sendMessage(Message.Event.CONSTANTS_UPDATED, newConstants);
                 }
 
                 sendQueuedFieldEdits();
@@ -317,6 +254,7 @@ public class UICMain extends Application {
         }
     }
 
+    // Remove all objects in FieldEdits with the give id
     public static void clearAllFieldObjectsWithID(String id) {
         Iterator<FieldObject> iter = fieldObjects.iterator();
         while (iter.hasNext()) {

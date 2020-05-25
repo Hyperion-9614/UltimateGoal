@@ -1,6 +1,6 @@
 package com.hyperion.dashboard.pane;
 
-import com.hyperion.dashboard.UICMain;
+import com.hyperion.dashboard.UIMain;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.PiecewiseLineGraph;
 import com.hyperion.motion.math.Piecewise;
@@ -34,7 +34,7 @@ public class VisualPane extends VBox {
         tVdGraph.setCreateSymbols(false);
         tVdGraph.setTitle("Translational Magnitude vs. Distance");
 
-        updateGraphs(UICMain.selectedSpline);
+        updateGraphs(UIMain.selectedSpline);
         getChildren().add(tVdGraph);
     }
 
@@ -43,8 +43,8 @@ public class VisualPane extends VBox {
             tVdGraph.getData().clear();
             if (displaySpline != null && displaySpline.waypoints.size() >= 2) {
                 HashMap<String, Piecewise> map = new HashMap<>();
-                map.put("Velocity (cm/s)", displaySpline.spline.mP.tVelProfile);
-                map.put("Acceleration (cm/s\u00B2)", displaySpline.spline.mP.tAccProfile);
+//                map.put("Velocity (cm/s)", displaySpline.spline.mP.tVelProfile);
+//                map.put("Acceleration (cm/s\u00B2)", displaySpline.spline.mP.tAccProfile);
                 tVdGraph.rePlot(map);
             }
         });

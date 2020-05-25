@@ -1,7 +1,7 @@
 package com.hyperion.dashboard.uiobject;
 
 import com.hyperion.common.Constants;
-import com.hyperion.dashboard.UICMain;
+import com.hyperion.dashboard.UIMain;
 import com.hyperion.motion.math.RigidBody;
 
 import org.json.JSONArray;
@@ -29,8 +29,8 @@ public class Robot extends FieldObject {
             displayGroup = new Group();
 
             imgView = new ImageView(new File(Constants.RES_IMG + "/robot.png").toURI().toURL().toString());
-            imgView.setFitWidth(UICMain.fieldPane.robotSize);
-            imgView.setFitHeight(UICMain.fieldPane.robotSize);
+            imgView.setFitWidth(UIMain.fieldPane.robotSize);
+            imgView.setFitHeight(UIMain.fieldPane.robotSize);
             imgView.setPickOnBounds(true);
             displayGroup.getChildren().add(imgView);
         } catch (Exception e) {
@@ -39,18 +39,18 @@ public class Robot extends FieldObject {
     }
 
     public void addDisplayGroup() {
-        Platform.runLater(() -> UICMain.fieldPane.getChildren().add(displayGroup));
+        Platform.runLater(() -> UIMain.fieldPane.getChildren().add(displayGroup));
     }
 
     public void refreshDisplayGroup() {
-        double[] display = UICMain.fieldPane.poseToDisplay(rigidBody, UICMain.fieldPane.robotSize);
+        double[] display = UIMain.fieldPane.poseToDisplay(rigidBody, UIMain.fieldPane.robotSize);
         imgView.relocate(display[0], display[1]);
         imgView.setRotate(display[2]);
     }
 
     public void removeDisplayGroup() {
-        Platform.runLater(() -> UICMain.fieldPane.getChildren().remove(displayGroup));
-        UICMain.isRobotOnField = false;
+        Platform.runLater(() -> UIMain.fieldPane.getChildren().remove(displayGroup));
+        UIMain.isRobotOnField = false;
     }
 
     public void select() {

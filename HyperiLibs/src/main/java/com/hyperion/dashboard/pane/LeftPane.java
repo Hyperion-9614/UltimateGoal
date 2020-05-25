@@ -1,6 +1,6 @@
 package com.hyperion.dashboard.pane;
 
-import com.hyperion.dashboard.UICMain;
+import com.hyperion.dashboard.UIMain;
 import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.dashboard.uiobject.FieldObject;
 
@@ -50,12 +50,12 @@ public class LeftPane extends VBox {
             clearOpMode.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
                     ArrayList<FieldEdit> toRemove = new ArrayList<>();
-                    for (FieldObject o : UICMain.fieldObjects) {
-                        if (o.id.contains(UICMain.opModeID)) {
+                    for (FieldObject o : UIMain.fieldObjects) {
+                        if (o.id.contains(UIMain.opModeID)) {
                             toRemove.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
                         }
                     }
-                    UICMain.queueFieldEdits(toRemove.toArray(new FieldEdit[0]));
+                    UIMain.queueFieldEdits(toRemove.toArray(new FieldEdit[0]));
                 }
             });
             buttons.getChildren().add(clearOpMode);
@@ -67,10 +67,10 @@ public class LeftPane extends VBox {
             clearAllOpModes.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
                     ArrayList<FieldEdit> toRemove = new ArrayList<>();
-                    for (FieldObject o : UICMain.fieldObjects) {
+                    for (FieldObject o : UIMain.fieldObjects) {
                         toRemove.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
                     }
-                    UICMain.queueFieldEdits(toRemove.toArray(new FieldEdit[0]));
+                    UIMain.queueFieldEdits(toRemove.toArray(new FieldEdit[0]));
                 }
             });
             buttons.getChildren().add(clearAllOpModes);
@@ -82,7 +82,7 @@ public class LeftPane extends VBox {
             enablePathBuilder.setTextAlignment(TextAlignment.CENTER);
             enablePathBuilder.setTextFill(Color.WHITE);
             enablePathBuilder.setPrefSize(310, 30);
-            enablePathBuilder.selectedProperty().addListener((observable, oldValue, newValue) -> UICMain.isBuildingPaths = newValue);
+            enablePathBuilder.selectedProperty().addListener((observable, oldValue, newValue) -> UIMain.isBuildingPaths = newValue);
             enablePathBuilder.setSelected(false);
             getChildren().add(enablePathBuilder);
 
@@ -91,7 +91,7 @@ public class LeftPane extends VBox {
             simulationMode.setTextAlignment(TextAlignment.CENTER);
             simulationMode.setTextFill(Color.WHITE);
             simulationMode.setPrefSize(310, 30);
-            simulationMode.selectedProperty().addListener((observable, oldValue, newValue) -> UICMain.isSimulating = newValue);
+            simulationMode.selectedProperty().addListener((observable, oldValue, newValue) -> UIMain.isSimulating = newValue);
             simulationMode.setSelected(false);
             getChildren().add(simulationMode);
 
@@ -107,10 +107,10 @@ public class LeftPane extends VBox {
             opModeSelector.setStyle("-fx-font: 24px \"Arial\";");
             opModeSelector.setPrefSize(310, 91);
             opModeSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
-                UICMain.fieldPane.deselectAll();
-                UICMain.opModeID = newValue.toString();
-                for (FieldObject o : UICMain.fieldObjects) {
-                    if (o.id.contains(UICMain.opModeID)) {
+                UIMain.fieldPane.deselectAll();
+                UIMain.opModeID = newValue.toString();
+                for (FieldObject o : UIMain.fieldObjects) {
+                    if (o.id.contains(UIMain.opModeID)) {
                         o.addDisplayGroup();
                     } else {
                         o.removeDisplayGroup();

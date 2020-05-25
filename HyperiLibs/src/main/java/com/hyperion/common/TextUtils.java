@@ -23,14 +23,6 @@ public class TextUtils {
         return simpleDateFormat.format(new Date());
     }
 
-    public static void printSocketLog(String from, String to, String message) {
-        System.out.println("[" + TextUtils.getFormattedDate() + "] " + from.toUpperCase() + " -> " + to.toUpperCase() + ": " + message);
-    }
-
-    public static void printBTLog(String message) {
-        System.out.println("[BT -- " + TextUtils.getFormattedDate() + "] " + message);
-    }
-
     public static String condensed(String str) {
         return str.replaceAll("(\\s|\n)", "").trim();
     }

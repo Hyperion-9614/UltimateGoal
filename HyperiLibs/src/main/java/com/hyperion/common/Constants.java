@@ -68,6 +68,9 @@ public class Constants {
     public static double getDouble(String id) {
         return Double.parseDouble(getString(id));
     }
+    public static boolean getBoolean(String id) {
+        return Boolean.parseBoolean(getString(id));
+    }
     public static JSONObject getJSONObject(String id) {
         return (JSONObject) getByID(id);
     }

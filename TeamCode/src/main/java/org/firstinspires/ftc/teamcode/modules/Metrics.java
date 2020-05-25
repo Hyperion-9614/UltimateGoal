@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import com.hyperion.common.*;
+import com.hyperion.dashboard.net.Message;
 
 import org.firstinspires.ftc.teamcode.core.*;
 import org.json.JSONArray;
@@ -72,15 +73,12 @@ public class Metrics {
             for (int i = 0; i < data.size(); i++) {
                 Entry entry = data.get(i);
                 hw.ctx.telemetry.addData(entry.token0, entry.token1);
-                if (hw.rcClient != null)
+                if (Constants.getBoolean("dashboard.isDebugging"))
                     dataArr.put(new JSONArray(entry.toArray()));
             }
             hw.ctx.telemetry.update();
-
-            if (hw.rcClient != null) {
-                hw.rcClient.emit("unimetryUpdated", dataArr.toString());
-                TextUtils.printSocketLog("RC", "SERVER", "unimetryUpdated");
-            }
+            if (Constants.getBoolean("dashboard.isDebugging"))
+                hw.btClient.sendMessage(Message.Event.METRICS_UPDATED, dataArr);
         } catch (Exception e) {
             e.printStackTrace();
         }

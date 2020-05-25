@@ -2,8 +2,7 @@ package org.firstinspires.ftc.teamcode.core;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.IOUtils;
-import com.hyperion.common.TextUtils;
-import com.hyperion.dashboard.net.FieldEdit;
+import com.hyperion.dashboard.net.Message;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -12,8 +11,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.modules.CvPipeline;
-import org.firstinspires.ftc.teamcode.modules.RectangleSampling;
 import org.firstinspires.ftc.teamcode.modules.Metrics;
+import org.firstinspires.ftc.teamcode.modules.RectangleSampling;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -22,9 +21,6 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.revextensions2.ExpansionHubEx;
 
 import java.io.File;
-
-import io.socket.client.IO;
-import io.socket.client.Socket;
 
 /**
  * Handles all hw interfacing and robot/external initialization
@@ -46,7 +42,7 @@ public class Hardware {
     public OpenCvInternalCamera phoneCam;
     public CvPipeline cvPipeline;
 
-    public Socket rcClient;
+    public BTClient btClient;
     public Metrics metrics;
     public String status = opModeID;
 
@@ -94,7 +90,8 @@ public class Hardware {
         // Init control, dashboard, telemetry, CV, & threads
         Motion.init(this);
         Appendages.init(this);
-        initDashboard();
+        if (Constants.getBoolean("dashboard.isDebugging"))
+            btClient = new BTClient(this);
         metrics = new Metrics(this);
         initCV();
         initUpdaters();
@@ -142,75 +139,6 @@ public class Hardware {
                 break;
             }
         }
-    }
-
-    // Initialize dashboard RC client socket
-    public void initDashboard() {
-        try {
-            rcClient = IO.socket("http://" + Constants.getString("dashboard.net.hostIP") + ":" + Constants.getString("dashboard.net.port"));
-
-            rcClient.on(Socket.EVENT_CONNECT, args -> {
-                TextUtils.printSocketLog("RC", "SERVER", "connected");
-            }).on(Socket.EVENT_DISCONNECT, args -> {
-                TextUtils.printSocketLog("RC", "SERVER", "disconnected");
-            }).on("fieldEdited", args -> {
-                TextUtils.printSocketLog("SERVER", "RC", "fieldEdited");
-                writeFieldEditsToFieldJSON(args[0].toString());
-            }).on("constantsUpdated", args -> {
-                try {
-                    TextUtils.printSocketLog("SERVER", "RC", "constantsUpdated");
-                    Constants.init(new JSONObject(args[0].toString()));
-                    Constants.write();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                initFiles();
-            });
-
-            rcClient.connect();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Exactly what the method header says
-    public void writeFieldEditsToFieldJSON(String json) {
-        try {
-            JSONObject field = new JSONObject(IOUtils.readFile(fieldJSON));
-            JSONArray arr = new JSONArray(json);
-            for (int i = 0; i < arr.length(); i++) {
-                FieldEdit edit = new FieldEdit(arr.getJSONObject(i));
-                if (!edit.id.equals("robot")) {
-                    String o = edit.id.contains("waypoint") ? "waypoints" : "splines";
-                    JSONObject target = field.getJSONObject(o);
-                    switch (edit.type) {
-                        case CREATE:
-                        case EDIT_BODY:
-                            target.put(edit.id, o.equals("waypoints") ? new JSONArray(edit.body) : new JSONObject(edit.body));
-                            break;
-                        case EDIT_ID:
-                            if (edit.id.contains("waypoint")) {
-                                JSONArray wpArr = target.getJSONArray(edit.id);
-                                target.remove(edit.id);
-                                target.put(edit.body, wpArr);
-                            } else {
-                                JSONObject splineObj = target.getJSONObject(edit.id);
-                                target.remove(edit.id);
-                                target.put(edit.body, splineObj);
-                            }
-                            break;
-                        case DELETE:
-                            target.remove(edit.id);
-                            break;
-                    }
-                    field.put(o, target);
-                }
-            }
-            IOUtils.writeFile(field.toString(), fieldJSON);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        initFiles();
     }
 
     // Initialize OpMode
@@ -311,12 +239,8 @@ public class Hardware {
                 IOUtils.writeFile(obj.toString(), fieldJSON);
             }
 
-            if (rcClient != null) {
-                rcClient.emit("opModeEnded", "{}");
-                TextUtils.printSocketLog("RC", "SERVER", "opModeEnded");
-                rcClient.close();
-            }
-
+            btClient.sendMessage(Message.Event.OPMODE_ENDED, new JSONObject());
+            btClient.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

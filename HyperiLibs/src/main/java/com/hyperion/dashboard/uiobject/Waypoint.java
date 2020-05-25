@@ -1,7 +1,7 @@
 package com.hyperion.dashboard.uiobject;
 
 import com.hyperion.common.Constants;
-import com.hyperion.dashboard.UICMain;
+import com.hyperion.dashboard.UIMain;
 import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.motion.math.Pose;
 import com.sun.javafx.tk.FontMetrics;
@@ -63,7 +63,7 @@ public class Waypoint extends FieldObject {
             displayGroup.getChildren().add(imgView);
 
             if (renderID) {
-                idField = new TextField(id.replace(UICMain.opModeID + ".waypoint.", ""));
+                idField = new TextField(id.replace(UIMain.opModeID + ".waypoint.", ""));
                 idField.setStyle("-fx-background-radius: 0; -fx-text-inner-color: rgba(255, 255, 255, 1.0); -fx-background-color: rgba(0, 0, 0, 0.6);");
                 idField.setMinWidth(17);
                 idField.setMaxWidth(150);
@@ -86,8 +86,8 @@ public class Waypoint extends FieldObject {
                     idField.setOnKeyPressed(event -> {
                         if (event.getCode() == KeyCode.ENTER) {
                             String oldID = id;
-                            id = UICMain.opModeID + ".waypoint." + idField.getText();
-                            UICMain.queueFieldEdits(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
+                            id = UIMain.opModeID + ".waypoint." + idField.getText();
+                            UIMain.queueFieldEdits(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
                         }
                     });
                 }
@@ -101,7 +101,7 @@ public class Waypoint extends FieldObject {
             displayGroup.getChildren().add(info);
 
             selectColor = Color.hsb(360 * Math.random(), 1.0, 1.0);
-            selectRect = new Rectangle(UICMain.fieldPane.robotSize, UICMain.fieldPane.robotSize);
+            selectRect = new Rectangle(UIMain.fieldPane.robotSize, UIMain.fieldPane.robotSize);
             selectRect.setStroke(selectColor);
             selectRect.setStrokeWidth(2);
             selectRect.setFill(new Color(selectColor.getRed(), selectColor.getGreen(), selectColor.getBlue(), 0.3));
@@ -140,9 +140,9 @@ public class Waypoint extends FieldObject {
                             parentSpline.waypoints.get(0).select();
                         }
                     } else {
-                        UICMain.fieldObjects.remove(this);
+                        UIMain.fieldObjects.remove(this);
                     }
-                    UICMain.queueFieldEdits(edit);
+                    UIMain.queueFieldEdits(edit);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -165,10 +165,10 @@ public class Waypoint extends FieldObject {
             Rectangle rect = new Rectangle(newX, newY, Constants.WAYPOINT_SIZE, Constants.WAYPOINT_SIZE);
             Rectangle rectX = new Rectangle(newX, imgView.getLayoutY(), Constants.WAYPOINT_SIZE, Constants.WAYPOINT_SIZE);
             Rectangle rectY = new Rectangle(imgView.getLayoutX(), newY, Constants.WAYPOINT_SIZE, Constants.WAYPOINT_SIZE);
-            boolean[] intersects = UICMain.fieldPane.getWBBIntersects(rect, rectX, rectY);
+            boolean[] intersects = UIMain.fieldPane.getWBBIntersects(rect, rectX, rectY);
             if (intersects[0]) imgView.setLayoutX(newX);
             if (intersects[1]) imgView.setLayoutY(newY);
-            pose = UICMain.fieldPane.viewToPose(imgView, Constants.WAYPOINT_SIZE);
+            pose = UIMain.fieldPane.viewToPose(imgView, Constants.WAYPOINT_SIZE);
             refreshDisplayGroup();
         }));
 
@@ -182,7 +182,7 @@ public class Waypoint extends FieldObject {
                         parentSpline.refreshDisplayGroup();
                         edit = new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString());
                     }
-                    UICMain.queueFieldEdits(edit);
+                    UIMain.queueFieldEdits(edit);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -193,34 +193,34 @@ public class Waypoint extends FieldObject {
     public void addDisplayGroup() {
         Platform.runLater(() -> {
             if (renderID && parentSpline == null) {
-                idField.setText(id.replace(UICMain.opModeID + ".waypoint.", ""));
+                idField.setText(id.replace(UIMain.opModeID + ".waypoint.", ""));
             } else if (renderID) {
-                idField.setText(parentSpline.id.replace(UICMain.opModeID + ".spline.", ""));
+                idField.setText(parentSpline.id.replace(UIMain.opModeID + ".spline.", ""));
             }
-            if (parentSpline != null && parentSpline.id.startsWith(UICMain.opModeID)) {
+            if (parentSpline != null && parentSpline.id.startsWith(UIMain.opModeID)) {
                 parentSpline.displayGroup.getChildren().add(displayGroup);
-            } else if (id.startsWith(UICMain.opModeID)) {
-                UICMain.fieldPane.getChildren().add(displayGroup);
+            } else if (id.startsWith(UIMain.opModeID)) {
+                UIMain.fieldPane.getChildren().add(displayGroup);
             }
         });
     }
 
     public void refreshDisplayGroup() {
-        double[] poseToDisplay = UICMain.fieldPane.poseToDisplay(pose, Constants.WAYPOINT_SIZE);
+        double[] poseToDisplay = UIMain.fieldPane.poseToDisplay(pose, Constants.WAYPOINT_SIZE);
         imgView.relocate(poseToDisplay[0], poseToDisplay[1]);
         imgView.setRotate(poseToDisplay[2]);
         if (renderID) {
             if (parentSpline != null) {
-                idField.setText(parentSpline.id.replace(UICMain.opModeID + ".spline.", ""));
+                idField.setText(parentSpline.id.replace(UIMain.opModeID + ".spline.", ""));
             } else {
-                idField.setText(id.replace(UICMain.opModeID + ".waypoint.", ""));
+                idField.setText(id.replace(UIMain.opModeID + ".waypoint.", ""));
             }
             idField.relocate(poseToDisplay[0] + Constants.WAYPOINT_SIZE + 3, poseToDisplay[1] - 24);
         }
         info.setText(pose.toString().replace(" | ", "\n"));
         info.relocate(poseToDisplay[0] + Constants.WAYPOINT_SIZE + 3, poseToDisplay[1] + Constants.WAYPOINT_SIZE - 21);
-        selectRect.relocate(poseToDisplay[0] + Constants.WAYPOINT_SIZE / 2.0 - UICMain.fieldPane.robotSize / 2.0,
-                            poseToDisplay[1] + Constants.WAYPOINT_SIZE / 2.0 - UICMain.fieldPane.robotSize / 2.0);
+        selectRect.relocate(poseToDisplay[0] + Constants.WAYPOINT_SIZE / 2.0 - UIMain.fieldPane.robotSize / 2.0,
+                            poseToDisplay[1] + Constants.WAYPOINT_SIZE / 2.0 - UIMain.fieldPane.robotSize / 2.0);
         selectRect.setRotate(poseToDisplay[2]);
     }
 
@@ -229,7 +229,7 @@ public class Waypoint extends FieldObject {
             if (parentSpline != null) {
                 parentSpline.displayGroup.getChildren().remove(displayGroup);
             } else {
-                UICMain.fieldPane.getChildren().remove(displayGroup);
+                UIMain.fieldPane.getChildren().remove(displayGroup);
             }
         });
     }
@@ -242,7 +242,7 @@ public class Waypoint extends FieldObject {
                 }
             }
         }
-        for (FieldObject object : UICMain.fieldObjects) {
+        for (FieldObject object : UIMain.fieldObjects) {
             if (object instanceof Waypoint && !object.equals(this)) {
                 object.deselect();
             }
@@ -251,13 +251,13 @@ public class Waypoint extends FieldObject {
             parentSpline.select();
             parentSpline.selectedWaypointIndex = parentSpline.waypoints.indexOf(this);
         }
-        UICMain.selectedWaypoint = this;
+        UIMain.selectedWaypoint = this;
         info.setVisible(true);
         selectRect.setVisible(true);
     }
 
     public void deselect() {
-        if (UICMain.selectedWaypoint == this) UICMain.selectedWaypoint = null;
+        if (UIMain.selectedWaypoint == this) UIMain.selectedWaypoint = null;
         info.setVisible(false);
         selectRect.setVisible(false);
     }

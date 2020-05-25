@@ -1,11 +1,18 @@
 package com.hyperion.dashboard.net;
 
-import org.json.*;
+import com.hyperion.common.TextUtils;
 
-import java.io.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import javax.bluetooth.*;
-import javax.microedition.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+
+import javax.bluetooth.DiscoveryAgent;
+import javax.bluetooth.LocalDevice;
+import javax.microedition.io.StreamConnection;
 
 public abstract class BTEndpoint {
 
@@ -28,9 +35,7 @@ public abstract class BTEndpoint {
             out = new PrintWriter(new OutputStreamWriter(conn.openOutputStream()));
             startMessageHandlerThread();
 
-            JSONObject cObj = new JSONObject();
-            cObj.put("friendlyName", localDevice.getFriendlyName());
-            sendMessage(Message.Event.CONNECTED, cObj);
+            sendMessage(Message.Event.CONNECTED, new JSONObject());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -45,22 +50,22 @@ public abstract class BTEndpoint {
                 while ((msg = new Message(in.readLine())).event != Message.Event.NULL) {
                     switch (msg.event) {
                         case CONNECTED:
-                            onConnected(msg.json);
+                            onConnected(msg);
                             break;
                         case DISCONNECTED:
-                            onDisconnected(msg.json);
+                            onDisconnected(msg);
                             break;
                         case CONSTANTS_UPDATED:
-                            onConstantsUpdated(msg.json);
+                            onConstantsUpdated(msg);
                             break;
                         case FIELD_EDITED:
-                            onFieldEdited(msg.json);
+                            onFieldEdited(msg);
                             break;
                         case METRICS_UPDATED:
-                            onMetricsUpdated(msg.json);
+                            onMetricsUpdated(msg);
                             break;
                         case OPMODE_ENDED:
-                            onOpModeEnded(msg.json);
+                            onOpModeEnded(msg);
                             break;
                     }
                 }
@@ -72,12 +77,12 @@ public abstract class BTEndpoint {
     }
 
     // Event handlers
-    protected abstract void onConnected(JSONObject json) throws Exception;
-    protected abstract void onDisconnected(JSONObject json);
-    protected abstract void onConstantsUpdated(JSONObject json);
-    protected abstract void onFieldEdited(JSONObject json);
-    protected abstract void onMetricsUpdated(JSONObject json);
-    protected abstract void onOpModeEnded(JSONObject json);
+    protected abstract void onConnected(Message msg) throws Exception;
+    protected abstract void onDisconnected(Message msg) throws Exception;
+    protected abstract void onConstantsUpdated(Message msg) throws Exception;
+    protected abstract void onFieldEdited(Message msg) throws Exception;
+    protected abstract void onMetricsUpdated(Message msg) throws Exception;
+    protected abstract void onOpModeEnded(Message msg) throws Exception;
 
     public void close() {
         try {
@@ -95,12 +100,20 @@ public abstract class BTEndpoint {
         }
     }
 
-    public void sendMessage(Message.Event event, JSONObject json) {
-        out.println(new Message(event, json).toString());
+    public void sendMessage(Message.Event event, String jsonStr) {
+        out.println(new Message(event, localDevice.getFriendlyName(), jsonStr).toString());
     }
 
-    public void sendMessage(Message.Event event, String jsonStr) {
-        out.println(new Message(event, jsonStr).toString());
+    public void sendMessage(Message.Event event, JSONObject json) {
+        sendMessage(event, json.toString());
+    }
+
+    public void sendMessage(Message.Event event, JSONArray json) {
+        sendMessage(event, json.toString());
+    }
+
+    public void printBTLog(String message) {
+        System.out.println("[BT -- " + localDevice.getFriendlyName() + " -- " + TextUtils.getFormattedDate() + "] " + message);
     }
 
 }
