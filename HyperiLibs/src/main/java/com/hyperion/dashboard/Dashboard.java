@@ -1,24 +1,47 @@
 package com.hyperion.dashboard;
 
-import com.hyperion.common.*;
-import com.hyperion.dashboard.net.*;
-import com.hyperion.dashboard.pane.*;
-import com.hyperion.dashboard.uiobject.*;
-import com.hyperion.motion.math.*;
+import com.hyperion.common.Constants;
+import com.hyperion.common.IOUtils;
+import com.hyperion.common.MiscUtils;
+import com.hyperion.dashboard.net.BTServer;
+import com.hyperion.dashboard.net.FieldEdit;
+import com.hyperion.dashboard.net.Message;
+import com.hyperion.dashboard.pane.FieldPane;
+import com.hyperion.dashboard.pane.LeftPane;
+import com.hyperion.dashboard.pane.MenuPane;
+import com.hyperion.dashboard.pane.RightPane;
+import com.hyperion.dashboard.pane.VisualPane;
+import com.hyperion.dashboard.uiobject.DisplaySpline;
+import com.hyperion.dashboard.uiobject.FieldObject;
+import com.hyperion.dashboard.uiobject.Robot;
+import com.hyperion.dashboard.uiobject.Waypoint;
+import com.hyperion.motion.math.RigidBody;
 
-import org.json.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
-import javafx.application.*;
-import javafx.geometry.*;
-import javafx.scene.*;
-import javafx.scene.control.*;
-import javafx.scene.input.*;
-import javafx.scene.layout.*;
-import javafx.scene.paint.*;
-import javafx.stage.*;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 /**
  * Main UI client class
@@ -41,10 +64,7 @@ public class Dashboard extends Application {
 
     public static String opModeID = "auto.blue.full";
     public static boolean isBuildingPaths;
-
-    public static List<FieldEdit> queuedEdits = new ArrayList<>();
     public static String constantsSave = "";
-    public static boolean hasUnsavedChanges = false;
 
     public static void main(String[] args) {
         Constants.init(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
@@ -98,9 +118,6 @@ public class Dashboard extends Application {
         all.getChildren().add(sideStuff);
         Scene scene = new Scene(all, 1280, 720, Color.TRANSPARENT);
         scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.S && event.isControlDown()) {
-                saveDashboard();
-            }
             isBuildingPaths = event.isShiftDown();
         });
 
@@ -122,23 +139,6 @@ public class Dashboard extends Application {
             editField(new FieldEdit("robot", isRobotOnField ? FieldEdit.Type.EDIT_BODY : FieldEdit.Type.CREATE,
                       new JSONArray(new RigidBody(metrics.get("Current")).toArray()).toString()));
             isRobotOnField = true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void saveDashboard() {
-        try {
-            if (hasUnsavedChanges) {
-                String newConstants = rightPane.constantsDisplay.getText();
-                if (!TextUtils.condensedEquals(newConstants, constantsSave)) {
-                    Dashboard.constantsSave = newConstants;
-                    Constants.init(new JSONObject(Dashboard.constantsSave));
-                    Constants.write();
-                    if (btServer != null)
-                        btServer.sendMessage(Message.Event.CONSTANTS_UPDATED, Dashboard.constantsSave);
-                }
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
