@@ -1,7 +1,7 @@
 package com.hyperion.dashboard.pane;
 
 import com.hyperion.common.TextUtils;
-import com.hyperion.dashboard.UIMain;
+import com.hyperion.dashboard.Dashboard;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -29,7 +29,7 @@ public class RightPane extends VBox {
             setSpacing(10);
             setAlignment(Pos.TOP_CENTER);
 
-            width = (Screen.getPrimary().getVisualBounds().getWidth() - UIMain.fieldPane.fieldSize) / 2.0 - 62;
+            width = (Screen.getPrimary().getVisualBounds().getWidth() - Dashboard.fieldPane.fieldSize) / 2.0 - 62;
             if (System.getProperty("os.name").startsWith("Windows")) width += 40;
 
             Label unimetryLabel = new Label("Telemetry");
@@ -56,7 +56,7 @@ public class RightPane extends VBox {
             constantsDisplay.setEditable(true);
             constantsDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
                 if (!oldValue.isEmpty()) {
-                    UIMain.changeSaveStatus(!TextUtils.condensedEquals(newValue, UIMain.constantsSave));
+                    Dashboard.changeSaveStatus(!TextUtils.condensedEquals(newValue, Dashboard.constantsSave));
                 }
             });
             getChildren().add(constantsDisplay);
@@ -68,8 +68,8 @@ public class RightPane extends VBox {
     public void setMetricsDisplayText() {
         StringBuilder metricsStr = new StringBuilder();
 
-        for (String key : UIMain.metrics.keySet()) {
-            String value = UIMain.metrics.get(key).trim();
+        for (String key : Dashboard.metrics.keySet()) {
+            String value = Dashboard.metrics.get(key).trim();
             if (!key.isEmpty() && value.isEmpty()) {
                 metricsStr.append(key);
             } else if (!key.isEmpty()) {

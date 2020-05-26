@@ -7,7 +7,6 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.File;
-import java.net.InetAddress;
 
 public class Constants {
 
@@ -24,17 +23,7 @@ public class Constants {
     }
 
     public static void init(JSONObject root) {
-        try {
-            Constants.root = root;
-
-            if (getString("dashboard.net.hostIP").equals("this")) {
-                setAtID("dashboard.net.hostIP", InetAddress.getLocalHost().getHostAddress());
-            }
-
-            System.out.println("Host IP: " + getString("dashboard.net.hostIP"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Constants.root = root;
     }
 
     public static Object getByID(String id) {
@@ -79,7 +68,7 @@ public class Constants {
     }
 
     public static File getFile(String resDir, String filePath) {
-        File res = new File(System.getProperty("user.dir") + getString("io.filepaths.resPrefix"));
+        File res = new File(System.getProperty("user.dir") + getString("io.resPrefix"));
         return new File(res + "\\" + resDir + "\\" + filePath.replaceAll("/", "\\"));
     }
     public static Pose getPose(String id) {

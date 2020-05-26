@@ -1,55 +1,30 @@
 package com.hyperion.dashboard;
 
-import com.hyperion.common.Constants;
-import com.hyperion.common.TextUtils;
-import com.hyperion.dashboard.net.BTServer;
-import com.hyperion.dashboard.net.FieldEdit;
-import com.hyperion.dashboard.net.Message;
-import com.hyperion.dashboard.pane.FieldPane;
-import com.hyperion.dashboard.pane.LeftPane;
-import com.hyperion.dashboard.pane.MenuPane;
-import com.hyperion.dashboard.pane.RightPane;
-import com.hyperion.dashboard.pane.VisualPane;
-import com.hyperion.dashboard.uiobject.DisplaySpline;
-import com.hyperion.dashboard.uiobject.FieldObject;
-import com.hyperion.dashboard.uiobject.Robot;
-import com.hyperion.dashboard.uiobject.Waypoint;
-import com.hyperion.motion.math.RigidBody;
+import com.hyperion.common.*;
+import com.hyperion.dashboard.net.*;
+import com.hyperion.dashboard.pane.*;
+import com.hyperion.dashboard.uiobject.*;
+import com.hyperion.motion.math.*;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.json.*;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.geometry.Insets;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javafx.application.*;
+import javafx.geometry.*;
+import javafx.scene.*;
+import javafx.scene.control.*;
+import javafx.scene.input.*;
+import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.stage.*;
 
 /**
  * Main UI client class
  */
 
-public class UIMain extends Application {
+public class Dashboard extends Application {
 
     public static MenuPane menuPane;
     public static FieldPane fieldPane;
@@ -74,7 +49,7 @@ public class UIMain extends Application {
 
     public static void main(String[] args) {
         Constants.init(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
-        btServer = new BTServer();
+//        btServer = new BTServer();
         launch(args);
     }
 

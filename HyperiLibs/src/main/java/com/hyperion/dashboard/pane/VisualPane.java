@@ -1,6 +1,6 @@
 package com.hyperion.dashboard.pane;
 
-import com.hyperion.dashboard.UIMain;
+import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.PiecewiseLineGraph;
 import com.hyperion.motion.math.Piecewise;
@@ -34,7 +34,7 @@ public class VisualPane extends VBox {
         tVdGraph.setCreateSymbols(false);
         tVdGraph.setTitle("Translational Magnitude vs. Distance");
 
-        updateGraphs(UIMain.selectedSpline);
+        updateGraphs(Dashboard.selectedSpline);
         getChildren().add(tVdGraph);
     }
 

@@ -18,9 +18,7 @@
         "isDebugging": true
     },
     "io": {
-        "filePaths": {
-            "resPrefix": "\\HyperiLibs\\src\\main\\res"
-        }
+        "resPrefix": "\\HyperiLibs\\src\\main\\res"
     },
     "localization": {
         "driveBase": 31.29,

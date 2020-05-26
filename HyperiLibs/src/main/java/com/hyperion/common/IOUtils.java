@@ -7,7 +7,7 @@ import java.io.*;
 public class IOUtils {
 
     public static String readDataJSON(String fileName) {
-        return readFile(new File(Constants.RES_DATA + "/" + fileName + ".json"));
+        return readFile(Constants.getFile("data", fileName + ".json"));
     }
 
     public static String readFile(File file) {
@@ -36,7 +36,7 @@ public class IOUtils {
 
     public static void writeDataJSON(String json, String fileName) {
         try {
-            writeFile(new JSONObject(json).toString(4), new File(Constants.RES_DATA + "/" + fileName + ".json"));
+            writeFile(new JSONObject(json).toString(4), Constants.getFile("data", fileName + ".json"));
         } catch (Exception e) {
             e.printStackTrace();
         }

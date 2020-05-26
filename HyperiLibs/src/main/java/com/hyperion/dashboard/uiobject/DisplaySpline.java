@@ -1,7 +1,7 @@
 package com.hyperion.dashboard.uiobject;
 
 import com.hyperion.common.Constants;
-import com.hyperion.dashboard.UIMain;
+import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
@@ -45,7 +45,7 @@ public class DisplaySpline extends FieldObject {
     }
 
     public DisplaySpline(Pose start) {
-        this.id = UIMain.opModeID + ".spline.";
+        this.id = Dashboard.opModeID + ".spline.";
         ArrayList<RigidBody> wps = new ArrayList<>();
         wps.add(new RigidBody(start));
         spline = new SplineTrajectory(wps);
@@ -61,7 +61,7 @@ public class DisplaySpline extends FieldObject {
         if (spline.waypoints.size() >= 2) {
             Color tauPathPointColor = new Color(0.3, 0.3, 0.3, 0.5);
             for (double t = 0; t <= spline.waypoints.size() - 1; t += 0.2) {
-                double[] poseArr = UIMain.fieldPane.poseToDisplay(spline.getTPose(t), 0);
+                double[] poseArr = Dashboard.fieldPane.poseToDisplay(spline.getTPose(t), 0);
                 Circle pathPoint = new Circle(poseArr[0], poseArr[1], Constants.getDouble("dashboard.gui.sizes.pathPoint"));
                 pathPoint.setFill(tauPathPointColor);
                 displayGroup.getChildren().add(pathPoint);
@@ -69,15 +69,15 @@ public class DisplaySpline extends FieldObject {
 
             Color distancePathPointColor = new Color(1.0, 1.0, 1.0, 0.5);
             for (double d = 0; d <= spline.waypoints.get(spline.waypoints.size() - 1).distance; d += 10) {
-                double[] poseArr = UIMain.fieldPane.poseToDisplay(spline.getDPose(d), 0);
+                double[] poseArr = Dashboard.fieldPane.poseToDisplay(spline.getDPose(d), 0);
                 Circle pathPoint = new Circle(poseArr[0], poseArr[1], Constants.getDouble("dashboard.gui.sizes.pathPoint"));
                 pathPoint.setFill(distancePathPointColor);
                 displayGroup.getChildren().add(pathPoint);
             }
 
-            double[] lastPoseArr = UIMain.fieldPane.poseToDisplay(spline.planningPoints.get(0), 0);
+            double[] lastPoseArr = Dashboard.fieldPane.poseToDisplay(spline.planningPoints.get(0), 0);
             for (int i = 1; i < spline.planningPoints.size(); i++) {
-                double[] poseArr = UIMain.fieldPane.poseToDisplay(spline.planningPoints.get(i), 0);
+                double[] poseArr = Dashboard.fieldPane.poseToDisplay(spline.planningPoints.get(i), 0);
                 Line segment = new Line(lastPoseArr[0], lastPoseArr[1], poseArr[0], poseArr[1]);
                 segment.setStroke(Color.hsb(360 * (i - 1.0) / spline.planningPoints.size(), 1.0, 1.0));
                 segment.setStrokeWidth(2);
@@ -95,8 +95,8 @@ public class DisplaySpline extends FieldObject {
                 displayGroup.getChildren().add(pp);
 
                 Color selectColor = Color.DIMGRAY;
-                Rectangle selectRect = new Rectangle(poseArr[0] - UIMain.fieldPane.robotSize / 2.0, poseArr[1] - UIMain.fieldPane.robotSize / 2.0,
-                        UIMain.fieldPane.robotSize, UIMain.fieldPane.robotSize);
+                Rectangle selectRect = new Rectangle(poseArr[0] - Dashboard.fieldPane.robotSize / 2.0, poseArr[1] - Dashboard.fieldPane.robotSize / 2.0,
+                        Dashboard.fieldPane.robotSize, Dashboard.fieldPane.robotSize);
                 selectRect.setStroke(selectColor);
                 selectRect.setStrokeWidth(2);
                 selectRect.setRotate(poseArr[2]);
@@ -107,7 +107,7 @@ public class DisplaySpline extends FieldObject {
                 selectRects.add(selectRect);
 
                 if (i == spline.planningPoints.size() - 1) {
-                    double[] lastParr = UIMain.fieldPane.poseToDisplay(spline.waypoints.get(spline.waypoints.size() - 1), 0);
+                    double[] lastParr = Dashboard.fieldPane.poseToDisplay(spline.waypoints.get(spline.waypoints.size() - 1), 0);
                     Line lastSeg = new Line(poseArr[0], poseArr[1], lastParr[0], lastParr[1]);
                     lastSeg.setStroke(Color.hsb(360 * i / spline.planningPoints.size(), 1.0, 1.0));
                     lastSeg.setStrokeWidth(3);
@@ -123,12 +123,12 @@ public class DisplaySpline extends FieldObject {
             RigidBody wpPP = spline.waypoints.get(i);
             Waypoint waypoint = new Waypoint("", wpPP, this, (i == 0));
             if (waypoint.renderID) {
-                waypoint.idField.setText(id.replace(UIMain.opModeID + ".spline.", ""));
+                waypoint.idField.setText(id.replace(Dashboard.opModeID + ".spline.", ""));
                 waypoint.idField.setOnKeyPressed(event -> {
                     if (event.getCode() == KeyCode.ENTER) {
                         String oldID = id;
-                        id = UIMain.opModeID + ".spline." + waypoint.idField.getText();
-                        UIMain.queueFieldEdits(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
+                        id = Dashboard.opModeID + ".spline." + waypoint.idField.getText();
+                        Dashboard.queueFieldEdits(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
                     }
                 });
             }
@@ -141,8 +141,8 @@ public class DisplaySpline extends FieldObject {
 
     public void addDisplayGroup() {
         Platform.runLater(() -> {
-            if (id.startsWith(UIMain.opModeID)) {
-                UIMain.fieldPane.getChildren().add(displayGroup);
+            if (id.startsWith(Dashboard.opModeID)) {
+                Dashboard.fieldPane.getChildren().add(displayGroup);
             }
         });
     }
@@ -156,24 +156,24 @@ public class DisplaySpline extends FieldObject {
     }
 
     public void removeDisplayGroup() {
-        Platform.runLater(() -> UIMain.fieldPane.getChildren().remove(displayGroup));
+        Platform.runLater(() -> Dashboard.fieldPane.getChildren().remove(displayGroup));
     }
 
     public void select() {
-        for (FieldObject object : UIMain.fieldObjects) {
+        for (FieldObject object : Dashboard.fieldObjects) {
             if (object instanceof DisplaySpline && !object.equals(this)) {
                 object.deselect();
             }
         }
-        UIMain.selectedSpline = this;
+        Dashboard.selectedSpline = this;
         for (Rectangle selectRect : selectRects) {
             selectRect.setVisible(true);
         }
-        UIMain.visualPane.updateGraphs(this);
+        Dashboard.visualPane.updateGraphs(this);
     }
 
     public void deselect() {
-        UIMain.selectedSpline = null;
+        Dashboard.selectedSpline = null;
         selectedWaypointIndex = -1;
         for (Waypoint waypoint : waypoints) {
             waypoint.deselect();

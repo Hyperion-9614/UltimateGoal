@@ -1,15 +1,13 @@
 package com.hyperion.dashboard.uiobject;
 
 import com.hyperion.common.Constants;
-import com.hyperion.dashboard.UIMain;
+import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.motion.math.Pose;
 import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
 
 import org.json.JSONArray;
-
-import java.io.File;
 
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -57,13 +55,13 @@ public class Waypoint extends FieldObject {
         try {
             displayGroup = new Group();
 
-            imgView = new ImageView(new File(Constants.RES_IMG + "/waypoint.png").toURI().toURL().toString());
-            imgView.setFitWidth(Constants.WAYPOINT_SIZE);
-            imgView.setFitHeight(Constants.WAYPOINT_SIZE);
+            imgView = new ImageView(Constants.getFile("img", "waypoint.png").toURI().toURL().toString());
+            imgView.setFitWidth(Constants.getDouble("dashboard.gui.sizes.waypoint"));
+            imgView.setFitHeight(Constants.getDouble("dashboard.gui.sizes.waypoint"));
             displayGroup.getChildren().add(imgView);
 
             if (renderID) {
-                idField = new TextField(id.replace(UIMain.opModeID + ".waypoint.", ""));
+                idField = new TextField(id.replace(Dashboard.opModeID + ".waypoint.", ""));
                 idField.setStyle("-fx-background-radius: 0; -fx-text-inner-color: rgba(255, 255, 255, 1.0); -fx-background-color: rgba(0, 0, 0, 0.6);");
                 idField.setMinWidth(17);
                 idField.setMaxWidth(150);
@@ -86,8 +84,8 @@ public class Waypoint extends FieldObject {
                     idField.setOnKeyPressed(event -> {
                         if (event.getCode() == KeyCode.ENTER) {
                             String oldID = id;
-                            id = UIMain.opModeID + ".waypoint." + idField.getText();
-                            UIMain.queueFieldEdits(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
+                            id = Dashboard.opModeID + ".waypoint." + idField.getText();
+                            Dashboard.queueFieldEdits(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
                         }
                     });
                 }
@@ -101,7 +99,7 @@ public class Waypoint extends FieldObject {
             displayGroup.getChildren().add(info);
 
             selectColor = Color.hsb(360 * Math.random(), 1.0, 1.0);
-            selectRect = new Rectangle(UIMain.fieldPane.robotSize, UIMain.fieldPane.robotSize);
+            selectRect = new Rectangle(Dashboard.fieldPane.robotSize, Dashboard.fieldPane.robotSize);
             selectRect.setStroke(selectColor);
             selectRect.setStrokeWidth(2);
             selectRect.setFill(new Color(selectColor.getRed(), selectColor.getGreen(), selectColor.getBlue(), 0.3));
@@ -140,9 +138,9 @@ public class Waypoint extends FieldObject {
                             parentSpline.waypoints.get(0).select();
                         }
                     } else {
-                        UIMain.fieldObjects.remove(this);
+                        Dashboard.fieldObjects.remove(this);
                     }
-                    UIMain.queueFieldEdits(edit);
+                    Dashboard.queueFieldEdits(edit);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -162,13 +160,13 @@ public class Waypoint extends FieldObject {
             double newX = event.getSceneX() + dragDx;
             double newY = event.getSceneY() + dragDy;
 
-            Rectangle rect = new Rectangle(newX, newY, Constants.WAYPOINT_SIZE, Constants.WAYPOINT_SIZE);
-            Rectangle rectX = new Rectangle(newX, imgView.getLayoutY(), Constants.WAYPOINT_SIZE, Constants.WAYPOINT_SIZE);
-            Rectangle rectY = new Rectangle(imgView.getLayoutX(), newY, Constants.WAYPOINT_SIZE, Constants.WAYPOINT_SIZE);
-            boolean[] intersects = UIMain.fieldPane.getWBBIntersects(rect, rectX, rectY);
+            Rectangle rect = new Rectangle(newX, newY, Constants.getDouble("dashboard.gui.sizes.waypoint"), Constants.getDouble("dashboard.gui.sizes.waypoint"));
+            Rectangle rectX = new Rectangle(newX, imgView.getLayoutY(), Constants.getDouble("dashboard.gui.sizes.waypoint"), Constants.getDouble("dashboard.gui.sizes.waypoint"));
+            Rectangle rectY = new Rectangle(imgView.getLayoutX(), newY, Constants.getDouble("dashboard.gui.sizes.waypoint"), Constants.getDouble("dashboard.gui.sizes.waypoint"));
+            boolean[] intersects = Dashboard.fieldPane.getWBBIntersects(rect, rectX, rectY);
             if (intersects[0]) imgView.setLayoutX(newX);
             if (intersects[1]) imgView.setLayoutY(newY);
-            pose = UIMain.fieldPane.viewToPose(imgView, Constants.WAYPOINT_SIZE);
+            pose = Dashboard.fieldPane.viewToPose(imgView, Constants.getDouble("dashboard.gui.sizes.waypoint"));
             refreshDisplayGroup();
         }));
 
@@ -182,7 +180,7 @@ public class Waypoint extends FieldObject {
                         parentSpline.refreshDisplayGroup();
                         edit = new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString());
                     }
-                    UIMain.queueFieldEdits(edit);
+                    Dashboard.queueFieldEdits(edit);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -193,34 +191,34 @@ public class Waypoint extends FieldObject {
     public void addDisplayGroup() {
         Platform.runLater(() -> {
             if (renderID && parentSpline == null) {
-                idField.setText(id.replace(UIMain.opModeID + ".waypoint.", ""));
+                idField.setText(id.replace(Dashboard.opModeID + ".waypoint.", ""));
             } else if (renderID) {
-                idField.setText(parentSpline.id.replace(UIMain.opModeID + ".spline.", ""));
+                idField.setText(parentSpline.id.replace(Dashboard.opModeID + ".spline.", ""));
             }
-            if (parentSpline != null && parentSpline.id.startsWith(UIMain.opModeID)) {
+            if (parentSpline != null && parentSpline.id.startsWith(Dashboard.opModeID)) {
                 parentSpline.displayGroup.getChildren().add(displayGroup);
-            } else if (id.startsWith(UIMain.opModeID)) {
-                UIMain.fieldPane.getChildren().add(displayGroup);
+            } else if (id.startsWith(Dashboard.opModeID)) {
+                Dashboard.fieldPane.getChildren().add(displayGroup);
             }
         });
     }
 
     public void refreshDisplayGroup() {
-        double[] poseToDisplay = UIMain.fieldPane.poseToDisplay(pose, Constants.WAYPOINT_SIZE);
+        double[] poseToDisplay = Dashboard.fieldPane.poseToDisplay(pose, Constants.getDouble("dashboard.gui.sizes.waypoint"));
         imgView.relocate(poseToDisplay[0], poseToDisplay[1]);
         imgView.setRotate(poseToDisplay[2]);
         if (renderID) {
             if (parentSpline != null) {
-                idField.setText(parentSpline.id.replace(UIMain.opModeID + ".spline.", ""));
+                idField.setText(parentSpline.id.replace(Dashboard.opModeID + ".spline.", ""));
             } else {
-                idField.setText(id.replace(UIMain.opModeID + ".waypoint.", ""));
+                idField.setText(id.replace(Dashboard.opModeID + ".waypoint.", ""));
             }
-            idField.relocate(poseToDisplay[0] + Constants.WAYPOINT_SIZE + 3, poseToDisplay[1] - 24);
+            idField.relocate(poseToDisplay[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") + 3, poseToDisplay[1] - 24);
         }
         info.setText(pose.toString().replace(" | ", "\n"));
-        info.relocate(poseToDisplay[0] + Constants.WAYPOINT_SIZE + 3, poseToDisplay[1] + Constants.WAYPOINT_SIZE - 21);
-        selectRect.relocate(poseToDisplay[0] + Constants.WAYPOINT_SIZE / 2.0 - UIMain.fieldPane.robotSize / 2.0,
-                            poseToDisplay[1] + Constants.WAYPOINT_SIZE / 2.0 - UIMain.fieldPane.robotSize / 2.0);
+        info.relocate(poseToDisplay[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") + 3, poseToDisplay[1] + Constants.getDouble("dashboard.gui.sizes.waypoint") - 21);
+        selectRect.relocate(poseToDisplay[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0 - Dashboard.fieldPane.robotSize / 2.0,
+                            poseToDisplay[1] + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0 - Dashboard.fieldPane.robotSize / 2.0);
         selectRect.setRotate(poseToDisplay[2]);
     }
 
@@ -229,7 +227,7 @@ public class Waypoint extends FieldObject {
             if (parentSpline != null) {
                 parentSpline.displayGroup.getChildren().remove(displayGroup);
             } else {
-                UIMain.fieldPane.getChildren().remove(displayGroup);
+                Dashboard.fieldPane.getChildren().remove(displayGroup);
             }
         });
     }
@@ -242,7 +240,7 @@ public class Waypoint extends FieldObject {
                 }
             }
         }
-        for (FieldObject object : UIMain.fieldObjects) {
+        for (FieldObject object : Dashboard.fieldObjects) {
             if (object instanceof Waypoint && !object.equals(this)) {
                 object.deselect();
             }
@@ -251,13 +249,13 @@ public class Waypoint extends FieldObject {
             parentSpline.select();
             parentSpline.selectedWaypointIndex = parentSpline.waypoints.indexOf(this);
         }
-        UIMain.selectedWaypoint = this;
+        Dashboard.selectedWaypoint = this;
         info.setVisible(true);
         selectRect.setVisible(true);
     }
 
     public void deselect() {
-        if (UIMain.selectedWaypoint == this) UIMain.selectedWaypoint = null;
+        if (Dashboard.selectedWaypoint == this) Dashboard.selectedWaypoint = null;
         info.setVisible(false);
         selectRect.setVisible(false);
     }

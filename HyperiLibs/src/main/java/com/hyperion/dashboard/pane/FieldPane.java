@@ -2,7 +2,7 @@ package com.hyperion.dashboard.pane;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.MathUtils;
-import com.hyperion.dashboard.UIMain;
+import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.FieldObject;
@@ -91,11 +91,11 @@ public class FieldPane extends Pane {
                 isDragging = false;
                 startDragTime = System.currentTimeMillis();
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_RELEASED) {
-                if (mouseEvent.getButton() == MouseButton.PRIMARY && isDragging && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) && UIMain.selectedWaypoint != null) {
-                    if (UIMain.selectedWaypoint.parentSpline != null) {
-                        UIMain.queueFieldEdits(new FieldEdit(UIMain.selectedSpline.id, FieldEdit.Type.EDIT_BODY, UIMain.selectedSpline.spline.writeJSON().toString()));
+                if (mouseEvent.getButton() == MouseButton.PRIMARY && isDragging && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) && Dashboard.selectedWaypoint != null) {
+                    if (Dashboard.selectedWaypoint.parentSpline != null) {
+                        Dashboard.queueFieldEdits(new FieldEdit(Dashboard.selectedSpline.id, FieldEdit.Type.EDIT_BODY, Dashboard.selectedSpline.spline.writeJSON().toString()));
                     } else {
-                        UIMain.queueFieldEdits(new FieldEdit(UIMain.selectedWaypoint.id, FieldEdit.Type.EDIT_BODY, new JSONArray(UIMain.selectedWaypoint.pose.toArray()).toString()));
+                        Dashboard.queueFieldEdits(new FieldEdit(Dashboard.selectedWaypoint.id, FieldEdit.Type.EDIT_BODY, new JSONArray(Dashboard.selectedWaypoint.pose.toArray()).toString()));
                     }
                 }
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED) {
@@ -103,15 +103,15 @@ public class FieldPane extends Pane {
                 mouseY = mouseEvent.getY();
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED) {
                 isDragging = true;
-                if (mouseEvent.getButton() == MouseButton.PRIMARY && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget().equals(this)) && UIMain.selectedWaypoint != null) {
-                    Vector2D vec = new Vector2D(UIMain.selectedWaypoint.pose, displayToPose(mouseEvent.getX(), mouseEvent.getY(), 0));
-                    UIMain.selectedWaypoint.pose.theta = MathUtils.norm(vec.theta, 0, 2 * Math.PI);
-                    if (UIMain.selectedWaypoint.parentSpline != null) {
-                        UIMain.selectedWaypoint.parentSpline.spline.waypoints.get(UIMain.selectedWaypoint.parentSpline.waypoints.indexOf(UIMain.selectedWaypoint)).setPose(UIMain.selectedWaypoint.pose);
+                if (mouseEvent.getButton() == MouseButton.PRIMARY && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget().equals(this)) && Dashboard.selectedWaypoint != null) {
+                    Vector2D vec = new Vector2D(Dashboard.selectedWaypoint.pose, displayToPose(mouseEvent.getX(), mouseEvent.getY(), 0));
+                    Dashboard.selectedWaypoint.pose.theta = MathUtils.norm(vec.theta, 0, 2 * Math.PI);
+                    if (Dashboard.selectedWaypoint.parentSpline != null) {
+                        Dashboard.selectedWaypoint.parentSpline.spline.waypoints.get(Dashboard.selectedWaypoint.parentSpline.waypoints.indexOf(Dashboard.selectedWaypoint)).setPose(Dashboard.selectedWaypoint.pose);
                     }
-                    UIMain.selectedWaypoint.imgView.setRotate(Math.toDegrees(2 * Math.PI - vec.theta));
-                    UIMain.selectedWaypoint.selectRect.setRotate(UIMain.selectedWaypoint.imgView.getRotate());
-                    UIMain.selectedWaypoint.info.setText(UIMain.selectedWaypoint.pose.toString().replace(" | ", "\n"));
+                    Dashboard.selectedWaypoint.imgView.setRotate(Math.toDegrees(2 * Math.PI - vec.theta));
+                    Dashboard.selectedWaypoint.selectRect.setRotate(Dashboard.selectedWaypoint.imgView.getRotate());
+                    Dashboard.selectedWaypoint.info.setText(Dashboard.selectedWaypoint.pose.toString().replace(" | ", "\n"));
                 }
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_CLICKED) {
                 if (!isDragging) {
@@ -122,28 +122,28 @@ public class FieldPane extends Pane {
                     } else if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.getTarget().equals(wbbBorder)) {
                         if (isInWBB(mouseX - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, mouseY - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, Constants.getDouble("dashboard.gui.sizes.waypoint"))) {
                             Pose newPose = displayToPose(mouseX, mouseY, 0);
-                            if (UIMain.isBuildingPaths) {
-                                if (UIMain.selectedSpline != null) {
-                                    UIMain.selectedSpline.spline.waypoints.add(new RigidBody(newPose));
-                                    int i = UIMain.selectedWaypoint != null ? UIMain.selectedSpline.waypoints.indexOf(UIMain.selectedWaypoint) : -1;
-                                    UIMain.selectedSpline.refreshDisplayGroup();
+                            if (Dashboard.isBuildingPaths) {
+                                if (Dashboard.selectedSpline != null) {
+                                    Dashboard.selectedSpline.spline.waypoints.add(new RigidBody(newPose));
+                                    int i = Dashboard.selectedWaypoint != null ? Dashboard.selectedSpline.waypoints.indexOf(Dashboard.selectedWaypoint) : -1;
+                                    Dashboard.selectedSpline.refreshDisplayGroup();
                                     if (i >= 0) {
-                                        UIMain.selectedSpline.waypoints.get(i).select();
+                                        Dashboard.selectedSpline.waypoints.get(i).select();
                                     }
-                                    UIMain.queueFieldEdits(new FieldEdit(UIMain.selectedSpline.id, FieldEdit.Type.EDIT_BODY, UIMain.selectedSpline.spline.writeJSON().toString()));
+                                    Dashboard.queueFieldEdits(new FieldEdit(Dashboard.selectedSpline.id, FieldEdit.Type.EDIT_BODY, Dashboard.selectedSpline.spline.writeJSON().toString()));
                                 } else {
                                     DisplaySpline newSpline = new DisplaySpline(newPose);
-                                    UIMain.fieldObjects.add(newSpline);
+                                    Dashboard.fieldObjects.add(newSpline);
                                     newSpline.addDisplayGroup();
                                     newSpline.waypoints.get(0).select();
-                                    UIMain.queueFieldEdits(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON().toString()));
+                                    Dashboard.queueFieldEdits(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON().toString()));
                                 }
                             } else {
                                 deselectAll();
-                                Waypoint newWP = new Waypoint(UIMain.opModeID + ".waypoint.", newPose, null, true);
-                                UIMain.fieldObjects.add(newWP);
+                                Waypoint newWP = new Waypoint(Dashboard.opModeID + ".waypoint.", newPose, null, true);
+                                Dashboard.fieldObjects.add(newWP);
                                 newWP.addDisplayGroup();
-                                UIMain.queueFieldEdits(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray()).toString()));
+                                Dashboard.queueFieldEdits(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray()).toString()));
                             }
                         }
                     }
@@ -214,10 +214,10 @@ public class FieldPane extends Pane {
     }
 
     public void deselectAll() {
-        UIMain.visualPane.updateGraphs(null);
-        UIMain.selectedWaypoint = null;
-        UIMain.selectedSpline = null;
-        for (FieldObject obj : UIMain.fieldObjects) {
+        Dashboard.visualPane.updateGraphs(null);
+        Dashboard.selectedWaypoint = null;
+        Dashboard.selectedSpline = null;
+        for (FieldObject obj : Dashboard.fieldObjects) {
             obj.deselect();
         }
     }

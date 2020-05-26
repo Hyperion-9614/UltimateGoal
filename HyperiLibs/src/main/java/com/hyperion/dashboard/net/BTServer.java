@@ -2,7 +2,7 @@ package com.hyperion.dashboard.net;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.IOUtils;
-import com.hyperion.dashboard.UIMain;
+import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.uiobject.FieldObject;
 
 import org.json.JSONArray;
@@ -63,9 +63,9 @@ public class BTServer extends BTEndpoint {
         Constants.init(new JSONObject(msg.json));
         Constants.write();
 
-        UIMain.constantsSave = msg.json;
-        if (UIMain.rightPane != null) {
-            UIMain.rightPane.setConstantsDisplayText(Constants.root.toString(4));
+        Dashboard.constantsSave = msg.json;
+        if (Dashboard.rightPane != null) {
+            Dashboard.rightPane.setConstantsDisplayText(Constants.root.toString(4));
         }
     }
 
@@ -73,8 +73,8 @@ public class BTServer extends BTEndpoint {
     protected void onMetricsUpdated(Message msg) throws Exception {
         printBTLog("Metrics updated by device \"" + msg.sender + "\"");
 
-        UIMain.readUnimetry(msg.json);
-        Platform.runLater(() -> UIMain.rightPane.setMetricsDisplayText());
+        Dashboard.readUnimetry(msg.json);
+        Platform.runLater(() -> Dashboard.rightPane.setMetricsDisplayText());
     }
 
     @Override
@@ -85,7 +85,7 @@ public class BTServer extends BTEndpoint {
             long start = System.currentTimeMillis();
             while (true) {
                 if (System.currentTimeMillis() - start >= 5000) {
-                    Iterator<FieldObject> iter = UIMain.fieldObjects.iterator();
+                    Iterator<FieldObject> iter = Dashboard.fieldObjects.iterator();
                     while (iter.hasNext()) {
                         FieldObject o = iter.next();
                         if (o.id.equals("robot")) {
@@ -94,7 +94,7 @@ public class BTServer extends BTEndpoint {
                             break;
                         }
                     }
-                    UIMain.isRobotOnField = false;
+                    Dashboard.isRobotOnField = false;
                     break;
                 }
             }

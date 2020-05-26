@@ -1,6 +1,6 @@
 package com.hyperion.dashboard.pane;
 
-import com.hyperion.dashboard.UIMain;
+import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.dashboard.uiobject.FieldObject;
 
@@ -19,6 +19,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Screen;
 
 /**
  * Contains field controls, options, and config
@@ -34,6 +35,8 @@ public class LeftPane extends VBox {
             setSpacing(10);
             setAlignment(Pos.TOP_CENTER);
 
+            double halfWidth = (Screen.getPrimary().getBounds().getWidth() - Dashboard.fieldPane.fieldSize) / 4.0 - 24;
+
             Label optionsLabel = new Label("Options");
             optionsLabel.setTextFill(Color.WHITE);
             optionsLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
@@ -46,16 +49,16 @@ public class LeftPane extends VBox {
             Button clearOpMode = new Button("Clear Current\nOpMode");
             clearOpMode.setTextAlignment(TextAlignment.CENTER);
             clearOpMode.setStyle("-fx-font: 14px \"Arial\";");
-            clearOpMode.setPrefSize(150, 50);
+            clearOpMode.setPrefSize(halfWidth, 50);
             clearOpMode.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
                     ArrayList<FieldEdit> toRemove = new ArrayList<>();
-                    for (FieldObject o : UIMain.fieldObjects) {
-                        if (o.id.contains(UIMain.opModeID)) {
+                    for (FieldObject o : Dashboard.fieldObjects) {
+                        if (o.id.contains(Dashboard.opModeID)) {
                             toRemove.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
                         }
                     }
-                    UIMain.queueFieldEdits(toRemove.toArray(new FieldEdit[0]));
+                    Dashboard.queueFieldEdits(toRemove.toArray(new FieldEdit[0]));
                 }
             });
             buttons.getChildren().add(clearOpMode);
@@ -63,14 +66,14 @@ public class LeftPane extends VBox {
             Button clearAllOpModes = new Button("Clear All\nOpModes");
             clearAllOpModes.setStyle("-fx-font: 14px \"Arial\";");
             clearAllOpModes.setTextAlignment(TextAlignment.CENTER);
-            clearAllOpModes.setPrefSize(150, 50);
+            clearAllOpModes.setPrefSize(halfWidth, 50);
             clearAllOpModes.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
                     ArrayList<FieldEdit> toRemove = new ArrayList<>();
-                    for (FieldObject o : UIMain.fieldObjects) {
+                    for (FieldObject o : Dashboard.fieldObjects) {
                         toRemove.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
                     }
-                    UIMain.queueFieldEdits(toRemove.toArray(new FieldEdit[0]));
+                    Dashboard.queueFieldEdits(toRemove.toArray(new FieldEdit[0]));
                 }
             });
             buttons.getChildren().add(clearAllOpModes);
@@ -81,8 +84,8 @@ public class LeftPane extends VBox {
             enablePathBuilder.setStyle("-fx-font: 22px \"Arial\";");
             enablePathBuilder.setTextAlignment(TextAlignment.CENTER);
             enablePathBuilder.setTextFill(Color.WHITE);
-            enablePathBuilder.setPrefSize(310, 30);
-            enablePathBuilder.selectedProperty().addListener((observable, oldValue, newValue) -> UIMain.isBuildingPaths = newValue);
+            enablePathBuilder.setPrefSize(halfWidth * 2, 30);
+            enablePathBuilder.selectedProperty().addListener((observable, oldValue, newValue) -> Dashboard.isBuildingPaths = newValue);
             enablePathBuilder.setSelected(false);
             getChildren().add(enablePathBuilder);
 
@@ -90,8 +93,8 @@ public class LeftPane extends VBox {
             simulationMode.setStyle("-fx-font: 22px \"Arial\";");
             simulationMode.setTextAlignment(TextAlignment.CENTER);
             simulationMode.setTextFill(Color.WHITE);
-            simulationMode.setPrefSize(310, 30);
-            simulationMode.selectedProperty().addListener((observable, oldValue, newValue) -> UIMain.isSimulating = newValue);
+            simulationMode.setPrefSize(halfWidth * 2, 30);
+            simulationMode.selectedProperty().addListener((observable, oldValue, newValue) -> Dashboard.isSimulating = newValue);
             simulationMode.setSelected(false);
             getChildren().add(simulationMode);
 
@@ -105,12 +108,12 @@ public class LeftPane extends VBox {
             final ComboBox opModeSelector = new ComboBox(options);
             opModeSelector.valueProperty().setValue("auto.blue.full");
             opModeSelector.setStyle("-fx-font: 24px \"Arial\";");
-            opModeSelector.setPrefSize(310, 91);
+            opModeSelector.setPrefSize(halfWidth * 2, 91);
             opModeSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
-                UIMain.fieldPane.deselectAll();
-                UIMain.opModeID = newValue.toString();
-                for (FieldObject o : UIMain.fieldObjects) {
-                    if (o.id.contains(UIMain.opModeID)) {
+                Dashboard.fieldPane.deselectAll();
+                Dashboard.opModeID = newValue.toString();
+                for (FieldObject o : Dashboard.fieldObjects) {
+                    if (o.id.contains(Dashboard.opModeID)) {
                         o.addDisplayGroup();
                     } else {
                         o.removeDisplayGroup();
