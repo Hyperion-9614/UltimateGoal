@@ -11,7 +11,6 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
@@ -52,13 +51,11 @@ public class LeftPane extends VBox {
             clearOpMode.setPrefSize(halfWidth, 50);
             clearOpMode.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
-                    ArrayList<FieldEdit> toRemove = new ArrayList<>();
-                    for (FieldObject o : Dashboard.fieldObjects) {
+                    for (FieldObject o : new ArrayList<>(Dashboard.fieldObjects)) {
                         if (o.id.contains(Dashboard.opModeID)) {
-                            toRemove.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
+                            Dashboard.editField(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
                         }
                     }
-                    Dashboard.queueFieldEdits(toRemove.toArray(new FieldEdit[0]));
                 }
             });
             buttons.getChildren().add(clearOpMode);
@@ -69,46 +66,26 @@ public class LeftPane extends VBox {
             clearAllOpModes.setPrefSize(halfWidth, 50);
             clearAllOpModes.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
-                    ArrayList<FieldEdit> toRemove = new ArrayList<>();
-                    for (FieldObject o : Dashboard.fieldObjects) {
-                        toRemove.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
+                    for (FieldObject o : new ArrayList<>(Dashboard.fieldObjects)) {
+                        Dashboard.editField(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
                     }
-                    Dashboard.queueFieldEdits(toRemove.toArray(new FieldEdit[0]));
                 }
             });
             buttons.getChildren().add(clearAllOpModes);
 
             getChildren().add(buttons);
 
-            CheckBox enablePathBuilder = new CheckBox("Preset Path Builder");
-            enablePathBuilder.setStyle("-fx-font: 22px \"Arial\";");
-            enablePathBuilder.setTextAlignment(TextAlignment.CENTER);
-            enablePathBuilder.setTextFill(Color.WHITE);
-            enablePathBuilder.setPrefSize(halfWidth * 2, 30);
-            enablePathBuilder.selectedProperty().addListener((observable, oldValue, newValue) -> Dashboard.isBuildingPaths = newValue);
-            enablePathBuilder.setSelected(false);
-            getChildren().add(enablePathBuilder);
-
-            CheckBox simulationMode = new CheckBox("Simulation Mode");
-            simulationMode.setStyle("-fx-font: 22px \"Arial\";");
-            simulationMode.setTextAlignment(TextAlignment.CENTER);
-            simulationMode.setTextFill(Color.WHITE);
-            simulationMode.setPrefSize(halfWidth * 2, 30);
-            simulationMode.selectedProperty().addListener((observable, oldValue, newValue) -> Dashboard.isSimulating = newValue);
-            simulationMode.setSelected(false);
-            getChildren().add(simulationMode);
-
             ObservableList<String> options =
-                    FXCollections.observableArrayList(
-                            "auto.blue.full", "auto.red.full",
-                            "auto.blue.foundation", "auto.red.foundation",
-                            "auto.blue.brick", "auto.red.brick",
-                            "tele.blue", "tele.red"
-                    );
+                FXCollections.observableArrayList(
+             "auto.blue.full", "auto.red.full",
+                    "auto.blue.foundation", "auto.red.foundation",
+                    "auto.blue.brick", "auto.red.brick",
+                    "tele.blue", "tele.red"
+                );
             final ComboBox opModeSelector = new ComboBox(options);
             opModeSelector.valueProperty().setValue("auto.blue.full");
             opModeSelector.setStyle("-fx-font: 24px \"Arial\";");
-            opModeSelector.setPrefSize(halfWidth * 2, 91);
+            opModeSelector.setPrefSize(halfWidth * 2 + 10, 91);
             opModeSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
                 Dashboard.fieldPane.deselectAll();
                 Dashboard.opModeID = newValue.toString();

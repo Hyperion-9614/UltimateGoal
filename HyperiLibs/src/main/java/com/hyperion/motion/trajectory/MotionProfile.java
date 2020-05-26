@@ -1,7 +1,5 @@
 package com.hyperion.motion.trajectory;
 
-import com.hyperion.common.Constants;
-import com.hyperion.common.MathUtils;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Vector2D;
 
@@ -28,9 +26,7 @@ public class MotionProfile {
     public void initializePlanningPoints() {
         for (int i = 0; i < spline.planningPoints.size() - 1; i++) {
             RigidBody p = spline.planningPoints.get(i);
-            double dX = spline.distanceX.evaluate(p.distance, 1, true);
-            double dY = spline.distanceY.evaluate(p.distance, 1, true);
-            p.tVel = new Vector2D(Constants.getDouble("splinesMotionProfile.maxes.tVel"), MathUtils.norm(Math.atan2(dY, dX), 0, 2 * Math.PI), false);
+            p.tVel = new Vector2D();
         }
         spline.planningPoints.get(0).tVel.setMagnitude(0);
     }

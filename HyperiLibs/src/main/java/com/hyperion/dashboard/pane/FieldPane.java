@@ -93,9 +93,9 @@ public class FieldPane extends Pane {
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_RELEASED) {
                 if (mouseEvent.getButton() == MouseButton.PRIMARY && isDragging && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) && Dashboard.selectedWaypoint != null) {
                     if (Dashboard.selectedWaypoint.parentSpline != null) {
-                        Dashboard.queueFieldEdits(new FieldEdit(Dashboard.selectedSpline.id, FieldEdit.Type.EDIT_BODY, Dashboard.selectedSpline.spline.writeJSON().toString()));
+                        Dashboard.editField(new FieldEdit(Dashboard.selectedSpline.id, FieldEdit.Type.EDIT_BODY, Dashboard.selectedSpline.spline.writeJSON().toString()));
                     } else {
-                        Dashboard.queueFieldEdits(new FieldEdit(Dashboard.selectedWaypoint.id, FieldEdit.Type.EDIT_BODY, new JSONArray(Dashboard.selectedWaypoint.pose.toArray()).toString()));
+                        Dashboard.editField(new FieldEdit(Dashboard.selectedWaypoint.id, FieldEdit.Type.EDIT_BODY, new JSONArray(Dashboard.selectedWaypoint.pose.toArray()).toString()));
                     }
                 }
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED) {
@@ -130,20 +130,16 @@ public class FieldPane extends Pane {
                                     if (i >= 0) {
                                         Dashboard.selectedSpline.waypoints.get(i).select();
                                     }
-                                    Dashboard.queueFieldEdits(new FieldEdit(Dashboard.selectedSpline.id, FieldEdit.Type.EDIT_BODY, Dashboard.selectedSpline.spline.writeJSON().toString()));
+                                    Dashboard.editField(new FieldEdit(Dashboard.selectedSpline.id, FieldEdit.Type.EDIT_BODY, Dashboard.selectedSpline.spline.writeJSON().toString()));
                                 } else {
                                     DisplaySpline newSpline = new DisplaySpline(newPose);
-                                    Dashboard.fieldObjects.add(newSpline);
-                                    newSpline.addDisplayGroup();
                                     newSpline.waypoints.get(0).select();
-                                    Dashboard.queueFieldEdits(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON().toString()));
+                                    Dashboard.editField(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON().toString()));
                                 }
                             } else {
                                 deselectAll();
                                 Waypoint newWP = new Waypoint(Dashboard.opModeID + ".waypoint.", newPose, null, true);
-                                Dashboard.fieldObjects.add(newWP);
-                                newWP.addDisplayGroup();
-                                Dashboard.queueFieldEdits(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray()).toString()));
+                                Dashboard.editField(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray()).toString()));
                             }
                         }
                     }

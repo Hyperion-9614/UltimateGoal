@@ -128,7 +128,7 @@ public class DisplaySpline extends FieldObject {
                     if (event.getCode() == KeyCode.ENTER) {
                         String oldID = id;
                         id = Dashboard.opModeID + ".spline." + waypoint.idField.getText();
-                        Dashboard.queueFieldEdits(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
+                        Dashboard.editField(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
                     }
                 });
             }

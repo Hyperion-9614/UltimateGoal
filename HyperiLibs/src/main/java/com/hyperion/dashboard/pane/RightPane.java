@@ -1,8 +1,16 @@
 package com.hyperion.dashboard.pane;
 
+import com.hyperion.common.Constants;
 import com.hyperion.common.TextUtils;
 import com.hyperion.dashboard.Dashboard;
+import com.hyperion.dashboard.net.Message;
 
+import org.json.JSONObject;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -32,11 +40,11 @@ public class RightPane extends VBox {
             width = (Screen.getPrimary().getVisualBounds().getWidth() - Dashboard.fieldPane.fieldSize) / 2.0 - 62;
             if (System.getProperty("os.name").startsWith("Windows")) width += 40;
 
-            Label unimetryLabel = new Label("Telemetry");
-            unimetryLabel.setTextFill(Color.WHITE);
-            unimetryLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
-            unimetryLabel.setPrefWidth(width);
-            getChildren().add(unimetryLabel);
+            Label metricsLabel = new Label("Metrics");
+            metricsLabel.setTextFill(Color.WHITE);
+            metricsLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
+            metricsLabel.setPrefWidth(width);
+            getChildren().add(metricsLabel);
 
             metricsDisplay = new TextArea();
             metricsDisplay.setStyle("-fx-font: 14px \"Arial\";");
@@ -54,11 +62,29 @@ public class RightPane extends VBox {
             constantsDisplay.setStyle("-fx-font: 14px \"Arial\";");
             constantsDisplay.setPrefSize(width, width);
             constantsDisplay.setEditable(true);
+            setConstantsDisplayText(Constants.root.toString(4));
+            Dashboard.constantsSave = Constants.root.toString(4);
             constantsDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
-                if (!oldValue.isEmpty()) {
-                    Dashboard.changeSaveStatus(!TextUtils.condensedEquals(newValue, Dashboard.constantsSave));
+                if (TextUtils.condensedEquals(newValue, Dashboard.constantsSave)) {
+                    constantsLabel.setText("Constants");
+                } else {
+                    constantsLabel.setText("Constants (*)");
                 }
             });
+            new Timer().scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    String newConstants = constantsDisplay.getText();
+                    if (!TextUtils.condensedEquals(newConstants, Dashboard.constantsSave)) {
+                        Dashboard.constantsSave = newConstants;
+                        Constants.init(new JSONObject(Dashboard.constantsSave));
+                        Constants.write();
+                        if (Dashboard.btServer != null)
+                            Dashboard.btServer.sendMessage(Message.Event.CONSTANTS_UPDATED, Dashboard.constantsSave);
+                    }
+                    Platform.runLater(() -> constantsLabel.setText("Constants"));
+                }
+            }, 1000, 3000);
             getChildren().add(constantsDisplay);
         } catch (Exception e) {
             e.printStackTrace();

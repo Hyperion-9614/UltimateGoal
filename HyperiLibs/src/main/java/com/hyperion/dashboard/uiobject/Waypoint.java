@@ -85,7 +85,8 @@ public class Waypoint extends FieldObject {
                         if (event.getCode() == KeyCode.ENTER) {
                             String oldID = id;
                             id = Dashboard.opModeID + ".waypoint." + idField.getText();
-                            Dashboard.queueFieldEdits(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
+                            Dashboard.editField(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
+                            Dashboard.fieldPane.requestFocus();
                         }
                     });
                 }
@@ -140,7 +141,7 @@ public class Waypoint extends FieldObject {
                     } else {
                         Dashboard.fieldObjects.remove(this);
                     }
-                    Dashboard.queueFieldEdits(edit);
+                    Dashboard.editField(edit);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -180,7 +181,7 @@ public class Waypoint extends FieldObject {
                         parentSpline.refreshDisplayGroup();
                         edit = new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString());
                     }
-                    Dashboard.queueFieldEdits(edit);
+                    Dashboard.editField(edit);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

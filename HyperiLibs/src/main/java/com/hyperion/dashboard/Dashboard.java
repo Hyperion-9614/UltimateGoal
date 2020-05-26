@@ -41,7 +41,6 @@ public class Dashboard extends Application {
 
     public static String opModeID = "auto.blue.full";
     public static boolean isBuildingPaths;
-    public static boolean isSimulating;
 
     public static List<FieldEdit> queuedEdits = new ArrayList<>();
     public static String constantsSave = "";
@@ -49,7 +48,8 @@ public class Dashboard extends Application {
 
     public static void main(String[] args) {
         Constants.init(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
-//        btServer = new BTServer();
+        if (Constants.getBoolean("dashboard.isDebugging"))
+            btServer = new BTServer();
         launch(args);
     }
 
@@ -101,13 +101,15 @@ public class Dashboard extends Application {
             if (event.getCode() == KeyCode.S && event.isControlDown()) {
                 saveDashboard();
             }
+            isBuildingPaths = event.isShiftDown();
         });
+
+        loadUIFromFieldJson();
 
         stage.setScene(scene);
         stage.show();
     }
 
-    // Read in unimetry from json
     public static void readUnimetry(String json) {
         try {
             metrics = new LinkedHashMap<>();
@@ -117,127 +119,110 @@ public class Dashboard extends Application {
                 metrics.put(miniObj.getString(0), miniObj.getString(1));
             }
 
-            editUI(new FieldEdit("robot", isRobotOnField ? FieldEdit.Type.EDIT_BODY : FieldEdit.Type.CREATE,
-                   new JSONArray(new RigidBody(metrics.get("Current")).toArray()).toString()));
+            editField(new FieldEdit("robot", isRobotOnField ? FieldEdit.Type.EDIT_BODY : FieldEdit.Type.CREATE,
+                      new JSONArray(new RigidBody(metrics.get("Current")).toArray()).toString()));
             isRobotOnField = true;
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Edit UI based on FieldEdit
-    public static void editUI(FieldEdit edit) {
-        try {
-            FieldObject newObj = null;
-            if (edit.type != FieldEdit.Type.DELETE && edit.type != FieldEdit.Type.EDIT_ID) {
-                if (edit.id.contains("waypoint")) {
-                    newObj = new Waypoint(edit.id, new JSONArray(edit.body));
-                } else if (edit.id.contains("spline")) {
-                    newObj = new DisplaySpline(edit.id, new JSONObject(edit.body));
-                } else {
-                    newObj = new Robot(new JSONArray(edit.body));
-                    isRobotOnField = true;
-                }
-            }
-            switch (edit.type) {
-                case CREATE:
-                    clearAllFieldObjectsWithID(edit.id);
-                    fieldObjects.add(newObj);
-                    newObj.addDisplayGroup();
-                    break;
-                case EDIT_BODY:
-                    for (int i = 0; i < fieldObjects.size(); i++) {
-                        if (fieldObjects.get(i).id.equals(edit.id)) {
-                            if (edit.id.equals("robot")) {
-                                ((Robot) fieldObjects.get(i)).rigidBody = new RigidBody(new JSONArray(edit.body));
-                                fieldObjects.get(i).refreshDisplayGroup();
-                            } else {
-                                fieldObjects.get(i).removeDisplayGroup();
-                                fieldObjects.set(i, newObj);
-                                newObj.addDisplayGroup();
-                            }
-                            break;
-                        }
-                    }
-                    break;
-                case EDIT_ID:
-                    for (int i = 0; i < fieldObjects.size(); i++) {
-                        if (fieldObjects.get(i).id.equals(edit.id)) {
-                            fieldObjects.get(i).id = edit.body;
-                            fieldObjects.get(i).refreshDisplayGroup();
-                            break;
-                        }
-                    }
-                    break;
-                case DELETE:
-                    Iterator<FieldObject> iter2 = fieldObjects.iterator();
-                    while (iter2.hasNext()) {
-                        FieldObject next = iter2.next();
-                        if (next.id.equals(edit.id)) {
-                            next.removeDisplayGroup();
-                            iter2.remove();
-                            break;
-                        }
-                    }
-                    break;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Queue field edits
-    public static void queueFieldEdits(FieldEdit... fieldEdits) {
-        queuedEdits.addAll(Arrays.asList(fieldEdits));
-        changeSaveStatus(true);
-    }
-
-    // Send queued field edits
-    public static void sendQueuedFieldEdits() {
-        try {
-            JSONArray arr = new JSONArray();
-            for (FieldEdit edit : queuedEdits) {
-                arr.put(edit.toJSONObject());
-            }
-            queuedEdits.clear();
-            btServer.sendMessage(Message.Event.FIELD_EDITED, arr);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Set save indicator
-    public static void changeSaveStatus(boolean hazUnsavedChanges) {
-        hasUnsavedChanges = hazUnsavedChanges;
-        Platform.runLater(() -> menuPane.title.setText("Hyperion Dashboard v" + Constants.getString("dashboard.version") + (hasUnsavedChanges ? " (*)" : "")));
-    }
-
-    // Save dashboard upon ctrl + s
-    public void saveDashboard() {
+    public static void saveDashboard() {
         try {
             if (hasUnsavedChanges) {
                 String newConstants = rightPane.constantsDisplay.getText();
                 if (!TextUtils.condensedEquals(newConstants, constantsSave)) {
-                    btServer.sendMessage(Message.Event.CONSTANTS_UPDATED, newConstants);
+                    Dashboard.constantsSave = newConstants;
+                    Constants.init(new JSONObject(Dashboard.constantsSave));
+                    Constants.write();
+                    if (btServer != null)
+                        btServer.sendMessage(Message.Event.CONSTANTS_UPDATED, Dashboard.constantsSave);
                 }
-
-                sendQueuedFieldEdits();
-                changeSaveStatus(false);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Remove all objects in FieldEdits with the give id
-    public static void clearAllFieldObjectsWithID(String id) {
-        Iterator<FieldObject> iter = fieldObjects.iterator();
-        while (iter.hasNext()) {
-            FieldObject next = iter.next();
-            if (next.id.equals(id)) {
-                next.removeDisplayGroup();
-                iter.remove();
+    public static void editField(boolean shouldSave, FieldEdit... edits) {
+        try {
+            JSONArray editsArr = new JSONArray();
+            for (FieldEdit edit : edits) {
+                FieldObject newObj = null;
+                if (edit.type != FieldEdit.Type.DELETE && edit.type != FieldEdit.Type.EDIT_ID) {
+                    if (edit.id.contains("waypoint")) {
+                        newObj = new Waypoint(edit.id, new JSONArray(edit.body));
+                    } else if (edit.id.contains("spline")) {
+                        newObj = new DisplaySpline(edit.id, new JSONObject(edit.body));
+                    } else {
+                        newObj = new Robot(new JSONArray(edit.body));
+                        isRobotOnField = true;
+                    }
+                }
+                switch (edit.type) {
+                    case CREATE:
+                        fieldObjects.add(newObj);
+                        newObj.addDisplayGroup();
+                        break;
+                    case EDIT_BODY:
+                        for (int i = 0; i < fieldObjects.size(); i++) {
+                            if (fieldObjects.get(i).id.equals(edit.id)) {
+                                if (edit.id.equals("robot")) {
+                                    ((Robot) fieldObjects.get(i)).rigidBody = new RigidBody(new JSONArray(edit.body));
+                                    fieldObjects.get(i).refreshDisplayGroup();
+                                } else {
+                                    fieldObjects.get(i).removeDisplayGroup();
+                                    fieldObjects.set(i, newObj);
+                                    newObj.addDisplayGroup();
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    case EDIT_ID:
+                        for (int i = 0; i < fieldObjects.size(); i++) {
+                            if (fieldObjects.get(i).id.equals(edit.id)) {
+                                fieldObjects.get(i).id = edit.body;
+                                fieldObjects.get(i).refreshDisplayGroup();
+                                break;
+                            }
+                        }
+                        break;
+                    case DELETE:
+                        Iterator<FieldObject> iter = fieldObjects.iterator();
+                        while (iter.hasNext()) {
+                            FieldObject next = iter.next();
+                            if (next.id.equals(edit.id)) {
+                                next.removeDisplayGroup();
+                                iter.remove();
+                                break;
+                            }
+                        }
+                        break;
+                }
+
+                if (!edit.id.equals("robot") && shouldSave) {
+                    MiscUtils.writeFieldEditsToFieldJSON(Constants.getFile("data", "field.json"), edit);
+                    editsArr.put(edit.toJSONObject());
+                }
             }
+            if (btServer != null && shouldSave)
+                btServer.sendMessage(Message.Event.FIELD_EDITED, editsArr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public static void editField(FieldEdit... edits) {
+        editField(true, edits);
+    }
+
+    public static void loadUIFromFieldJson() {
+        JSONObject fieldJSON = new JSONObject(IOUtils.readFile(Constants.getFile("data", "field.json")));
+        for (String id : fieldJSON.getJSONObject("waypoints").keySet()) {
+            editField(false, new FieldEdit(id, FieldEdit.Type.CREATE, fieldJSON.getJSONObject("waypoints").getJSONArray(id).toString()));
+        }
+        for (String id : fieldJSON.getJSONObject("splines").keySet()) {
+            editField(false, new FieldEdit(id, FieldEdit.Type.CREATE, fieldJSON.getJSONObject("splines").getJSONObject(id).toString()));
         }
     }
 
