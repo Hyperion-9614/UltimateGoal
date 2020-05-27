@@ -25,11 +25,11 @@ public class Vector2D {
             x = a;
             y = b;
 
-            magnitude = Math.round(Math.sqrt(x * x + y * y) * 1000.0) / 1000.0;
-            theta = MathUtils.norm(Math.atan2(y, x), 0, 2 * Math.PI);
+            magnitude = MathUtils.round(Math.sqrt(x * x + y * y), 3);
+            theta = MathUtils.norm(Math.atan2(y, x));
         } else {
-            magnitude = Math.abs(Math.round(a * 1000.0) / 1000.0);
-            theta = MathUtils.norm(b, 0, 2 * Math.PI);
+            magnitude = Math.abs(MathUtils.round(a, 3));
+            theta = MathUtils.norm(b);
 
             x = magnitude * Math.cos(theta);
             y = magnitude * Math.sin(theta);
@@ -96,7 +96,7 @@ public class Vector2D {
         x = newVec.x;
         y = newVec.y;
         magnitude = newVec.magnitude;
-        theta = MathUtils.norm(newVec.theta, 0, 2 * Math.PI);
+        theta = MathUtils.norm(newVec.theta);
     }
 
     public boolean equals(Vector2D other) {
@@ -105,7 +105,7 @@ public class Vector2D {
 
     @Override
     public String toString() {
-        return Math.round(magnitude * 1000.0) / 1000.0 + ", " + Math.round(Math.toDegrees(theta) * 1000.0) / 1000.0 + "\u00B0";
+        return MathUtils.round(magnitude, 3) + ", " + MathUtils.round(Math.toDegrees(theta), 3) + "\u00B0";
     }
 
 }

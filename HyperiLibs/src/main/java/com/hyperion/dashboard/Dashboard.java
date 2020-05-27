@@ -173,7 +173,7 @@ public class Dashboard extends Application {
                                 } else {
                                     fieldObjects.get(i).removeDisplayGroup();
                                     fieldObjects.set(i, newObj);
-                                    newObj.addDisplayGroup();
+                                    fieldObjects.get(i).addDisplayGroup();
                                 }
                                 break;
                             }

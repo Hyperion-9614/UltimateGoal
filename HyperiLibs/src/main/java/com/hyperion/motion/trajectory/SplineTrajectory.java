@@ -31,10 +31,10 @@ public class SplineTrajectory {
 
     public ArrayList<RigidBody> waypoints;
     public ArrayList<RigidBody> planningPoints;
-    public Piecewise tauX = new Piecewise();
-    public Piecewise tauY = new Piecewise();
-    public Piecewise distanceX = new Piecewise();
-    public Piecewise distanceY = new Piecewise();
+    public Piecewise tauX;
+    public Piecewise tauY;
+    public Piecewise distanceX;
+    public Piecewise distanceY;
     public MotionProfile mP;
     public double segmentLength;
     public double length;
@@ -67,6 +67,10 @@ public class SplineTrajectory {
 
     public void endPath() {
         if (waypoints.size() >= 2) {
+            tauX = new Piecewise();
+            tauY = new Piecewise();
+            distanceX = new Piecewise();
+            distanceY = new Piecewise();
             interpolate(waypoints, true);
         }
     }
@@ -251,7 +255,8 @@ public class SplineTrajectory {
             if (shouldReparameterize) {
                 for (int i = 0; i < waypoints.size(); i++) {
                     waypoints.get(i).distance = arcDistance(i);
-                    if (i == waypoints.size() - 1) length = waypoints.get(i).distance;
+                    if (i == waypoints.size() - 1)
+                        length = waypoints.get(i).distance;
                 }
                 calculatePlanningPoints();
                 interpolate(this.planningPoints, false);
@@ -339,17 +344,32 @@ public class SplineTrajectory {
         return (distance / segmentLength) + count;
     }
     public Pose getTPose(double T) {
-        if (T == waypoints.size()) return waypoints.get(waypoints.size() - 1);
+        if (T == waypoints.size())
+            return waypoints.get(waypoints.size() - 1);
         return new Pose(tauX.evaluate(T, 0, true), tauY.evaluate(T, 0, true), 0);
     }
     public Pose getDPose(double distance) {
-        if (distance == waypoints.get(waypoints.size() - 1).distance) return waypoints.get(waypoints.size() - 1);
+        if (distance == waypoints.get(waypoints.size() - 1).distance)
+            return waypoints.get(waypoints.size() - 1);
         int interval = getPlanningPointInterval(distance);
         double theta = MathUtils.norm(planningPoints.get(interval).theta + MathUtils.optThetaDiff(planningPoints.get(interval).theta, planningPoints.get(interval + 1).theta)
-                                                  * ((distance - planningPoints.get(interval).distance) / (planningPoints.get(interval + 1).distance - planningPoints.get(interval).distance)), 0, 2 * Math.PI);
+                                            * ((distance - planningPoints.get(interval).distance) / (planningPoints.get(interval + 1).distance - planningPoints.get(interval).distance)));
         distance = paramDistance(distance);
         return new Pose(distanceX.evaluate(distance, 0, true), distanceY.evaluate(distance, 0, true), theta);
     }
+
+    public double dSlope(double distance, int derivative) {
+        double dX = distanceX.evaluate(distance, derivative, true);
+        double dY = distanceY.evaluate(distance, derivative, true);
+        return dY / dX;
+    }
+
+    public double getCurvature(double distance) {
+        double dQ = dSlope(distance, 1);
+        double d2Q = dSlope(distance, 2);
+        return (dQ * d2Q) / Math.pow(Math.abs(dQ), 3);
+    }
+
     private String buildPolynomialExpression(double[] coeffs) {
         return "(" + coeffs[0] + ")*t^3 + (" + coeffs[1] + ")*t^2 + (" + coeffs[2] + ")*t + (" + coeffs[3] + ")";
     }

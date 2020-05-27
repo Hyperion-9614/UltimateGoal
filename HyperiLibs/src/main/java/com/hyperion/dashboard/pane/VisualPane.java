@@ -28,11 +28,11 @@ public class VisualPane extends VBox {
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Distance (cm)");
-        yAxis.setLabel("Translational Magnitude (cm/s), (cm/s\u00B2)");
+        yAxis.setLabel("Translational Velocity (cm/s)");
 
         tVdGraph = new PiecewiseLineGraph(xAxis, yAxis);
         tVdGraph.setCreateSymbols(false);
-        tVdGraph.setTitle("Translational Magnitude vs. Distance");
+        tVdGraph.setTitle("Translational Velocity vs. Distance");
 
         updateGraphs(Dashboard.selectedSpline);
         getChildren().add(tVdGraph);
@@ -43,8 +43,7 @@ public class VisualPane extends VBox {
             tVdGraph.getData().clear();
             if (displaySpline != null && displaySpline.waypoints.size() >= 2) {
                 HashMap<String, Piecewise> map = new HashMap<>();
-//                map.put("Velocity (cm/s)", displaySpline.spline.mP.tVelProfile);
-//                map.put("Acceleration (cm/s\u00B2)", displaySpline.spline.mP.tAccProfile);
+                map.put("Velocity (cm/s)", displaySpline.spline.mP.transVelProfile);
                 tVdGraph.rePlot(map);
             }
         });

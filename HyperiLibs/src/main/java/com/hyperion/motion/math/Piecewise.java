@@ -50,17 +50,17 @@ public class Piecewise {
     }
 
     public String getExpressionString(double a, double b, int derivative) {
-        String expression = "";
+        StringBuilder expression = new StringBuilder();
         for (int i = 0; i < size(); i++) {
             if (intervals.get(i).boundsEquals(a, b)) {
-                expression = intervals.get(i).exp.getExpressionString();
+                expression = new StringBuilder(intervals.get(i).exp.getExpressionString());
                 break;
             }
         }
         for (int i = 0; i < derivative; i++) {
-            expression = "der(" + expression + ", t)";
+            expression = new StringBuilder("der(" + expression + ", t)");
         }
-        return expression;
+        return expression.toString();
     }
 
     public JSONArray toJSONArray() {

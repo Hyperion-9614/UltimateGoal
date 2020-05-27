@@ -36,8 +36,11 @@
             "kTv": 0.002857
         },
         "maxes": {
-            "bisectionError": 1,
-            "segmentLength": 50
+            "bisectionError": 0.001,
+            "aVel": 6.2832,
+            "tAcc": 40,
+            "segmentLength": 15,
+            "tVel": 150
         }
     },
     "teamcode": {

@@ -124,24 +124,19 @@ public class Waypoint extends FieldObject {
         displayGroup.setOnMouseClicked((event -> {
             try {
                 if (event.getButton() == MouseButton.SECONDARY) {
-                    removeDisplayGroup();
-                    FieldEdit edit = new FieldEdit(id, FieldEdit.Type.DELETE, new JSONArray(pose.toArray()).toString());
                     if (parentSpline != null) {
                         parentSpline.spline.waypoints.remove(parentSpline.waypoints.indexOf(this));
                         parentSpline.waypoints.remove(this);
                         parentSpline.spline.endPath();
-                        parentSpline.refreshDisplayGroup();
-                        edit = new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString());
+                        Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString()));
                         if (parentSpline.waypoints.size() == 0) {
-                            parentSpline.removeDisplayGroup();
-                            edit = new FieldEdit(parentSpline.id, FieldEdit.Type.DELETE, "{}");
+                            Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.DELETE, "{}"));
                         } else if (parentSpline.waypoints.size() == 1) {
                             parentSpline.waypoints.get(0).select();
                         }
                     } else {
-                        Dashboard.fieldObjects.remove(this);
+                        Dashboard.editField(new FieldEdit(id, FieldEdit.Type.DELETE, "{}"));
                     }
-                    Dashboard.editField(edit);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -174,14 +169,13 @@ public class Waypoint extends FieldObject {
         displayGroup.setOnMouseReleased((event -> {
             try {
                 if (System.currentTimeMillis() - startDragTime > 200 && event.getButton() == MouseButton.PRIMARY) {
-                    FieldEdit edit = new FieldEdit(id, FieldEdit.Type.EDIT_BODY, new JSONArray(pose.toArray()).toString());
                     if (parentSpline != null) {
                         parentSpline.spline.waypoints.get(parentSpline.waypoints.indexOf(this)).setPose(pose);
                         parentSpline.spline.endPath();
-                        parentSpline.refreshDisplayGroup();
-                        edit = new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString());
+                        Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString()));
+                    } else {
+                        Dashboard.editField(new FieldEdit(id, FieldEdit.Type.EDIT_BODY, new JSONArray(pose.toArray()).toString()));
                     }
-                    Dashboard.editField(edit);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

@@ -59,22 +59,6 @@ public class DisplaySpline extends FieldObject {
 
     public void createDisplayGroup() {
         if (spline.waypoints.size() >= 2) {
-            Color tauPathPointColor = new Color(0.3, 0.3, 0.3, 0.5);
-            for (double t = 0; t <= spline.waypoints.size() - 1; t += 0.2) {
-                double[] poseArr = Dashboard.fieldPane.poseToDisplay(spline.getTPose(t), 0);
-                Circle pathPoint = new Circle(poseArr[0], poseArr[1], Constants.getDouble("dashboard.gui.sizes.pathPoint"));
-                pathPoint.setFill(tauPathPointColor);
-                displayGroup.getChildren().add(pathPoint);
-            }
-
-            Color distancePathPointColor = new Color(1.0, 1.0, 1.0, 0.5);
-            for (double d = 0; d <= spline.waypoints.get(spline.waypoints.size() - 1).distance; d += 10) {
-                double[] poseArr = Dashboard.fieldPane.poseToDisplay(spline.getDPose(d), 0);
-                Circle pathPoint = new Circle(poseArr[0], poseArr[1], Constants.getDouble("dashboard.gui.sizes.pathPoint"));
-                pathPoint.setFill(distancePathPointColor);
-                displayGroup.getChildren().add(pathPoint);
-            }
-
             double[] lastPoseArr = Dashboard.fieldPane.poseToDisplay(spline.planningPoints.get(0), 0);
             for (int i = 1; i < spline.planningPoints.size(); i++) {
                 double[] poseArr = Dashboard.fieldPane.poseToDisplay(spline.planningPoints.get(i), 0);

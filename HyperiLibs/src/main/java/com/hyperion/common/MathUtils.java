@@ -47,6 +47,10 @@ public class MathUtils {
         return theta;
     }
 
+    public static double norm(double theta) {
+        return norm(theta, 0, 2 * Math.PI);
+    }
+
     public static double optThetaDiff(double thetaStart, double thetaEnd) {
         double difference = norm(thetaEnd, 0, 2 * Math.PI) - norm(thetaStart, 0, 2 * Math.PI);
         if (difference < -Math.PI) difference += 2 * Math.PI;
