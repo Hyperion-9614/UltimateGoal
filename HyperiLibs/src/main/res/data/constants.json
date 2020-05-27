@@ -70,7 +70,6 @@
         "gui": {
             "sizes": {
                 "waypoint": 24,
-                "pathPoint": 2.25,
                 "planningPoint": 4.5
             },
             "wbb": {

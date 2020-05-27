@@ -59,6 +59,7 @@ public class DisplaySpline extends FieldObject {
 
     public void createDisplayGroup() {
         if (spline.waypoints.size() >= 2) {
+
             double[] lastPoseArr = Dashboard.fieldPane.poseToDisplay(spline.planningPoints.get(0), 0);
             for (int i = 1; i < spline.planningPoints.size(); i++) {
                 double[] poseArr = Dashboard.fieldPane.poseToDisplay(spline.planningPoints.get(i), 0);

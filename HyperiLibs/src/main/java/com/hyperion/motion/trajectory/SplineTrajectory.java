@@ -259,7 +259,7 @@ public class SplineTrajectory {
                         length = waypoints.get(i).distance;
                 }
                 calculatePlanningPoints();
-                interpolate(this.planningPoints, false);
+                interpolate(planningPoints, false);
             } else {
                 mP.recreate();
             }
@@ -358,20 +358,24 @@ public class SplineTrajectory {
         return new Pose(distanceX.evaluate(distance, 0, true), distanceY.evaluate(distance, 0, true), theta);
     }
 
-    public double dSlope(double distance, int derivative) {
-        double dX = distanceX.evaluate(distance, derivative, true);
-        double dY = distanceY.evaluate(distance, derivative, true);
+    public double dYdX(double distance, int derivative) {
+        double dX = distanceX.evaluate(paramDistance(distance), derivative, true);
+        double dY = distanceY.evaluate(paramDistance(distance), derivative, true);
         return dY / dX;
     }
 
     public double getCurvature(double distance) {
-        double dQ = dSlope(distance, 1);
-        double d2Q = dSlope(distance, 2);
+        double dQ = dYdX(distance, 1);
+        double d2Q = dYdX(distance, 2);
         return (dQ * d2Q) / Math.pow(Math.abs(dQ), 3);
     }
 
     private String buildPolynomialExpression(double[] coeffs) {
         return "(" + coeffs[0] + ")*t^3 + (" + coeffs[1] + ")*t^2 + (" + coeffs[2] + ")*t + (" + coeffs[3] + ")";
+    }
+
+    public double totalArcLength() {
+        return waypoints.get(waypoints.size() - 1).distance;
     }
 
 }

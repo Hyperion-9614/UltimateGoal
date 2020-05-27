@@ -40,7 +40,7 @@ public class Piecewise {
     public double evaluate(double t, int derivative, boolean lowerInclusive) {
         derivative = Math.max(0, derivative);
         for (Interval interval : intervals) {
-            if (lowerInclusive ? t >= interval.a && t < interval.b : t > interval.a && t <= interval.b) {
+            if ((lowerInclusive && t >= interval.a && t < interval.b) || (!lowerInclusive && t > interval.a && t <= interval.b)) {
                 String expression = getExpressionString(interval.a, interval.b, derivative);
                 return new Expression(expression, new Argument("t = " + t)).calculate();
             }

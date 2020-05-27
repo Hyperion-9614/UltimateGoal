@@ -65,6 +65,7 @@ public class Dashboard extends Application {
     public static String opModeID = "auto.blue.full";
     public static boolean isBuildingPaths;
     public static String constantsSave = "";
+    public static boolean isLoaded = false;
 
     public static void main(String[] args) {
         Constants.init(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
@@ -121,7 +122,10 @@ public class Dashboard extends Application {
             isBuildingPaths = event.isShiftDown();
         });
 
-        loadUIFromFieldJson();
+        if (!isLoaded) {
+            loadUIFromFieldJson();
+            isLoaded = true;
+        }
 
         stage.setScene(scene);
         stage.show();

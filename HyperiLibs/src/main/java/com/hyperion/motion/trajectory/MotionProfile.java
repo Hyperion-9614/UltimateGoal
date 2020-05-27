@@ -44,19 +44,16 @@ public class MotionProfile {
 
     // Initialize planning points with max isolated velocity
     public void initializePlanningPoints() {
-        System.out.println("init");
-        for (int i = 0; i < spline.planningPoints.size(); i++) {
-            RigidBody p = spline.planningPoints.get(i);
-            double dX = spline.distanceX.evaluate(p.distance, 1, true);
-            double dY = spline.distanceY.evaluate(p.distance, 1, true);
+        for (RigidBody p : spline.planningPoints) {
+            double dX = spline.distanceX.evaluate(spline.paramDistance(p.distance), 1, true);
+            double dY = spline.distanceY.evaluate(spline.paramDistance(p.distance), 1, true);
             p.tVel = new Vector2D(getIsolatedMaxVelocity(p.distance), MathUtils.norm(Math.atan2(dY, dX)), false);
         }
-        printVels();
+        printPlanningPoints("init");
     }
 
     // Establish forward consistency among velocities of planning points based on maximum acceleration (accelerational constraints)
     public void forwardTransAccConsistency() {
-        System.out.println("for");
         spline.planningPoints.get(0).tVel.setMagnitude(0);
         for (int i = 1; i < spline.planningPoints.size() - 1; i++) {
             RigidBody p0 = spline.planningPoints.get(i - 1);
@@ -68,12 +65,11 @@ public class MotionProfile {
             double vMaxAt = Math.sqrt(Math.pow(p0.tVel.magnitude, 2) + 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p1.distance - p0.distance));
             p1.tVel.setMagnitude(MathUtils.clip(p1.tVel.magnitude, vMinAt, vMaxAt));
         }
-        printVels();
+        printPlanningPoints("for");
     }
 
     // Establish backward consistency among velocities of planning points based on maximum acceleration (accelerational constraints)
     public void backwardTransAccConsistency() {
-        System.out.println("back");
         spline.planningPoints.get(spline.planningPoints.size() - 1).tVel.setMagnitude(0);
         for (int i = spline.planningPoints.size() - 2; i > 0; i--) {
             RigidBody p0 = spline.planningPoints.get(i + 1);
@@ -85,16 +81,15 @@ public class MotionProfile {
             double vMaxAt = Math.sqrt(Math.pow(p0.tVel.magnitude, 2) + 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p0.distance - p1.distance));
             p1.tVel.setMagnitude(MathUtils.clip(p1.tVel.magnitude, vMinAt, vMaxAt));
         }
-        printVels();
+        printPlanningPoints("back");
     }
 
     // Cap translational velocities at the given constant
     public void capTransVels() {
-        System.out.println("cap");
         for (RigidBody p : spline.planningPoints) {
             p.tVel.setMagnitude(Math.min(p.tVel.magnitude, Constants.getDouble("motionProfile.maxes.tVel")));
         }
-        printVels();
+        printPlanningPoints("cap");
     }
 
     // Compute translational accelerations on planning point intervals given final velocities
@@ -141,7 +136,8 @@ public class MotionProfile {
         return floored.tAcc;
     }
 
-    public void printVels() {
+    public void printPlanningPoints(String label) {
+        System.out.println(label);
         for (RigidBody p : spline.planningPoints)
             System.out.println(p.tVel);
         System.out.println();
