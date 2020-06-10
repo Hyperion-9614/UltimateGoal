@@ -359,8 +359,8 @@ public class SplineTrajectory {
     }
 
     public double dYdX(double distance, int derivative) {
-        double dX = distanceX.evaluate(paramDistance(distance), derivative, true);
-        double dY = distanceY.evaluate(paramDistance(distance), derivative, true);
+        double dX = distanceX.evaluate(distance, derivative, true);
+        double dY = distanceY.evaluate(distance, derivative, true);
         return dY / dX;
     }
 

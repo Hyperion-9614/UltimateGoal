@@ -37,9 +37,9 @@
         },
         "maxes": {
             "bisectionError": 0.001,
-            "aVel": 6.2832,
-            "tAcc": 40,
-            "segmentLength": 15,
+            "aVel": 12.566,
+            "tAcc": 100,
+            "segmentLength": 50,
             "tVel": 150
         }
     },
