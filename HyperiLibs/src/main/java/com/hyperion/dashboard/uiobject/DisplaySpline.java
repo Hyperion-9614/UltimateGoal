@@ -22,10 +22,8 @@ import javafx.scene.shape.Rectangle;
 public class DisplaySpline extends FieldObject {
 
     public SplineTrajectory spline;
-    public int selectedWaypointIndex = -1;
 
     public ArrayList<Waypoint> waypoints;
-    public ArrayList<Rectangle> selectRects;
 
     public DisplaySpline() {
 
@@ -33,24 +31,20 @@ public class DisplaySpline extends FieldObject {
 
     public DisplaySpline(JSONObject obj) {
         spline = new SplineTrajectory(obj);
-        displayGroup = new Group();
         refreshDisplayGroup();
     }
 
     public DisplaySpline(String id, SplineTrajectory spline) {
         this.id = id;
         this.spline = spline;
-        displayGroup = new Group();
         refreshDisplayGroup();
     }
 
     public DisplaySpline(Pose start) {
         this.id = Dashboard.opModeID + ".spline.";
-        ArrayList<RigidBody> wps = new ArrayList<>();
-        wps.add(new RigidBody(start));
-        spline = new SplineTrajectory(wps);
-        displayGroup = new Group();
+        spline = new SplineTrajectory(new RigidBody(start));
         refreshDisplayGroup();
+        Dashboard.fieldPane.select(waypoints.get(0));
     }
 
     public DisplaySpline(String id, JSONObject obj) {
@@ -59,12 +53,11 @@ public class DisplaySpline extends FieldObject {
 
     public void createDisplayGroup() {
         if (spline.waypoints.size() >= 2) {
-
             double[] lastPoseArr = Dashboard.fieldPane.poseToDisplay(spline.planningPoints.get(0), 0);
             for (int i = 1; i < spline.planningPoints.size(); i++) {
                 double[] poseArr = Dashboard.fieldPane.poseToDisplay(spline.planningPoints.get(i), 0);
                 Line segment = new Line(lastPoseArr[0], lastPoseArr[1], poseArr[0], poseArr[1]);
-                segment.setStroke(Color.hsb(360 * (i - 1.0) / spline.planningPoints.size(), 1.0, 1.0));
+                segment.setStroke(Color.hsb(360.0 * (i - 1.0) / spline.planningPoints.size(), 1.0, 1.0));
                 segment.setStrokeWidth(2);
                 displayGroup.getChildren().add(segment);
                 segment.toBack();
@@ -86,15 +79,13 @@ public class DisplaySpline extends FieldObject {
                 selectRect.setStrokeWidth(2);
                 selectRect.setRotate(poseArr[2]);
                 selectRect.setFill(new Color(selectColor.getRed(), selectColor.getGreen(), selectColor.getBlue(), 0.3));
-                selectRect.setVisible(false);
-                displayGroup.getChildren().add(selectRect);
+                selection.getChildren().add(selectRect);
                 selectRect.toBack();
-                selectRects.add(selectRect);
 
                 if (i == spline.planningPoints.size() - 1) {
                     double[] lastParr = Dashboard.fieldPane.poseToDisplay(spline.waypoints.get(spline.waypoints.size() - 1), 0);
                     Line lastSeg = new Line(poseArr[0], poseArr[1], lastParr[0], lastParr[1]);
-                    lastSeg.setStroke(Color.hsb(360 * i / spline.planningPoints.size(), 1.0, 1.0));
+                    lastSeg.setStroke(Color.hsb(360.0 * i / spline.planningPoints.size(), 1.0, 1.0));
                     lastSeg.setStrokeWidth(3);
                     displayGroup.getChildren().add(lastSeg);
                     lastSeg.toBack();
@@ -121,7 +112,7 @@ public class DisplaySpline extends FieldObject {
             waypoint.addDisplayGroup();
         }
 
-        displayGroup.setOnMousePressed((event -> select()));
+        displayGroup.setOnMousePressed((event -> Dashboard.fieldPane.select(this)));
     }
 
     public void addDisplayGroup() {
@@ -133,39 +124,14 @@ public class DisplaySpline extends FieldObject {
     }
 
     public void refreshDisplayGroup() {
-        spline.endPath();
-        displayGroup.getChildren().clear();
+        displayGroup = new Group();
         waypoints = new ArrayList<>();
-        selectRects = new ArrayList<>();
+        selection = new Group();
         createDisplayGroup();
     }
 
     public void removeDisplayGroup() {
         Platform.runLater(() -> Dashboard.fieldPane.getChildren().remove(displayGroup));
-    }
-
-    public void select() {
-        for (FieldObject object : Dashboard.fieldObjects) {
-            if (object instanceof DisplaySpline && !object.equals(this)) {
-                object.deselect();
-            }
-        }
-        Dashboard.selectedSpline = this;
-        for (Rectangle selectRect : selectRects) {
-            selectRect.setVisible(true);
-        }
-        Dashboard.visualPane.updateGraphs(this);
-    }
-
-    public void deselect() {
-        Dashboard.selectedSpline = null;
-        selectedWaypointIndex = -1;
-        for (Waypoint waypoint : waypoints) {
-            waypoint.deselect();
-        }
-        for (Rectangle selectRect : selectRects) {
-            selectRect.setVisible(false);
-        }
     }
 
 }

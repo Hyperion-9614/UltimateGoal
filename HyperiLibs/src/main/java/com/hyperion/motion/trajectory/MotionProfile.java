@@ -45,8 +45,8 @@ public class MotionProfile {
     // Initialize planning points with max isolated velocity
     public void initializePlanningPoints() {
         for (RigidBody p : spline.planningPoints) {
-            double dX = spline.distanceX.evaluate(p.distance, 1, true);
-            double dY = spline.distanceY.evaluate(p.distance, 1, true);
+            double dX = spline.distanceX.evaluate(p.distance, 1);
+            double dY = spline.distanceY.evaluate(p.distance, 1);
             p.tVel = new Vector2D(getIsolatedMaxVelocity(p.distance), MathUtils.norm(Math.atan2(dY, dX)), false);
         }
         printPlanningPoints("init");
@@ -121,9 +121,9 @@ public class MotionProfile {
 
     public Vector2D getTransVel(double distance) {
         double paramD = spline.paramDistance(distance);
-        double dX = spline.distanceX.evaluate(paramD, 1, true);
-        double dY = spline.distanceY.evaluate(paramD, 1, true);
-        return new Vector2D(transVelProfile.evaluate(distance, 0, true), MathUtils.norm(Math.atan2(dY, dX)), false);
+        double dX = spline.distanceX.evaluate(paramD, 1);
+        double dY = spline.distanceY.evaluate(paramD, 1);
+        return new Vector2D(transVelProfile.evaluate(distance, 0), MathUtils.norm(Math.atan2(dY, dX)), false);
     }
 
     public Vector2D getTransAcc(double distance) {

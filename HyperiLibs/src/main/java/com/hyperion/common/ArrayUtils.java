@@ -126,4 +126,10 @@ public class ArrayUtils {
         return arr0;
     }
 
+    public static double arrSum(double[] arr) {
+        double sum = 0;
+        for (double d: arr) sum += d;
+        return sum;
+    }
+
 }

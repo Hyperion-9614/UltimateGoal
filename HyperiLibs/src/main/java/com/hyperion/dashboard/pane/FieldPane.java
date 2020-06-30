@@ -45,6 +45,8 @@ public class FieldPane extends Pane {
     public long startDragTime;
     public boolean isDragging;
 
+    public FieldObject selected;
+
     public FieldPane(Stage stage) {
         this.stage = stage;
         this.fieldSize = stage.getHeight() - 48;
@@ -90,12 +92,17 @@ public class FieldPane extends Pane {
             if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED) {
                 isDragging = false;
                 startDragTime = System.currentTimeMillis();
+                if (mouseEvent.getButton() == MouseButton.PRIMARY) {
+                    if (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) {
+                        select(null);
+                    }
+                }
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_RELEASED) {
-                if (mouseEvent.getButton() == MouseButton.PRIMARY && isDragging && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) && Dashboard.selectedWaypoint != null) {
-                    if (Dashboard.selectedWaypoint.parentSpline != null) {
-                        Dashboard.editField(new FieldEdit(Dashboard.selectedSpline.id, FieldEdit.Type.EDIT_BODY, Dashboard.selectedSpline.spline.writeJSON().toString()));
+                if (mouseEvent.getButton() == MouseButton.PRIMARY && isDragging && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) && selected instanceof Waypoint) {
+                    if (((Waypoint) selected).parentSpline != null) {
+                        Dashboard.editField(new FieldEdit(selected.id, FieldEdit.Type.EDIT_BODY, ((Waypoint) selected).parentSpline.spline.writeJSON().toString()));
                     } else {
-                        Dashboard.editField(new FieldEdit(Dashboard.selectedWaypoint.id, FieldEdit.Type.EDIT_BODY, new JSONArray(Dashboard.selectedWaypoint.pose.toArray()).toString()));
+                        Dashboard.editField(new FieldEdit(selected.id, FieldEdit.Type.EDIT_BODY, new JSONArray(((Waypoint) selected).pose.toArray()).toString()));
                     }
                 }
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED) {
@@ -103,41 +110,31 @@ public class FieldPane extends Pane {
                 mouseY = mouseEvent.getY();
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED) {
                 isDragging = true;
-                if (mouseEvent.getButton() == MouseButton.PRIMARY && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget().equals(this)) && Dashboard.selectedWaypoint != null) {
-                    Vector2D vec = new Vector2D(Dashboard.selectedWaypoint.pose, displayToPose(mouseEvent.getX(), mouseEvent.getY(), 0));
-                    Dashboard.selectedWaypoint.pose.theta = MathUtils.norm(vec.theta, 0, 2 * Math.PI);
-                    if (Dashboard.selectedWaypoint.parentSpline != null) {
-                        Dashboard.selectedWaypoint.parentSpline.spline.waypoints.get(Dashboard.selectedWaypoint.parentSpline.waypoints.indexOf(Dashboard.selectedWaypoint)).setPose(Dashboard.selectedWaypoint.pose);
+                if (mouseEvent.getButton() == MouseButton.PRIMARY && System.currentTimeMillis() - startDragTime > 200 && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget().equals(this)) && selected instanceof Waypoint) {
+                    Vector2D vec = new Vector2D(((Waypoint) selected).pose, displayToPose(mouseEvent.getX(), mouseEvent.getY(), 0));
+                    ((Waypoint) selected).pose.theta = MathUtils.norm(vec.theta, 0, 2 * Math.PI);
+                    if (((Waypoint) selected).parentSpline != null) {
+                        ((Waypoint) selected).parentSpline.spline.waypoints.get(((Waypoint) selected).parentSpline.waypoints.indexOf(selected)).setPose(((Waypoint) selected).pose);
                     }
-                    Dashboard.selectedWaypoint.imgView.setRotate(Math.toDegrees(2 * Math.PI - vec.theta));
-                    Dashboard.selectedWaypoint.selectRect.setRotate(Dashboard.selectedWaypoint.imgView.getRotate());
-                    Dashboard.selectedWaypoint.info.setText(Dashboard.selectedWaypoint.pose.toString().replace(" | ", "\n"));
+                    ((Waypoint) selected).imgView.setRotate(Math.toDegrees(2 * Math.PI - vec.theta));
+                    ((Waypoint) selected).selection.setRotate(((Waypoint) selected).imgView.getRotate());
+                    ((Waypoint) selected).info.setText(((Waypoint) selected).pose.toString().replace(" | ", "\n"));
                 }
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_CLICKED) {
                 if (!isDragging) {
-                    if (mouseEvent.getButton() == MouseButton.PRIMARY) {
-                        if (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) {
-                            deselectAll();
-                        }
-                    } else if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.getTarget().equals(wbbBorder)) {
+                    if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.getTarget().equals(wbbBorder)) {
                         if (isInWBB(mouseX - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, mouseY - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, Constants.getDouble("dashboard.gui.sizes.waypoint"))) {
                             Pose newPose = displayToPose(mouseX, mouseY, 0);
                             if (Dashboard.isBuildingPaths) {
-                                if (Dashboard.selectedSpline != null) {
-                                    Dashboard.selectedSpline.spline.waypoints.add(new RigidBody(newPose));
-                                    int i = Dashboard.selectedWaypoint != null ? Dashboard.selectedSpline.waypoints.indexOf(Dashboard.selectedWaypoint) : -1;
-                                    Dashboard.selectedSpline.refreshDisplayGroup();
-                                    if (i >= 0) {
-                                        Dashboard.selectedSpline.waypoints.get(i).select();
-                                    }
-                                    Dashboard.editField(new FieldEdit(Dashboard.selectedSpline.id, FieldEdit.Type.EDIT_BODY, Dashboard.selectedSpline.spline.writeJSON().toString()));
+                                if (selected instanceof DisplaySpline) {
+                                    ((DisplaySpline) selected).spline.waypoints.add(new RigidBody(newPose));
+                                    ((DisplaySpline) selected).spline.endPath();
+                                    Dashboard.editField(new FieldEdit(selected.id, FieldEdit.Type.EDIT_BODY, ((DisplaySpline) selected).spline.writeJSON().toString()));
                                 } else {
                                     DisplaySpline newSpline = new DisplaySpline(newPose);
-                                    newSpline.waypoints.get(0).select();
                                     Dashboard.editField(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON().toString()));
                                 }
                             } else {
-                                deselectAll();
                                 Waypoint newWP = new Waypoint(Dashboard.opModeID + ".waypoint.", newPose, null, true);
                                 Dashboard.editField(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray()).toString()));
                             }
@@ -189,7 +186,7 @@ public class FieldPane extends Pane {
 
     // Get intersection with WBBs
     public boolean[] getWBBIntersects(Rectangle rect, Rectangle rectX, Rectangle rectY) {
-        boolean[] intersects = new boolean[]{ true, true };
+        boolean[] intersects = new boolean[]{true, true};
         if (rect.getX() <= wbbBorder.getX() || rect.getX() + rect.getWidth() >= wbbBorder.getX() + wbbBorder.getWidth()) {
             intersects[0] = false;
         }
@@ -209,12 +206,27 @@ public class FieldPane extends Pane {
         return intersects;
     }
 
-    public void deselectAll() {
-        Dashboard.visualPane.updateGraphs(null);
-        Dashboard.selectedWaypoint = null;
-        Dashboard.selectedSpline = null;
-        for (FieldObject obj : Dashboard.fieldObjects) {
-            obj.deselect();
+    // Deselect previous and select new selected
+    public void select(FieldObject fieldObject) {
+        if (selected != fieldObject) {
+            if (selected != null) {
+                selected.displayGroup.getChildren().remove(selected.selection);
+                if (selected instanceof Waypoint) {
+                    requestFocus();
+                    if (((Waypoint) selected).parentSpline != null) {
+                        ((Waypoint) selected).parentSpline.displayGroup.getChildren().remove(((Waypoint) selected).parentSpline.selection);
+                    }
+                }
+            }
+            selected = fieldObject;
+            if (selected != null) {
+                selected.displayGroup.getChildren().add(selected.selection);
+                selected.selection.toBack();
+                if (selected instanceof Waypoint && ((Waypoint) selected).parentSpline != null) {
+                    ((Waypoint) selected).parentSpline.displayGroup.getChildren().add(((Waypoint) selected).parentSpline.selection);
+                    ((Waypoint) selected).parentSpline.selection.toBack();
+                }
+            }
         }
     }
 

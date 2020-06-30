@@ -56,8 +56,6 @@ public class Dashboard extends Application {
     public static VisualPane visualPane;
     public static BTServer btServer;
 
-    public static DisplaySpline selectedSpline = null;
-    public static Waypoint selectedWaypoint = null;
     public static List<FieldObject> fieldObjects = new ArrayList<>();
     public static Map<String, String> metrics = new HashMap<>();
     public static boolean isRobotOnField;
@@ -69,8 +67,9 @@ public class Dashboard extends Application {
 
     public static void main(String[] args) {
         Constants.init(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
-        if (Constants.getBoolean("dashboard.isDebugging"))
+        if (Constants.getBoolean("dashboard.isDebugging")) {
             btServer = new BTServer();
+        }
         launch(args);
     }
 
@@ -154,10 +153,10 @@ public class Dashboard extends Application {
             for (FieldEdit edit : edits) {
                 FieldObject newObj = null;
                 if (edit.type != FieldEdit.Type.DELETE && edit.type != FieldEdit.Type.EDIT_ID) {
-                    if (edit.id.contains("waypoint")) {
-                        newObj = new Waypoint(edit.id, new JSONArray(edit.body));
-                    } else if (edit.id.contains("spline")) {
+                    if (edit.id.contains("spline")) {
                         newObj = new DisplaySpline(edit.id, new JSONObject(edit.body));
+                    } else if (edit.id.contains("waypoint")) {
+                        newObj = new Waypoint(edit.id, new JSONArray(edit.body));
                     } else {
                         newObj = new Robot(new JSONArray(edit.body));
                         isRobotOnField = true;
@@ -171,13 +170,13 @@ public class Dashboard extends Application {
                     case EDIT_BODY:
                         for (int i = 0; i < fieldObjects.size(); i++) {
                             if (fieldObjects.get(i).id.equals(edit.id)) {
-                                if (edit.id.equals("robot")) {
+                                if (fieldObjects.get(i) instanceof Robot) {
                                     ((Robot) fieldObjects.get(i)).rigidBody = new RigidBody(new JSONArray(edit.body));
                                     fieldObjects.get(i).refreshDisplayGroup();
-                                } else {
-                                    fieldObjects.get(i).removeDisplayGroup();
-                                    fieldObjects.set(i, newObj);
-                                    fieldObjects.get(i).addDisplayGroup();
+                                } else if (fieldObjects.get(i) instanceof DisplaySpline) {
+                                    fieldObjects.get(i).refreshDisplayGroup();
+                                } else if (fieldObjects.get(i) instanceof Waypoint) {
+                                    Dashboard.fieldPane.select(fieldObjects.get(i));
                                 }
                                 break;
                             }
@@ -206,12 +205,14 @@ public class Dashboard extends Application {
                 }
 
                 if (!edit.id.equals("robot") && shouldSave) {
-                    MiscUtils.writeFieldEditsToFieldJSON(Constants.getFile("data", "field.json"), edit);
                     editsArr.put(edit.toJSONObject());
                 }
             }
-            if (btServer != null && shouldSave)
-                btServer.sendMessage(Message.Event.FIELD_EDITED, editsArr);
+            if (shouldSave) {
+                MiscUtils.writeFieldEditsToFieldJSON(Constants.getFile("data", "field.json"), edits);
+                if (btServer != null)
+                    btServer.sendMessage(Message.Event.FIELD_EDITED, editsArr);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -228,6 +229,7 @@ public class Dashboard extends Application {
         for (String id : fieldJSON.getJSONObject("splines").keySet()) {
             editField(false, new FieldEdit(id, FieldEdit.Type.CREATE, fieldJSON.getJSONObject("splines").getJSONObject(id).toString()));
         }
+        fieldPane.select(null);
     }
 
 }

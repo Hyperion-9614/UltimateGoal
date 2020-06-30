@@ -46,7 +46,7 @@ public class SplineTrajectory {
     }
 
     public SplineTrajectory(RigidBody... rigidBodies) {
-        this.waypoints = (ArrayList<RigidBody>) Arrays.asList(rigidBodies);
+        this.waypoints = new ArrayList<>(Arrays.asList(rigidBodies));
         mP = new MotionProfile(this);
         endPath();
     }
@@ -221,7 +221,7 @@ public class SplineTrajectory {
         if (deriv == 0) return new double[] { Math.pow(T, 3), Math.pow(T, 2), T, 1 };
         else if (deriv == 1) return new double[] { 3 * Math.pow(T, 2), 2 * T, 1, 0 };
         else if (deriv == 2) return new double[] { 6 * T, 2, 0, 0 };
-        else return new double[]{ 0, 0, 0, 0 };
+        else return new double[] { 0, 0, 0, 0 };
     }
 
     private void interpolate(ArrayList<RigidBody> rigidBodies, boolean shouldReparameterize) {
@@ -346,7 +346,7 @@ public class SplineTrajectory {
     public Pose getTPose(double T) {
         if (T == waypoints.size())
             return waypoints.get(waypoints.size() - 1);
-        return new Pose(tauX.evaluate(T, 0, true), tauY.evaluate(T, 0, true), 0);
+        return new Pose(tauX.evaluate(T, 0), tauY.evaluate(T, 0), 0);
     }
     public Pose getDPose(double distance) {
         if (distance == waypoints.get(waypoints.size() - 1).distance)
@@ -355,12 +355,12 @@ public class SplineTrajectory {
         double theta = MathUtils.norm(planningPoints.get(interval).theta + MathUtils.optThetaDiff(planningPoints.get(interval).theta, planningPoints.get(interval + 1).theta)
                                             * ((distance - planningPoints.get(interval).distance) / (planningPoints.get(interval + 1).distance - planningPoints.get(interval).distance)));
         distance = paramDistance(distance);
-        return new Pose(distanceX.evaluate(distance, 0, true), distanceY.evaluate(distance, 0, true), theta);
+        return new Pose(distanceX.evaluate(distance, 0), distanceY.evaluate(distance, 0), theta);
     }
 
     public double dYdX(double distance, int derivative) {
-        double dX = distanceX.evaluate(distance, derivative, true);
-        double dY = distanceY.evaluate(distance, derivative, true);
+        double dX = distanceX.evaluate(distance, derivative);
+        double dY = distanceY.evaluate(distance, derivative);
         return dY / dX;
     }
 

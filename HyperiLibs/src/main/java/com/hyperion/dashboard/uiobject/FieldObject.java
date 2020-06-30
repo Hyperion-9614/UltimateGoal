@@ -9,13 +9,11 @@ public abstract class FieldObject {
     public String id;
     public Constants constants;
     public Group displayGroup;
+    public Group selection;
 
     public abstract void createDisplayGroup();
     public abstract void addDisplayGroup();
     public abstract void refreshDisplayGroup();
     public abstract void removeDisplayGroup();
-
-    public abstract void select();
-    public abstract void deselect();
 
 }

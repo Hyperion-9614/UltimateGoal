@@ -26,8 +26,8 @@ public class PiecewiseLineGraph extends LineChart<Number, Number> {
                 Piecewise.Interval interval = piecewise.intervals.get(j);
                 Series<Number, Number> intervalSeries = new Series<>();
                 if (j == 0) intervalSeries.setName(key);
-                intervalSeries.getData().add(new XYChart.Data<>(interval.a, piecewise.evaluate(interval.a, 0, true)));
-                intervalSeries.getData().add(new XYChart.Data<>(interval.b, piecewise.evaluate(interval.b, 0, false)));
+                intervalSeries.getData().add(new XYChart.Data<>(interval.a, piecewise.evaluate(interval.a, 0)));
+                intervalSeries.getData().add(new XYChart.Data<>(interval.b, piecewise.evaluate(interval.b, 0)));
                 getData().add(intervalSeries);
             }
         }

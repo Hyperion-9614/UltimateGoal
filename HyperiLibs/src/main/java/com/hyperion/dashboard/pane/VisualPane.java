@@ -2,6 +2,7 @@ package com.hyperion.dashboard.pane;
 
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
+import com.hyperion.dashboard.uiobject.FieldObject;
 import com.hyperion.dashboard.uiobject.PiecewiseLineGraph;
 import com.hyperion.motion.math.Piecewise;
 
@@ -34,16 +35,16 @@ public class VisualPane extends VBox {
         tVdGraph.setCreateSymbols(false);
         tVdGraph.setTitle("Translational Velocity vs. Distance");
 
-        updateGraphs(Dashboard.selectedSpline);
+        updateGraphs(Dashboard.fieldPane.selected);
         getChildren().add(tVdGraph);
     }
 
-    public void updateGraphs(DisplaySpline displaySpline) {
+    public void updateGraphs(FieldObject fieldObject) {
         Platform.runLater(() -> {
             tVdGraph.getData().clear();
-            if (displaySpline != null && displaySpline.waypoints.size() >= 2) {
+            if (fieldObject instanceof DisplaySpline && ((DisplaySpline) fieldObject).waypoints.size() >= 2) {
                 HashMap<String, Piecewise> map = new HashMap<>();
-                map.put("Velocity (cm/s)", displaySpline.spline.mP.transVelProfile);
+                map.put("Velocity (cm/s)", ((DisplaySpline) fieldObject).spline.mP.transVelProfile);
                 tVdGraph.rePlot(map);
             }
         });

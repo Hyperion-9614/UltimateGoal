@@ -87,7 +87,7 @@ public class LeftPane extends VBox {
             opModeSelector.setStyle("-fx-font: 24px \"Arial\";");
             opModeSelector.setPrefSize(halfWidth * 2 + 10, 91);
             opModeSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
-                Dashboard.fieldPane.deselectAll();
+                Dashboard.fieldPane.select(null);
                 Dashboard.opModeID = newValue.toString();
                 for (FieldObject o : Dashboard.fieldObjects) {
                     if (o.id.contains(Dashboard.opModeID)) {
