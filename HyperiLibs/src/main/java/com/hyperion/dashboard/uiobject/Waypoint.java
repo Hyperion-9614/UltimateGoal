@@ -89,8 +89,9 @@ public class Waypoint extends FieldObject {
                         }
                     });
                     idField.setOnMousePressed(event -> Dashboard.fieldPane.select(this));
-                    displayGroup.getChildren().add(idField);
                 }
+
+                displayGroup.getChildren().add(idField);
             }
 
             info = new Text(pose.toString());
@@ -127,6 +128,7 @@ public class Waypoint extends FieldObject {
                         parentSpline.spline.waypoints.remove(parentSpline.waypoints.indexOf(this));
                         parentSpline.waypoints.remove(this);
                         parentSpline.spline.endPath();
+                        removeDisplayGroup();
                         Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString()));
                         if (parentSpline.waypoints.size() == 0) {
                             Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.DELETE, "{}"));
@@ -165,7 +167,7 @@ public class Waypoint extends FieldObject {
 
         displayGroup.setOnMouseReleased((event -> {
             try {
-                if (System.currentTimeMillis() - startDragTime > 200 && event.getButton() == MouseButton.PRIMARY) {
+                if (System.currentTimeMillis() - startDragTime > Constants.getInt("dashboard.gui.dragTime") && event.getButton() == MouseButton.PRIMARY) {
                     if (parentSpline != null) {
                         parentSpline.spline.waypoints.get(parentSpline.waypoints.indexOf(this)).setPose(pose);
                         Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString()));
@@ -191,6 +193,7 @@ public class Waypoint extends FieldObject {
             } else if (id.startsWith(Dashboard.opModeID)) {
                 Dashboard.fieldPane.getChildren().add(displayGroup);
             }
+            displayGroup.toFront();
         });
     }
 

@@ -35,16 +35,15 @@ public class VisualPane extends VBox {
         tVdGraph.setCreateSymbols(false);
         tVdGraph.setTitle("Translational Velocity vs. Distance");
 
-        updateGraphs(Dashboard.fieldPane.selected);
         getChildren().add(tVdGraph);
     }
 
-    public void updateGraphs(FieldObject fieldObject) {
+    public void updateGraphs(DisplaySpline displaySpline) {
         Platform.runLater(() -> {
             tVdGraph.getData().clear();
-            if (fieldObject instanceof DisplaySpline && ((DisplaySpline) fieldObject).waypoints.size() >= 2) {
+            if (displaySpline.waypoints.size() >= 2) {
                 HashMap<String, Piecewise> map = new HashMap<>();
-                map.put("Velocity (cm/s)", ((DisplaySpline) fieldObject).spline.mP.transVelProfile);
+                map.put("Velocity (cm/s)", displaySpline.spline.mP.transVelProfile);
                 tVdGraph.rePlot(map);
             }
         });

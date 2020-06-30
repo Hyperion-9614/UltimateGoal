@@ -25,6 +25,8 @@ public class DisplaySpline extends FieldObject {
 
     public ArrayList<Waypoint> waypoints;
 
+    public Waypoint selectedWP;
+
     public DisplaySpline() {
 
     }
@@ -97,7 +99,7 @@ public class DisplaySpline extends FieldObject {
 
         for (int i = 0; i < spline.waypoints.size(); i++) {
             RigidBody wpPP = spline.waypoints.get(i);
-            Waypoint waypoint = new Waypoint("", wpPP, this, (i == 0));
+            Waypoint waypoint = new Waypoint(id + "." + i, wpPP, this, (i == 0));
             if (waypoint.renderID) {
                 waypoint.idField.setText(id.replace(Dashboard.opModeID + ".spline.", ""));
                 waypoint.idField.setOnKeyPressed(event -> {
@@ -105,14 +107,14 @@ public class DisplaySpline extends FieldObject {
                         String oldID = id;
                         id = Dashboard.opModeID + ".spline." + waypoint.idField.getText();
                         Dashboard.editField(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
+                        Dashboard.fieldPane.requestFocus();
                     }
                 });
+                waypoint.idField.setOnMousePressed(event -> Dashboard.fieldPane.select(waypoint));
             }
             waypoints.add(waypoint);
             waypoint.addDisplayGroup();
         }
-
-        displayGroup.setOnMousePressed((event -> Dashboard.fieldPane.select(this)));
     }
 
     public void addDisplayGroup() {

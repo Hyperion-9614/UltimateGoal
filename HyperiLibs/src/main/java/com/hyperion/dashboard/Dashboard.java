@@ -175,8 +175,9 @@ public class Dashboard extends Application {
                                     fieldObjects.get(i).refreshDisplayGroup();
                                 } else if (fieldObjects.get(i) instanceof DisplaySpline) {
                                     fieldObjects.get(i).refreshDisplayGroup();
+                                    Dashboard.fieldPane.select(((DisplaySpline) fieldObjects.get(i)).selectedWP);
                                 } else if (fieldObjects.get(i) instanceof Waypoint) {
-                                    Dashboard.fieldPane.select(fieldObjects.get(i));
+                                    Dashboard.fieldPane.select((Waypoint) fieldObjects.get(i));
                                 }
                                 break;
                             }
