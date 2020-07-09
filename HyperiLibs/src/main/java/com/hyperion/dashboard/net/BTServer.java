@@ -1,6 +1,7 @@
 package com.hyperion.dashboard.net;
 
 import com.hyperion.common.Constants;
+import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.uiobject.FieldObject;
@@ -40,13 +41,13 @@ public class BTServer extends BTEndpoint {
         JSONObject root = new JSONObject(IOUtils.readDataJSON("field"));
         JSONObject waypointsObject = root.getJSONObject("waypoints");
         JSONObject splinesObject = root.getJSONObject("splines");
-        for (Iterator keys = waypointsObject.keys(); keys.hasNext();) {
-            String key = keys.next().toString();
-            fieldEdits.put(new FieldEdit(key, FieldEdit.Type.CREATE, waypointsObject.getJSONArray(key).toString()).toJSONObject());
+        for (Iterator<String> keys = waypointsObject.keys(); keys.hasNext();) {
+            String key = keys.next();
+            fieldEdits.put(new FieldEdit(new ID(key), FieldEdit.Type.CREATE, waypointsObject.getJSONArray(key).toString()).toJSONObject());
         }
-        for (Iterator keys = splinesObject.keys(); keys.hasNext();) {
-            String key = keys.next().toString();
-            fieldEdits.put(new FieldEdit(key, FieldEdit.Type.CREATE, splinesObject.getJSONObject(key).toString()).toJSONObject());
+        for (Iterator<String> keys = splinesObject.keys(); keys.hasNext();) {
+            String key = keys.next();
+            fieldEdits.put(new FieldEdit(new ID(key), FieldEdit.Type.CREATE, splinesObject.getJSONObject(key).toString()).toJSONObject());
         }
         sendMessage(Message.Event.FIELD_EDITED, fieldEdits);
     }
@@ -118,13 +119,13 @@ public class BTServer extends BTEndpoint {
             JSONObject waypointsObject = root.getJSONObject("waypoints");
             JSONObject splinesObject = root.getJSONObject("splines");
 
-            for (Iterator keys = waypointsObject.keys(); keys.hasNext();) {
-                String key = keys.next().toString();
-                arr.put(new FieldEdit(key, FieldEdit.Type.CREATE, waypointsObject.getJSONArray(key).toString()).toJSONObject());
+            for (Iterator<String> keys = waypointsObject.keys(); keys.hasNext();) {
+                String key = keys.next();
+                arr.put(new FieldEdit(new ID(key), FieldEdit.Type.CREATE, waypointsObject.getJSONArray(key).toString()).toJSONObject());
             }
-            for (Iterator keys = splinesObject.keys(); keys.hasNext();) {
-                String key = keys.next().toString();
-                arr.put(new FieldEdit(key, FieldEdit.Type.CREATE, splinesObject.getJSONObject(key).toString()).toJSONObject());
+            for (Iterator<String> keys = splinesObject.keys(); keys.hasNext();) {
+                String key = keys.next();
+                arr.put(new FieldEdit(new ID(key), FieldEdit.Type.CREATE, splinesObject.getJSONObject(key).toString()).toJSONObject());
             }
         } catch (Exception e) {
             e.printStackTrace();

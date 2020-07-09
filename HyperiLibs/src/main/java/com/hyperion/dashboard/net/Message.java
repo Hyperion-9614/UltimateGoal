@@ -12,6 +12,7 @@ public class Message {
     public Message(Event event, String sender, String jsonStr) {
         try {
             this.event = event;
+            this.sender = sender;
             this.json = jsonStr;
         } catch (Exception e) {
             e.printStackTrace();
@@ -20,11 +21,13 @@ public class Message {
 
     public Message(Event event, String sender, JSONObject json) {
         this.event = event;
+        this.sender = sender;
         this.json = json.toString();
     }
 
     public Message(Event event, String sender, JSONArray json) {
         this.event = event;
+        this.sender = sender;
         this.json = json.toString();
     }
 

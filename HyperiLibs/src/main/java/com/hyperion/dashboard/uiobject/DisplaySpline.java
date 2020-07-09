@@ -1,6 +1,7 @@
 package com.hyperion.dashboard.uiobject;
 
 import com.hyperion.common.Constants;
+import com.hyperion.common.ID;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.motion.math.RigidBody;
@@ -22,10 +23,7 @@ import javafx.scene.shape.Rectangle;
 public class DisplaySpline extends FieldObject {
 
     public SplineTrajectory spline;
-
     public ArrayList<Waypoint> waypoints;
-
-    public Waypoint selectedWP;
 
     public DisplaySpline() {
 
@@ -36,20 +34,20 @@ public class DisplaySpline extends FieldObject {
         refreshDisplayGroup();
     }
 
-    public DisplaySpline(String id, SplineTrajectory spline) {
+    public DisplaySpline(ID id, SplineTrajectory spline) {
         this.id = id;
         this.spline = spline;
         refreshDisplayGroup();
     }
 
     public DisplaySpline(Pose start) {
-        this.id = Dashboard.opModeID + ".spline.";
+        this.id = new ID(Dashboard.opModeID, "spline", " ");
         spline = new SplineTrajectory(new RigidBody(start));
         refreshDisplayGroup();
         Dashboard.fieldPane.select(waypoints.get(0));
     }
 
-    public DisplaySpline(String id, JSONObject obj) {
+    public DisplaySpline(ID id, JSONObject obj) {
         this(id, new SplineTrajectory(obj));
     }
 
@@ -74,15 +72,17 @@ public class DisplaySpline extends FieldObject {
                 pp.setFill(Color.WHITE);
                 displayGroup.getChildren().add(pp);
 
-                Color selectColor = Color.DIMGRAY;
-                Rectangle selectRect = new Rectangle(poseArr[0] - Dashboard.fieldPane.robotSize / 2.0, poseArr[1] - Dashboard.fieldPane.robotSize / 2.0,
-                        Dashboard.fieldPane.robotSize, Dashboard.fieldPane.robotSize);
-                selectRect.setStroke(selectColor);
-                selectRect.setStrokeWidth(2);
-                selectRect.setRotate(poseArr[2]);
-                selectRect.setFill(new Color(selectColor.getRed(), selectColor.getGreen(), selectColor.getBlue(), 0.3));
-                selection.getChildren().add(selectRect);
-                selectRect.toBack();
+                if (i < spline.planningPoints.size() - 1) {
+                    Color selectColor = Color.DIMGRAY;
+                    Rectangle selectRect = new Rectangle(poseArr[0] - Dashboard.fieldPane.robotSize / 2.0, poseArr[1] - Dashboard.fieldPane.robotSize / 2.0,
+                            Dashboard.fieldPane.robotSize, Dashboard.fieldPane.robotSize);
+                    selectRect.setStroke(selectColor);
+                    selectRect.setStrokeWidth(2);
+                    selectRect.setRotate(poseArr[2]);
+                    selectRect.setFill(new Color(selectColor.getRed(), selectColor.getGreen(), selectColor.getBlue(), 0.3));
+                    selection.getChildren().add(selectRect);
+                    selectRect.toBack();
+                }
 
                 if (i == spline.planningPoints.size() - 1) {
                     double[] lastParr = Dashboard.fieldPane.poseToDisplay(spline.waypoints.get(spline.waypoints.size() - 1), 0);
@@ -99,34 +99,31 @@ public class DisplaySpline extends FieldObject {
 
         for (int i = 0; i < spline.waypoints.size(); i++) {
             RigidBody wpPP = spline.waypoints.get(i);
-            Waypoint waypoint = new Waypoint(id + "." + i, wpPP, this, (i == 0));
-            if (waypoint.renderID) {
-                waypoint.idField.setText(id.replace(Dashboard.opModeID + ".spline.", ""));
-                waypoint.idField.setOnKeyPressed(event -> {
-                    if (event.getCode() == KeyCode.ENTER) {
-                        String oldID = id;
-                        id = Dashboard.opModeID + ".spline." + waypoint.idField.getText();
-                        Dashboard.editField(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
-                        Dashboard.fieldPane.requestFocus();
-                    }
-                });
-                waypoint.idField.setOnMousePressed(event -> Dashboard.fieldPane.select(waypoint));
-            }
+            Waypoint waypoint = new Waypoint(new ID(id, i), wpPP, this, (i == 0), false);
             waypoints.add(waypoint);
             waypoint.addDisplayGroup();
+        }
+
+        if (Dashboard.fieldPane.selectedWP != null && Dashboard.fieldPane.selectedWP.id.get(4).equals(id.get(4))) {
+            int i = Integer.parseInt(Dashboard.fieldPane.selectedWP.id.get(5));
+            Dashboard.fieldPane.select(waypoints.get(i));
         }
     }
 
     public void addDisplayGroup() {
         Platform.runLater(() -> {
-            if (id.startsWith(Dashboard.opModeID)) {
+            if (id.sub(0, 3).equals(Dashboard.opModeID.toString())) {
                 Dashboard.fieldPane.getChildren().add(displayGroup);
             }
         });
     }
 
     public void refreshDisplayGroup() {
-        displayGroup = new Group();
+        if (displayGroup != null) {
+            displayGroup.getChildren().clear();
+        } else {
+            displayGroup = new Group();
+        }
         waypoints = new ArrayList<>();
         selection = new Group();
         createDisplayGroup();

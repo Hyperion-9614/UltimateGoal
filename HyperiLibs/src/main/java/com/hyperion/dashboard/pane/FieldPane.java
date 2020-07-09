@@ -1,6 +1,7 @@
 package com.hyperion.dashboard.pane;
 
 import com.hyperion.common.Constants;
+import com.hyperion.common.ID;
 import com.hyperion.common.MathUtils;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
@@ -93,9 +94,10 @@ public class FieldPane extends Pane {
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_RELEASED) {
                 if (mouseEvent.getButton() == MouseButton.PRIMARY && isDragging && System.currentTimeMillis() - startDragTime > Constants.getInt("dashboard.gui.dragTime") && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) && selectedWP != null) {
                     if (selectedWP.parentSpline != null) {
-                        Dashboard.editField(new FieldEdit(selectedWP.id, FieldEdit.Type.EDIT_BODY, selectedWP.parentSpline.spline.writeJSON().toString()));
+                        selectedWP.parentSpline.spline.endPath();
+                        Dashboard.editField(new FieldEdit(selectedWP.parentSpline.id, FieldEdit.Type.EDIT_BODY, selectedWP.parentSpline.spline.writeJSON()));
                     } else {
-                        Dashboard.editField(new FieldEdit(selectedWP.id, FieldEdit.Type.EDIT_BODY, new JSONArray(selectedWP.pose.toArray()).toString()));
+                        Dashboard.editField(new FieldEdit(selectedWP.id, FieldEdit.Type.EDIT_BODY, new JSONArray(selectedWP.pose.toArray())));
                     }
                 }
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED) {
@@ -126,14 +128,15 @@ public class FieldPane extends Pane {
                                 if (selectedWP != null && selectedWP.parentSpline != null) {
                                     selectedWP.parentSpline.spline.waypoints.add(new RigidBody(newPose));
                                     selectedWP.parentSpline.spline.endPath();
-                                    Dashboard.editField(new FieldEdit(selectedWP.id, FieldEdit.Type.EDIT_BODY, selectedWP.parentSpline.spline.writeJSON().toString()));
+                                    selectedWP.id.set(5, selectedWP.parentSpline.spline.waypoints.size() - 1);
+                                    Dashboard.editField(new FieldEdit(selectedWP.parentSpline.id, FieldEdit.Type.EDIT_BODY, selectedWP.parentSpline.spline.writeJSON()));
                                 } else {
                                     DisplaySpline newSpline = new DisplaySpline(newPose);
-                                    Dashboard.editField(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON().toString()));
+                                    Dashboard.editField(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON()));
                                 }
                             } else {
-                                Waypoint newWP = new Waypoint(Dashboard.opModeID + ".waypoint.", newPose, null, true);
-                                Dashboard.editField(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray()).toString()));
+                                Waypoint newWP = new Waypoint(new ID(Dashboard.opModeID, "waypoint", " "), newPose, null, true, true);
+                                Dashboard.editField(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray())));
                             }
                         }
                     }
@@ -220,7 +223,6 @@ public class FieldPane extends Pane {
                 selectedWP.selection.toBack();
                 if (selectedWP.parentSpline != null) {
                     selectedWP.parentSpline.displayGroup.getChildren().add(selectedWP.parentSpline.selection);
-                    selectedWP.parentSpline.selectedWP = selectedWP;
                     selectedWP.parentSpline.selection.toBack();
                     Dashboard.visualPane.updateGraphs(selectedWP.parentSpline);
                 }

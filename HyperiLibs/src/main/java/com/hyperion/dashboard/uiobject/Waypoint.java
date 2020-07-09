@@ -1,6 +1,7 @@
 package com.hyperion.dashboard.uiobject;
 
 import com.hyperion.common.Constants;
+import com.hyperion.common.ID;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.motion.math.Pose;
@@ -24,29 +25,32 @@ public class Waypoint extends FieldObject {
 
     public Pose pose;
     public boolean renderID;
+    public boolean shouldInitiallySelect;
     public DisplaySpline parentSpline;
 
     public ImageView imgView;
     public TextField idField;
     public Text info;
+    public Rectangle selectRect;
 
     private long startDragTime;
     private double dragDx, dragDy;
 
-    public Waypoint(String id, double x, double y, double theta, DisplaySpline parentSpline, boolean renderID) {
+    public Waypoint(ID id, double x, double y, double theta, DisplaySpline parentSpline, boolean renderID, boolean shouldInitiallySelect) {
         this.id = id;
         this.pose = new Pose(x, y, theta);
         this.renderID = renderID;
         this.parentSpline = parentSpline;
+        this.shouldInitiallySelect = shouldInitiallySelect;
         createDisplayGroup();
     }
 
-    public Waypoint(String id, Pose pose, DisplaySpline parentSpline, boolean renderID) {
-        this(id, pose.x, pose.y, pose.theta, parentSpline, renderID);
+    public Waypoint(ID id, Pose pose, DisplaySpline parentSpline, boolean renderID, boolean shouldInitiallySelect) {
+        this(id, pose.x, pose.y, pose.theta, parentSpline, renderID, shouldInitiallySelect);
     }
 
-    public Waypoint(String key, JSONArray wpArr) {
-        this(key, wpArr.getDouble(0), wpArr.getDouble(1), wpArr.getDouble(2), null, true);
+    public Waypoint(ID id, JSONArray wpArr) {
+        this(id, wpArr.getDouble(0), wpArr.getDouble(1), wpArr.getDouble(2), null, true, true);
     }
 
     public void createDisplayGroup() {
@@ -60,7 +64,8 @@ public class Waypoint extends FieldObject {
             displayGroup.getChildren().add(imgView);
 
             if (renderID) {
-                idField = new TextField(id.replace(Dashboard.opModeID + ".waypoint.", ""));
+                ID dispID = parentSpline != null ? parentSpline.id : id;
+                idField = new TextField(dispID.get(4).equals(" ") ? "" : dispID.get(4));
                 idField.setStyle("-fx-background-radius: 0; -fx-text-inner-color: rgba(255, 255, 255, 1.0); -fx-background-color: rgba(0, 0, 0, 0.6);");
                 idField.setMinWidth(17);
                 idField.setMaxWidth(150);
@@ -79,17 +84,19 @@ public class Waypoint extends FieldObject {
                     return change;
                 }));
 
-                if (parentSpline == null) {
-                    idField.setOnKeyPressed(event -> {
-                        if (event.getCode() == KeyCode.ENTER) {
-                            String oldID = id;
-                            id = Dashboard.opModeID + ".waypoint." + idField.getText();
-                            Dashboard.editField(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, id));
-                            Dashboard.fieldPane.requestFocus();
-                        }
-                    });
-                    idField.setOnMousePressed(event -> Dashboard.fieldPane.select(this));
-                }
+                idField.setOnKeyPressed(event -> {
+                    if (event.getCode() == KeyCode.ENTER) {
+                        ID oldID = parentSpline == null ? id : parentSpline.id;
+                        ID newID = new ID(oldID);
+                        newID.set(4, idField.getText());
+                        Dashboard.editField(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, newID));
+                        Dashboard.fieldPane.requestFocus();
+                    }
+                });
+                idField.setOnMousePressed(event -> {
+                    Dashboard.fieldPane.select(this);
+                    idField.requestFocus();
+                });
 
                 displayGroup.getChildren().add(idField);
             }
@@ -100,7 +107,7 @@ public class Waypoint extends FieldObject {
             displayGroup.getChildren().add(info);
 
             Color selectColor = Color.hsb(360.0 * Math.random(), 1.0, 1.0);
-            Rectangle selectRect = new Rectangle(Dashboard.fieldPane.robotSize, Dashboard.fieldPane.robotSize);
+            selectRect = new Rectangle(Dashboard.fieldPane.robotSize, Dashboard.fieldPane.robotSize);
             selectRect.setStroke(selectColor);
             selectRect.setStrokeWidth(2);
             selectRect.setFill(new Color(selectColor.getRed(), selectColor.getGreen(), selectColor.getBlue(), 0.3));
@@ -114,7 +121,8 @@ public class Waypoint extends FieldObject {
             }
             imgView.toFront();
 
-            Dashboard.fieldPane.select(this);
+            if (shouldInitiallySelect)
+                Dashboard.fieldPane.select(this);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -129,12 +137,16 @@ public class Waypoint extends FieldObject {
                         parentSpline.waypoints.remove(this);
                         parentSpline.spline.endPath();
                         removeDisplayGroup();
-                        Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString()));
                         if (parentSpline.waypoints.size() == 0) {
                             Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.DELETE, "{}"));
+                            Dashboard.fieldPane.select(null);
+                        } else {
+                            Dashboard.fieldPane.selectedWP.id.set(5, Math.min(Integer.parseInt(Dashboard.fieldPane.selectedWP.id.get(5)), parentSpline.spline.waypoints.size() - 1));
+                            Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString()));
                         }
                     } else {
                         Dashboard.editField(new FieldEdit(id, FieldEdit.Type.DELETE, "{}"));
+                        Dashboard.fieldPane.select(null);
                     }
                 }
             } catch (Exception e) {
@@ -170,9 +182,10 @@ public class Waypoint extends FieldObject {
                 if (System.currentTimeMillis() - startDragTime > Constants.getInt("dashboard.gui.dragTime") && event.getButton() == MouseButton.PRIMARY) {
                     if (parentSpline != null) {
                         parentSpline.spline.waypoints.get(parentSpline.waypoints.indexOf(this)).setPose(pose);
-                        Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString()));
+                        parentSpline.spline.endPath();
+                        Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON()));
                     } else {
-                        Dashboard.editField(new FieldEdit(id, FieldEdit.Type.EDIT_BODY, new JSONArray(pose.toArray()).toString()));
+                        Dashboard.editField(new FieldEdit(id, FieldEdit.Type.EDIT_BODY, new JSONArray(pose.toArray())));
                     }
                 }
             } catch (Exception e) {
@@ -183,14 +196,13 @@ public class Waypoint extends FieldObject {
 
     public void addDisplayGroup() {
         Platform.runLater(() -> {
-            if (renderID && parentSpline == null) {
-                idField.setText(id.replace(Dashboard.opModeID + ".waypoint.", ""));
-            } else if (renderID) {
-                idField.setText(parentSpline.id.replace(Dashboard.opModeID + ".spline.", ""));
+            if (renderID) {
+                ID dispID = parentSpline != null ? parentSpline.id : id;
+                idField.setText(dispID.get(4).equals(" ") ? "" : dispID.get(4));
             }
-            if (parentSpline != null && parentSpline.id.startsWith(Dashboard.opModeID)) {
+            if (parentSpline != null && parentSpline.id.sub(0, 3).equals(Dashboard.opModeID.toString())) {
                 parentSpline.displayGroup.getChildren().add(displayGroup);
-            } else if (id.startsWith(Dashboard.opModeID)) {
+            } else if (id.sub(0, 3).equals(Dashboard.opModeID.toString())) {
                 Dashboard.fieldPane.getChildren().add(displayGroup);
             }
             displayGroup.toFront();
@@ -202,17 +214,14 @@ public class Waypoint extends FieldObject {
         imgView.relocate(poseToDisplay[0], poseToDisplay[1]);
         imgView.setRotate(poseToDisplay[2]);
         if (renderID) {
-            if (parentSpline != null) {
-                idField.setText(parentSpline.id.replace(Dashboard.opModeID + ".spline.", ""));
-            } else {
-                idField.setText(id.replace(Dashboard.opModeID + ".waypoint.", ""));
-            }
+            ID dispID = parentSpline != null ? parentSpline.id : id;
+            idField.setText(dispID.get(4).equals(" ") ? "" : dispID.get(4));
             idField.relocate(poseToDisplay[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") + 3, poseToDisplay[1] - 24);
         }
         info.setText(pose.toString().replace(" | ", "\n"));
         info.relocate(poseToDisplay[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") + 3, poseToDisplay[1] + Constants.getDouble("dashboard.gui.sizes.waypoint") - 21);
         selection.relocate(poseToDisplay[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0 - Dashboard.fieldPane.robotSize / 2.0,
-                            poseToDisplay[1] + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0 - Dashboard.fieldPane.robotSize / 2.0);
+                           poseToDisplay[1] + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0 - Dashboard.fieldPane.robotSize / 2.0);
         selection.setRotate(poseToDisplay[2]);
     }
 
@@ -224,6 +233,12 @@ public class Waypoint extends FieldObject {
                 Dashboard.fieldPane.getChildren().remove(displayGroup);
             }
         });
+    }
+
+    public void randomizeSelectColor() {
+        Color selectColor = Color.hsb(360.0 * Math.random(), 1.0, 1.0);
+        selectRect.setStroke(selectColor);
+        selectRect.setFill(new Color(selectColor.getRed(), selectColor.getGreen(), selectColor.getBlue(), 0.3));
     }
 
     public String toString() {

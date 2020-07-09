@@ -1,5 +1,6 @@
 package com.hyperion.dashboard.pane;
 
+import com.hyperion.common.ID;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.dashboard.uiobject.FieldObject;
@@ -88,7 +89,7 @@ public class LeftPane extends VBox {
             opModeSelector.setPrefSize(halfWidth * 2 + 10, 91);
             opModeSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
                 Dashboard.fieldPane.select(null);
-                Dashboard.opModeID = newValue.toString();
+                Dashboard.opModeID = new ID(newValue.toString());
                 for (FieldObject o : Dashboard.fieldObjects) {
                     if (o.id.contains(Dashboard.opModeID)) {
                         o.addDisplayGroup();

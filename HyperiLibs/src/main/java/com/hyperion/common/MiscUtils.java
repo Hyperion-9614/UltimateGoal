@@ -19,21 +19,21 @@ public class MiscUtils {
                     switch (edit.type) {
                         case CREATE:
                         case EDIT_BODY:
-                            target.put(edit.id, o.equals("waypoints") ? new JSONArray(edit.body) : new JSONObject(edit.body));
+                            target.put(edit.id.toString(), o.equals("waypoints") ? new JSONArray(edit.body) : new JSONObject(edit.body));
                             break;
                         case EDIT_ID:
                             if (edit.id.contains("waypoint")) {
-                                JSONArray wpArr = target.getJSONArray(edit.id);
-                                target.remove(edit.id);
+                                JSONArray wpArr = target.getJSONArray(edit.id.toString());
+                                target.remove(edit.id.toString());
                                 target.put(edit.body, wpArr);
                             } else {
-                                JSONObject splineObj = target.getJSONObject(edit.id);
-                                target.remove(edit.id);
+                                JSONObject splineObj = target.getJSONObject(edit.id.toString());
+                                target.remove(edit.id.toString());
                                 target.put(edit.body, splineObj);
                             }
                             break;
                         case DELETE:
-                            target.remove(edit.id);
+                            target.remove(edit.id.toString());
                             break;
                     }
                     field.put(o, target);

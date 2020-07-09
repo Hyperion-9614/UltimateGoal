@@ -1,6 +1,7 @@
 package com.hyperion.dashboard;
 
 import com.hyperion.common.Constants;
+import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
 import com.hyperion.common.MiscUtils;
 import com.hyperion.dashboard.net.BTServer;
@@ -34,6 +35,8 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -60,7 +63,7 @@ public class Dashboard extends Application {
     public static Map<String, String> metrics = new HashMap<>();
     public static boolean isRobotOnField;
 
-    public static String opModeID = "auto.blue.full";
+    public static ID opModeID = new ID("auto.blue.full");
     public static boolean isBuildingPaths;
     public static String constantsSave = "";
     public static boolean isLoaded = false;
@@ -119,6 +122,11 @@ public class Dashboard extends Application {
         Scene scene = new Scene(all, 1280, 720, Color.TRANSPARENT);
         scene.setOnKeyPressed(event -> {
             isBuildingPaths = event.isShiftDown();
+            System.out.println(isBuildingPaths);
+        });
+        scene.setOnKeyReleased(event -> {
+            isBuildingPaths = event.isShiftDown();
+            System.out.println(isBuildingPaths);
         });
 
         if (!isLoaded) {
@@ -139,7 +147,7 @@ public class Dashboard extends Application {
                 metrics.put(miniObj.getString(0), miniObj.getString(1));
             }
 
-            editField(new FieldEdit("robot", isRobotOnField ? FieldEdit.Type.EDIT_BODY : FieldEdit.Type.CREATE,
+            editField(new FieldEdit(new ID("robot"), isRobotOnField ? FieldEdit.Type.EDIT_BODY : FieldEdit.Type.CREATE,
                       new JSONArray(new RigidBody(metrics.get("Current")).toArray()).toString()));
             isRobotOnField = true;
         } catch (Exception e) {
@@ -151,19 +159,17 @@ public class Dashboard extends Application {
         try {
             JSONArray editsArr = new JSONArray();
             for (FieldEdit edit : edits) {
-                FieldObject newObj = null;
-                if (edit.type != FieldEdit.Type.DELETE && edit.type != FieldEdit.Type.EDIT_ID) {
-                    if (edit.id.contains("spline")) {
-                        newObj = new DisplaySpline(edit.id, new JSONObject(edit.body));
-                    } else if (edit.id.contains("waypoint")) {
-                        newObj = new Waypoint(edit.id, new JSONArray(edit.body));
-                    } else {
-                        newObj = new Robot(new JSONArray(edit.body));
-                        isRobotOnField = true;
-                    }
-                }
                 switch (edit.type) {
                     case CREATE:
+                        FieldObject newObj = null;
+                        if (edit.id.contains("spline")) {
+                            newObj = new DisplaySpline(new ID(edit.id), new JSONObject(edit.body));
+                        } else if (edit.id.contains("waypoint")) {
+                            newObj = new Waypoint(new ID(edit.id), new JSONArray(edit.body));
+                        } else {
+                            newObj = new Robot(new JSONArray(edit.body));
+                            isRobotOnField = true;
+                        }
                         fieldObjects.add(newObj);
                         newObj.addDisplayGroup();
                         break;
@@ -175,8 +181,8 @@ public class Dashboard extends Application {
                                     fieldObjects.get(i).refreshDisplayGroup();
                                 } else if (fieldObjects.get(i) instanceof DisplaySpline) {
                                     fieldObjects.get(i).refreshDisplayGroup();
-                                    Dashboard.fieldPane.select(((DisplaySpline) fieldObjects.get(i)).selectedWP);
                                 } else if (fieldObjects.get(i) instanceof Waypoint) {
+                                    ((Waypoint) fieldObjects.get(i)).randomizeSelectColor();
                                     Dashboard.fieldPane.select((Waypoint) fieldObjects.get(i));
                                 }
                                 break;
@@ -186,8 +192,15 @@ public class Dashboard extends Application {
                     case EDIT_ID:
                         for (int i = 0; i < fieldObjects.size(); i++) {
                             if (fieldObjects.get(i).id.equals(edit.id)) {
-                                fieldObjects.get(i).id = edit.body;
+                                fieldObjects.get(i).id = new ID(edit.body);
                                 fieldObjects.get(i).refreshDisplayGroup();
+                                if (fieldObjects.get(i) instanceof DisplaySpline) {
+                                    int j = Integer.parseInt(fieldPane.selectedWP.id.get(5));
+                                    fieldPane.select(((DisplaySpline) fieldObjects.get(i)).waypoints.get(j));
+                                } else if (fieldObjects.get(i) instanceof Waypoint) {
+                                    ((Waypoint) fieldObjects.get(i)).randomizeSelectColor();
+                                    Dashboard.fieldPane.select((Waypoint) fieldObjects.get(i));
+                                }
                                 break;
                             }
                         }
@@ -225,10 +238,10 @@ public class Dashboard extends Application {
     public static void loadUIFromFieldJson() {
         JSONObject fieldJSON = new JSONObject(IOUtils.readFile(Constants.getFile("data", "field.json")));
         for (String id : fieldJSON.getJSONObject("waypoints").keySet()) {
-            editField(false, new FieldEdit(id, FieldEdit.Type.CREATE, fieldJSON.getJSONObject("waypoints").getJSONArray(id).toString()));
+            editField(false, new FieldEdit(new ID(id), FieldEdit.Type.CREATE, fieldJSON.getJSONObject("waypoints").getJSONArray(id).toString()));
         }
         for (String id : fieldJSON.getJSONObject("splines").keySet()) {
-            editField(false, new FieldEdit(id, FieldEdit.Type.CREATE, fieldJSON.getJSONObject("splines").getJSONObject(id).toString()));
+            editField(false, new FieldEdit(new ID(id), FieldEdit.Type.CREATE, fieldJSON.getJSONObject("splines").getJSONObject(id).toString()));
         }
         fieldPane.select(null);
     }

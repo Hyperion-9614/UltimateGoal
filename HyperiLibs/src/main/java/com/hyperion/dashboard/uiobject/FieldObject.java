@@ -1,12 +1,13 @@
 package com.hyperion.dashboard.uiobject;
 
 import com.hyperion.common.Constants;
+import com.hyperion.common.ID;
 
 import javafx.scene.Group;
 
 public abstract class FieldObject {
 
-    public String id;
+    public ID id;
     public Constants constants;
     public Group displayGroup;
     public Group selection;

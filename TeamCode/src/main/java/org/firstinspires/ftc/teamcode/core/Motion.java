@@ -68,9 +68,9 @@ public class Motion {
         JSONObject wpObj = root.getJSONObject("waypoints");
         waypoints.clear();
 
-        Iterator keys = wpObj.keys();
+        Iterator<String> keys = wpObj.keys();
         while (!hw.ctx.isStarted() && !hw.ctx.isStopRequested() && keys.hasNext()) {
-            String key = keys.next().toString();
+            String key = keys.next();
             JSONArray waypointArray = wpObj.getJSONArray(key);
             Pose waypoint = new Pose(waypointArray.getDouble(0), waypointArray.getDouble(1), waypointArray.getDouble(2));
             waypoints.put(key, waypoint);
@@ -82,9 +82,9 @@ public class Motion {
         JSONObject splinesObj = root.getJSONObject("splines");
         splines.clear();
 
-        Iterator keys = splinesObj.keys();
+        Iterator<String> keys = splinesObj.keys();
         while (!hw.ctx.isStarted() && !hw.ctx.isStopRequested() && keys.hasNext()) {
-            String key = keys.next().toString();
+            String key = keys.next();
             SplineTrajectory spline = new SplineTrajectory(splinesObj.getJSONObject(key));
             splines.put(key, spline);
         }
