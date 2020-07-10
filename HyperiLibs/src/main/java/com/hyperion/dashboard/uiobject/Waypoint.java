@@ -141,7 +141,9 @@ public class Waypoint extends FieldObject {
                             Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.DELETE, "{}"));
                             Dashboard.fieldPane.select(null);
                         } else {
-                            Dashboard.fieldPane.selectedWP.id.set(5, Math.min(Integer.parseInt(Dashboard.fieldPane.selectedWP.id.get(5)), parentSpline.spline.waypoints.size() - 1));
+                            if (Dashboard.fieldPane.selectedWP != null) {
+                                Dashboard.fieldPane.selectedWP.id.set(5, Math.min(Integer.parseInt(Dashboard.fieldPane.selectedWP.id.get(5)), parentSpline.spline.waypoints.size() - 1));
+                            }
                             Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString()));
                         }
                     } else {

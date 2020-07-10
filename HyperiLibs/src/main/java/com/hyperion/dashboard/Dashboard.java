@@ -120,14 +120,8 @@ public class Dashboard extends Application {
         all.getChildren().add(sp);
         all.getChildren().add(sideStuff);
         Scene scene = new Scene(all, 1280, 720, Color.TRANSPARENT);
-        scene.setOnKeyPressed(event -> {
-            isBuildingPaths = event.isShiftDown();
-            System.out.println(isBuildingPaths);
-        });
-        scene.setOnKeyReleased(event -> {
-            isBuildingPaths = event.isShiftDown();
-            System.out.println(isBuildingPaths);
-        });
+        scene.setOnKeyPressed(event -> isBuildingPaths = event.isShiftDown());
+        scene.setOnKeyReleased(event -> isBuildingPaths = event.isShiftDown());
 
         if (!isLoaded) {
             loadUIFromFieldJson();

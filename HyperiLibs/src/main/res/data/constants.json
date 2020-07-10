@@ -24,7 +24,20 @@
         }
     },
     "io": {"resPrefix": "\\HyperiLibs\\src\\main\\res"},
+    "spline": {
+        "verbose": false,
+        "bisectionError": 0.01,
+        "segmentLength": 50,
+        "integrator": {
+            "n": 2,
+            "relAcc": 1e-1,
+            "absAcc": 1e-2,
+            "minIters": 1,
+            "maxIters": 8
+        }
+    },
     "motionProfile": {
+        "verbose": true,
         "endErrorThresholds": {
             "rotation": 0.0174533,
             "translation": 1
@@ -36,10 +49,8 @@
             "kTv": 0.002857
         },
         "maxes": {
-            "bisectionError": 0.001,
             "aVel": 12.566,
             "tAcc": 100,
-            "segmentLength": 50,
             "tVel": 150
         }
     },

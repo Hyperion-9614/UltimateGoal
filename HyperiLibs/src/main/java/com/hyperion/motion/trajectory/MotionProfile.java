@@ -137,10 +137,12 @@ public class MotionProfile {
     }
 
     public void printPlanningPoints(String label) {
-        System.out.println(label);
-        for (RigidBody p : spline.planningPoints)
-            System.out.println(p.tVel);
-        System.out.println();
+        if (Constants.getBoolean("motionProfile.verbose")) {
+            System.out.println(label);
+            for (RigidBody p : spline.planningPoints)
+                System.out.println(p.tVel);
+            System.out.println();
+        }
     }
 
     public double getAngVel(double distance) {

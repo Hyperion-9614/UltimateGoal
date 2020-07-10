@@ -7,7 +7,12 @@ import com.hyperion.motion.math.Piecewise;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 
+import org.apache.commons.math3.analysis.integration.BaseAbstractUnivariateIntegrator;
+import org.apache.commons.math3.analysis.integration.IterativeLegendreGaussIntegrator;
+import org.apache.commons.math3.analysis.integration.RombergIntegrator;
 import org.apache.commons.math3.analysis.integration.SimpsonIntegrator;
+import org.apache.commons.math3.analysis.integration.TrapezoidIntegrator;
+import org.apache.commons.math3.analysis.integration.UnivariateIntegrator;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -71,7 +76,7 @@ public class SplineTrajectory {
             tauY = new Piecewise();
             distanceX = new Piecewise();
             distanceY = new Piecewise();
-            interpolate(waypoints, true);
+            interpolate(waypoints, true, Constants.getBoolean("spline.verbose"));
         }
     }
 
@@ -224,7 +229,10 @@ public class SplineTrajectory {
         else return new double[] { 0, 0, 0, 0 };
     }
 
-    private void interpolate(ArrayList<RigidBody> rigidBodies, boolean shouldReparameterize) {
+    private void interpolate(ArrayList<RigidBody> rigidBodies, boolean shouldReparameterize, boolean verbose) {
+        if (verbose) System.out.println("* Interpolating " + rigidBodies.size() + (shouldReparameterize ? " Waypoints" : " Planning Points") + " *");
+        long start = System.currentTimeMillis();
+
         int numIntervals = Math.max(0, rigidBodies.size() - 1);
         Piecewise pwX = (shouldReparameterize ? tauX : distanceX);
         Piecewise pwY = (shouldReparameterize ? tauY : distanceY);
@@ -251,6 +259,9 @@ public class SplineTrajectory {
             }
         }
 
+        long t1 = System.currentTimeMillis();
+        if (verbose) System.out.printf((shouldReparameterize ? "Tau " : "Distance ") + "Piecewise Generation: %.3fs\n", MathUtils.round((t1 - start) / 1000.0, 3));
+
         if (numIntervals >= 1) {
             if (shouldReparameterize) {
                 for (int i = 0; i < waypoints.size(); i++) {
@@ -258,20 +269,32 @@ public class SplineTrajectory {
                     if (i == waypoints.size() - 1)
                         length = waypoints.get(i).distance;
                 }
-                calculatePlanningPoints();
-                interpolate(planningPoints, false);
+                long t2 = System.currentTimeMillis();
+                if (verbose) System.out.printf("Segment Distances: %.3fs\n", MathUtils.round((t2 - t1) / 1000.0, 3));
+                generatePlanningPoints(verbose);
+                if (verbose) System.out.printf("Planning Points Generation: %.3fs\n", MathUtils.round((System.currentTimeMillis() - t2) / 1000.0, 3));
+                interpolate(planningPoints, false, verbose);
             } else {
                 mP.recreate();
+                if (verbose) System.out.printf("Profile Generation: %.3fs\n", MathUtils.round((System.currentTimeMillis() - t1) / 1000.0, 3));
             }
         }
-    }
-    private void calculatePlanningPoints() {
-        planningPoints = new ArrayList<>();
 
+        if (shouldReparameterize && verbose) {
+            System.out.printf("Total: %.3fs\n", MathUtils.round((System.currentTimeMillis() - start) / 1000.0, 3));
+            System.out.println();
+        }
+    }
+    private void generatePlanningPoints(boolean verbose) {
+        planningPoints = new ArrayList<>();
+        planningPoints.add(new RigidBody(0, 0, waypoints.get(0).theta, this));
         double L = arcDistance(waypoints.size() - 1);
-        int numSegments = (int) Math.ceil(L / Constants.getDouble("motionProfile.maxes.segmentLength"));
+        int numSegments = (int) Math.ceil(L / Constants.getDouble("spline.segmentLength"));
         segmentLength = L / numSegments;
-        for (int i = 0; i < numSegments; i++) {
+
+        if (verbose) System.out.printf("* Generating %d Planning Points *\n", numSegments - 1);
+        for (int i = 1; i < numSegments; i++) {
+            long start = System.currentTimeMillis();
             double l = i * segmentLength;
             int tJ;
             for (tJ = 0; tJ < tauX.size(); tJ++) {
@@ -284,7 +307,7 @@ public class SplineTrajectory {
             double tRight = tJ + 1;
             double tMiddle = (tLeft + tRight) / 2.0;
             double tMiddleLength = arcDistance(tMiddle);
-            while (Math.abs(tMiddleLength - l) > Constants.getDouble("motionProfile.maxes.bisectionError")) {
+            while (Math.abs(tMiddleLength - l) > Constants.getDouble("spline.bisectionError")) {
                 if (l > tMiddleLength) {
                     tLeft = tMiddle;
                 } else if (l < tMiddleLength) {
@@ -296,6 +319,7 @@ public class SplineTrajectory {
             double theta = waypoints.get(tJ).theta + MathUtils.optThetaDiff(waypoints.get(tJ).theta, waypoints.get(tJ + 1).theta)
                            * ((l - waypoints.get(tJ).distance) / (waypoints.get(tJ + 1).distance - waypoints.get(tJ).distance));
             planningPoints.add(new RigidBody(tMiddle, l, theta, this));
+            if (verbose) System.out.printf("    PP #%d: %.3fs\n", i, MathUtils.round((System.currentTimeMillis() - start) / 1000.0, 3));
         }
         planningPoints.add(new RigidBody(waypoints.size() - 1, segmentLength * numSegments, waypoints.get(waypoints.size() - 1).theta, this));
     }
@@ -305,22 +329,28 @@ public class SplineTrajectory {
     private double arcDistance(double T1) {
         if (T1 == 0) return 0;
         int t2 = (int) Math.floor(T1);
-
         double length = 0;
+
+        UnivariateIntegrator integrator = new IterativeLegendreGaussIntegrator(
+                Constants.getInt("spline.integrator.n"),
+                Constants.getDouble("spline.integrator.relAcc"),
+                Constants.getDouble("spline.integrator.relAcc"),
+                Constants.getInt("spline.integrator.minIters"),
+                Constants.getInt("spline.integrator.maxIters")
+        );
         for (int T = 0; T < t2; T++) {
-            length += arcLengthInterval(T, T + 1);
+            length += arcLengthInterval(integrator, T, T + 1);
         }
 
-        length += arcLengthInterval(t2, T1);
+        length += arcLengthInterval(integrator, t2, T1);
         return MathUtils.round(length, 3);
     }
-    private double arcLengthInterval(int Tstart, double Tend) {
+    private double arcLengthInterval(UnivariateIntegrator integrator, int Tstart, double Tend) {
         if (Tstart < tauX.size() && Tend > Tstart) {
-            SimpsonIntegrator integrator = new SimpsonIntegrator();
             String X = "(" + tauX.getExpressionString(Tstart, Tstart + 1, 1) + ")^2";
             String Y = "(" + tauY.getExpressionString(Tstart, Tstart + 1, 1) + ")^2";
             Function func = new Function("f(t) = sqrt(" + X + " + " + Y + ")");
-            return integrator.integrate(1000, func::calculate, Tstart, Tend);
+            return integrator.integrate(2000, func::calculate, Tstart, Tend);
         } else {
             return 0;
         }
