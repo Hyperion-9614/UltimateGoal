@@ -45,8 +45,8 @@ public class MotionProfile {
     // Initialize planning points with max isolated velocity
     public void initializePlanningPoints() {
         for (RigidBody p : spline.planningPoints) {
-            double dX = spline.distanceX.evaluate(p.distance, 1);
-            double dY = spline.distanceY.evaluate(p.distance, 1);
+            double dX = spline.distanceX.evaluate(spline.paramDistance(p.distance), 1);
+            double dY = spline.distanceY.evaluate(spline.paramDistance(p.distance), 1);
             p.tVel = new Vector2D(getIsolatedMaxVelocity(p.distance), MathUtils.norm(Math.atan2(dY, dX)), false);
         }
         printPlanningPoints("init");

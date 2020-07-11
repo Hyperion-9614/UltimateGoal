@@ -7,11 +7,7 @@ import com.hyperion.motion.math.Piecewise;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 
-import org.apache.commons.math3.analysis.integration.BaseAbstractUnivariateIntegrator;
 import org.apache.commons.math3.analysis.integration.IterativeLegendreGaussIntegrator;
-import org.apache.commons.math3.analysis.integration.RombergIntegrator;
-import org.apache.commons.math3.analysis.integration.SimpsonIntegrator;
-import org.apache.commons.math3.analysis.integration.TrapezoidIntegrator;
 import org.apache.commons.math3.analysis.integration.UnivariateIntegrator;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
@@ -22,6 +18,7 @@ import org.mariuszgromada.math.mxparser.Function;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * Creates a 2D parametric cubic spline curve given a set of at least 2 waypoints
@@ -282,9 +279,11 @@ public class SplineTrajectory {
 
         if (shouldReparameterize && verbose) {
             System.out.printf("Total: %.3fs\n", MathUtils.round((System.currentTimeMillis() - start) / 1000.0, 3));
+            System.out.printf("RARD: %.3fcm\n", getRARD());
             System.out.println();
         }
     }
+
     private void generatePlanningPoints(boolean verbose) {
         planningPoints = new ArrayList<>();
         planningPoints.add(new RigidBody(0, 0, waypoints.get(0).theta, this));
@@ -307,7 +306,7 @@ public class SplineTrajectory {
             double tRight = tJ + 1;
             double tMiddle = (tLeft + tRight) / 2.0;
             double tMiddleLength = arcDistance(tMiddle);
-            while (Math.abs(tMiddleLength - l) > Constants.getDouble("spline.bisectionError")) {
+            while (Math.abs(tMiddleLength - l) > Constants.getDouble("spline.maxBisectionError")) {
                 if (l > tMiddleLength) {
                     tLeft = tMiddle;
                 } else if (l < tMiddleLength) {
@@ -324,9 +323,24 @@ public class SplineTrajectory {
         planningPoints.add(new RigidBody(waypoints.size() - 1, segmentLength * numSegments, waypoints.get(waypoints.size() - 1).theta, this));
     }
 
+    // RARD Accuracy Metric: Random Average Reparameterization Deviation
+    private double getRARD() {
+        Pose[] tPoses = new Pose[10];
+        Pose[] dPoses = new Pose[10];
+        double[] deviations = new double[10];
+        Random rand = new Random();
+        for (int i = 0; i < 10; i++) {
+            double T = MathUtils.randInRange(rand, 0, waypoints.size() - 1);
+            tPoses[i] = getTPose(T);
+            dPoses[i] = getDPose(arcDistance(T));
+            deviations[i] = tPoses[i].distanceTo(dPoses[i]);
+        }
+        return MathUtils.sum(deviations) / 10.0;
+    }
+
     ///////////////////////// SPLINE INTERPRETATION //////////////////////////
 
-    private double arcDistance(double T1) {
+    public double arcDistance(double T1) {
         if (T1 == 0) return 0;
         int t2 = (int) Math.floor(T1);
         double length = 0;
@@ -345,6 +359,7 @@ public class SplineTrajectory {
         length += arcLengthInterval(integrator, t2, T1);
         return MathUtils.round(length, 3);
     }
+
     private double arcLengthInterval(UnivariateIntegrator integrator, int Tstart, double Tend) {
         if (Tstart < tauX.size() && Tend > Tstart) {
             String X = "(" + tauX.getExpressionString(Tstart, Tstart + 1, 1) + ")^2";
@@ -365,6 +380,7 @@ public class SplineTrajectory {
         }
         return i;
     }
+
     public double paramDistance(double distance) {
         double count = 0;
         while (distance >= segmentLength) {
@@ -373,11 +389,13 @@ public class SplineTrajectory {
         }
         return (distance / segmentLength) + count;
     }
+
     public Pose getTPose(double T) {
         if (T == waypoints.size())
             return waypoints.get(waypoints.size() - 1);
         return new Pose(tauX.evaluate(T, 0), tauY.evaluate(T, 0), 0);
     }
+
     public Pose getDPose(double distance) {
         if (distance == waypoints.get(waypoints.size() - 1).distance)
             return waypoints.get(waypoints.size() - 1);
@@ -389,8 +407,9 @@ public class SplineTrajectory {
     }
 
     public double dYdX(double distance, int derivative) {
-        double dX = distanceX.evaluate(distance, derivative);
-        double dY = distanceY.evaluate(distance, derivative);
+        if (distance == 0) distance = 0.001;
+        double dX = distanceX.evaluate(paramDistance(distance), derivative);
+        double dY = distanceY.evaluate(paramDistance(distance), derivative);
         return dY / dX;
     }
 

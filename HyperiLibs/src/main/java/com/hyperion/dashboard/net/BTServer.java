@@ -65,8 +65,8 @@ public class BTServer extends BTEndpoint {
         Constants.write();
 
         Dashboard.constantsSave = msg.json;
-        if (Dashboard.rightPane != null) {
-            Dashboard.rightPane.setConstantsDisplayText(Constants.root.toString(4));
+        if (Dashboard.leftPane != null) {
+            Dashboard.leftPane.setConstantsDisplayText(Constants.root.toString(4));
         }
     }
 

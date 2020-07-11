@@ -4,6 +4,8 @@ import com.hyperion.motion.math.Pose;
 
 import org.apache.commons.math3.util.Precision;
 
+import java.util.Random;
+
 public class MathUtils {
 
     public static double round(double n, int places) {
@@ -70,6 +72,10 @@ public class MathUtils {
 
     public static int sign(double val) {
         return (val >= 0 ? 1 : -1);
+    }
+
+    public static double randInRange(Random rand, double lower, double upper) {
+        return lower + (upper - lower) * rand.nextDouble();
     }
 
 }

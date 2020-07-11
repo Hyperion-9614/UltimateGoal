@@ -88,8 +88,8 @@ public class Pose {
 
     @Override
     public String toString() {
-        return "X: " + MathUtils.round(x, 2) + " | Y: " + MathUtils.round(y, 2)
-                + " | Theta: " + MathUtils.round(Math.toDegrees(theta), 2) + "°";
+        return "X: " + MathUtils.round(x, 3) + " | Y: " + MathUtils.round(y, 3)
+                + " | Theta: " + MathUtils.round(Math.toDegrees(theta), 3) + "°";
     }
 
 }
