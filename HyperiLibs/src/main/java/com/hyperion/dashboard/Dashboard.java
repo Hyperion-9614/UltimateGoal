@@ -12,6 +12,7 @@ import com.hyperion.dashboard.pane.LeftPane;
 import com.hyperion.dashboard.pane.MenuPane;
 import com.hyperion.dashboard.pane.RightPane;
 import com.hyperion.dashboard.pane.VisualPane;
+import com.hyperion.dashboard.uiobject.Arrow;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.FieldObject;
 import com.hyperion.dashboard.uiobject.Robot;
@@ -119,6 +120,7 @@ public class Dashboard extends Application {
         sp.setContent(sideStuff);
         all.getChildren().add(sp);
         all.getChildren().add(sideStuff);
+
         Scene scene = new Scene(all, 1280, 720, Color.TRANSPARENT);
         scene.setOnKeyPressed(event -> isBuildingPaths = event.isShiftDown());
         scene.setOnKeyReleased(event -> isBuildingPaths = event.isShiftDown());

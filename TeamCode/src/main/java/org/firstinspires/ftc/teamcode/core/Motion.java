@@ -155,7 +155,7 @@ public class Motion {
         ElapsedTime timer = new ElapsedTime();
         while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 2250
                && (robot.distanceTo(target) > Constants.getDouble("motionProfile.endErrorThresholds.translation")
-               || Math.abs(MathUtils.optThetaDiff(robot.theta, target.theta)) > Constants.getDouble("motionProfile.endErrorThresholds.rotation"))) {
+               || Math.abs(MathUtils.optThetaDiff(robot.theta, target.theta)) > Math.toRadians(Constants.getDouble("motionProfile.endErrorThresholds.rotation")))) {
             setDrive(pid.pidWheelCorrections(robot));
         }
         setDrive(0);
@@ -202,7 +202,7 @@ public class Motion {
         ElapsedTime timer = new ElapsedTime();
         while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 3000
                 && (robot.distanceTo(goal) > Constants.getDouble("motionProfile.endErrorThresholds.translation")
-                || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Constants.getDouble("motionProfile.endErrorThresholds.rotation"))) {
+                || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Math.toRadians(Constants.getDouble("motionProfile.endErrorThresholds.rotation")))) {
             distance += last.distanceTo(robot);
             last = new Pose(robot);
 

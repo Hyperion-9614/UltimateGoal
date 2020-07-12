@@ -39,7 +39,7 @@
     "motionProfile": {
         "verbose": true,
         "endErrorThresholds": {
-            "rotation": 0.0174533,
+            "rotation": 1,
             "translation": 1
         },
         "k": {
@@ -90,6 +90,6 @@
             "dragTime": 150
         },
         "net": {"serviceUUID": "2d26618601fb47c28d9f10b8ec891363"},
-        "version": "4.1"
+        "version": "5.0"
     }
 }

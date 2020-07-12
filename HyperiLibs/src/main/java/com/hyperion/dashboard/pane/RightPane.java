@@ -46,7 +46,7 @@ public class RightPane extends VBox {
             getChildren().add(metricsLabel);
 
             metricsDisplay = new TextArea();
-            metricsDisplay.setStyle("-fx-font: 14px \"Arial\";");
+            metricsDisplay.setStyle("-fx-font: 14px \"Arial\"; -fx-focus-color: transparent;");
             metricsDisplay.setPrefSize(width, width + 490);
             metricsDisplay.setEditable(false);
             getChildren().add(metricsDisplay);

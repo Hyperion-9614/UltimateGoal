@@ -135,7 +135,7 @@ public class FieldPane extends Pane {
                                     Dashboard.editField(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON()));
                                 }
                             } else {
-                                Waypoint newWP = new Waypoint(new ID(Dashboard.opModeID, "waypoint", " "), newPose, null, true, true);
+                                Waypoint newWP = new Waypoint(new ID(Dashboard.opModeID, "waypoint", " "), newPose, null, true, false, true);
                                 Dashboard.editField(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray())));
                             }
                         }
@@ -215,6 +215,7 @@ public class FieldPane extends Pane {
                 if (selectedWP.parentSpline != null) {
                     selectedWP.parentSpline.displayGroup.getChildren().remove(selectedWP.parentSpline.selection);
                 }
+                selectedWP.info.setVisible(false);
             }
 
             selectedWP = newSelected;
@@ -226,6 +227,7 @@ public class FieldPane extends Pane {
                     selectedWP.parentSpline.selection.toBack();
                     Dashboard.visualPane.updateGraphs(selectedWP.parentSpline);
                 }
+                selectedWP.info.setVisible(true);
             }
         }
     }

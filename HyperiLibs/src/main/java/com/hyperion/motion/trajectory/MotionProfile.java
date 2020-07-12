@@ -108,15 +108,15 @@ public class MotionProfile {
     public void generateTransVelProfile() {
         transVelProfile = new Piecewise();
         for (int i = 0; i < spline.planningPoints.size() - 1; i++) {
-            setTVPInterval(transVelProfile, spline.planningPoints.get(i), spline.planningPoints.get(i + 1));
+            setTVPInterval(spline.planningPoints.get(i), spline.planningPoints.get(i + 1));
         }
-        setTVPInterval(transVelProfile, spline.planningPoints.get(spline.planningPoints.size() - 2), spline.planningPoints.get(spline.planningPoints.size() - 1));
+        setTVPInterval(spline.planningPoints.get(spline.planningPoints.size() - 2), spline.planningPoints.get(spline.planningPoints.size() - 1));
     }
 
     // Set an interval in the translational velocity profile
-    public void setTVPInterval(Piecewise profile, RigidBody pp0, RigidBody pp1) {
+    public void setTVPInterval(RigidBody pp0, RigidBody pp1) {
         double slope = MathUtils.slope(pp0.distance, pp0.tVel.magnitude, pp1.distance, pp1.tVel.magnitude);
-        profile.setInterval(pp0.distance, pp1.distance, "(" + slope + ")*t + (" + -(slope * pp0.distance) + ") + (" + pp0.tVel.magnitude + ")");
+        transVelProfile.setInterval(pp0.distance, pp1.distance, "(" + slope + ")*t + (" + -(slope * pp0.distance) + ") + (" + pp0.tVel.magnitude + ")");
     }
 
     public Vector2D getTransVel(double distance) {

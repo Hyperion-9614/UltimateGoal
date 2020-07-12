@@ -61,7 +61,7 @@ public class LeftPane extends VBox {
 
             Button clearOpMode = new Button("Clear Current\nOpMode");
             clearOpMode.setTextAlignment(TextAlignment.CENTER);
-            clearOpMode.setStyle("-fx-font: 14px \"Arial\";");
+            clearOpMode.setStyle("-fx-font: 14px \"Arial\"; -fx-focus-color: transparent;");
             clearOpMode.setPrefSize(width / 2.0, 50);
             clearOpMode.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
@@ -75,7 +75,7 @@ public class LeftPane extends VBox {
             buttons.getChildren().add(clearOpMode);
 
             Button clearAllOpModes = new Button("Clear All\nOpModes");
-            clearAllOpModes.setStyle("-fx-font: 14px \"Arial\";");
+            clearAllOpModes.setStyle("-fx-font: 14px \"Arial\"; -fx-focus-color: transparent;");
             clearAllOpModes.setTextAlignment(TextAlignment.CENTER);
             clearAllOpModes.setPrefSize(width / 2.0, 50);
             clearAllOpModes.setOnMouseClicked(event -> {
@@ -98,7 +98,7 @@ public class LeftPane extends VBox {
                 );
             final ComboBox<String> opModeSelector = new ComboBox<>(options);
             opModeSelector.valueProperty().setValue("auto.blue.full");
-            opModeSelector.setStyle("-fx-font: 24px \"Arial\";");
+            opModeSelector.setStyle("-fx-font: 24px \"Arial\"; -fx-focus-color: transparent;");
             opModeSelector.setPrefSize(width + 10, 91);
             opModeSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
                 Dashboard.fieldPane.select(null);
@@ -120,7 +120,7 @@ public class LeftPane extends VBox {
             getChildren().add(constantsLabel);
 
             constantsDisplay = new TextArea();
-            constantsDisplay.setStyle("-fx-font: 14px \"Arial\";");
+            constantsDisplay.setStyle("-fx-font: 14px \"Arial\"; -fx-focus-color: transparent;");
             constantsDisplay.setPrefSize(width, width + 282);
             constantsDisplay.setEditable(true);
             setConstantsDisplayText(Constants.root.toString(4));

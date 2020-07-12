@@ -1,29 +1,40 @@
 package com.hyperion.dashboard.uiobject;
 
+import com.hyperion.common.ArrayUtils;
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
+import com.hyperion.common.MathUtils;
 import com.hyperion.dashboard.Dashboard;
-import com.hyperion.dashboard.net.FieldEdit;
-import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Pose;
+import com.hyperion.motion.math.RigidBody;
+import com.hyperion.motion.math.Vector2D;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Random;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
-import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 public class DisplaySpline extends FieldObject {
 
     public SplineTrajectory spline;
     public ArrayList<Waypoint> waypoints;
+    public Thread simulationThread;
 
     public DisplaySpline() {
 
@@ -99,7 +110,7 @@ public class DisplaySpline extends FieldObject {
 
         for (int i = 0; i < spline.waypoints.size(); i++) {
             RigidBody wpPP = spline.waypoints.get(i);
-            Waypoint waypoint = new Waypoint(new ID(id, i), wpPP, this, (i == 0), false);
+            Waypoint waypoint = new Waypoint(new ID(id, i), wpPP, this, (i == 0), (i == 0), false);
             waypoints.add(waypoint);
             waypoint.addDisplayGroup();
         }
@@ -131,6 +142,34 @@ public class DisplaySpline extends FieldObject {
 
     public void removeDisplayGroup() {
         Platform.runLater(() -> Dashboard.fieldPane.getChildren().remove(displayGroup));
+    }
+
+    public void simulateMotionProfile() {
+        Thread simulationThread = new Thread(() -> {
+            Arrow velocityVec = new Arrow(Color.WHITE, 20);
+            Platform.runLater(() -> {
+                displayGroup.getChildren().add(velocityVec.displayGroup);
+                velocityVec.displayGroup.toFront();
+            });
+
+            double distanceIncrement = 1;
+            for (double d = 0; d < spline.waypoints.get(waypoints.size() - 1).distance; d += distanceIncrement) {
+                Pose origin = spline.getDPose(d);
+                Vector2D velocity = spline.mP.getTransVel(d);
+                velocity.setMagnitude(Math.max(5, velocity.magnitude * 40));
+                Pose dest = origin.addVector(velocity);
+                Platform.runLater(() -> velocityVec.set(Dashboard.fieldPane.poseToDisplay(origin, 0),
+                                                        Dashboard.fieldPane.poseToDisplay(dest, 0)));
+                try {
+                    Thread.sleep((long) MathUtils.round((distanceIncrement / velocity.magnitude) * 1000, 0));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            Platform.runLater(() -> displayGroup.getChildren().remove(velocityVec.displayGroup));
+        });
+        simulationThread.start();
     }
 
 }
