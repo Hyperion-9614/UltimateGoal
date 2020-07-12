@@ -35,6 +35,7 @@ public class DisplaySpline extends FieldObject {
     public SplineTrajectory spline;
     public ArrayList<Waypoint> waypoints;
     public Thread simulationThread;
+    public boolean isSimulating;
 
     public DisplaySpline() {
 
@@ -145,29 +146,46 @@ public class DisplaySpline extends FieldObject {
     }
 
     public void simulateMotionProfile() {
-        Thread simulationThread = new Thread(() -> {
-            Arrow velocityVec = new Arrow(Color.WHITE, 20);
+        simulationThread = new Thread(() -> {
+            isSimulating = true;
+
+            Arrow velocityVec = new Arrow(Color.BLACK, 20);
+            Robot simulationRobot = new Robot(new ID("robot.simulation"), spline.getDPose(0));
+
             Platform.runLater(() -> {
+                waypoints.get(0).simMP.setText("Stop\nSim");
+                displayGroup.getChildren().add(simulationRobot.displayGroup);
+                simulationRobot.displayGroup.toFront();
                 displayGroup.getChildren().add(velocityVec.displayGroup);
                 velocityVec.displayGroup.toFront();
             });
 
             double distanceIncrement = 1;
-            for (double d = 0; d < spline.waypoints.get(waypoints.size() - 1).distance; d += distanceIncrement) {
+            for (double d = 0; d < spline.waypoints.get(spline.waypoints.size() - 1).distance; d += distanceIncrement) {
+                if (!isSimulating) break;
+
                 Pose origin = spline.getDPose(d);
                 Vector2D velocity = spline.mP.getTransVel(d);
                 velocity.setMagnitude(Math.max(5, velocity.magnitude * 40));
                 Pose dest = origin.addVector(velocity);
-                Platform.runLater(() -> velocityVec.set(Dashboard.fieldPane.poseToDisplay(origin, 0),
-                                                        Dashboard.fieldPane.poseToDisplay(dest, 0)));
+                simulationRobot.rigidBody = new RigidBody(origin);
+
+                Platform.runLater(() -> {
+                    simulationRobot.refreshDisplayGroup();
+                    velocityVec.set(Dashboard.fieldPane.poseToDisplay(origin, 0),
+                                    Dashboard.fieldPane.poseToDisplay(dest, 0));
+                });
                 try {
                     Thread.sleep((long) MathUtils.round((distanceIncrement / velocity.magnitude) * 1000, 0));
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+
                 }
             }
 
             Platform.runLater(() -> displayGroup.getChildren().remove(velocityVec.displayGroup));
+            Platform.runLater(() -> displayGroup.getChildren().remove(simulationRobot.displayGroup));
+            Platform.runLater(() -> waypoints.get(0).simMP.setText("Simulate\nMotion\nProfile"));
+            isSimulating = false;
         });
         simulationThread.start();
     }

@@ -163,7 +163,7 @@ public class Dashboard extends Application {
                         } else if (edit.id.contains("waypoint")) {
                             newObj = new Waypoint(new ID(edit.id), new JSONArray(edit.body));
                         } else {
-                            newObj = new Robot(new JSONArray(edit.body));
+                            newObj = new Robot(new ID("robot.realtime"), new JSONArray(edit.body));
                             isRobotOnField = true;
                         }
                         fieldObjects.add(newObj);

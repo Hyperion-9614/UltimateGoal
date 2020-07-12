@@ -3,6 +3,7 @@ package com.hyperion.dashboard.uiobject;
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.dashboard.Dashboard;
+import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 
 import org.json.JSONArray;
@@ -16,11 +17,23 @@ public class Robot extends FieldObject {
     public ImageView imgView;
     public RigidBody rigidBody;
 
-    public Robot(JSONArray arr) {
-        this.id = new ID("robot");
+    public Robot(ID id) {
+        this.id = id;
         createDisplayGroup();
-        rigidBody = new RigidBody(arr);
+    }
+
+    public Robot(ID id, RigidBody rigidBody) {
+        this(id);
+        this.rigidBody = new RigidBody(rigidBody);
         refreshDisplayGroup();
+    }
+
+    public Robot(ID id, Pose pose) {
+        this(id, new RigidBody(pose));
+    }
+
+    public Robot(ID id, JSONArray arr) {
+        this(id, new RigidBody(arr));
     }
 
     public void createDisplayGroup() {

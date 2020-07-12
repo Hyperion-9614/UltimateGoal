@@ -74,6 +74,10 @@ public class Pose {
         this.theta = newPose.theta;
     }
 
+    public Pose thetaed(double newTheta) {
+        return new Pose(x, y, newTheta);
+    }
+
     public Pose addVector(Vector2D vec) {
         return new Pose(this.x + vec.x, this.y + vec.y, this.theta);
     }

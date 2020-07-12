@@ -113,7 +113,12 @@ public class Waypoint extends FieldObject {
                 simMP.setPrefSize(64, 60);
                 simMP.setOnMouseClicked(event -> {
                     Dashboard.fieldPane.select(this);
-                    parentSpline.simulateMotionProfile();
+                    if (parentSpline.isSimulating) {
+                        parentSpline.isSimulating = false;
+                        while (parentSpline.simulationThread != null && parentSpline.simulationThread.isAlive()) {}
+                    } else {
+                        parentSpline.simulateMotionProfile();
+                    }
                 });
                 displayGroup.getChildren().add(simMP);
             }

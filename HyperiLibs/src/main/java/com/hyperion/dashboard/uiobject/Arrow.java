@@ -1,9 +1,5 @@
 package com.hyperion.dashboard.uiobject;
 
-import com.hyperion.common.ArrayUtils;
-import com.hyperion.common.MiscUtils;
-import com.hyperion.common.TextUtils;
-
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;

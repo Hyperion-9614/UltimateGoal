@@ -50,6 +50,14 @@ public class MotionProfile {
             p.tVel = new Vector2D(getIsolatedMaxVelocity(p.distance), MathUtils.norm(Math.atan2(dY, dX)), false);
         }
         printPlanningPoints("init");
+
+        if (Constants.getBoolean("motionProfile.verbose")) {
+            System.out.println("distance / curvature");
+            for (double d = 0; d < spline.waypoints.get(spline.waypoints.size() - 1).distance; d += 1) {
+                System.out.println(d + " " + spline.getCurvature(d));
+            }
+            System.out.println();
+        }
     }
 
     // Establish forward consistency among velocities of planning points based on maximum acceleration (accelerational constraints)
