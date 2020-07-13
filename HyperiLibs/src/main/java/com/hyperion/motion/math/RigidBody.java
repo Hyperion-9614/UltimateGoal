@@ -30,6 +30,15 @@ public class RigidBody extends Pose {
         setPose(pose);
     }
 
+    public RigidBody(double distance, SplineTrajectory sT) {
+        this(distance);
+        setPose(sT.getDPose(distance));
+        this.tVel = sT.mP.getTransVel(distance);
+        this.tAcc = sT.mP.getTransAcc(distance);
+        this.aVel = sT.mP.getAngVel(distance);
+        this.aAcc = sT.mP.getAngAcc(distance);
+    }
+
     public RigidBody(double T, double distance, double theta, SplineTrajectory sT) {
         this.T = T;
         setPose(sT.getTPose(T));

@@ -1,12 +1,10 @@
-package org.firstinspires.ftc.teamcode.modules;
+package com.hyperion.motion.trajectory;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.MathUtils;
+import com.hyperion.common.MiscUtils;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
-
-import org.firstinspires.ftc.teamcode.core.Hardware;
-import org.firstinspires.ftc.teamcode.core.Motion;
 
 import java.util.ArrayList;
 
@@ -17,28 +15,23 @@ import java.util.ArrayList;
  * (2) https://www.ni.com/en-us/innovations/white-papers/06/pid-theory-explained.html
  */
 
-public class HomogeneousPID {
+public class PIDController {
 
-    public Hardware hardware;
-    private long lastTime;
-    private double time;
-    private Pose goal;
+    private static long lastTime;
+    private static double time;
+    private static Pose goal;
 
-    private ArrayList<double[]> xEt;
-    public ArrayList<double[]> xUt;
-    private ArrayList<double[]> yEt;
-    public ArrayList<double[]> yUt;
-    private ArrayList<double[]> thetaEt;
-    public ArrayList<double[]> thetaUt;
+    private static ArrayList<double[]> xEt;
+    public static ArrayList<double[]> xUt;
+    private static ArrayList<double[]> yEt;
+    public static ArrayList<double[]> yUt;
+    private static ArrayList<double[]> thetaEt;
+    public static ArrayList<double[]> thetaUt;
 
-    public HomogeneousPID(Hardware hardware) {
-        this.hardware = hardware;
-    }
-
-    public void reset(Pose goal) {
+    public static void init(Pose goal) {
         lastTime = -1;
         time = 0;
-        this.goal = new Pose(goal);
+        PIDController.goal = new Pose(goal);
         xEt = new ArrayList<>();
         xUt = new ArrayList<>();
         yEt = new ArrayList<>();
@@ -47,7 +40,7 @@ public class HomogeneousPID {
         thetaUt = new ArrayList<>();
     }
 
-    public double[] pidWheelCorrections(Pose robot) {
+    public static double[] wheelCorrections(Pose robot) {
         if (lastTime == -1) lastTime = System.currentTimeMillis();
         double dT = (System.currentTimeMillis() - lastTime) / 1000.0;
 
@@ -70,18 +63,19 @@ public class HomogeneousPID {
         return wheelCorrections(uX, uY, uTheta);
     }
 
-    private double[] wheelCorrections(double uX, double uY, double uTheta) {
+    private static double[] wheelCorrections(double uX, double uY, double uTheta) {
+        double maxC = Constants.getDouble("pid.maxCorrection");
         Vector2D relMoveVec = new Vector2D(uX, uY, true).rotated(Math.PI / 2);
-        relMoveVec.setMagnitude(Math.min(0.75, relMoveVec.magnitude));
-        double w = -MathUtils.clip(uTheta, -0.75, 0.75);
-        return Motion.toMotorPowers(relMoveVec, w);
+        relMoveVec.setMagnitude(Math.min(maxC, relMoveVec.magnitude));
+        double w = -MathUtils.clip(uTheta, -maxC, maxC);
+        return MiscUtils.toMotorPowers(relMoveVec, w);
     }
 
-    private double pOut(ArrayList<double[]> eT, double kP) {
+    private static double pOut(ArrayList<double[]> eT, double kP) {
         return kP * eT.get(eT.size() - 1)[1];
     }
 
-    private double iOut(ArrayList<double[]> eT, double kI) {
+    private static double iOut(ArrayList<double[]> eT, double kI) {
         double integral = 0;
         for (int i = 0; i < eT.size() - 1; i++) {
             double baseSum = eT.get(i)[1] + eT.get(i + 1)[1];
@@ -91,7 +85,7 @@ public class HomogeneousPID {
         return kI * integral;
     }
 
-    private double dOut(ArrayList<double[]> eT, double kD) {
+    private static double dOut(ArrayList<double[]> eT, double kD) {
         double derivative = 0;
         if (eT.size() >= 2) {
             derivative = (eT.get(eT.size() - 1)[1] - eT.get(eT.size() - 2)[1]) / (eT.get(eT.size() - 1)[0] - eT.get(eT.size() - 2)[0]);

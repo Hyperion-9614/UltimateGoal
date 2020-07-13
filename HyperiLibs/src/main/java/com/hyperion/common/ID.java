@@ -15,10 +15,12 @@ public class ID {
     }
 
     public String get(int i) {
+        if (i < 0) i += args.size();
         return i < args.size() ? args.get(i) : "";
     }
 
     public void set(int i, Object val) {
+        if (i < 0) i += args.size();
         args.set(i, val.toString());
     }
 
@@ -27,6 +29,7 @@ public class ID {
     }
 
     public void remove(int i) {
+        if (i < 0) i += args.size();
         args.remove(i);
     }
 

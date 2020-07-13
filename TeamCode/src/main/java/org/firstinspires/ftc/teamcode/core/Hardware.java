@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.core;
 
 import com.hyperion.common.Constants;
+import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
 import com.hyperion.dashboard.net.Message;
 import com.hyperion.motion.math.Pose;
@@ -37,14 +38,14 @@ public class Hardware {
     public ElapsedTime autoTime;
 
     public LinearOpMode ctx;
-    public String opModeID = "Choose OpMode";
+    public ID opModeID = new ID("Choose OpMode");
 
     public OpenCvInternalCamera phoneCam;
     public CvPipeline cvPipeline;
 
     public BTClient btClient;
     public Metrics metrics;
-    public String status = opModeID;
+    public String status = opModeID.toString();
 
     public File fieldJSON;
     public File nnConfigJson;
@@ -144,7 +145,7 @@ public class Hardware {
     // Initialize OpMode
     public void initOpMode(String opModeID) {
         isRunning = true;
-        this.opModeID = opModeID;
+        this.opModeID = new ID(opModeID);
         status = "Running " + opModeID;
 
         Pose startPose = Motion.waypoints.get(opModeID + ".waypoint.start");
@@ -182,13 +183,14 @@ public class Hardware {
         }
 
         if (isAuto) {
+            ID parkID = new ID(opModeID, "waypoint", "park");
             if (ctx.gamepad1.dpad_right) {
                 if (!opModeID.equals("Choose OpMode") && Motion.getWaypoint("parkEast") != null) {
-                    Motion.waypoints.put("park", Motion.getWaypoint("parkEast"));
+                    Motion.waypoints.put(parkID, Motion.getWaypoint("parkEast"));
                 }
             } else if (ctx.gamepad1.dpad_left) {
                 if (!opModeID.equals("Choose OpMode") && Motion.getWaypoint("parkWest") != null) {
-                    Motion.waypoints.put("park", Motion.getWaypoint("parkWest"));
+                    Motion.waypoints.put(parkID, Motion.getWaypoint("parkWest"));
                 }
             }
         }
@@ -229,7 +231,7 @@ public class Hardware {
             unimetryUpdater.interrupt();
 
         try {
-            if (opModeID.startsWith("auto")) {
+            if (opModeID.get(0).equals("auto")) {
                 JSONObject obj = new JSONObject(IOUtils.readFile(fieldJSON));
                 JSONObject wpObj = obj.getJSONObject("waypoints");
                 String key = "tele." + (opModeID.contains("red") ? "red" : "blue") + ".waypoint.start";

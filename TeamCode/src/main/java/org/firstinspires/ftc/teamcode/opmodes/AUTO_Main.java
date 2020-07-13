@@ -37,7 +37,7 @@ public class AUTO_Main extends LinearOpMode {
             hw.autoTime = new ElapsedTime();
             scan();
 
-            if (hw.opModeID.endsWith("full")) {
+            if (hw.opModeID.get(-1).equals("full")) {
                 goToStone(skyStone0);
                 pickUpBlock();
                 dragFoundation();
@@ -45,7 +45,7 @@ public class AUTO_Main extends LinearOpMode {
 //                goToStone(skyStone1);
 //                pickUpBlock();
 //                placeStone();
-            } else if (hw.opModeID.endsWith("foundation")) {
+            } else if (hw.opModeID.get(-1).equals("foundation")) {
                 dragFoundation();
             }
         } catch (Exception e) {

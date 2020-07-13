@@ -1,6 +1,7 @@
 package com.hyperion.common;
 
 import com.hyperion.dashboard.net.FieldEdit;
+import com.hyperion.motion.math.Vector2D;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -52,6 +53,15 @@ public class MiscUtils {
             editsArr[i] = new FieldEdit(editsJsonArr.getJSONObject(i));
         }
         writeFieldEditsToFieldJSON(toWrite, editsArr);
+    }
+
+    public static double[] toMotorPowers(Vector2D relMoveVec, double rot) {
+        return new double[]{
+            relMoveVec.x + relMoveVec.y + rot,
+            -relMoveVec.x + relMoveVec.y - rot,
+            -relMoveVec.x + relMoveVec.y + rot,
+            relMoveVec.x + relMoveVec.y - rot
+        };
     }
 
 }

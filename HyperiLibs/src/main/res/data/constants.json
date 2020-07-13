@@ -72,7 +72,8 @@
             "kP": 0.5,
             "kD": 0.16,
             "kI": 1.0E-5
-        }
+        },
+        "maxCorrection": 0.75
     },
     "dashboard": {
         "isDebugging": false,

@@ -127,6 +127,15 @@ public class MotionProfile {
         transVelProfile.setInterval(pp0.distance, pp1.distance, "(" + slope + ")*t + (" + -(slope * pp0.distance) + ") + (" + pp0.tVel.magnitude + ")");
     }
 
+    public void printPlanningPoints(String label) {
+        if (Constants.getInt("motionProfile.verbosity") >= 1) {
+            System.out.println(label);
+            for (RigidBody p : spline.planningPoints)
+                System.out.println(p.tVel);
+            System.out.println();
+        }
+    }
+
     public Vector2D getTransVel(double distance) {
         double paramD = spline.paramDistance(distance);
         double dX = spline.distanceX.evaluate(paramD, 1);
@@ -144,15 +153,6 @@ public class MotionProfile {
         return floored.tAcc;
     }
 
-    public void printPlanningPoints(String label) {
-        if (Constants.getInt("motionProfile.verbosity") >= 1) {
-            System.out.println(label);
-            for (RigidBody p : spline.planningPoints)
-                System.out.println(p.tVel);
-            System.out.println();
-        }
-    }
-
     public double getAngVel(double distance) {
         return 0;
     }
@@ -162,13 +162,7 @@ public class MotionProfile {
     }
 
     public RigidBody getRigidBody(double distance) {
-        RigidBody toReturn = new RigidBody(distance);
-        toReturn.setPose(spline.getDPose(distance));
-        toReturn.tVel = getTransVel(distance);
-        toReturn.tAcc = getTransAcc(distance);
-        toReturn.aVel = getAngVel(distance);
-        toReturn.aAcc = getAngAcc(distance);
-        return toReturn;
+        return new RigidBody(distance, spline);
     }
 
 }
