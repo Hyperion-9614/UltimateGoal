@@ -39,7 +39,7 @@ public class MotionProfile {
         // Based on maximum angular velocity & curvature
         double tVMax = Constants.getDouble("motionProfile.maxes.aVel") / Math.abs(spline.getCurvature(distance));
 
-        return tVMax;
+        return distance == 0 ? 0 : tVMax;
     }
 
     // Initialize planning points with max isolated velocity
@@ -51,7 +51,7 @@ public class MotionProfile {
         }
         printPlanningPoints("init");
 
-        if (Constants.getBoolean("motionProfile.verbose")) {
+        if (Constants.getInt("motionProfile.verbosity") == 2) {
             System.out.println("distance / curvature");
             for (double d = 0; d < spline.waypoints.get(spline.waypoints.size() - 1).distance; d += 1) {
                 System.out.println(d + " " + spline.getCurvature(d));
@@ -145,7 +145,7 @@ public class MotionProfile {
     }
 
     public void printPlanningPoints(String label) {
-        if (Constants.getBoolean("motionProfile.verbose")) {
+        if (Constants.getInt("motionProfile.verbosity") >= 1) {
             System.out.println(label);
             for (RigidBody p : spline.planningPoints)
                 System.out.println(p.tVel);

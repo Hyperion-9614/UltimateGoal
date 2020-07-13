@@ -93,7 +93,7 @@ public class Pose {
     @Override
     public String toString() {
         return "X: " + MathUtils.round(x, 3) + " | Y: " + MathUtils.round(y, 3)
-                + " | θ: " + MathUtils.round(Math.toDegrees(theta), 3) + "°";
+                + " | " + "\u03F4".toLowerCase() + ": " + MathUtils.round(Math.toDegrees(theta), 3) + "\u00B0";
     }
 
 }

@@ -406,17 +406,13 @@ public class SplineTrajectory {
         return new Pose(distanceX.evaluate(distance, 0), distanceY.evaluate(distance, 0), theta);
     }
 
-    public double dYdX(double distance, int derivative) {
-        if (distance == 0) distance = 1e-5;
-        double dX = distanceX.evaluate(paramDistance(distance), derivative);
-        double dY = distanceY.evaluate(paramDistance(distance), derivative);
-        return dY / dX;
-    }
-
     public double getCurvature(double distance) {
-        double dQ = dYdX(distance, 1);
-        double d2Q = dYdX(distance, 2);
-        return (dQ * d2Q) / Math.pow(Math.abs(dQ), 3);
+        distance = paramDistance(distance);
+        double xP = distanceX.evaluate(distance, 1);
+        double x2P = distanceX.evaluate(distance, 2);
+        double yP = distanceY.evaluate(distance, 1);
+        double y2P = distanceY.evaluate(distance, 2);
+        return (xP * y2P - yP * x2P) / Math.pow(xP * xP + yP * yP, 1.5);
     }
 
     private String buildPolynomialExpression(double[] coeffs) {

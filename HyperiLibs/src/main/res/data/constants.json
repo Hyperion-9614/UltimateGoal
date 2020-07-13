@@ -37,16 +37,14 @@
         }
     },
     "motionProfile": {
-        "verbose": true,
+        "verbosity": 0,
         "endErrorThresholds": {
             "rotation": 1,
             "translation": 1
         },
         "k": {
-            "kAv": 0,
-            "kTa": 0.01467,
-            "kAa": 0,
-            "kTv": 0.002857
+            "tAcc": 0.01467,
+            "tVel": 0.002857
         },
         "maxes": {
             "aVel": 12.566,

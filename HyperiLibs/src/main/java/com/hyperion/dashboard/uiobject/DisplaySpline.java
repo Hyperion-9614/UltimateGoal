@@ -166,7 +166,7 @@ public class DisplaySpline extends FieldObject {
 
                 Pose origin = spline.getDPose(d);
                 Vector2D velocity = spline.mP.getTransVel(d);
-                velocity.setMagnitude(Math.max(5, velocity.magnitude * 40));
+                velocity.setMagnitude(Math.max(velocity.magnitude, 1));
                 Pose dest = origin.addVector(velocity);
                 simulationRobot.rigidBody = new RigidBody(origin);
 
