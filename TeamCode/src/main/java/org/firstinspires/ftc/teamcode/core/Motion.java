@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import com.hyperion.motion.trajectory.PIDController;
+import com.hyperion.motion.trajectory.PIDCtrl;
 import org.firstinspires.ftc.teamcode.modules.Localizer;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -93,17 +93,10 @@ public class Motion {
     ///////////////////////// RAW MOTION & HELPERS /////////////////////////
 
     // Drive power setters
-    public static void setDrive(double fLPower, double fRPower, double bLPower, double bRPower) {
-        double[] powers = new double[]{ fLPower, fRPower, bLPower, bRPower };
-        setDrive(powers);
-    }
-    public static void setDrive(double leftPower, double rightPower) {
-        setDrive(leftPower, rightPower, leftPower, rightPower);
-    }
     public static void setDrive(double power) {
         setDrive(power, power);
     }
-    public static void setDrive(double[] powers) {
+    public static void setDrive(double... powers) {
         if (powers.length == 4) {
             hw.fLDrive.setPower(powers[0]);
             hw.fRDrive.setPower(powers[1]);
@@ -121,12 +114,20 @@ public class Motion {
         hw.ctx.sleep(time);
         setDrive(0);
     }
-    public static void setDrive(Vector2D relMoveVec, double rot) {
-        setDrive(MiscUtils.toMotorPowers(relMoveVec, rot));
+    public static void setDrive(Vector2D relVec, double rot) {
+        setDrive(toMotorPowers(relVec, rot));
     }
 
     public static Vector2D toRelVec(Vector2D worldVec) {
         return worldVec.thetaed(-robot.theta + worldVec.theta + Math.PI / 2);
+    }
+    public static double[] toMotorPowers(Vector2D relVec, double rot) {
+        return new double[]{
+                relVec.x + relVec.y + rot,
+                -relVec.x + relVec.y - rot,
+                -relVec.x + relVec.y + rot,
+                relVec.x + relVec.y - rot
+        };
     }
 
     // Getters
@@ -144,13 +145,18 @@ public class Motion {
         pidMove(getWaypoint(waypoint));
     }
     public static void pidMove(Pose target) {
-        PIDController.init(target);
+        PIDCtrl.reset();
+        PIDCtrl.init(target);
+
         ElapsedTime timer = new ElapsedTime();
-        while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 2250
+        while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 3000
                && (robot.distanceTo(target) > Constants.getDouble("motionProfile.endErrorThresholds.translation")
                || Math.abs(MathUtils.optThetaDiff(robot.theta, target.theta)) > Math.toRadians(Constants.getDouble("motionProfile.endErrorThresholds.rotation")))) {
-            setDrive(PIDController.wheelCorrections(robot));
+            Object[] pidCorr = PIDCtrl.correction(robot);
+            double[] wheelPowers = toMotorPowers(toRelVec((Vector2D) pidCorr[0]), (double) pidCorr[1]);
+            setDrive(wheelPowers);
         }
+
         setDrive(0);
     }
     public static void pidMove(Vector2D addVec) {
@@ -192,6 +198,8 @@ public class Motion {
         Pose last = new Pose(robot);
         Pose goal = new Pose(spline.waypoints.get(spline.waypoints.size() - 1));
 
+        PIDCtrl.reset();
+
         ElapsedTime timer = new ElapsedTime();
         while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 5000
                 && (robot.distanceTo(goal) > Constants.getDouble("motionProfile.endErrorThresholds.translation")
@@ -201,15 +209,16 @@ public class Motion {
             distance = Math.min(distance, spline.totalArcLength());
             last = new Pose(robot);
 
-            RigidBody setPoint = spline.mP.getRigidBody(distance);
-//            PIDController.init(setPoint);
-            Vector2D translation = toRelVec(setPoint.tVel);
+            RigidBody setPoint = spline.mP.getRigidBody(distance + 1);
+            PIDCtrl.init(setPoint);
 
-            double[] motionProfilePowers = MiscUtils.toMotorPowers(translation, 0);
-//            double[] pidCorrection = PIDController.wheelCorrections(robot);
-//            double[] finalWheelPowers = ArrayUtils.addArrs(motionProfilePowers, pidCorrection);
-            setDrive(motionProfilePowers);
+            Object[] pidCorr = PIDCtrl.correction(robot);
+            Vector2D worldVec = setPoint.tVel.added((Vector2D) pidCorr[0]);
+
+            double[] wheelPowers = toMotorPowers(toRelVec(worldVec), (double) pidCorr[1]);
+            setDrive(wheelPowers);
         }
+
         setDrive(0);
     }
     public static void splineToWaypoint(String waypoint) {

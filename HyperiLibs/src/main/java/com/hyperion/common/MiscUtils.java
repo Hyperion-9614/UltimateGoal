@@ -55,13 +55,4 @@ public class MiscUtils {
         writeFieldEditsToFieldJSON(toWrite, editsArr);
     }
 
-    public static double[] toMotorPowers(Vector2D relMoveVec, double rot) {
-        return new double[]{
-            relMoveVec.x + relMoveVec.y + rot,
-            -relMoveVec.x + relMoveVec.y - rot,
-            -relMoveVec.x + relMoveVec.y + rot,
-            relMoveVec.x + relMoveVec.y - rot
-        };
-    }
-
 }

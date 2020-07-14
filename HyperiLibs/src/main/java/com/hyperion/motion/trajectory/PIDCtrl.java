@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * (2) https://www.ni.com/en-us/innovations/white-papers/06/pid-theory-explained.html
  */
 
-public class PIDController {
+public class PIDCtrl {
 
     private static long lastTime;
     private static double time;
@@ -28,10 +28,9 @@ public class PIDController {
     private static ArrayList<double[]> thetaEt;
     public static ArrayList<double[]> thetaUt;
 
-    public static void init(Pose goal) {
+    public static void reset() {
         lastTime = -1;
         time = 0;
-        PIDController.goal = new Pose(goal);
         xEt = new ArrayList<>();
         xUt = new ArrayList<>();
         yEt = new ArrayList<>();
@@ -40,7 +39,11 @@ public class PIDController {
         thetaUt = new ArrayList<>();
     }
 
-    public static double[] wheelCorrections(Pose robot) {
+    public static void init(Pose goal) {
+        PIDCtrl.goal = new Pose(goal);
+    }
+
+    public static Object[] correction(Pose robot) {
         if (lastTime == -1) lastTime = System.currentTimeMillis();
         double dT = (System.currentTimeMillis() - lastTime) / 1000.0;
 
@@ -60,19 +63,21 @@ public class PIDController {
         xUt.add(new double[]{ time, uX });
         yUt.add(new double[]{ time, uY });
         thetaUt.add(new double[]{ time, uTheta });
-        return wheelCorrections(uX, uY, uTheta);
+
+        return correctionValues(uX, uY, uTheta);
     }
 
-    private static double[] wheelCorrections(double uX, double uY, double uTheta) {
+    private static Object[] correctionValues(double uX, double uY, double uTheta) {
         double maxC = Constants.getDouble("pid.maxCorrection");
-        Vector2D relMoveVec = new Vector2D(uX, uY, true).rotated(Math.PI / 2);
-        relMoveVec.setMagnitude(Math.min(maxC, relMoveVec.magnitude));
+        Vector2D worldCorrectionVec = new Vector2D(uX, uY, true);
+        worldCorrectionVec.setMagnitude(Math.min(maxC, worldCorrectionVec.magnitude));
         double w = -MathUtils.clip(uTheta, -maxC, maxC);
-        return MiscUtils.toMotorPowers(relMoveVec, w);
+        return new Object[]{ worldCorrectionVec, w };
     }
 
     private static double pOut(ArrayList<double[]> eT, double kP) {
-        return kP * eT.get(eT.size() - 1)[1];
+        double proportional = eT.get(eT.size() - 1)[1];
+        return kP * proportional;
     }
 
     private static double iOut(ArrayList<double[]> eT, double kI) {
