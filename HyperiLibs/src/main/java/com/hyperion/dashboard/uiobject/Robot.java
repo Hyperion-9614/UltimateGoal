@@ -11,11 +11,15 @@ import org.json.JSONArray;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 public class Robot extends FieldObject {
 
-    public ImageView imgView;
     public RigidBody rigidBody;
+
+    public ImageView imgView;
+    public Text info;
 
     public Robot(ID id) {
         this.id = id;
@@ -45,6 +49,10 @@ public class Robot extends FieldObject {
             imgView.setFitHeight(Dashboard.fieldPane.robotSize);
             imgView.setPickOnBounds(true);
             displayGroup.getChildren().add(imgView);
+
+            info = new Text();
+            info.setFill(Color.WHITE);
+            displayGroup.getChildren().add(info);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -58,6 +66,12 @@ public class Robot extends FieldObject {
         double[] display = Dashboard.fieldPane.poseToDisplay(rigidBody, Dashboard.fieldPane.robotSize);
         imgView.relocate(display[0], display[1]);
         imgView.setRotate(display[2]);
+
+        info.setText(rigidBody.toString().replace(" | ", "\n")
+                .replace("°", "\u00B0")
+                .replace("θ", "\u03F4".toLowerCase())
+                .replace("²", "\u00B2"));
+        info.relocate(display[0] + Dashboard.fieldPane.robotSize + 3, display[1] + Dashboard.fieldPane.robotSize - 21);
     }
 
     public void removeDisplayGroup() {

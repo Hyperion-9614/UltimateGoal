@@ -233,24 +233,28 @@ public class Waypoint extends FieldObject {
     }
 
     public void refreshDisplayGroup() {
-        double[] poseToDisplay = Dashboard.fieldPane.poseToDisplay(pose, Constants.getDouble("dashboard.gui.sizes.waypoint"));
-        imgView.relocate(poseToDisplay[0], poseToDisplay[1]);
-        imgView.setRotate(poseToDisplay[2]);
+        double[] display = Dashboard.fieldPane.poseToDisplay(pose, Constants.getDouble("dashboard.gui.sizes.waypoint"));
+        imgView.relocate(display[0], display[1]);
+        imgView.setRotate(display[2]);
+
         if (renderID) {
             ID dispID = parentSpline != null ? parentSpline.id : id;
             idField.setText(dispID.get(4).equals(" ") ? "" : dispID.get(4));
-            idField.relocate(poseToDisplay[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") + 3, poseToDisplay[1] - 24);
+            idField.relocate(display[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") + 3, display[1] - 24);
         }
+
         if (renderSim) {
-            simMP.relocate(poseToDisplay[0] - 69, poseToDisplay[1] - 20);
+            simMP.relocate(display[0] - 69, display[1] - 20);
         }
+
         info.setText(pose.toString().replace(" | ", "\n")
                                     .replace("°", "\u00B0")
                                     .replace("θ", "\u03F4".toLowerCase()));
-        info.relocate(poseToDisplay[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") + 3, poseToDisplay[1] + Constants.getDouble("dashboard.gui.sizes.waypoint") - 21);
-        selection.relocate(poseToDisplay[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0 - Dashboard.fieldPane.robotSize / 2.0,
-                           poseToDisplay[1] + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0 - Dashboard.fieldPane.robotSize / 2.0);
-        selection.setRotate(poseToDisplay[2]);
+        info.relocate(display[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") + 3, display[1] + Constants.getDouble("dashboard.gui.sizes.waypoint") - 21);
+
+        selection.relocate(display[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0 - Dashboard.fieldPane.robotSize / 2.0,
+                           display[1] + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0 - Dashboard.fieldPane.robotSize / 2.0);
+        selection.setRotate(display[2]);
     }
 
     public void removeDisplayGroup() {

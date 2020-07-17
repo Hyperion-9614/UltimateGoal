@@ -161,22 +161,31 @@ public class DisplaySpline extends FieldObject {
             });
 
             double distanceIncrement = 1;
-            for (double d = 0; d < spline.waypoints.get(spline.waypoints.size() - 1).distance; d += distanceIncrement) {
+            long lastTime = System.currentTimeMillis();
+            double lastTheta = spline.waypoints.get(0).theta;
+            double lastAngVel = 0;
+            for (double d = 0; d <= spline.totalArcLength(); d += distanceIncrement) {
                 if (!isSimulating) break;
+                double dt = (System.currentTimeMillis() - lastTime) / 1000.0;
+                lastTime = System.currentTimeMillis();
 
-                Pose origin = spline.getDPose(d);
-                Vector2D velocity = spline.mP.getTransVel(d);
-                velocity.setMagnitude(Math.max(velocity.magnitude, 1));
-                Pose dest = origin.addVector(velocity);
-                simulationRobot.rigidBody = new RigidBody(origin);
+                RigidBody robot = spline.mP.getRigidBody(d);
+                robot.tVel.setMagnitude(Math.max(robot.tVel.magnitude, 1));
+                Pose dest = robot.addVector(robot.tVel);
+                robot.aVel = (robot.theta - lastTheta) / dt;
+                lastTheta = robot.theta;
+                robot.aAcc = (robot.aVel - lastAngVel) / dt;
+                lastAngVel = robot.aVel;
+
+                simulationRobot.rigidBody = robot;
 
                 Platform.runLater(() -> {
                     simulationRobot.refreshDisplayGroup();
-                    velocityVec.set(Dashboard.fieldPane.poseToDisplay(origin, 0),
+                    velocityVec.set(Dashboard.fieldPane.poseToDisplay(robot, 0),
                                     Dashboard.fieldPane.poseToDisplay(dest, 0));
                 });
                 try {
-                    Thread.sleep((long) MathUtils.round((distanceIncrement / velocity.magnitude) * 1000, 0));
+                    Thread.sleep((long) MathUtils.round((distanceIncrement / robot.tVel.magnitude) * 1000, 0));
                 } catch (InterruptedException e) {
 
                 }

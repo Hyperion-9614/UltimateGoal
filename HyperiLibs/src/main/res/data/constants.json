@@ -38,10 +38,6 @@
     },
     "motionProfile": {
         "verbosity": 0,
-        "endErrorThresholds": {
-            "rotation": 1,
-            "translation": 1
-        },
         "k": {
             "tAcc": 0.01467,
             "tVel": 0.002857
@@ -51,6 +47,17 @@
             "tAcc": 100,
             "tVel": 150
         }
+    },
+    "pathing": {
+        "endErrorThresholds": {
+            "rotation": 1,
+            "translation": 1
+        },
+        "obstacles": {
+            "rInner": 33,
+            "rBuffer": 5
+        },
+        "obstacleMoveThreshold": 3
     },
     "teamcode": {
         "forceEndTimeLeft": 3500,

@@ -1,6 +1,7 @@
 package com.hyperion.motion.math;
 
 import com.hyperion.common.ArrayUtils;
+import com.hyperion.common.MathUtils;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 
 import org.json.JSONArray;
@@ -81,13 +82,19 @@ public class RigidBody extends Pose {
         scanner.close();
     }
 
+    public Pose getPose() {
+        return new Pose(this.x, this.y, this.theta);
+    }
+
     public double[] toArray() {
         return ArrayUtils.combineArrs(new double[]{ T, distance }, new double[]{ x, y, theta });
     }
 
     @Override
     public String toString() {
-        return new Pose(x, y, theta).toString() + " | tVel: " + tVel + " | tAcc: " + tAcc + " | aVel: " + aVel + " | aAcc: " + aAcc;
-    }
+        return new Pose(x, y, theta).toString() + " | tVel: " + tVel + " | tAcc: " + tAcc +
+                                                  " | aVel: " + MathUtils.round(Math.toDegrees(aVel), 3) +
+                                                  "°/s | aAcc: " + MathUtils.round(Math.toDegrees(aAcc), 3) + " °/s²";
+        }
 
 }

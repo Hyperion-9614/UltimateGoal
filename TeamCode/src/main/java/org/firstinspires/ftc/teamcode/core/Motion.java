@@ -5,8 +5,7 @@ import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
 import com.hyperion.common.MathUtils;
-import com.hyperion.common.MiscUtils;
-import com.hyperion.motion.dstarlite.DStarLite;
+import com.hyperion.motion.pathplanning.DStarLite;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Vector2D;
@@ -20,6 +19,7 @@ import org.firstinspires.ftc.teamcode.modules.Localizer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class Motion {
     public static Hardware hw;
 
     public static Localizer localizer;
-    public static DStarLite dStarLite;
+    public static DStarLite pathPlanner;
 
     public static RigidBody start = new RigidBody(new Pose(0, 0, 0));
     public static RigidBody robot = new RigidBody(start);
@@ -51,7 +51,8 @@ public class Motion {
         }
 
         localizer = new Localizer(hw);
-        dStarLite = new DStarLite();
+        // TODO: Load correct fixed obstacles
+        pathPlanner = new DStarLite(new ArrayList<>());
 
         for (DcMotor motor : hw.hwmp.dcMotor) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -141,7 +142,7 @@ public class Motion {
     ///////////////////////// ADVANCED MOTION /////////////////////////
 
     public static void pidMove(String waypoint) {
-        hw.status = "Moving to waypoint " + waypoint;
+        hw.status = "PID moving to waypoint " + waypoint;
         pidMove(getWaypoint(waypoint));
     }
     public static void pidMove(Pose target) {
@@ -150,8 +151,8 @@ public class Motion {
 
         ElapsedTime timer = new ElapsedTime();
         while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 3000
-               && (robot.distanceTo(target) > Constants.getDouble("motionProfile.endErrorThresholds.translation")
-               || Math.abs(MathUtils.optThetaDiff(robot.theta, target.theta)) > Math.toRadians(Constants.getDouble("motionProfile.endErrorThresholds.rotation")))) {
+               && (robot.distanceTo(target) > Constants.getDouble("pathing.endErrorThresholds.translation")
+               || Math.abs(MathUtils.optThetaDiff(robot.theta, target.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))) {
             Object[] pidCorr = PIDCtrl.correction(robot);
             double[] wheelPowers = toMotorPowers(toRelVec((Vector2D) pidCorr[0]), (double) pidCorr[1]);
             setDrive(wheelPowers);
@@ -183,6 +184,7 @@ public class Motion {
     }
 
     public static void rotate(String waypoint) {
+        hw.status = "Rotating to waypoint " + waypoint;
         rotate(getWaypoint(waypoint).theta);
     }
     public static void rotate(double targetTheta) {
@@ -190,10 +192,14 @@ public class Motion {
         pidMove(new Pose(robot.x, robot.y, targetTheta));
     }
 
-    public static void followSpline(String spline) {
-        followSpline(getSpline(spline));
+    public static boolean followSpline(String spline) {
+        hw.status = "Following spline " + spline;
+        return followSpline(getSpline(spline), false);
     }
-    public static void followSpline(SplineTrajectory spline) {
+    public static boolean followSpline(SplineTrajectory spline, boolean isDynamic) {
+        if (!spline.waypoints.get(0).equals(robot))
+            pidMove(spline.waypoints.get(0));
+
         double distance = 0;
         Pose last = new Pose(robot);
         Pose goal = new Pose(spline.waypoints.get(spline.waypoints.size() - 1));
@@ -202,8 +208,8 @@ public class Motion {
 
         ElapsedTime timer = new ElapsedTime();
         while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 5000
-                && (robot.distanceTo(goal) > Constants.getDouble("motionProfile.endErrorThresholds.translation")
-                || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Math.toRadians(Constants.getDouble("motionProfile.endErrorThresholds.rotation")))
+                && (robot.distanceTo(goal) > Constants.getDouble("pathing.endErrorThresholds.translation")
+                || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))
                 && distance <= spline.totalArcLength()) {
             distance += last.distanceTo(robot);
             distance = Math.min(distance, spline.totalArcLength());
@@ -217,22 +223,48 @@ public class Motion {
 
             double[] wheelPowers = toMotorPowers(toRelVec(worldVec), (double) pidCorr[1]);
             setDrive(wheelPowers);
+
+            if (isDynamic) {
+                pathPlanner.robotMoved(robot);
+
+                // TODO: Pass in empirical obstacle list
+                if (pathPlanner.updateObstacles(new ArrayList<>())) {
+                    pathPlanner.recompute();
+
+                    ArrayList<Pose> path = pathPlanner.getPath();
+                    SplineTrajectory newSpline = new SplineTrajectory(path.toArray(new Pose[]{}));
+                    return followSpline(newSpline, true);
+                }
+            }
         }
 
         setDrive(0);
+        return (robot.distanceTo(spline.waypoints.get(spline.waypoints.size() - 1)) <= Constants.getDouble("pathing.endErrorThresholds.translation"));
     }
-    public static void splineToWaypoint(String waypoint) {
-        hw.status = "Going to waypoint" + waypoint;
-        splineToWaypoint(getWaypoint(waypoint));
-    }
-    public static void splineToWaypoint(Pose waypoint) {
-        SplineTrajectory spline = new SplineTrajectory(robot, new RigidBody(waypoint));
-        followSpline(spline);
-    }
-    public static void splineThroughWaypoints(Pose... waypoints) {
+
+    public static boolean splineThroughPoses(Pose... waypoints) {
         waypoints = ArrayUtils.combineArrs(new Pose[]{ new Pose(robot) }, waypoints);
         SplineTrajectory spline = new SplineTrajectory(waypoints);
-        followSpline(spline);
+        return followSpline(spline, false);
+    }
+    public static boolean straightSplineToPose(String waypoint) {
+        hw.status = "Splining to waypoint" + waypoint;
+        return straightSplineToPose(getWaypoint(waypoint));
+    }
+    public static boolean straightSplineToPose(Pose waypoint) {
+        SplineTrajectory spline = new SplineTrajectory(robot, new RigidBody(waypoint));
+        return followSpline(spline, false);
+    }
+
+    public static boolean dynamicSplineToPose(String waypoint) {
+        hw.status = "Pathfinding to waypoint" + waypoint;
+        return dynamicSplineToPose(getWaypoint(waypoint));
+    }
+    public static boolean dynamicSplineToPose(Pose waypoint) {
+        pathPlanner.init(robot, waypoint);
+        ArrayList<Pose> path = pathPlanner.getPath();
+        SplineTrajectory spline = new SplineTrajectory(path.toArray(new Pose[]{}));
+        return followSpline(spline, true);
     }
 
 }
