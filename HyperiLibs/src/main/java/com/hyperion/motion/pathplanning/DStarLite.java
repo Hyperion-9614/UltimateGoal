@@ -9,6 +9,7 @@ import java.util.*;
  * D* Lite Path Planning Algorithm
  * References:
  * (1) http://idm-lab.org/bib/abstracts/papers/aaai02b.pdf
+ * (2) https://www.youtube.com/watch?v=_4u9W1xOuts&t=2708s
  */
 
 public class DStarLite {
@@ -31,10 +32,14 @@ public class DStarLite {
         this.start = new Pose(start);
         this.goal = goal;
 
-
+        
     }
 
     public ArrayList<Pose> getPath() {
+        return null;
+    }
+
+    public void recompute() {
 
     }
 
@@ -62,8 +67,10 @@ public class DStarLite {
             haveObstaclesChangedSignificantly = !hasMatchingSucceeded;
         }
 
-        dynamicObstacles.clear();
-        dynamicObstacles.addAll(dynamicObstaclesList);
+        if (haveObstaclesChangedSignificantly) {
+            dynamicObstacles.clear();
+            dynamicObstacles.addAll(dynamicObstaclesList);
+        }
 
         return haveObstaclesChangedSignificantly;
     }
@@ -78,10 +85,6 @@ public class DStarLite {
     public void robotMoved(Pose start) {
         this.start.setPose(start);
 
-
-    }
-
-    public void recompute() {
 
     }
 

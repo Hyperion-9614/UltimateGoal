@@ -5,8 +5,11 @@ import com.hyperion.common.ID;
 import com.hyperion.common.MathUtils;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
+import com.hyperion.dashboard.uiobject.Arrow;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.FieldObject;
+import com.hyperion.dashboard.uiobject.Robot;
+import com.hyperion.dashboard.uiobject.Simulator;
 import com.hyperion.dashboard.uiobject.Waypoint;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
@@ -14,6 +17,8 @@ import com.hyperion.motion.math.Vector2D;
 
 import org.json.JSONArray;
 
+import javafx.application.Platform;
+import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -25,6 +30,7 @@ import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
@@ -40,6 +46,8 @@ public class FieldPane extends Pane {
     private Rectangle wbbBorder;
     private Rectangle wbbLeftLeg;
     private Rectangle wbbRightLeg;
+
+    public Group deterministicSamplingGrid;
 
     public double mouseX, mouseY;
     public long startDragTime;
@@ -81,6 +89,25 @@ public class FieldPane extends Pane {
             wbbRightLeg.setStroke(new Color(Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), 0.7));
             wbbRightLeg.setStrokeWidth(Constants.getDouble("dashboard.gui.wbb.strokeWidth"));
             getChildren().add(wbbRightLeg);
+
+            deterministicSamplingGrid = new Group();
+            double fsl = Constants.getDouble("localization.fieldSideLength");
+            double mHat = Constants.getDouble("pathing.gridMhat");
+            double buffer = (fsl % mHat) / 2.0;
+            int n = (int) MathUtils.round((fsl - 2 * buffer) / mHat, 0);
+            for (int r = 0; r <= n; r++) {
+                for (int c = 0; c <= n; c++) {
+                    double x = -(fsl / 2.0) + buffer + r * mHat;
+                    double y = -(fsl / 2.0) + buffer + c * mHat;
+
+                    double[] poseArr = poseToDisplay(new Pose(x, y, 0), 0);
+                    Circle gridPoint = new Circle(poseArr[0], poseArr[1], 1.25 * Constants.getDouble("dashboard.gui.sizes.planningPoint"));
+                    gridPoint.setFill(Color.BLACK);
+                    deterministicSamplingGrid.getChildren().add(gridPoint);
+                }
+            }
+            deterministicSamplingGrid.setVisible(false);
+            getChildren().add(deterministicSamplingGrid);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -135,7 +162,7 @@ public class FieldPane extends Pane {
                                     Dashboard.editField(new FieldEdit(newSpline.id, FieldEdit.Type.CREATE, newSpline.spline.writeJSON()));
                                 }
                             } else {
-                                Waypoint newWP = new Waypoint(new ID(Dashboard.opModeID, "waypoint", " "), newPose, null, true, false, true);
+                                Waypoint newWP = new Waypoint(new ID(Dashboard.opModeID, "waypoint", " "), newPose, null, true, true);
                                 Dashboard.editField(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray())));
                             }
                         }

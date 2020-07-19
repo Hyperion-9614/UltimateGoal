@@ -16,6 +16,7 @@ import com.hyperion.dashboard.uiobject.Arrow;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.FieldObject;
 import com.hyperion.dashboard.uiobject.Robot;
+import com.hyperion.dashboard.uiobject.Simulator;
 import com.hyperion.dashboard.uiobject.Waypoint;
 import com.hyperion.motion.math.RigidBody;
 
@@ -58,6 +59,7 @@ public class Dashboard extends Application {
     public static LeftPane leftPane;
     public static RightPane rightPane;
     public static VisualPane visualPane;
+    public static Simulator simulator;
     public static BTServer btServer;
 
     public static List<FieldObject> fieldObjects = new ArrayList<>();
@@ -94,6 +96,7 @@ public class Dashboard extends Application {
         sideStuff.setSpacing(10);
         menuPane = new MenuPane(stage);
         fieldPane = new FieldPane(stage);
+        simulator = new Simulator();
         rightPane = new RightPane();
         leftPane = new LeftPane();
         visualPane = new VisualPane();
@@ -122,7 +125,16 @@ public class Dashboard extends Application {
         all.getChildren().add(sideStuff);
 
         Scene scene = new Scene(all, 1280, 720, Color.TRANSPARENT);
-        scene.setOnKeyPressed(event -> isBuildingPaths = event.isShiftDown());
+        scene.setOnKeyPressed(event -> {
+            isBuildingPaths = event.isShiftDown();
+            if (event.getCode() == KeyCode.ESCAPE) {
+                if (simulator.state == Simulator.State.SELECTING) {
+                    simulator.state = Simulator.State.INACTIVE;
+                    leftPane.simulate.setText("Select\nSimulants");
+                    leftPane.simText.setText("");
+                }
+            }
+        });
         scene.setOnKeyReleased(event -> isBuildingPaths = event.isShiftDown());
 
         if (!isLoaded) {

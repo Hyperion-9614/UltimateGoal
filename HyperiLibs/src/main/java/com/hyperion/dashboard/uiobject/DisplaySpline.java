@@ -1,41 +1,28 @@
 package com.hyperion.dashboard.uiobject;
 
-import com.hyperion.common.ArrayUtils;
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.MathUtils;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
-import com.hyperion.motion.math.Vector2D;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Random;
 
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
-import javafx.util.Duration;
 
 public class DisplaySpline extends FieldObject {
 
     public SplineTrajectory spline;
     public ArrayList<Waypoint> waypoints;
-    public Thread simulationThread;
-    public boolean isSimulating;
 
     public DisplaySpline() {
 
@@ -111,7 +98,7 @@ public class DisplaySpline extends FieldObject {
 
         for (int i = 0; i < spline.waypoints.size(); i++) {
             RigidBody wpPP = spline.waypoints.get(i);
-            Waypoint waypoint = new Waypoint(new ID(id, i), wpPP, this, (i == 0), (i == 0), false);
+            Waypoint waypoint = new Waypoint(new ID(id, i), wpPP, this, (i == 0), false);
             waypoints.add(waypoint);
             waypoint.addDisplayGroup();
         }
@@ -143,60 +130,6 @@ public class DisplaySpline extends FieldObject {
 
     public void removeDisplayGroup() {
         Platform.runLater(() -> Dashboard.fieldPane.getChildren().remove(displayGroup));
-    }
-
-    public void simulateMotionProfile() {
-        simulationThread = new Thread(() -> {
-            isSimulating = true;
-
-            Arrow velocityVec = new Arrow(Color.BLACK, 20);
-            Robot simulationRobot = new Robot(new ID("robot.simulation"), spline.getDPose(0));
-
-            Platform.runLater(() -> {
-                waypoints.get(0).simMP.setText("Stop\nSim");
-                displayGroup.getChildren().add(simulationRobot.displayGroup);
-                simulationRobot.displayGroup.toFront();
-                displayGroup.getChildren().add(velocityVec.displayGroup);
-                velocityVec.displayGroup.toFront();
-            });
-
-            double distanceIncrement = 1;
-            long lastTime = System.currentTimeMillis();
-            double lastTheta = spline.waypoints.get(0).theta;
-            double lastAngVel = 0;
-            for (double d = 0; d <= spline.totalArcLength(); d += distanceIncrement) {
-                if (!isSimulating) break;
-                double dt = (System.currentTimeMillis() - lastTime) / 1000.0;
-                lastTime = System.currentTimeMillis();
-
-                RigidBody robot = spline.mP.getRigidBody(d);
-                robot.tVel.setMagnitude(Math.max(robot.tVel.magnitude, 1));
-                Pose dest = robot.addVector(robot.tVel);
-                robot.aVel = (robot.theta - lastTheta) / dt;
-                lastTheta = robot.theta;
-                robot.aAcc = (robot.aVel - lastAngVel) / dt;
-                lastAngVel = robot.aVel;
-
-                simulationRobot.rigidBody = robot;
-
-                Platform.runLater(() -> {
-                    simulationRobot.refreshDisplayGroup();
-                    velocityVec.set(Dashboard.fieldPane.poseToDisplay(robot, 0),
-                                    Dashboard.fieldPane.poseToDisplay(dest, 0));
-                });
-                try {
-                    Thread.sleep((long) MathUtils.round((distanceIncrement / robot.tVel.magnitude) * 1000, 0));
-                } catch (InterruptedException e) {
-
-                }
-            }
-
-            Platform.runLater(() -> displayGroup.getChildren().remove(velocityVec.displayGroup));
-            Platform.runLater(() -> displayGroup.getChildren().remove(simulationRobot.displayGroup));
-            Platform.runLater(() -> waypoints.get(0).simMP.setText("Simulate\nMotion\nProfile"));
-            isSimulating = false;
-        });
-        simulationThread.start();
     }
 
 }

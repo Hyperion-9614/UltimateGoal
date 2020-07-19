@@ -27,35 +27,32 @@ public class Waypoint extends FieldObject {
 
     public Pose pose;
     public boolean renderID;
-    public boolean renderSim;
     public boolean initSelected;
     public DisplaySpline parentSpline;
 
     public ImageView imgView;
     public TextField idField;
-    public Button simMP;
     public Text info;
     public Rectangle selectRect;
 
     private long startDragTime;
     private double dragDx, dragDy;
 
-    public Waypoint(ID id, double x, double y, double theta, DisplaySpline parentSpline, boolean renderID, boolean renderSim, boolean initSelected) {
+    public Waypoint(ID id, double x, double y, double theta, DisplaySpline parentSpline, boolean renderID, boolean initSelected) {
         this.id = id;
         this.pose = new Pose(x, y, theta);
         this.renderID = renderID;
         this.parentSpline = parentSpline;
-        this.renderSim = renderSim;
         this.initSelected = initSelected;
         createDisplayGroup();
     }
 
-    public Waypoint(ID id, Pose pose, DisplaySpline parentSpline, boolean renderID, boolean renderSim, boolean initSelected) {
-        this(id, pose.x, pose.y, pose.theta, parentSpline, renderID, renderSim, initSelected);
+    public Waypoint(ID id, Pose pose, DisplaySpline parentSpline, boolean renderID, boolean initSelected) {
+        this(id, pose.x, pose.y, pose.theta, parentSpline, renderID, initSelected);
     }
 
     public Waypoint(ID id, JSONArray wpArr) {
-        this(id, wpArr.getDouble(0), wpArr.getDouble(1), wpArr.getDouble(2), null, true, false, true);
+        this(id, wpArr.getDouble(0), wpArr.getDouble(1), wpArr.getDouble(2), null, true, true);
     }
 
     public void createDisplayGroup() {
@@ -106,23 +103,6 @@ public class Waypoint extends FieldObject {
                 displayGroup.getChildren().add(idField);
             }
 
-            if (renderSim) {
-                simMP = new Button("Simulate\nMotion\nProfile");
-                simMP.setStyle("-fx-font: 12px \"Arial\"; -fx-focus-color: transparent;");
-                simMP.setTextAlignment(TextAlignment.CENTER);
-                simMP.setPrefSize(64, 60);
-                simMP.setOnMouseClicked(event -> {
-                    Dashboard.fieldPane.select(this);
-                    if (parentSpline.isSimulating) {
-                        parentSpline.isSimulating = false;
-                        while (parentSpline.simulationThread != null && parentSpline.simulationThread.isAlive()) {}
-                    } else {
-                        parentSpline.simulateMotionProfile();
-                    }
-                });
-                displayGroup.getChildren().add(simMP);
-            }
-
             info = new Text();
             info.setFill(Color.WHITE);
             info.setVisible(false);
@@ -138,7 +118,6 @@ public class Waypoint extends FieldObject {
             setListeners();
             refreshDisplayGroup();
             if (renderID) idField.toFront();
-            if (renderSim) simMP.toFront();
             info.toFront();
             imgView.toFront();
 
@@ -179,10 +158,26 @@ public class Waypoint extends FieldObject {
 
         displayGroup.setOnMousePressed((event -> {
             if (event.getButton() == MouseButton.PRIMARY) {
-                startDragTime = System.currentTimeMillis();
-                dragDx = imgView.getLayoutX() - event.getSceneX();
-                dragDy = imgView.getLayoutY() - event.getSceneY();
-                Dashboard.fieldPane.select(this);
+                if (Dashboard.simulator.state == Simulator.State.SELECTING) {
+                    if (parentSpline != null) {
+                        Dashboard.simulator.simulants[0] = parentSpline;
+                        Dashboard.simulator.simulants[1] = parentSpline;
+                    } else {
+                        if (Dashboard.simulator.isSelectingFirst) {
+                            Dashboard.simulator.simulants[0] = this;
+                            Dashboard.simulator.isSelectingFirst = false;
+                        } else {
+                            Dashboard.simulator.simulants[1] = this;
+                            Dashboard.simulator.isSelectingFirst = true;
+                        }
+                    }
+                    Dashboard.leftPane.simText.setText("Selected " + Dashboard.simulator.selectionStr());
+                } else {
+                    startDragTime = System.currentTimeMillis();
+                    dragDx = imgView.getLayoutX() - event.getSceneX();
+                    dragDy = imgView.getLayoutY() - event.getSceneY();
+                    Dashboard.fieldPane.select(this);
+                }
             }
         }));
 
@@ -241,10 +236,6 @@ public class Waypoint extends FieldObject {
             ID dispID = parentSpline != null ? parentSpline.id : id;
             idField.setText(dispID.get(4).equals(" ") ? "" : dispID.get(4));
             idField.relocate(display[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") + 3, display[1] - 24);
-        }
-
-        if (renderSim) {
-            simMP.relocate(display[0] - 69, display[1] - 20);
         }
 
         info.setText(pose.toString().replace(" | ", "\n")

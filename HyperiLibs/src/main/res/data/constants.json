@@ -57,7 +57,8 @@
             "rInner": 33,
             "rBuffer": 5
         },
-        "obstacleMoveThreshold": 3
+        "obstacleMoveThreshold": 3,
+        "gridMhat": 75
     },
     "teamcode": {
         "forceEndTimeLeft": 3500,

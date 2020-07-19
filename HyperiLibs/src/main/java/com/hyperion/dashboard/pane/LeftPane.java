@@ -7,6 +7,7 @@ import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.dashboard.net.Message;
 import com.hyperion.dashboard.uiobject.FieldObject;
+import com.hyperion.dashboard.uiobject.Simulator;
 
 import org.json.JSONObject;
 
@@ -20,9 +21,11 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -37,9 +40,11 @@ import javafx.stage.Screen;
 public class LeftPane extends VBox {
 
     public TextArea constantsDisplay;
+    public TextField simText;
+    public Button simulate;
+
     public double width;
 
-    @SuppressWarnings("unchecked")
     public LeftPane() {
         try {
             setBackground(Background.EMPTY);
@@ -50,11 +55,11 @@ public class LeftPane extends VBox {
             width = (Screen.getPrimary().getVisualBounds().getWidth() - Dashboard.fieldPane.fieldSize) / 2.0 - 75;
             if (System.getProperty("os.name").startsWith("Windows")) width += 40;
 
-            Label optionsLabel = new Label("Options");
-            optionsLabel.setTextFill(Color.WHITE);
-            optionsLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
-            optionsLabel.setPrefWidth(getPrefWidth());
-            getChildren().add(optionsLabel);
+            Label fieldOptionsLabel = new Label("Field Options");
+            fieldOptionsLabel.setTextFill(Color.WHITE);
+            fieldOptionsLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
+            fieldOptionsLabel.setPrefWidth(getPrefWidth());
+            getChildren().add(fieldOptionsLabel);
 
             HBox buttons = new HBox();
             buttons.setSpacing(10);
@@ -97,9 +102,9 @@ public class LeftPane extends VBox {
                     "tele.blue", "tele.red"
                 );
             final ComboBox<String> opModeSelector = new ComboBox<>(options);
-            opModeSelector.valueProperty().setValue("auto.blue.full");
+            opModeSelector.valueProperty().setValue(options.get(0));
             opModeSelector.setStyle("-fx-font: 24px \"Arial\"; -fx-focus-color: transparent;");
-            opModeSelector.setPrefSize(width + 10, 91);
+            opModeSelector.setPrefSize(width + 10, 60);
             opModeSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
                 Dashboard.fieldPane.select(null);
                 Dashboard.opModeID = new ID(newValue);
@@ -113,6 +118,72 @@ public class LeftPane extends VBox {
             });
             getChildren().add(opModeSelector);
 
+            Label simulationLabel = new Label("Simulation Options");
+            simulationLabel.setTextFill(Color.WHITE);
+            simulationLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
+            simulationLabel.setPrefWidth(width);
+            getChildren().add(simulationLabel);
+
+            HBox simulateHBox = new HBox(10);
+
+            simText = new TextField();
+            simText.setStyle("-fx-font: 16px \"Arial\"; -fx-text-alignment:left; -fx-focus-color: transparent;");
+            simText.setEditable(false);
+            simText.setPrefSize(3.0 * width / 4.0, 40);
+            simulateHBox.getChildren().add(simText);
+
+            simulate = new Button("Select\nSimulants");
+            simulate.setStyle("-fx-font: 14px \"Arial\"; -fx-text-alignment:center; -fx-focus-color: transparent;");
+            simulate.setTextAlignment(TextAlignment.CENTER);
+            simulate.setPrefSize(width / 4.0, 40);
+            simulate.setOnMouseClicked(event -> {
+                switch (Dashboard.simulator.state) {
+                    case INACTIVE:
+                        Dashboard.simulator.state = Simulator.State.SELECTING;
+                        simulate.setText("Simulate");
+                        break;
+                    case SELECTING:
+                        if (Dashboard.simulator.simulants[1] != null) {
+                            Dashboard.simulator.simulate();
+                        }
+                        break;
+                    case SIMULATING:
+                        Dashboard.simulator.state = Simulator.State.INACTIVE;
+                        simText.setText("");
+                        while (Dashboard.simulator.simulationThread != null && Dashboard.simulator.simulationThread.isAlive()) {}
+                        break;
+                }
+            });
+            simulateHBox.getChildren().add(simulate);
+
+            getChildren().add(simulateHBox);
+
+            CheckBox showGrid = new CheckBox("Show Deterministic Sampling Grid");
+            showGrid.setPrefWidth(width);
+            showGrid.setTextFill(Color.WHITE);
+            showGrid.setStyle("-fx-font: 20px \"Arial\"; -fx-focus-color: transparent;");
+            showGrid.setTextAlignment(TextAlignment.LEFT);
+            showGrid.setOnMouseClicked(event -> Dashboard.fieldPane.deterministicSamplingGrid.setVisible(showGrid.isSelected()));
+            getChildren().add(showGrid);
+
+            CheckBox simDynPath = new CheckBox("Simulate Dynamic Pathing");
+            simDynPath.setPrefWidth(width);
+            simDynPath.setTextFill(Color.WHITE);
+            simDynPath.setStyle("-fx-font: 20px \"Arial\"; -fx-focus-color: transparent;");
+            simDynPath.setTextAlignment(TextAlignment.LEFT);
+            simDynPath.setOnMouseClicked(event -> Dashboard.simulator.isSimDynPath = simDynPath.isSelected());
+            getChildren().add(simDynPath);
+
+            CheckBox simErrorPID = new CheckBox("Simulate Error & PID");
+            simErrorPID.setPrefWidth(width);
+            simErrorPID.setTextFill(Color.WHITE);
+            simErrorPID.setStyle("-fx-font: 20px \"Arial\"; -fx-focus-color: transparent;");
+            simErrorPID.setTextAlignment(TextAlignment.LEFT);
+            simErrorPID.setOnMouseClicked(event -> {
+                Dashboard.simulator.isSimErrorPID = simErrorPID.isSelected();
+            });
+            getChildren().add(simErrorPID);
+
             Label constantsLabel = new Label("Constants");
             constantsLabel.setTextFill(Color.WHITE);
             constantsLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
@@ -121,7 +192,7 @@ public class LeftPane extends VBox {
 
             constantsDisplay = new TextArea();
             constantsDisplay.setStyle("-fx-font: 14px \"Arial\"; -fx-focus-color: transparent;");
-            constantsDisplay.setPrefSize(width, width + 282);
+            constantsDisplay.setPrefSize(width, width + 135);
             constantsDisplay.setEditable(true);
             setConstantsDisplayText(Constants.root.toString(4));
             Dashboard.constantsSave = Constants.root.toString(4);
