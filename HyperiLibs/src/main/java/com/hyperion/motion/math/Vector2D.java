@@ -44,6 +44,13 @@ public class Vector2D {
         return new Vector2D(x + v2.x, y + v2.y, true);
     }
 
+    public void add(Vector2D v2) {
+        this.x += v2.x;
+        this.y += v2.y;
+        this.magnitude = MathUtils.round(Math.sqrt(x * x + y * y), 3);
+        this.theta = MathUtils.norm(Math.atan2(y, x));
+    }
+
     public Vector2D subtracted(Vector2D v2) {
         return new Vector2D(x - v2.x, y - v2.y, true);
     }
@@ -96,7 +103,7 @@ public class Vector2D {
         x = newVec.x;
         y = newVec.y;
         magnitude = newVec.magnitude;
-        theta = MathUtils.norm(newVec.theta);
+        theta = newVec.theta;
     }
 
     public boolean equals(Vector2D other) {

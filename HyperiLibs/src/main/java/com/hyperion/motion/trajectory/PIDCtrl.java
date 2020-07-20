@@ -39,7 +39,7 @@ public class PIDCtrl {
         thetaUt = new ArrayList<>();
     }
 
-    public static void init(Pose goal) {
+    public static void setGoal(Pose goal) {
         PIDCtrl.goal = new Pose(goal);
     }
 

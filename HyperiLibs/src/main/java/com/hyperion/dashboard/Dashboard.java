@@ -12,7 +12,6 @@ import com.hyperion.dashboard.pane.LeftPane;
 import com.hyperion.dashboard.pane.MenuPane;
 import com.hyperion.dashboard.pane.RightPane;
 import com.hyperion.dashboard.pane.VisualPane;
-import com.hyperion.dashboard.uiobject.Arrow;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.FieldObject;
 import com.hyperion.dashboard.uiobject.Robot;
@@ -38,7 +37,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -185,7 +183,7 @@ public class Dashboard extends Application {
                         for (int i = 0; i < fieldObjects.size(); i++) {
                             if (fieldObjects.get(i).id.equals(edit.id)) {
                                 if (fieldObjects.get(i) instanceof Robot) {
-                                    ((Robot) fieldObjects.get(i)).rigidBody = new RigidBody(new JSONArray(edit.body));
+                                    ((Robot) fieldObjects.get(i)).rB = new RigidBody(new JSONArray(edit.body));
                                     fieldObjects.get(i).refreshDisplayGroup();
                                 } else if (fieldObjects.get(i) instanceof DisplaySpline) {
                                     fieldObjects.get(i).refreshDisplayGroup();

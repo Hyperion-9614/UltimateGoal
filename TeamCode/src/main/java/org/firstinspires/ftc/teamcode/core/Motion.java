@@ -147,7 +147,7 @@ public class Motion {
     }
     public static void pidMove(Pose target) {
         PIDCtrl.reset();
-        PIDCtrl.init(target);
+        PIDCtrl.setGoal(target);
 
         ElapsedTime timer = new ElapsedTime();
         while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 3000
@@ -171,7 +171,7 @@ public class Motion {
     }
     public static void pidMove(Vector2D addVec, double targetHeading) {
         Pose target = robot.addVector(addVec);
-        target.setT(targetHeading);
+        target.setTheta(targetHeading);
         pidMove(target);
     }
 
@@ -208,20 +208,21 @@ public class Motion {
 
         ElapsedTime timer = new ElapsedTime();
         while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 5000
-                && (robot.distanceTo(goal) > Constants.getDouble("pathing.endErrorThresholds.translation")
-                || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))
-                && distance <= spline.totalArcLength()) {
+               && (robot.distanceTo(goal) > Constants.getDouble("pathing.endErrorThresholds.translation")
+               || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))
+               && distance <= spline.totalArcLength()) {
             distance += last.distanceTo(robot);
-            distance = Math.min(distance, spline.totalArcLength());
             last = new Pose(robot);
 
-            RigidBody setPoint = spline.mP.getRigidBody(distance + 1);
-            PIDCtrl.init(setPoint);
+            RigidBody setPoint = spline.mP.getRigidBody(Math.min(distance + 1, spline.totalArcLength()));
+            PIDCtrl.setGoal(setPoint);
 
             Object[] pidCorr = PIDCtrl.correction(robot);
-            Vector2D worldVec = setPoint.tVel.added((Vector2D) pidCorr[0]);
+            Vector2D pidCorrAcc = (Vector2D) pidCorr[0];
+            double pidCorrRot = (double) pidCorr[1];
+            Vector2D worldVec = setPoint.tVel.added(pidCorrAcc);
 
-            double[] wheelPowers = toMotorPowers(toRelVec(worldVec), (double) pidCorr[1]);
+            double[] wheelPowers = toMotorPowers(toRelVec(worldVec), pidCorrRot);
             setDrive(wheelPowers);
 
             if (isDynamic) {

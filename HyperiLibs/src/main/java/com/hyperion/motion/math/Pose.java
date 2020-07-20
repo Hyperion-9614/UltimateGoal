@@ -43,7 +43,7 @@ public class Pose {
         this.y = y;
     }
 
-    public void setT(double theta) {
+    public void setTheta(double theta) {
         this.theta = theta;
     }
 

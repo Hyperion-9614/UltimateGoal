@@ -1,5 +1,9 @@
 package com.hyperion.dashboard.uiobject;
 
+import com.hyperion.dashboard.Dashboard;
+import com.hyperion.motion.math.Pose;
+import com.hyperion.motion.math.Vector2D;
+
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
@@ -87,6 +91,16 @@ public class Arrow {
         rHead.setStartY(y2);
         rHead.setEndX(endX);
         rHead.setEndY(endY);
+    }
+
+    public void set(Pose origin, Vector2D vec) {
+        set(Dashboard.fieldPane.poseToDisplay(origin, 0),
+            Dashboard.fieldPane.poseToDisplay(origin.addVector(vec), 0));
+    }
+
+    public void set(Pose origin, Pose dest) {
+        set(Dashboard.fieldPane.poseToDisplay(origin, 0),
+            Dashboard.fieldPane.poseToDisplay(dest, 0));
     }
 
 }

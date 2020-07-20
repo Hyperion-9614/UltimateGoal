@@ -16,7 +16,7 @@ import javafx.scene.text.Text;
 
 public class Robot extends FieldObject {
 
-    public RigidBody rigidBody;
+    public RigidBody rB;
 
     public ImageView imgView;
     public Text info;
@@ -26,9 +26,9 @@ public class Robot extends FieldObject {
         createDisplayGroup();
     }
 
-    public Robot(ID id, RigidBody rigidBody) {
+    public Robot(ID id, RigidBody rB) {
         this(id);
-        this.rigidBody = new RigidBody(rigidBody);
+        this.rB = new RigidBody(rB);
         refreshDisplayGroup();
     }
 
@@ -63,11 +63,11 @@ public class Robot extends FieldObject {
     }
 
     public void refreshDisplayGroup() {
-        double[] display = Dashboard.fieldPane.poseToDisplay(rigidBody, Dashboard.fieldPane.robotSize);
+        double[] display = Dashboard.fieldPane.poseToDisplay(rB, Dashboard.fieldPane.robotSize);
         imgView.relocate(display[0], display[1]);
         imgView.setRotate(display[2]);
 
-        info.setText(rigidBody.toString().replace(" | ", "\n")
+        info.setText(rB.toString().replace(" | ", "\n")
                 .replace("°", "\u00B0")
                 .replace("θ", "\u03F4".toLowerCase())
                 .replace("²", "\u00B2"));

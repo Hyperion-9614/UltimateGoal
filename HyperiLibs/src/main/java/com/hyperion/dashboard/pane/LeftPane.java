@@ -24,6 +24,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Background;
@@ -42,6 +43,7 @@ public class LeftPane extends VBox {
     public TextArea constantsDisplay;
     public TextField simText;
     public Button simulate;
+    public Spinner<Double> errorSpinner;
 
     public double width;
 
@@ -174,15 +176,31 @@ public class LeftPane extends VBox {
             simDynPath.setOnMouseClicked(event -> Dashboard.simulator.isSimDynPath = simDynPath.isSelected());
             getChildren().add(simDynPath);
 
-            CheckBox simErrorPID = new CheckBox("Simulate Error & PID");
-            simErrorPID.setPrefWidth(width);
-            simErrorPID.setTextFill(Color.WHITE);
-            simErrorPID.setStyle("-fx-font: 20px \"Arial\"; -fx-focus-color: transparent;");
-            simErrorPID.setTextAlignment(TextAlignment.LEFT);
-            simErrorPID.setOnMouseClicked(event -> {
-                Dashboard.simulator.isSimErrorPID = simErrorPID.isSelected();
+            HBox errorHBox = new HBox();
+
+            Label errorLabel = new Label(" Error Magnitude: ");
+            errorLabel.setTextFill(Color.WHITE);
+            errorLabel.setStyle("-fx-font: 20px \"Arial\"; -fx-alignment:center;");
+            errorHBox.getChildren().add(errorLabel);
+
+            errorSpinner = new Spinner<>(0, 1, 0.5, 0.05);
+            errorSpinner.setStyle("-fx-font: 15px \"Arial\"; -fx-text-alignment:left; -fx-focus-color: transparent;");
+            errorSpinner.setEditable(true);
+            errorSpinner.setPrefWidth(width / 8.0);
+            errorHBox.getChildren().add(errorSpinner);
+
+            getChildren().add(errorHBox);
+
+            CheckBox simPID = new CheckBox("Simulate PID Correction");
+            simPID.setPrefWidth(width);
+            simPID.setTextFill(Color.WHITE);
+            simPID.setStyle("-fx-font: 20px \"Arial\"; -fx-focus-color: transparent;");
+            simPID.setTextAlignment(TextAlignment.LEFT);
+            simPID.setOnMouseClicked(event -> {
+                Dashboard.simulator.isSimPID = simPID.isSelected();
             });
-            getChildren().add(simErrorPID);
+            simPID.setSelected(true);
+            getChildren().add(simPID);
 
             Label constantsLabel = new Label("Constants");
             constantsLabel.setTextFill(Color.WHITE);
