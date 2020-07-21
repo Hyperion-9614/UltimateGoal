@@ -7,11 +7,18 @@ import com.hyperion.dashboard.Dashboard;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Vector2D;
+import com.hyperion.motion.pathplanning.DStarLite;
 import com.hyperion.motion.trajectory.PIDCtrl;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 
 public class Simulator {
 
@@ -19,15 +26,19 @@ public class Simulator {
     public State state;
 
     public double errorMag = 0.5;
+    public double errorProb = 0.35;
+
     public boolean isSimPID = true;
     public boolean isSimDynPath;
 
     public FieldObject[] simulants;
     public boolean isSelectingFirst = true;
+    public DStarLite pathPlanner;
 
     public Simulator() {
         this.state = State.INACTIVE;
         simulants = new FieldObject[2];
+        pathPlanner = new DStarLite(new ArrayList<>());
     }
 
     public void simulate() {
@@ -40,7 +51,13 @@ public class Simulator {
                 displaySpline = (DisplaySpline) simulants[0];
                 spline = displaySpline.spline;
             } else {
-                spline = new SplineTrajectory(((Waypoint) simulants[0]).pose, ((Waypoint) simulants[1]).pose);
+                if (isSimDynPath) {
+                    pathPlanner.init(((Waypoint) simulants[0]).pose, ((Waypoint) simulants[1]).pose);
+                    ArrayList<Pose> path = pathPlanner.getPath();
+                    spline = new SplineTrajectory(path.toArray(new Pose[]{}));
+                } else {
+                    spline = new SplineTrajectory(((Waypoint) simulants[0]).pose, ((Waypoint) simulants[1]).pose);
+                }
                 displaySpline = new DisplaySpline(new ID(Dashboard.opModeID, "spline", "simulation"), spline);
                 displaySpline.addDisplayGroup();
             }
@@ -50,6 +67,11 @@ public class Simulator {
             Arrow pidAccArrow = new Arrow(Color.BLUE, 15);
             Arrow finalVelArrow = new Arrow(Color.BLACK, 15);
             Robot simRob = new Robot(new ID("robot.simulation"), spline.getDPose(0));
+
+            double[] toDisp = Dashboard.fieldPane.poseToDisplay(simRob.rB, 0);
+            Circle setPointCircle = new Circle(toDisp[0], toDisp[1], 1.25 * Constants.getDouble("dashboard.gui.sizes.planningPoint"));
+            setPointCircle.setFill(Color.WHITE);
+            setPointCircle.setStroke(Color.BLACK);
 
             Platform.runLater(() -> {
                 Dashboard.leftPane.simulate.setText("Stop\nSim");
@@ -65,6 +87,8 @@ public class Simulator {
                 pidAccArrow.displayGroup.toFront();
                 Dashboard.fieldPane.getChildren().add(finalVelArrow.displayGroup);
                 finalVelArrow.displayGroup.toFront();
+                Dashboard.fieldPane.getChildren().add(setPointCircle);
+                setPointCircle.toFront();
             });
 
             double lastTheta = spline.waypoints.get(0).theta;
@@ -79,15 +103,35 @@ public class Simulator {
             Vector2D errorAcc = new Vector2D();
             Vector2D pidCorrAcc = new Vector2D();
             double pidCorrRot;
-            errorMag = Dashboard.leftPane.errorSpinner.getValue();
+
+            errorMag = Dashboard.leftPane.errorMagSpinner.getValue();
+            errorProb = Dashboard.leftPane.errorProbSpinner.getValue() / 100.0;
 
             PIDCtrl.reset();
 
             try {
-                Thread.sleep(750);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            Timer collisionTimer = new Timer();
+            class CollisionTask extends TimerTask {
+                @Override
+                public void run() {
+                    double kProb = (Math.random() <= errorProb) ? 0 : 1;
+                    errorAcc.setVec(new Vector2D(kProb * errorMag * MathUtils.randInRange(new Random(), 0, 75),
+                                                 kProb * MathUtils.randInRange(new Random(), 0, 2 * Math.PI), false));
+                    try {
+                        Thread.sleep((int) MathUtils.randInRange(new Random(), 0, 1500));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    collisionTimer.schedule(new CollisionTask(), (int) MathUtils.randInRange(new Random(), 0, 1500));
+                }
+            }
+            CollisionTask randomError = new CollisionTask();
+            randomError.run();
 
             long startTime = System.currentTimeMillis();
             long lastTime = startTime;
@@ -106,15 +150,15 @@ public class Simulator {
                 mPVel.setVec(setPoint.tVel);
                 simRob.rB.tVel.setVec(setPoint.tVel);
 
-                errorAcc.setVec(new Vector2D(errorMag * 30, errorMag * 30, true));
                 simRob.rB.tVel.add(errorAcc);
 
                 if (isSimPID) {
                     Object[] pidCorr = PIDCtrl.correction(simRob.rB);
                     pidCorrAcc.setVec((Vector2D) pidCorr[0]);
+                    System.out.println("PID Corr: " + (Vector2D) pidCorr[0] + " " + (double) pidCorr[1]);
                     pidCorrRot = (double) pidCorr[1];
                     simRob.rB.tVel.add(pidCorrAcc);
-                    simRob.rB.addXYT(0, 0, pidCorrRot);
+                    simRob.rB.addXYT(0, 0, pidCorrRot / 360.0);
                 }
 
                 Vector2D dPos = simRob.rB.tVel.scaled(dTime);
@@ -125,35 +169,42 @@ public class Simulator {
                 simRob.rB.aAcc = (simRob.rB.aVel - lastAngVel) / dTime;
                 lastAngVel = simRob.rB.aVel;
 
-//                if (isSimDynPath) {
-//                    pathPlanner.robotMoved(robot);
-//
-//                    // TODO: Pass in empirical obstacle list
-//                    if (pathPlanner.updateObstacles(new ArrayList<>())) {
-//                        pathPlanner.recompute();
-//
-//                        ArrayList<Pose> path = pathPlanner.getPath();
-//                        SplineTrajectory newSpline = new SplineTrajectory(path.toArray(new Pose[]{}));
-//                        return followSpline(newSpline, true);
-//                    }
-//                }
-
                 Platform.runLater(() -> {
                     simRob.refreshDisplayGroup();
+
+                    double[] spDisp = Dashboard.fieldPane.poseToDisplay(setPoint, 0);
+                    setPointCircle.setCenterX(spDisp[0]);
+                    setPointCircle.setCenterY(spDisp[1]);
 
                     mPVelArrow.set(simRob.rB, mPVel);
                     errorAccArrow.set(simRob.rB, errorAcc);
                     pidAccArrow.set(simRob.rB, pidCorrAcc);
                     finalVelArrow.set(simRob.rB, simRob.rB.tVel);
                 });
+
+                if (isSimDynPath) {
+                    pathPlanner.robotMoved(simRob.rB);
+
+                    // TODO: Pass in empirical obstacle list
+                    if (pathPlanner.updateObstacles(new ArrayList<>())) {
+                        pathPlanner.recompute();
+
+                        ArrayList<Pose> path = pathPlanner.getPath();
+                        spline = new SplineTrajectory(path.toArray(new Pose[]{}));
+                        displaySpline.refreshDisplayGroup();
+                        distance = 0;
+                    }
+                }
             }
+
+            randomError.cancel();
 
             if (System.currentTimeMillis() - startTime >= 10000) {
                 System.out.println(selectionStr() + " simulation timed out");
             }
 
             try {
-                Thread.sleep(750);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -164,6 +215,7 @@ public class Simulator {
                 Dashboard.fieldPane.getChildren().remove(pidAccArrow.displayGroup);
                 Dashboard.fieldPane.getChildren().remove(finalVelArrow.displayGroup);
                 Dashboard.fieldPane.getChildren().remove(simRob.displayGroup);
+                Dashboard.fieldPane.getChildren().remove(setPointCircle);
                 if (displaySpline.id.get(-1).equals("simulation")) {
                     displaySpline.removeDisplayGroup();
                 }

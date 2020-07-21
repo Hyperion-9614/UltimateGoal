@@ -43,7 +43,8 @@ public class LeftPane extends VBox {
     public TextArea constantsDisplay;
     public TextField simText;
     public Button simulate;
-    public Spinner<Double> errorSpinner;
+    public Spinner<Double> errorMagSpinner;
+    public Spinner<Integer> errorProbSpinner;
 
     public double width;
 
@@ -178,16 +179,27 @@ public class LeftPane extends VBox {
 
             HBox errorHBox = new HBox();
 
-            Label errorLabel = new Label(" Error Magnitude: ");
-            errorLabel.setTextFill(Color.WHITE);
-            errorLabel.setStyle("-fx-font: 20px \"Arial\"; -fx-alignment:center;");
-            errorHBox.getChildren().add(errorLabel);
+            Label magLabel = new Label(" Error Magnitude: ");
+            magLabel.setTextFill(Color.WHITE);
+            magLabel.setStyle("-fx-font: 20px \"Arial\"; -fx-alignment:center;");
+            errorHBox.getChildren().add(magLabel);
 
-            errorSpinner = new Spinner<>(0, 1, 0.5, 0.05);
-            errorSpinner.setStyle("-fx-font: 15px \"Arial\"; -fx-text-alignment:left; -fx-focus-color: transparent;");
-            errorSpinner.setEditable(true);
-            errorSpinner.setPrefWidth(width / 8.0);
-            errorHBox.getChildren().add(errorSpinner);
+            errorMagSpinner = new Spinner<>(0, 1, 0.5, 0.05);
+            errorMagSpinner.setStyle("-fx-font: 15px \"Arial\"; -fx-text-alignment:left; -fx-focus-color: transparent;");
+            errorMagSpinner.setEditable(true);
+            errorMagSpinner.setPrefWidth(width / 8.0);
+            errorHBox.getChildren().add(errorMagSpinner);
+
+            Label probLabel = new Label(" Probability: ");
+            probLabel.setTextFill(Color.WHITE);
+            probLabel.setStyle("-fx-font: 20px \"Arial\"; -fx-alignment:center;");
+            errorHBox.getChildren().add(probLabel);
+
+            errorProbSpinner = new Spinner<>(0, 100, 35, 5);
+            errorProbSpinner.setStyle("-fx-font: 15px \"Arial\"; -fx-text-alignment:left; -fx-focus-color: transparent;");
+            errorProbSpinner.setEditable(true);
+            errorProbSpinner.setPrefWidth(width / 8.0);
+            errorHBox.getChildren().add(errorProbSpinner);
 
             getChildren().add(errorHBox);
 

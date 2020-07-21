@@ -24,41 +24,13 @@
         }
     },
     "io": {"resPrefix": "\\HyperiLibs\\src\\main\\res"},
-    "spline": {
-        "verbose": false,
-        "maxBisectionError": 0.05,
-        "segmentLength": 50,
-        "integrator": {
-            "n": 2,
-            "relAcc": 1e-1,
-            "absAcc": 1e-2,
-            "minIters": 1,
-            "maxIters": 8
-        }
-    },
     "motionProfile": {
         "verbosity": 0,
-        "k": {
-            "tAcc": 0.01467,
-            "tVel": 0.002857
-        },
         "maxes": {
             "aVel": 12.566,
             "tAcc": 100,
             "tVel": 150
         }
-    },
-    "pathing": {
-        "endErrorThresholds": {
-            "rotation": 1,
-            "translation": 1
-        },
-        "obstacles": {
-            "rInner": 33,
-            "rBuffer": 5
-        },
-        "obstacleMoveThreshold": 3,
-        "gridMhat": 75
     },
     "teamcode": {
         "forceEndTimeLeft": 3500,
@@ -67,21 +39,44 @@
     },
     "pid": {
         "x": {
-            "kP": 0,
-            "kD": 0,
-            "kI": 0
+            "kP": 0.1,
+            "kD": 0.1,
+            "kI": 3.0E-4
         },
         "y": {
-            "kP": 0,
-            "kD": 0,
-            "kI": 0
+            "kP": 0.1,
+            "kD": 0.1,
+            "kI": 3.0E-4
         },
         "theta": {
             "kP": 0,
             "kD": 0,
             "kI": 0
+        }
+    },
+    "spline": {
+        "maxBisectionError": 0.05,
+        "segmentLength": 50,
+        "integrator": {
+            "relAcc": 0.1,
+            "minIters": 1,
+            "maxIters": 8,
+            "n": 2,
+            "absAcc": 0.01
         },
-        "maxCorrection": 0.75
+        "verbose": false
+    },
+    "pathing": {
+        "obstacleMoveThreshold": 3,
+        "endErrorThresholds": {
+            "rotation": 1,
+            "translation": 1
+        },
+        "gridMhat": 75,
+        "obstacles": {
+            "rInner": 33,
+            "rBuffer": 5
+        }
     },
     "dashboard": {
         "isDebugging": false,
@@ -90,11 +85,11 @@
                 "waypoint": 24,
                 "planningPoint": 4.5
             },
+            "dragTime": 150,
             "wbb": {
                 "strokeWidth": 4,
                 "grayScale": 0.3
-            },
-            "dragTime": 150
+            }
         },
         "net": {"serviceUUID": "2d26618601fb47c28d9f10b8ec891363"},
         "version": "5.0"

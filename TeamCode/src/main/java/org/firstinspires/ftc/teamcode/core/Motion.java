@@ -222,7 +222,7 @@ public class Motion {
             double pidCorrRot = (double) pidCorr[1];
             Vector2D worldVec = setPoint.tVel.added(pidCorrAcc);
 
-            double[] wheelPowers = toMotorPowers(toRelVec(worldVec), pidCorrRot);
+            double[] wheelPowers = toMotorPowers(toRelVec(worldVec).scaled(1 / Constants.getDouble("motionProfile.maxes.tVel")), pidCorrRot);
             setDrive(wheelPowers);
 
             if (isDynamic) {

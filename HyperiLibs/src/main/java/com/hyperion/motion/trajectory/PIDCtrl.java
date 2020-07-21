@@ -68,11 +68,8 @@ public class PIDCtrl {
     }
 
     private static Object[] correctionValues(double uX, double uY, double uTheta) {
-        double maxC = Constants.getDouble("pid.maxCorrection");
         Vector2D worldCorrectionVec = new Vector2D(uX, uY, true);
-        worldCorrectionVec.setMagnitude(Math.min(maxC, worldCorrectionVec.magnitude));
-        double w = -MathUtils.clip(uTheta, -maxC, maxC);
-        return new Object[]{ worldCorrectionVec, w };
+        return new Object[]{ worldCorrectionVec, uTheta };
     }
 
     private static double pOut(ArrayList<double[]> eT, double kP) {
