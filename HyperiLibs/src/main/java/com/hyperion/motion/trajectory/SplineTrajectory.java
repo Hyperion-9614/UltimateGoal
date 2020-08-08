@@ -41,14 +41,20 @@ public class SplineTrajectory {
     public double segmentLength;
     public double length;
 
-    public SplineTrajectory(ArrayList<RigidBody> waypoints) {
-        this.waypoints = waypoints;
+    public SplineTrajectory(ArrayList<Pose> waypoints) {
+        this.waypoints = new ArrayList<>();
+        for (Pose p : waypoints) {
+            this.waypoints.add(new RigidBody(p));
+        }
         mP = new MotionProfile(this);
         endPath();
     }
 
     public SplineTrajectory(RigidBody... rigidBodies) {
-        this.waypoints = new ArrayList<>(Arrays.asList(rigidBodies));
+        this.waypoints = new ArrayList<>();
+        for (RigidBody rb : rigidBodies) {
+            this.waypoints.add(new RigidBody(rb));
+        }
         mP = new MotionProfile(this);
         endPath();
     }
@@ -56,7 +62,7 @@ public class SplineTrajectory {
     public SplineTrajectory(Pose... poses) {
         this.waypoints = new ArrayList<>();
         for (Pose p : poses) {
-            waypoints.add(new RigidBody(p));
+            this.waypoints.add(new RigidBody(p));
         }
         mP = new MotionProfile(this);
         endPath();

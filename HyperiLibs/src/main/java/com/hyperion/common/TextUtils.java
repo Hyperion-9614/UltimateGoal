@@ -1,8 +1,13 @@
 package com.hyperion.common;
 
+import com.sun.javafx.tk.FontMetrics;
+import com.sun.javafx.tk.Toolkit;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import javafx.scene.control.TextField;
 
 public class TextUtils {
 
@@ -29,5 +34,17 @@ public class TextUtils {
 
     public static boolean condensedEquals(String s1, String s2) {
         return condensed(s1).equals(condensed(s2));
+    }
+
+    public static double stringWidth(FontMetrics metrics, String string) {
+        double length = 0;
+        for (char c : string.toCharArray()) {
+            length += metrics.getCharWidth(c);
+        }
+        return length;
+    }
+
+    public static double stringWidth(TextField field) {
+        return stringWidth(Toolkit.getToolkit().getFontLoader().getFontMetrics(field.getFont()), field.getText());
     }
 }

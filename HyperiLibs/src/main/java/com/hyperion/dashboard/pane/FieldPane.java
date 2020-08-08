@@ -2,13 +2,11 @@ package com.hyperion.dashboard.pane;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
+import com.hyperion.common.IOUtils;
 import com.hyperion.common.MathUtils;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
-import com.hyperion.dashboard.uiobject.Arrow;
 import com.hyperion.dashboard.uiobject.DisplaySpline;
-import com.hyperion.dashboard.uiobject.FieldObject;
-import com.hyperion.dashboard.uiobject.Robot;
 import com.hyperion.dashboard.uiobject.Simulator;
 import com.hyperion.dashboard.uiobject.Waypoint;
 import com.hyperion.motion.math.Pose;
@@ -16,8 +14,8 @@ import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Vector2D;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
-import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -47,11 +45,14 @@ public class FieldPane extends Pane {
     private Rectangle wbbLeftLeg;
     private Rectangle wbbRightLeg;
 
-    public Group deterministicSamplingGrid;
-
     public double mouseX, mouseY;
     public long startDragTime;
     public boolean isDragging;
+
+    public Group pathingGrid;
+    public double gridPointDragDx;
+    public double gridPointDragDy;
+    public long startDragGridPointTime;
 
     public Waypoint selectedWP;
 
@@ -90,7 +91,19 @@ public class FieldPane extends Pane {
             wbbRightLeg.setStrokeWidth(Constants.getDouble("dashboard.gui.wbb.strokeWidth"));
             getChildren().add(wbbRightLeg);
 
-            deterministicSamplingGrid = new Group();
+            loadGrid();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadGrid() {
+        pathingGrid = new Group();
+        JSONObject fieldJSON = new JSONObject(IOUtils.readFile(Constants.getFile("data", "field.json")));
+
+        if (!fieldJSON.has("grid")) {
+            JSONArray gps = new JSONArray();
+
             double fsl = Constants.getDouble("localization.fieldSideLength");
             double mHat = Constants.getDouble("pathing.gridMhat");
             double buffer = (fsl % mHat) / 2.0;
@@ -100,17 +113,56 @@ public class FieldPane extends Pane {
                     double x = -(fsl / 2.0) + buffer + r * mHat;
                     double y = -(fsl / 2.0) + buffer + c * mHat;
 
-                    double[] poseArr = poseToDisplay(new Pose(x, y, 0), 0);
-                    Circle gridPoint = new Circle(poseArr[0], poseArr[1], 1.25 * Constants.getDouble("dashboard.gui.sizes.planningPoint"));
-                    gridPoint.setFill(Color.BLACK);
-                    deterministicSamplingGrid.getChildren().add(gridPoint);
+                    Pose gp = new Pose(x, y, 0);
+                    gps.put(gp.toArray());
+
+                    double[] poseArr = poseToDisplay(gp, 0);
+                    addGridPoint(poseArr);
                 }
             }
-            deterministicSamplingGrid.setVisible(false);
-            getChildren().add(deterministicSamplingGrid);
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            fieldJSON.put("grid", gps);
+            IOUtils.writeFile(fieldJSON.toString(), Constants.getFile("data", "field.json"));
+        } else {
+            for (int i = 0; i < fieldJSON.getJSONArray("grid").length(); i++) {
+                double[] poseArr = poseToDisplay(new Pose(fieldJSON.getJSONArray("grid").getJSONArray(i)), 0);
+                addGridPoint(poseArr);
+            }
         }
+
+        pathingGrid.setVisible(false);
+        getChildren().add(pathingGrid);
+    }
+    private void addGridPoint(double[] poseArr) {
+        Circle gridPoint = new Circle(poseArr[0], poseArr[1], 1.25 * Constants.getDouble("dashboard.gui.sizes.planningPoint"));
+        gridPoint.setFill(Color.BLACK);
+        gridPoint.setOnMouseClicked((event -> {
+            if (event.getButton() == MouseButton.MIDDLE) {
+                JSONObject fieldJSON = new JSONObject(IOUtils.readFile(Constants.getFile("data", "field.json")));
+                fieldJSON.getJSONArray("grid").remove(pathingGrid.getChildren().indexOf(gridPoint));
+                IOUtils.writeFile(fieldJSON.toString(), Constants.getFile("data", "field.json"));
+                pathingGrid.getChildren().remove(gridPoint);
+            }
+        }));
+        gridPoint.setOnMousePressed((event -> {
+            if (event.getButton() == MouseButton.PRIMARY) {
+                startDragTime = System.currentTimeMillis();
+                gridPointDragDx = gridPoint.getCenterX() - event.getSceneX();
+                gridPointDragDy = gridPoint.getCenterY() - event.getSceneY();
+            }
+        }));
+        gridPoint.setOnMouseDragged((event -> {
+            gridPoint.setCenterX(event.getSceneX() + gridPointDragDx);
+            gridPoint.setCenterY(event.getSceneY() + gridPointDragDy);
+        }));
+        gridPoint.setOnMouseReleased((event -> {
+            if (System.currentTimeMillis() - startDragGridPointTime > Constants.getInt("dashboard.gui.dragTime") && event.getButton() == MouseButton.PRIMARY) {
+                JSONObject fieldJSON = new JSONObject(IOUtils.readFile(Constants.getFile("data", "field.json")));
+                fieldJSON.getJSONArray("grid").put(pathingGrid.getChildren().indexOf(gridPoint), new JSONArray(displayToPose(gridPoint.getCenterX(), gridPoint.getCenterY(), 0).toArray()));
+                IOUtils.writeFile(fieldJSON.toString(), Constants.getFile("data", "field.json"));
+            }
+        }));
+        pathingGrid.getChildren().add(gridPoint);
     }
 
     private void mouseHandler(MouseEvent mouseEvent) {
@@ -144,13 +196,13 @@ public class FieldPane extends Pane {
                 }
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_CLICKED) {
                 if (!isDragging) {
+                    Pose newPose = displayToPose(mouseX, mouseY, 0);
                     if (mouseEvent.getButton() == MouseButton.PRIMARY) {
                         if (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) {
                             select(null);
                         }
                     } else if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.getTarget().equals(wbbBorder)) {
                         if (isInWBB(mouseX - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, mouseY - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, Constants.getDouble("dashboard.gui.sizes.waypoint"))) {
-                            Pose newPose = displayToPose(mouseX, mouseY, 0);
                             if (Dashboard.isBuildingPaths) {
                                 if (selectedWP != null && selectedWP.parentSpline != null) {
                                     selectedWP.parentSpline.spline.waypoints.add(new RigidBody(newPose));
@@ -166,6 +218,11 @@ public class FieldPane extends Pane {
                                 Dashboard.editField(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray())));
                             }
                         }
+                    } else if (mouseEvent.getButton() == MouseButton.MIDDLE && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane)) {
+                        JSONObject fieldJSON = new JSONObject(IOUtils.readFile(Constants.getFile("data", "field.json")));
+                        fieldJSON.getJSONArray("grid").put(new JSONArray(newPose.toArray()));
+                        IOUtils.writeFile(fieldJSON.toString(), Constants.getFile("data", "field.json"));
+                        addGridPoint(poseToDisplay(newPose, 0));
                     }
                 }
             }
@@ -237,6 +294,8 @@ public class FieldPane extends Pane {
     public void select(Waypoint newSelected) {
         if (selectedWP != newSelected) {
             if (selectedWP != null) {
+                if (selectedWP.renderID)
+                    selectedWP.idField.setText(selectedWP.id.get(-1));
                 selectedWP.displayGroup.getChildren().remove(selectedWP.selection);
                 requestFocus();
                 if (selectedWP.parentSpline != null) {

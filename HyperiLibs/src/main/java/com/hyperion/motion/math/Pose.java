@@ -2,6 +2,8 @@ package com.hyperion.motion.math;
 
 import com.hyperion.common.MathUtils;
 
+import org.json.JSONArray;
+
 /**
  * Orientation object for global positioning, pathing, etc.
  */
@@ -30,6 +32,12 @@ public class Pose {
     public Pose(double[] coords) {
         this.x = coords[0];
         this.y = coords[1];
+    }
+
+    public Pose(JSONArray arr) {
+        this.x = arr.getDouble(0);
+        this.y = arr.getDouble(1);
+        this.theta = arr.getDouble(2);
     }
 
     public Pose(double x, double y, double theta) {

@@ -17,6 +17,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -51,12 +52,13 @@ public class Simulator {
                 displaySpline = (DisplaySpline) simulants[0];
                 spline = displaySpline.spline;
             } else {
+                Pose start = ((Waypoint) simulants[0]).pose;
+                Pose goal = ((Waypoint) simulants[1]).pose;
                 if (isSimDynPath) {
-                    pathPlanner.init(((Waypoint) simulants[0]).pose, ((Waypoint) simulants[1]).pose);
-                    ArrayList<Pose> path = pathPlanner.getPath();
-                    spline = new SplineTrajectory(path.toArray(new Pose[]{}));
+                    pathPlanner.init(start, goal);
+                    spline = new SplineTrajectory(pathPlanner.getPath());
                 } else {
-                    spline = new SplineTrajectory(((Waypoint) simulants[0]).pose, ((Waypoint) simulants[1]).pose);
+                    spline = new SplineTrajectory(start, goal);
                 }
                 displaySpline = new DisplaySpline(new ID(Dashboard.opModeID, "spline", "simulation"), spline);
                 displaySpline.addDisplayGroup();
@@ -77,18 +79,12 @@ public class Simulator {
                 Dashboard.leftPane.simulate.setText("Stop\nSim");
                 Dashboard.leftPane.simText.setText("Simulating " + selectionStr());
 
-                Dashboard.fieldPane.getChildren().add(simRob.displayGroup);
-                simRob.displayGroup.toFront();
-                Dashboard.fieldPane.getChildren().add(mPVelArrow.displayGroup);
-                mPVelArrow.displayGroup.toFront();
-                Dashboard.fieldPane.getChildren().add(errorAccArrow.displayGroup);
-                errorAccArrow.displayGroup.toFront();
-                Dashboard.fieldPane.getChildren().add(pidAccArrow.displayGroup);
-                pidAccArrow.displayGroup.toFront();
-                Dashboard.fieldPane.getChildren().add(finalVelArrow.displayGroup);
-                finalVelArrow.displayGroup.toFront();
-                Dashboard.fieldPane.getChildren().add(setPointCircle);
-                setPointCircle.toFront();
+                for (Node node : new Node[]{ simRob.displayGroup, mPVelArrow.displayGroup,
+                                             errorAccArrow.displayGroup, pidAccArrow.displayGroup,
+                                             finalVelArrow.displayGroup, setPointCircle }) {
+                    Dashboard.fieldPane.getChildren().add(node);
+                    node.toFront();
+                }
             });
 
             double lastTheta = spline.waypoints.get(0).theta;
@@ -189,10 +185,10 @@ public class Simulator {
                     if (pathPlanner.updateObstacles(new ArrayList<>())) {
                         pathPlanner.recompute();
 
-                        ArrayList<Pose> path = pathPlanner.getPath();
-                        spline = new SplineTrajectory(path.toArray(new Pose[]{}));
+                        spline = new SplineTrajectory(pathPlanner.getPath());
                         displaySpline.refreshDisplayGroup();
                         distance = 0;
+                        PIDCtrl.reset();
                     }
                 }
             }

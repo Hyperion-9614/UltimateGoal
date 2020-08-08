@@ -161,12 +161,12 @@ public class LeftPane extends VBox {
 
             getChildren().add(simulateHBox);
 
-            CheckBox showGrid = new CheckBox("Show Deterministic Sampling Grid");
+            CheckBox showGrid = new CheckBox("Show Pathing Grid");
             showGrid.setPrefWidth(width);
             showGrid.setTextFill(Color.WHITE);
             showGrid.setStyle("-fx-font: 20px \"Arial\"; -fx-focus-color: transparent;");
             showGrid.setTextAlignment(TextAlignment.LEFT);
-            showGrid.setOnMouseClicked(event -> Dashboard.fieldPane.deterministicSamplingGrid.setVisible(showGrid.isSelected()));
+            showGrid.setOnMouseClicked(event -> Dashboard.fieldPane.pathingGrid.setVisible(showGrid.isSelected()));
             getChildren().add(showGrid);
 
             CheckBox simDynPath = new CheckBox("Simulate Dynamic Pathing");
@@ -187,7 +187,7 @@ public class LeftPane extends VBox {
             errorMagSpinner = new Spinner<>(0, 1, 0.5, 0.05);
             errorMagSpinner.setStyle("-fx-font: 15px \"Arial\"; -fx-text-alignment:left; -fx-focus-color: transparent;");
             errorMagSpinner.setEditable(true);
-            errorMagSpinner.setPrefWidth(width / 8.0);
+            errorMagSpinner.setPrefWidth(width / 6.0 + 10);
             errorHBox.getChildren().add(errorMagSpinner);
 
             Label probLabel = new Label(" Probability: ");
@@ -198,7 +198,7 @@ public class LeftPane extends VBox {
             errorProbSpinner = new Spinner<>(0, 100, 35, 5);
             errorProbSpinner.setStyle("-fx-font: 15px \"Arial\"; -fx-text-alignment:left; -fx-focus-color: transparent;");
             errorProbSpinner.setEditable(true);
-            errorProbSpinner.setPrefWidth(width / 8.0);
+            errorProbSpinner.setPrefWidth(width / 6.0 + 10);
             errorHBox.getChildren().add(errorProbSpinner);
 
             getChildren().add(errorHBox);

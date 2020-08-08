@@ -207,7 +207,7 @@ public class Motion {
         PIDCtrl.reset();
 
         ElapsedTime timer = new ElapsedTime();
-        while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 5000
+        while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 8000
                && (robot.distanceTo(goal) > Constants.getDouble("pathing.endErrorThresholds.translation")
                || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))
                && distance <= spline.totalArcLength()) {
@@ -220,9 +220,9 @@ public class Motion {
             Object[] pidCorr = PIDCtrl.correction(robot);
             Vector2D pidCorrAcc = (Vector2D) pidCorr[0];
             double pidCorrRot = (double) pidCorr[1];
-            Vector2D worldVec = setPoint.tVel.added(pidCorrAcc);
+            Vector2D worldVelVec = setPoint.tVel.added(pidCorrAcc).scaled(1 / Constants.getDouble("motionProfile.maxes.tVel"));
 
-            double[] wheelPowers = toMotorPowers(toRelVec(worldVec).scaled(1 / Constants.getDouble("motionProfile.maxes.tVel")), pidCorrRot);
+            double[] wheelPowers = toMotorPowers(toRelVec(worldVelVec), pidCorrRot * Constants.getDouble("pid.kRot"));
             setDrive(wheelPowers);
 
             if (isDynamic) {
@@ -232,9 +232,9 @@ public class Motion {
                 if (pathPlanner.updateObstacles(new ArrayList<>())) {
                     pathPlanner.recompute();
 
-                    ArrayList<Pose> path = pathPlanner.getPath();
-                    SplineTrajectory newSpline = new SplineTrajectory(path.toArray(new Pose[]{}));
-                    return followSpline(newSpline, true);
+                    spline = new SplineTrajectory(pathPlanner.getPath());
+                    distance = 0;
+                    PIDCtrl.reset();
                 }
             }
         }

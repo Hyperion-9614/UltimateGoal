@@ -36,7 +36,7 @@ public class DStarLite {
     }
 
     public ArrayList<Pose> getPath() {
-        return null;
+        return new ArrayList<>();
     }
 
     public void recompute() {

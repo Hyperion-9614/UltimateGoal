@@ -1,5 +1,7 @@
 plugins {
     id 'java-library'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
 dependencies {
@@ -9,6 +11,13 @@ dependencies {
     implementation 'com.github.javadev:underscore:1.55'
     implementation 'io.ultreia:bluecove:2.1.1'
 }
+
+javafx {
+    version = "13"
+    modules = [ 'javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.media', 'javafx.swing' ]
+}
+
+mainClassName = 'com.hyperion.dashboard.Main'
 
 sourceCompatibility = "8"
 targetCompatibility = "8"

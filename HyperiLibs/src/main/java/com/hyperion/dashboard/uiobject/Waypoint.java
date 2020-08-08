@@ -2,17 +2,15 @@ package com.hyperion.dashboard.uiobject;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
+import com.hyperion.common.TextUtils;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.motion.math.Pose;
-import com.sun.javafx.tk.FontMetrics;
-import com.sun.javafx.tk.Toolkit;
 
 import org.json.JSONArray;
 
 import javafx.application.Platform;
 import javafx.scene.Group;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.image.ImageView;
@@ -21,7 +19,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 
 public class Waypoint extends FieldObject {
 
@@ -72,11 +69,9 @@ public class Waypoint extends FieldObject {
                 idField.setMinWidth(17);
                 idField.setMaxWidth(150);
 
-                FontMetrics metrics = Toolkit.getToolkit().getFontLoader().getFontMetrics(idField.getFont());
-                idField.setPrefWidth(metrics.computeStringWidth(idField.getText()) + 17);
+                idField.setPrefWidth(TextUtils.stringWidth(idField) + 17);
                 idField.textProperty().addListener((observable, oldTextString, newTextString) ->
-                    idField.setPrefWidth(metrics.computeStringWidth(newTextString) + 17)
-                );
+                    idField.setPrefWidth(TextUtils.stringWidth(idField) + 17));
                 idField.setTextFormatter(new TextFormatter<>(change -> {
                     if (!change.isContentChange()) {
                         return change;

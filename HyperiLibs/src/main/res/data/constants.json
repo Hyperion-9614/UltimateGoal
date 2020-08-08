@@ -52,7 +52,8 @@
             "kP": 0,
             "kD": 0,
             "kI": 0
-        }
+        },
+        "kRot": 0.01
     },
     "spline": {
         "maxBisectionError": 0.05,
