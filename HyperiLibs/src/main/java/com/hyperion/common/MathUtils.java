@@ -66,8 +66,13 @@ public class MathUtils {
         return n;
     }
 
-    public static boolean isInRange(double val, double lowerBound, double upperBound) {
-        return val >= lowerBound && val <= upperBound;
+    public static boolean isInRange(double val, double a, double b) {
+        if (a > b) {
+            double temp = a;
+            a = b;
+            b = temp;
+        }
+        return val >= a && val <= b;
     }
 
     public static int sign(double val) {
