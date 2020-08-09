@@ -6,6 +6,7 @@ import com.hyperion.common.MathUtils;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.motion.math.Pose;
+import com.hyperion.motion.math.Vector2D;
 import com.hyperion.motion.pathplanning.Obstacle;
 
 import org.json.JSONArray;
@@ -27,6 +28,8 @@ public abstract class ObstacleObj extends FieldObject {
 
     private long startDragTime;
     private double dragDx, dragDy;
+
+    public double rBuffer = Constants.getDouble("pathing.obstacles.rBuffer");
 
     public ObstacleObj(ID id, Pose start, Pose end) {
         this.id = id;
@@ -112,6 +115,7 @@ public abstract class ObstacleObj extends FieldObject {
     public static class Rect extends ObstacleObj {
 
         public Rectangle rect;
+        public Rectangle buffer;
 
         public Rect(ID id, Pose start) {
             super(id, start);
@@ -132,6 +136,19 @@ public abstract class ObstacleObj extends FieldObject {
         public void createDisplayGroup() {
             double[] startArr = Dashboard.fieldPane.poseToDisplay(start, 0);
             double[] endArr = Dashboard.fieldPane.poseToDisplay(end, 0);
+            double[] bufferStartArr = Dashboard.fieldPane.poseToDisplay(start.addVector(new Vector2D(-rBuffer, rBuffer, true)), 0);
+            double[] bufferEndArr = Dashboard.fieldPane.poseToDisplay(end.addVector(new Vector2D(rBuffer, -rBuffer, true)), 0);
+
+            buffer = new Rectangle();
+            buffer.setX(bufferStartArr[0]);
+            buffer.setY(bufferStartArr[1]);
+            buffer.setWidth(bufferEndArr[0] - bufferStartArr[0]);
+            buffer.setHeight(bufferEndArr[1] - bufferStartArr[1]);
+            buffer.setStroke(Color.GRAY);
+            buffer.setStrokeWidth(2);
+            buffer.setFill(new Color(Color.GRAY.getRed(), Color.GRAY.getGreen(), Color.GRAY.getBlue(), 0.3));
+            displayGroup.getChildren().add(buffer);
+
             rect = new Rectangle();
             rect.setX(startArr[0]);
             rect.setY(startArr[1]);
@@ -153,22 +170,15 @@ public abstract class ObstacleObj extends FieldObject {
 
         @Override
         public void refreshDisplayGroup() {
-            if (start.y < end.y && start.x > end.x) {
-                Pose temp = new Pose(start);
-                start = new Pose(end);
-                end = new Pose(temp);
-            } else if (start.y < end.y && start.x < end.x) {
-                double height = end.y - start.y;
-                start = new Pose(start.x, start.y + height, 0);
-                end = new Pose(end.x, end.y - height, 0);
-            } else if (start.x > end.x && start.y > end.y) {
-                double width = start.x - end.y;
-                start = new Pose(start.x - width, start.y, 0);
-                end = new Pose(end.x + width, end.y, 0);
-            }
-
             double[] startArr = Dashboard.fieldPane.poseToDisplay(start, 0);
             double[] endArr = Dashboard.fieldPane.poseToDisplay(end, 0);
+            double[] bufferStartArr = Dashboard.fieldPane.poseToDisplay(start.addVector(new Vector2D(-rBuffer, rBuffer, true)), 0);
+            double[] bufferEndArr = Dashboard.fieldPane.poseToDisplay(end.addVector(new Vector2D(rBuffer, -rBuffer, true)), 0);
+
+            buffer.setX(bufferStartArr[0]);
+            buffer.setY(bufferStartArr[1]);
+            buffer.setWidth(bufferEndArr[0] - bufferStartArr[0]);
+            buffer.setHeight(bufferEndArr[1] - bufferStartArr[1]);
             rect.setX(startArr[0]);
             rect.setY(startArr[1]);
             rect.setWidth(endArr[0] - startArr[0]);
@@ -183,8 +193,7 @@ public abstract class ObstacleObj extends FieldObject {
     public static class Circle extends ObstacleObj {
 
         public javafx.scene.shape.Circle circle;
-
-        public double rBuffer = Constants.getDouble("pathing.obstacles.rBuffer");
+        public javafx.scene.shape.Circle buffer;
 
         public Circle(ID id, Pose start) {
             super(id, start);
@@ -205,6 +214,17 @@ public abstract class ObstacleObj extends FieldObject {
         public void createDisplayGroup() {
             double[] startArr = Dashboard.fieldPane.poseToDisplay(start, 0);
             double[] endArr = Dashboard.fieldPane.poseToDisplay(end, 0);
+            double[] bufferEndArr = Dashboard.fieldPane.poseToDisplay(start.addVector(new Vector2D(start.distanceTo(end) + rBuffer, 0, false)), 0);
+
+            buffer = new javafx.scene.shape.Circle();
+            buffer.setCenterX(startArr[0]);
+            buffer.setCenterY(startArr[1]);
+            buffer.setRadius(MathUtils.distance(startArr[0], startArr[1], bufferEndArr[0], bufferEndArr[1]));
+            buffer.setStroke(Color.GRAY);
+            buffer.setStrokeWidth(2);
+            buffer.setFill(new Color(Color.GRAY.getRed(), Color.GRAY.getGreen(), Color.GRAY.getBlue(), 0.3));
+            displayGroup.getChildren().add(buffer);
+
             circle = new javafx.scene.shape.Circle();
             circle.setCenterX(startArr[0]);
             circle.setCenterY(startArr[1]);
@@ -227,6 +247,11 @@ public abstract class ObstacleObj extends FieldObject {
         public void refreshDisplayGroup() {
             double[] startArr = Dashboard.fieldPane.poseToDisplay(start, 0);
             double[] endArr = Dashboard.fieldPane.poseToDisplay(end, 0);
+            double[] bufferEndArr = Dashboard.fieldPane.poseToDisplay(start.addVector(new Vector2D(start.distanceTo(end) + rBuffer, 0, false)), 0);
+
+            buffer.setCenterX(startArr[0]);
+            buffer.setCenterY(startArr[1]);
+            buffer.setRadius(MathUtils.distance(startArr[0], startArr[1], bufferEndArr[0], bufferEndArr[1]));
             circle.setCenterX(startArr[0]);
             circle.setCenterY(startArr[1]);
             circle.setRadius(MathUtils.distance(startArr[0], startArr[1], endArr[0], endArr[1]));
