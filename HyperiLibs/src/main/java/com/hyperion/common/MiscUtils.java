@@ -15,29 +15,34 @@ public class MiscUtils {
             JSONObject field = new JSONObject(IOUtils.readFile(toWrite));
             for (FieldEdit edit : edits) {
                 if (!edit.id.equals("robot")) {
-                    String o = edit.id.contains("waypoint") ? "waypoints" : "splines";
-                    JSONObject target = field.getJSONObject(o);
+                    String o = "";
+                    if (edit.id.contains("waypoint")) o = "waypoints";
+                    else if (edit.id.contains("spline")) o = "splines";
+                    else if (edit.id.contains("pathPoint")) o = "pathPoints";
+                    else if (edit.id.contains("obstacle")) o = "obstacles";
+                    JSONObject targ = field.getJSONObject(o);
+
                     switch (edit.type) {
                         case CREATE:
                         case EDIT_BODY:
-                            target.put(edit.id.toString(), o.equals("waypoints") ? new JSONArray(edit.body) : new JSONObject(edit.body));
+                            targ.put(edit.id.toString(), (o.equals("waypoints") || o.equals("pathPoints")) ? new JSONArray(edit.body) : new JSONObject(edit.body));
                             break;
                         case EDIT_ID:
                             if (edit.id.contains("waypoint")) {
-                                JSONArray wpArr = target.getJSONArray(edit.id.toString());
-                                target.remove(edit.id.toString());
-                                target.put(edit.body, wpArr);
+                                JSONArray wpArr = targ.getJSONArray(edit.id.toString());
+                                targ.remove(edit.id.toString());
+                                targ.put(edit.body, wpArr);
                             } else {
-                                JSONObject splineObj = target.getJSONObject(edit.id.toString());
-                                target.remove(edit.id.toString());
-                                target.put(edit.body, splineObj);
+                                JSONObject splineObj = targ.getJSONObject(edit.id.toString());
+                                targ.remove(edit.id.toString());
+                                targ.put(edit.body, splineObj);
                             }
                             break;
                         case DELETE:
-                            target.remove(edit.id.toString());
+                            targ.remove(edit.id.toString());
                             break;
                     }
-                    field.put(o, target);
+                    field.put(o, targ);
                 }
             }
             IOUtils.writeFile(field.toString(), toWrite);

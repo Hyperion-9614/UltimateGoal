@@ -31,6 +31,14 @@ public class Message {
         this.json = json.toString();
     }
 
+    public Message(String event, String sender, JSONObject json) {
+        this(Enum.valueOf(Event.class, event.split(" ")[0]), sender, json);
+    }
+
+    public Message(String event, String sender, JSONArray json) {
+        this(Enum.valueOf(Event.class, event.split(" ")[0]), sender, json);
+    }
+
     public Message(String from) {
         try {
             if (!from.isEmpty() && !from.replaceAll(" ", "").isEmpty()) {
@@ -49,10 +57,11 @@ public class Message {
 
     @Override
     public String toString() {
-        return event.toString() + " " + sender + " " + json.toString();
+        return event.toString() + " " + sender + " " + json;
     }
 
     public enum Event {
         NULL, CONNECTED, DISCONNECTED, CONSTANTS_UPDATED, FIELD_EDITED, OPMODE_ENDED, METRICS_UPDATED
     }
+
 }

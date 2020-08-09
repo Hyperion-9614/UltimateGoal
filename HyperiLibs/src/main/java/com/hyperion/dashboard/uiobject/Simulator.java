@@ -4,6 +4,10 @@ import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.MathUtils;
 import com.hyperion.dashboard.Dashboard;
+import com.hyperion.dashboard.uiobject.fieldobject.DisplaySpline;
+import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
+import com.hyperion.dashboard.uiobject.fieldobject.Robot;
+import com.hyperion.dashboard.uiobject.fieldobject.Waypoint;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Vector2D;
@@ -39,12 +43,12 @@ public class Simulator {
     public Simulator() {
         this.state = State.INACTIVE;
         simulants = new FieldObject[2];
-        pathPlanner = new DStarLite(new ArrayList<>());
     }
 
     public void simulate() {
         simulationThread = new Thread(() -> {
             state = State.SIMULATING;
+            pathPlanner = new DStarLite(Dashboard.fieldPane.fixedObstacles);
 
             DisplaySpline displaySpline;
             SplineTrajectory spline;
@@ -181,8 +185,7 @@ public class Simulator {
                 if (isSimDynPath) {
                     pathPlanner.robotMoved(simRob.rB);
 
-                    // TODO: Pass in empirical obstacle list
-                    if (pathPlanner.updateObstacles(new ArrayList<>())) {
+                    if (pathPlanner.updateDynamicObstacles(Dashboard.fieldPane.dynamicObstacles)) {
                         pathPlanner.recompute();
 
                         spline = new SplineTrajectory(pathPlanner.getPath());

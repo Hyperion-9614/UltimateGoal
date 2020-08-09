@@ -2,21 +2,22 @@ package com.hyperion.dashboard.pane;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
-import com.hyperion.common.IOUtils;
 import com.hyperion.common.MathUtils;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
-import com.hyperion.dashboard.uiobject.DisplaySpline;
-import com.hyperion.dashboard.uiobject.Simulator;
-import com.hyperion.dashboard.uiobject.Waypoint;
+import com.hyperion.dashboard.uiobject.fieldobject.DisplaySpline;
+import com.hyperion.dashboard.uiobject.fieldobject.ObstacleObj;
+import com.hyperion.dashboard.uiobject.fieldobject.Waypoint;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Vector2D;
+import com.hyperion.motion.pathplanning.Obstacle;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
-import javafx.scene.Group;
+import java.util.ArrayList;
+import java.util.Random;
+
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -28,7 +29,6 @@ import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
@@ -41,20 +41,19 @@ public class FieldPane extends Pane {
     public double fieldSize;
     public double robotSize;
 
-    private Rectangle wbbBorder;
-    private Rectangle wbbLeftLeg;
-    private Rectangle wbbRightLeg;
+    private Rectangle fieldBorder;
 
     public double mouseX, mouseY;
     public long startDragTime;
     public boolean isDragging;
 
-    public Group pathingGrid;
-    public double gridPointDragDx;
-    public double gridPointDragDy;
-    public long startDragGridPointTime;
-
     public Waypoint selectedWP;
+
+    public boolean isObstacleFixed;
+    public ArrayList<Obstacle> dynamicObstacles = new ArrayList<>();
+    public ArrayList<Obstacle> fixedObstacles = new ArrayList<>();
+    public int obstacleSelState;
+    public ObstacleObj currObstacle;
 
     public FieldPane(Stage stage) {
         this.fieldSize = stage.getHeight() - 48;
@@ -70,113 +69,47 @@ public class FieldPane extends Pane {
                     BackgroundPosition.DEFAULT, new BackgroundSize(fieldSize, fieldSize, false, false, false, false));
             setBackground(new Background(bgImg));
 
-            wbbBorder = new Rectangle(robotSize / 2 - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, robotSize / 2 - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, fieldSize - robotSize + Constants.getDouble("dashboard.gui.sizes.waypoint"), fieldSize - robotSize + Constants.getDouble("dashboard.gui.sizes.waypoint"));
-            wbbBorder.getStrokeDashArray().addAll(20d, 15d);
-            wbbBorder.setFill(Color.TRANSPARENT);
-            wbbBorder.setStroke(new Color(Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), 0.7));
-            wbbBorder.setStrokeWidth(Constants.getDouble("dashboard.gui.wbb.strokeWidth"));
-            getChildren().add(wbbBorder);
-
-            wbbLeftLeg = new Rectangle(12 * fieldSize / 36 - robotSize / 2.0 + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + Constants.getDouble("dashboard.gui.sizes.waypoint") / 6.0, robotSize + fieldSize / 36 - 7.0 * Constants.getDouble("dashboard.gui.sizes.waypoint") / 8.0, robotSize + 4 * fieldSize / 36 - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0);
-            wbbLeftLeg.getStrokeDashArray().addAll(20d, 15d);
-            wbbLeftLeg.setFill(Color.TRANSPARENT);
-            wbbLeftLeg.setStroke(new Color(Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), 0.7));
-            wbbLeftLeg.setStrokeWidth(Constants.getDouble("dashboard.gui.wbb.strokeWidth"));
-            getChildren().add(wbbLeftLeg);
-
-            wbbRightLeg = new Rectangle(23 * fieldSize / 36 - robotSize / 2.0 + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, 16 * fieldSize / 36 - robotSize / 2.0 + Constants.getDouble("dashboard.gui.sizes.waypoint") / 6.0, robotSize + fieldSize / 36 - 7.0 * Constants.getDouble("dashboard.gui.sizes.waypoint") / 8.0, robotSize + 4 * fieldSize / 36 - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0);
-            wbbRightLeg.getStrokeDashArray().addAll(20d, 15d);
-            wbbRightLeg.setFill(Color.TRANSPARENT);
-            wbbRightLeg.setStroke(new Color(Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), Constants.getDouble("dashboard.gui.wbb.grayScale"), 0.7));
-            wbbRightLeg.setStrokeWidth(Constants.getDouble("dashboard.gui.wbb.strokeWidth"));
-            getChildren().add(wbbRightLeg);
-
-            loadGrid();
+            fieldBorder = new Rectangle(0, 0, fieldSize, fieldSize);
+            fieldBorder.getStrokeDashArray().addAll(20d, 15d);
+            fieldBorder.setFill(Color.TRANSPARENT);
+            fieldBorder.setStroke(new Color(1, 1, 1, 1));
+            fieldBorder.setStrokeWidth(4);
+            getChildren().add(fieldBorder);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void loadGrid() {
-        pathingGrid = new Group();
-        JSONObject fieldJSON = new JSONObject(IOUtils.readFile(Constants.getFile("data", "field.json")));
-
-        if (!fieldJSON.has("grid")) {
-            JSONArray gps = new JSONArray();
-
-            double fsl = Constants.getDouble("localization.fieldSideLength");
-            double mHat = Constants.getDouble("pathing.gridMhat");
-            double buffer = (fsl % mHat) / 2.0;
-            int n = (int) MathUtils.round((fsl - 2 * buffer) / mHat, 0);
-            for (int r = 0; r <= n; r++) {
-                for (int c = 0; c <= n; c++) {
-                    double x = -(fsl / 2.0) + buffer + r * mHat;
-                    double y = -(fsl / 2.0) + buffer + c * mHat;
-
-                    Pose gp = new Pose(x, y, 0);
-                    gps.put(gp.toArray());
-
-                    double[] poseArr = poseToDisplay(gp, 0);
-                    addGridPoint(poseArr);
-                }
-            }
-
-            fieldJSON.put("grid", gps);
-            IOUtils.writeFile(fieldJSON.toString(), Constants.getFile("data", "field.json"));
-        } else {
-            for (int i = 0; i < fieldJSON.getJSONArray("grid").length(); i++) {
-                double[] poseArr = poseToDisplay(new Pose(fieldJSON.getJSONArray("grid").getJSONArray(i)), 0);
-                addGridPoint(poseArr);
-            }
-        }
-
-        pathingGrid.setVisible(false);
-        getChildren().add(pathingGrid);
-    }
-    private void addGridPoint(double[] poseArr) {
-        Circle gridPoint = new Circle(poseArr[0], poseArr[1], 1.25 * Constants.getDouble("dashboard.gui.sizes.planningPoint"));
-        gridPoint.setFill(Color.BLACK);
-        gridPoint.setOnMouseClicked((event -> {
-            if (event.getButton() == MouseButton.MIDDLE) {
-                JSONObject fieldJSON = new JSONObject(IOUtils.readFile(Constants.getFile("data", "field.json")));
-                fieldJSON.getJSONArray("grid").remove(pathingGrid.getChildren().indexOf(gridPoint));
-                IOUtils.writeFile(fieldJSON.toString(), Constants.getFile("data", "field.json"));
-                pathingGrid.getChildren().remove(gridPoint);
-            }
-        }));
-        gridPoint.setOnMousePressed((event -> {
-            if (event.getButton() == MouseButton.PRIMARY) {
-                startDragTime = System.currentTimeMillis();
-                gridPointDragDx = gridPoint.getCenterX() - event.getSceneX();
-                gridPointDragDy = gridPoint.getCenterY() - event.getSceneY();
-            }
-        }));
-        gridPoint.setOnMouseDragged((event -> {
-            gridPoint.setCenterX(event.getSceneX() + gridPointDragDx);
-            gridPoint.setCenterY(event.getSceneY() + gridPointDragDy);
-        }));
-        gridPoint.setOnMouseReleased((event -> {
-            if (System.currentTimeMillis() - startDragGridPointTime > Constants.getInt("dashboard.gui.dragTime") && event.getButton() == MouseButton.PRIMARY) {
-                JSONObject fieldJSON = new JSONObject(IOUtils.readFile(Constants.getFile("data", "field.json")));
-                fieldJSON.getJSONArray("grid").put(pathingGrid.getChildren().indexOf(gridPoint), new JSONArray(displayToPose(gridPoint.getCenterX(), gridPoint.getCenterY(), 0).toArray()));
-                IOUtils.writeFile(fieldJSON.toString(), Constants.getFile("data", "field.json"));
-            }
-        }));
-        pathingGrid.getChildren().add(gridPoint);
-    }
-
     private void mouseHandler(MouseEvent mouseEvent) {
         try {
-            if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED) {
+            if (mouseEvent.getEventType() == MouseEvent.MOUSE_PRESSED && mouseEvent.getButton() == MouseButton.PRIMARY && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget().equals(this))) {
+                Pose pressedAt = displayToPose(mouseX, mouseY, 0);
+                ID obstacleID = new ID("obstacle", (obstacleSelState == 1 ? "rect" : "circle"), (isObstacleFixed ? "" : "un") + "fixed", (int) MathUtils.randInRange(new Random(), 0, 1000000));
+                ObstacleObj ob = null;
+                if (obstacleSelState == 1)
+                    ob = new ObstacleObj.Rect(obstacleID, pressedAt);
+                else if (obstacleSelState == 2)
+                    ob = new ObstacleObj.Circle(obstacleID, pressedAt);
+                if (ob != null)
+                    Dashboard.editField(new FieldEdit(ob.id, FieldEdit.Type.CREATE, ob.toJSONObject()));
+
                 isDragging = false;
                 startDragTime = System.currentTimeMillis();
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_RELEASED) {
-                if (mouseEvent.getButton() == MouseButton.PRIMARY && isDragging && System.currentTimeMillis() - startDragTime > Constants.getInt("dashboard.gui.dragTime") && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) && selectedWP != null) {
-                    if (selectedWP.parentSpline != null) {
-                        selectedWP.parentSpline.spline.endPath();
-                        Dashboard.editField(new FieldEdit(selectedWP.parentSpline.id, FieldEdit.Type.EDIT_BODY, selectedWP.parentSpline.spline.writeJSON()));
+                if (mouseEvent.getButton() == MouseButton.PRIMARY && isDragging && System.currentTimeMillis() - startDragTime > Constants.getInt("dashboard.gui.dragTime") && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) && (selectedWP != null || obstacleSelState > 0)) {
+                    if (obstacleSelState > 0) {
+                        Dashboard.editField(new FieldEdit(currObstacle.id, FieldEdit.Type.EDIT_BODY, currObstacle.toJSONObject()));
+                        if (isObstacleFixed)
+                            fixedObstacles.add(currObstacle.obstacle);
+                        else
+                            dynamicObstacles.add(currObstacle.obstacle);
                     } else {
-                        Dashboard.editField(new FieldEdit(selectedWP.id, FieldEdit.Type.EDIT_BODY, new JSONArray(selectedWP.pose.toArray())));
+                        if (selectedWP.parentSpline != null) {
+                            selectedWP.parentSpline.spline.endPath();
+                            Dashboard.editField(new FieldEdit(selectedWP.parentSpline.id, FieldEdit.Type.EDIT_BODY, selectedWP.parentSpline.spline.writeJSON()));
+                        } else {
+                            Dashboard.editField(new FieldEdit(selectedWP.id, FieldEdit.Type.EDIT_BODY, new JSONArray(selectedWP.pose.toArray())));
+                        }
                     }
                 }
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED) {
@@ -184,15 +117,22 @@ public class FieldPane extends Pane {
                 mouseY = mouseEvent.getY();
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_DRAGGED) {
                 isDragging = true;
-                if (mouseEvent.getButton() == MouseButton.PRIMARY && System.currentTimeMillis() - startDragTime > Constants.getInt("dashboard.gui.dragTime") && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget().equals(this)) && selectedWP != null) {
-                    Vector2D vec = new Vector2D(selectedWP.pose, displayToPose(mouseEvent.getX(), mouseEvent.getY(), 0));
-                    selectedWP.pose.theta = MathUtils.norm(vec.theta, 0, 2 * Math.PI);
-                    if (selectedWP.parentSpline != null) {
-                        selectedWP.parentSpline.spline.waypoints.get(selectedWP.parentSpline.waypoints.indexOf(selectedWP)).setPose(selectedWP.pose);
+                if (mouseEvent.getButton() == MouseButton.PRIMARY && System.currentTimeMillis() - startDragTime > Constants.getInt("dashboard.gui.dragTime") && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget().equals(this)) && (selectedWP != null || obstacleSelState > 0)) {
+                    Pose pose = displayToPose(mouseEvent.getX(), mouseEvent.getY(), 0);
+                    if (selectedWP != null) {
+                        Vector2D vec = new Vector2D(selectedWP.pose, pose);
+                        selectedWP.pose.theta = MathUtils.norm(vec.theta, 0, 2 * Math.PI);
+                        if (selectedWP.parentSpline != null) {
+                            selectedWP.parentSpline.spline.waypoints.get(selectedWP.parentSpline.waypoints.indexOf(selectedWP)).setPose(selectedWP.pose);
+                        }
+                        selectedWP.imgView.setRotate(Math.toDegrees(2 * Math.PI - vec.theta));
+                        selectedWP.selection.setRotate(selectedWP.imgView.getRotate());
+                        selectedWP.info.setText(selectedWP.pose.toString().replace(" | ", "\n"));
+                    } else if (obstacleSelState > 0 && currObstacle != null) {
+                        currObstacle.end = new Pose(pose);
+                        if (currObstacle.obstacle == null) currObstacle.createObstacle();
+                        currObstacle.refreshDisplayGroup();
                     }
-                    selectedWP.imgView.setRotate(Math.toDegrees(2 * Math.PI - vec.theta));
-                    selectedWP.selection.setRotate(selectedWP.imgView.getRotate());
-                    selectedWP.info.setText(selectedWP.pose.toString().replace(" | ", "\n"));
                 }
             } else if (mouseEvent.getEventType() == MouseEvent.MOUSE_CLICKED) {
                 if (!isDragging) {
@@ -201,8 +141,8 @@ public class FieldPane extends Pane {
                         if (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane) {
                             select(null);
                         }
-                    } else if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.getTarget().equals(wbbBorder)) {
-                        if (isInWBB(mouseX - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, mouseY - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, Constants.getDouble("dashboard.gui.sizes.waypoint"))) {
+                    } else if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.getTarget().equals(fieldBorder)) {
+                        if (fieldBorder.contains(mouseX - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, mouseY - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0)) {
                             if (Dashboard.isBuildingPaths) {
                                 if (selectedWP != null && selectedWP.parentSpline != null) {
                                     selectedWP.parentSpline.spline.waypoints.add(new RigidBody(newPose));
@@ -219,10 +159,7 @@ public class FieldPane extends Pane {
                             }
                         }
                     } else if (mouseEvent.getButton() == MouseButton.MIDDLE && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane)) {
-                        JSONObject fieldJSON = new JSONObject(IOUtils.readFile(Constants.getFile("data", "field.json")));
-                        fieldJSON.getJSONArray("grid").put(new JSONArray(newPose.toArray()));
-                        IOUtils.writeFile(fieldJSON.toString(), Constants.getFile("data", "field.json"));
-                        addGridPoint(poseToDisplay(newPose, 0));
+                        Dashboard.editField(new FieldEdit(new ID("pathPoint", Dashboard.numPathPoints), FieldEdit.Type.CREATE, new JSONArray(newPose.toArray())));
                     }
                 }
             }
@@ -262,30 +199,14 @@ public class FieldPane extends Pane {
         return toReturn;
     }
 
-    public boolean isInWBB(double x, double y, double size) {
-        return (wbbBorder.contains(x, y) && wbbBorder.contains(x, y) &&
-                !wbbLeftLeg.contains(x, y) && !wbbLeftLeg.contains(x, y) &&
-                !wbbRightLeg.contains(x, y) && !wbbRightLeg.contains(x, y));
-    }
-
     // Get intersection with WBBs
     public boolean[] getWBBIntersects(Rectangle rect, Rectangle rectX, Rectangle rectY) {
         boolean[] intersects = new boolean[]{true, true};
-        if (rect.getX() <= wbbBorder.getX() || rect.getX() + rect.getWidth() >= wbbBorder.getX() + wbbBorder.getWidth()) {
+        if (rect.getX() <= fieldBorder.getX() || rect.getX() + rect.getWidth() >= fieldBorder.getX() + fieldBorder.getWidth()) {
             intersects[0] = false;
         }
-        if (rect.getY() <= wbbBorder.getY() || rect.getY() + rect.getHeight() >= wbbBorder.getY() + wbbBorder.getHeight()) {
+        if (rect.getY() <= fieldBorder.getY() || rect.getY() + rect.getHeight() >= fieldBorder.getY() + fieldBorder.getHeight()) {
             intersects[1] = false;
-        }
-        for (int i = 0; i < 2; i++) {
-            Rectangle wbbLeg = wbbRightLeg;
-            if (i == 0) wbbLeg = wbbLeftLeg;
-            if (rectX.intersects(wbbLeg.getLayoutBounds()) && (rectX.getX() + rectX.getWidth() <= wbbLeg.getX() + wbbLeg.getWidth() || rectX.getX() + rectX.getWidth() >= wbbLeg.getX())) {
-                intersects[0] = false;
-            }
-            if (rectY.intersects(wbbLeg.getLayoutBounds()) && (rectY.getY() + rectY.getHeight() <= wbbLeg.getY() + wbbLeg.getHeight() || rectY.getY() + rectY.getHeight() >= wbbLeg.getY())) {
-                intersects[1] = false;
-            }
         }
         return intersects;
     }

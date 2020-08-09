@@ -78,4 +78,8 @@ public class MathUtils {
         return lower + (upper - lower) * rand.nextDouble();
     }
 
+    public static double halfway(double a, double b) {
+        return a + (b - a) / 2;
+    }
+
 }

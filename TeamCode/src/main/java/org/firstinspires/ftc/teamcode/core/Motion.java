@@ -9,6 +9,7 @@ import com.hyperion.motion.pathplanning.DStarLite;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Vector2D;
+import com.hyperion.motion.pathplanning.Obstacle;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -34,6 +35,8 @@ public class Motion {
 
     public static Localizer localizer;
     public static DStarLite pathPlanner;
+    public static ArrayList<Obstacle> fixedObstacles = new ArrayList<>();
+    public static ArrayList<Obstacle> dynamicObstacles = new ArrayList<>();
 
     public static RigidBody start = new RigidBody(new Pose(0, 0, 0));
     public static RigidBody robot = new RigidBody(start);
@@ -43,16 +46,16 @@ public class Motion {
     public static void init(Hardware hardware) {
         hw = hardware;
         try {
-            JSONObject jsonObject = new JSONObject(IOUtils.readFile(hw.fieldJSON));
-            readWaypoints(jsonObject);
-            readSplines(jsonObject);
+            JSONObject fieldRoot = new JSONObject(IOUtils.readFile(hw.fieldJSON));
+            readWaypoints(fieldRoot);
+            readSplines(fieldRoot);
+            readFixedObstacles(fieldRoot);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         localizer = new Localizer(hw);
-        // TODO: Load correct fixed obstacles
-        pathPlanner = new DStarLite(new ArrayList<>());
+        pathPlanner = new DStarLite(fixedObstacles);
 
         for (DcMotor motor : hw.hwmp.dcMotor) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -88,6 +91,23 @@ public class Motion {
             String key = keys.next();
             SplineTrajectory spline = new SplineTrajectory(splinesObj.getJSONObject(key));
             splines.put(new ID(key), spline);
+        }
+    }
+
+    // Read fixed obstacles from field.json file
+    public static void readFixedObstacles(JSONObject root) throws Exception {
+        JSONObject obstaclesObj = root.getJSONObject("obstacles");
+        fixedObstacles.clear();
+
+        Iterator<String> keys = obstaclesObj.keys();
+        while (!hw.ctx.isStarted() && !hw.ctx.isStopRequested() && keys.hasNext()) {
+            String key = keys.next();
+            Obstacle fixedObstacle;
+            if (key.contains("rect"))
+                 fixedObstacle = new Obstacle.Rect(obstaclesObj.getJSONObject(key));
+            else
+                fixedObstacle = new Obstacle.Circle(obstaclesObj.getJSONObject(key));
+            fixedObstacles.add(fixedObstacle);
         }
     }
 
@@ -229,7 +249,7 @@ public class Motion {
                 pathPlanner.robotMoved(robot);
 
                 // TODO: Pass in empirical obstacle list
-                if (pathPlanner.updateObstacles(new ArrayList<>())) {
+                if (pathPlanner.updateDynamicObstacles(new ArrayList<>())) {
                     pathPlanner.recompute();
 
                     spline = new SplineTrajectory(pathPlanner.getPath());

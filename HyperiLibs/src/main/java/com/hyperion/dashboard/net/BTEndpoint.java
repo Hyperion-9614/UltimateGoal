@@ -112,6 +112,14 @@ public abstract class BTEndpoint {
         sendMessage(event, json.toString());
     }
 
+    public void sendMessage(String event, JSONObject json) {
+        out.println(new Message(event, localDevice.getFriendlyName(), json).toString());
+    }
+
+    public void sendMessage(String event, JSONArray json) {
+        out.println(new Message(event, localDevice.getFriendlyName(), json).toString());
+    }
+
     public void printBTLog(String message) {
         System.out.println("[BT -- " + localDevice.getFriendlyName() + " -- " + TextUtils.getFormattedDate() + "] " + message);
     }

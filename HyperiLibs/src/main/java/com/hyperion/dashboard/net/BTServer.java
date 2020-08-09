@@ -4,7 +4,7 @@ import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
 import com.hyperion.dashboard.Dashboard;
-import com.hyperion.dashboard.uiobject.FieldObject;
+import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

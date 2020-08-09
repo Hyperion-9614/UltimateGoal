@@ -73,7 +73,7 @@
             "rotation": 1,
             "translation": 1
         },
-        "gridMhat": 75,
+        "gridMhat": 50,
         "obstacles": {
             "rInner": 33,
             "rBuffer": 5
@@ -87,10 +87,7 @@
                 "planningPoint": 4.5
             },
             "dragTime": 150,
-            "wbb": {
-                "strokeWidth": 4,
-                "grayScale": 0.3
-            }
+            "constantsAutoSaveDelay": 1000
         },
         "net": {"serviceUUID": "2d26618601fb47c28d9f10b8ec891363"},
         "version": "5.0"

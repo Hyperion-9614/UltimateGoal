@@ -1,10 +1,11 @@
-package com.hyperion.dashboard.uiobject;
+package com.hyperion.dashboard.uiobject.fieldobject;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.TextUtils;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
+import com.hyperion.dashboard.uiobject.Simulator;
 import com.hyperion.motion.math.Pose;
 
 import org.json.JSONArray;

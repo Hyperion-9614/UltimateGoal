@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.core;
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
-import com.hyperion.dashboard.net.Message;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -241,7 +240,7 @@ public class Hardware {
                 IOUtils.writeFile(obj.toString(), fieldJSON);
             }
 
-            btClient.sendMessage(Message.Event.OPMODE_ENDED, new JSONObject());
+            btClient.sendMessage("OPMODE_ENDED", new JSONObject());
             btClient.close();
         } catch (Exception e) {
             e.printStackTrace();

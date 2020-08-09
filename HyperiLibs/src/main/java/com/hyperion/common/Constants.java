@@ -54,6 +54,9 @@ public class Constants {
     public static int getInt(String id) {
         return Integer.parseInt(getString(id));
     }
+    public static long getLong(String id) {
+        return Long.parseLong(getString(id));
+    }
     public static double getDouble(String id) {
         return Double.parseDouble(getString(id));
     }

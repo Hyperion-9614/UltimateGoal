@@ -1,8 +1,6 @@
 package com.hyperion.dashboard.pane;
 
-import com.hyperion.dashboard.Dashboard;
-import com.hyperion.dashboard.uiobject.DisplaySpline;
-import com.hyperion.dashboard.uiobject.FieldObject;
+import com.hyperion.dashboard.uiobject.fieldobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.PiecewiseLineGraph;
 import com.hyperion.motion.math.Piecewise;
 

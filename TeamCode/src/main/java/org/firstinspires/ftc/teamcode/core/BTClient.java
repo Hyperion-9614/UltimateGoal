@@ -52,6 +52,7 @@ public class BTClient extends BTEndpoint {
         printBTLog("Field edited from device \"" + msg.sender + "\"");
 
         MiscUtils.writeFieldEditsToFieldJSON(hw.fieldJSON, msg.json);
+        Motion.init(hw);
     }
 
     //////////////// UNUSED ////////////////

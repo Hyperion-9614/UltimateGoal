@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import com.hyperion.common.*;
-import com.hyperion.dashboard.net.Message;
 
 import org.firstinspires.ftc.teamcode.core.*;
 import org.json.JSONArray;
@@ -78,7 +77,7 @@ public class Metrics {
             }
             hw.ctx.telemetry.update();
             if (Constants.getBoolean("dashboard.isDebugging"))
-                hw.btClient.sendMessage(Message.Event.METRICS_UPDATED, dataArr);
+                hw.btClient.sendMessage("METRICS_UPDATED", dataArr);
         } catch (Exception e) {
             e.printStackTrace();
         }

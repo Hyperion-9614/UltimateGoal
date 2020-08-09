@@ -1,4 +1,4 @@
-package com.hyperion.dashboard.uiobject;
+package com.hyperion.dashboard.uiobject.fieldobject;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;

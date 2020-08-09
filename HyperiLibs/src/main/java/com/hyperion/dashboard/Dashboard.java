@@ -12,12 +12,15 @@ import com.hyperion.dashboard.pane.LeftPane;
 import com.hyperion.dashboard.pane.MenuPane;
 import com.hyperion.dashboard.pane.RightPane;
 import com.hyperion.dashboard.pane.VisualPane;
-import com.hyperion.dashboard.uiobject.DisplaySpline;
-import com.hyperion.dashboard.uiobject.FieldObject;
-import com.hyperion.dashboard.uiobject.Robot;
+import com.hyperion.dashboard.uiobject.fieldobject.DisplaySpline;
+import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
+import com.hyperion.dashboard.uiobject.fieldobject.ObstacleObj;
+import com.hyperion.dashboard.uiobject.fieldobject.PathPoint;
+import com.hyperion.dashboard.uiobject.fieldobject.Robot;
 import com.hyperion.dashboard.uiobject.Simulator;
-import com.hyperion.dashboard.uiobject.Waypoint;
+import com.hyperion.dashboard.uiobject.fieldobject.Waypoint;
 import com.hyperion.motion.math.RigidBody;
+import com.hyperion.motion.pathplanning.Obstacle;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -63,6 +66,7 @@ public class Dashboard extends Application {
     public static List<FieldObject> fieldObjects = new ArrayList<>();
     public static Map<String, String> metrics = new HashMap<>();
     public static boolean isRobotOnField;
+    public static int numPathPoints;
 
     public static ID opModeID = new ID("auto.blue.full");
     public static boolean isBuildingPaths;
@@ -167,17 +171,29 @@ public class Dashboard extends Application {
             for (FieldEdit edit : edits) {
                 switch (edit.type) {
                     case CREATE:
-                        FieldObject newObj = null;
+                        FieldObject newObj;
                         if (edit.id.contains("spline")) {
-                            newObj = new DisplaySpline(new ID(edit.id), new JSONObject(edit.body));
+                            newObj = new DisplaySpline(edit.id, new JSONObject(edit.body));
                         } else if (edit.id.contains("waypoint")) {
-                            newObj = new Waypoint(new ID(edit.id), new JSONArray(edit.body));
+                            newObj = new Waypoint(edit.id, new JSONArray(edit.body));
+                        } else if (edit.id.contains("pathPoint")) {
+                            newObj = new PathPoint(edit.id, new JSONArray(edit.body));
+                            numPathPoints++;
+                        } else if (edit.id.contains("obstacle")) {
+                            if (edit.id.contains("rect")) {
+                                newObj = new ObstacleObj.Rect(edit.id, new JSONObject(edit.body));
+                            } else {
+                                newObj = new ObstacleObj.Circle(edit.id, new JSONObject(edit.body));
+                            }
+                            ArrayList<Obstacle> toAddTo = (edit.id.contains("fixed") ? fieldPane.fixedObstacles : fieldPane.dynamicObstacles);
+                            toAddTo.add(((ObstacleObj) newObj).obstacle);
                         } else {
                             newObj = new Robot(new ID("robot.realtime"), new JSONArray(edit.body));
                             isRobotOnField = true;
                         }
                         fieldObjects.add(newObj);
-                        newObj.addDisplayGroup();
+                        if (!(newObj instanceof PathPoint) || leftPane.showPathingGrid.isSelected())
+                            newObj.addDisplayGroup();
                         break;
                     case EDIT_BODY:
                         for (int i = 0; i < fieldObjects.size(); i++) {
@@ -216,6 +232,8 @@ public class Dashboard extends Application {
                         while (iter.hasNext()) {
                             FieldObject next = iter.next();
                             if (next.id.equals(edit.id)) {
+                                if (next.id.contains("pathPoint"))
+                                    numPathPoints--;
                                 next.removeDisplayGroup();
                                 iter.remove();
                                 break;
@@ -249,6 +267,16 @@ public class Dashboard extends Application {
         for (String id : fieldJSON.getJSONObject("splines").keySet()) {
             editField(false, new FieldEdit(new ID(id), FieldEdit.Type.CREATE, fieldJSON.getJSONObject("splines").getJSONObject(id).toString()));
         }
+        for (String id : fieldJSON.getJSONObject("pathPoints").keySet()) {
+            editField(false, new FieldEdit(new ID(id), FieldEdit.Type.CREATE, fieldJSON.getJSONObject("pathPoints").getJSONArray(id).toString()));
+        }
+        numPathPoints = fieldJSON.getJSONObject("pathPoints").keySet().size();
+
+        for (String id : fieldJSON.getJSONObject("obstacles").keySet()) {
+            JSONObject body = fieldJSON.getJSONObject("obstacles").getJSONObject(id);
+            editField(false, new FieldEdit(new ID(id), FieldEdit.Type.CREATE, body.toString()));
+        }
+
         fieldPane.select(null);
     }
 

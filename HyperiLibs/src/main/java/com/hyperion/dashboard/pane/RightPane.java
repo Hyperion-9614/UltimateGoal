@@ -1,16 +1,7 @@
 package com.hyperion.dashboard.pane;
 
-import com.hyperion.common.Constants;
-import com.hyperion.common.TextUtils;
 import com.hyperion.dashboard.Dashboard;
-import com.hyperion.dashboard.net.Message;
 
-import org.json.JSONObject;
-
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -40,17 +31,16 @@ public class RightPane extends VBox {
             if (System.getProperty("os.name").startsWith("Windows")) width += 40;
 
             Label metricsLabel = new Label("Metrics");
-            metricsLabel.setTextFill(Color.WHITE);
+            metricsLabel.setTextFill(Color.YELLOW);
             metricsLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
             metricsLabel.setPrefWidth(width);
             getChildren().add(metricsLabel);
 
             metricsDisplay = new TextArea();
             metricsDisplay.setStyle("-fx-font: 14px \"Arial\"; -fx-focus-color: transparent;");
-            metricsDisplay.setPrefSize(width, width + 490);
+            metricsDisplay.setPrefSize(width, width + 600);
             metricsDisplay.setEditable(false);
             getChildren().add(metricsDisplay);
-
         } catch (Exception e) {
             e.printStackTrace();
         }

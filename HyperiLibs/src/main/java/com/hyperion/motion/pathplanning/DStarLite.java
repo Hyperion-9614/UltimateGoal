@@ -6,7 +6,7 @@ import com.hyperion.motion.math.Pose;
 import java.util.*;
 
 /**
- * D* Lite Path Planning Algorithm
+ * D* Lite Dynamic Path Planning Algorithm
  * References:
  * (1) http://idm-lab.org/bib/abstracts/papers/aaai02b.pdf
  * (2) https://www.youtube.com/watch?v=_4u9W1xOuts&t=2708s
@@ -43,7 +43,7 @@ public class DStarLite {
 
     }
 
-    public boolean updateObstacles(ArrayList<Obstacle> dynamicObstaclesList) {
+    public boolean updateDynamicObstacles(ArrayList<Obstacle> dynamicObstaclesList) {
         boolean haveObstaclesChangedSignificantly = false;
 
         if (dynamicObstaclesList.size() != dynamicObstacles.size()) {
