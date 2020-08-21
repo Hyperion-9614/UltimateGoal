@@ -94,6 +94,10 @@ public class Pose {
         return new double[] { x, y, theta};
     }
 
+    public JSONArray toJSONArray() {
+        return new JSONArray(toArray());
+    }
+
     public boolean equals(Pose other) {
         return x == other.x && y == other.y && theta == other.theta;
     }

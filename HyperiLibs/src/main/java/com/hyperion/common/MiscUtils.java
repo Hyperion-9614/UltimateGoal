@@ -1,6 +1,8 @@
 package com.hyperion.common;
 
+import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
+import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 
 import org.json.JSONArray;
@@ -18,14 +20,13 @@ public class MiscUtils {
                     String o = "";
                     if (edit.id.contains("waypoint")) o = "waypoints";
                     else if (edit.id.contains("spline")) o = "splines";
-                    else if (edit.id.contains("pathPoint")) o = "pathPoints";
                     else if (edit.id.contains("obstacle")) o = "obstacles";
                     JSONObject targ = field.getJSONObject(o);
 
                     switch (edit.type) {
                         case CREATE:
                         case EDIT_BODY:
-                            targ.put(edit.id.toString(), (o.equals("waypoints") || o.equals("pathPoints")) ? new JSONArray(edit.body) : new JSONObject(edit.body));
+                            targ.put(edit.id.toString(), (o.equals("waypoints")) ? new JSONArray(edit.body) : new JSONObject(edit.body));
                             break;
                         case EDIT_ID:
                             if (edit.id.contains("waypoint")) {

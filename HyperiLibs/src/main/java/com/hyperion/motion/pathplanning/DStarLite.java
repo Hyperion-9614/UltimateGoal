@@ -1,6 +1,7 @@
 package com.hyperion.motion.pathplanning;
 
 import com.hyperion.common.Constants;
+import com.hyperion.common.MathUtils;
 import com.hyperion.motion.math.Pose;
 
 import java.util.*;
@@ -22,6 +23,8 @@ public class DStarLite {
     public Set<Obstacle> fixedObstacles;
     public Set<Obstacle> dynamicObstacles;
 
+    public Pose[][] grid;
+
     public DStarLite(ArrayList<Obstacle> fixedObstaclesList) {
         fixedObstacles = new HashSet<>();
         fixedObstacles.addAll(fixedObstaclesList);
@@ -31,7 +34,7 @@ public class DStarLite {
     public void init(Pose start, Pose goal) {
         this.start = new Pose(start);
         this.goal = goal;
-
+        this.grid = generatePathingGrid();
         
     }
 
@@ -41,6 +44,10 @@ public class DStarLite {
 
     public void recompute() {
 
+    }
+
+    public void robotMoved(Pose start) {
+        this.start.setPose(start);
     }
 
     public boolean updateDynamicObstacles(ArrayList<Obstacle> dynamicObstaclesList) {
@@ -82,10 +89,21 @@ public class DStarLite {
         return obstacles;
     }
 
-    public void robotMoved(Pose start) {
-        this.start.setPose(start);
+    public static Pose[][] generatePathingGrid() {
+        double fsl = Constants.getDouble("localization.fieldSideLength");
+        double mHat = Constants.getDouble("pathing.gridMhat");
+        double buffer = ((fsl - 45.72) % mHat) / 2.0 + 22.86;
 
-
+        int n = (int) MathUtils.round((fsl - 2 * buffer) / mHat, 0) + 1;
+        Pose[][] pathingGrid = new Pose[n][n];
+        for (int r = 0; r < n; r++) {
+            for (int c = 0; c < n; c++) {
+                double x = -(fsl / 2.0) + buffer + r * mHat;
+                double y = -(fsl / 2.0) + buffer + c * mHat;
+                pathingGrid[r][c] = new Pose(x, y, 0);
+            }
+        }
+        return pathingGrid;
     }
 
 }

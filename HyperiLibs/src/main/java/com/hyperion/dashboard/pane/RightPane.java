@@ -7,6 +7,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
@@ -23,12 +25,11 @@ public class RightPane extends VBox {
     public RightPane() {
         try {
             setBackground(Background.EMPTY);
-            setPadding(new Insets(10, 12, 10, 0));
+            setPadding(new Insets(10, 10, 10, 0));
             setSpacing(10);
             setAlignment(Pos.TOP_CENTER);
 
-            width = (Screen.getPrimary().getVisualBounds().getWidth() - Dashboard.fieldPane.fieldSize) / 2.0 - 75;
-            if (System.getProperty("os.name").startsWith("Windows")) width += 40;
+            width = (Screen.getPrimary().getVisualBounds().getWidth() - Dashboard.fieldPane.fieldSize) / 2.0 - 35;
 
             Label metricsLabel = new Label("Metrics");
             metricsLabel.setTextFill(Color.YELLOW);
@@ -38,7 +39,7 @@ public class RightPane extends VBox {
 
             metricsDisplay = new TextArea();
             metricsDisplay.setStyle("-fx-font: 14px \"Arial\"; -fx-focus-color: transparent;");
-            metricsDisplay.setPrefSize(width, width + 600);
+            metricsDisplay.setPrefSize(width, width + 655);
             metricsDisplay.setEditable(false);
             getChildren().add(metricsDisplay);
         } catch (Exception e) {

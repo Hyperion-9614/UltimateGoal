@@ -20,9 +20,6 @@ public class PathPoint extends FieldObject {
     public Pose pose;
     public Circle pathPoint;
 
-    private long startDragTime;
-    private double dragDx, dragDy;
-
     public PathPoint(ID id, JSONArray pose) {
         this.id = id;
         this.pose = new Pose(pose);
@@ -33,32 +30,9 @@ public class PathPoint extends FieldObject {
     public void createDisplayGroup() {
         displayGroup = new Group();
         double[] poseArr = Dashboard.fieldPane.poseToDisplay(pose, 0);
-        pathPoint = new Circle(poseArr[0], poseArr[1], 1.25 * Constants.getDouble("dashboard.gui.sizes.planningPoint"));
-        pathPoint.setFill(Color.BLACK);
+        pathPoint = new Circle(poseArr[0], poseArr[1], Constants.getDouble("dashboard.gui.sizes.planningPoint"));
+        pathPoint.setFill(Color.DARKSLATEGRAY);
 
-        displayGroup.setOnMouseClicked((event -> {
-            if (event.getButton() == MouseButton.MIDDLE) {
-                Dashboard.editField(new FieldEdit(id, FieldEdit.Type.DELETE, "{}"));
-            }
-        }));
-        displayGroup.setOnMousePressed((event -> {
-            if (event.getButton() == MouseButton.PRIMARY) {
-                startDragTime = System.currentTimeMillis();
-                dragDx = pathPoint.getCenterX() - event.getSceneX();
-                dragDy = pathPoint.getCenterY() - event.getSceneY();
-            }
-        }));
-        displayGroup.setOnMouseDragged((event -> {
-            pathPoint.setCenterX(event.getSceneX() + dragDx);
-            pathPoint.setCenterY(event.getSceneY() + dragDy);
-            pose = Dashboard.fieldPane.displayToPose(pathPoint.getCenterX(), pathPoint.getCenterY(), 0);
-            refreshDisplayGroup();
-        }));
-        displayGroup.setOnMouseReleased((event -> {
-            if (System.currentTimeMillis() - startDragTime > Constants.getInt("dashboard.gui.dragTime") && event.getButton() == MouseButton.PRIMARY) {
-                Dashboard.editField(new FieldEdit(id, FieldEdit.Type.EDIT_BODY, new JSONArray(pose.toArray())));
-            }
-        }));
         displayGroup.getChildren().add(pathPoint);
     }
 
@@ -66,7 +40,7 @@ public class PathPoint extends FieldObject {
     public void addDisplayGroup() {
         Platform.runLater(() -> {
             Dashboard.fieldPane.getChildren().add(displayGroup);
-            displayGroup.toFront();
+            displayGroup.toBack();
         });
     }
 

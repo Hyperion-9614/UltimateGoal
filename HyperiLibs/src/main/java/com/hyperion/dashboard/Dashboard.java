@@ -191,6 +191,7 @@ public class Dashboard extends Application {
                             newObj = new Robot(new ID("robot.realtime"), new JSONArray(edit.body));
                             isRobotOnField = true;
                         }
+
                         fieldObjects.add(newObj);
                         if (!(newObj instanceof PathPoint) || leftPane.showPathingGrid.isSelected())
                             newObj.addDisplayGroup();
@@ -267,16 +268,12 @@ public class Dashboard extends Application {
         for (String id : fieldJSON.getJSONObject("splines").keySet()) {
             editField(false, new FieldEdit(new ID(id), FieldEdit.Type.CREATE, fieldJSON.getJSONObject("splines").getJSONObject(id).toString()));
         }
-        for (String id : fieldJSON.getJSONObject("pathPoints").keySet()) {
-            editField(false, new FieldEdit(new ID(id), FieldEdit.Type.CREATE, fieldJSON.getJSONObject("pathPoints").getJSONArray(id).toString()));
-        }
-        numPathPoints = fieldJSON.getJSONObject("pathPoints").keySet().size();
-
         for (String id : fieldJSON.getJSONObject("obstacles").keySet()) {
             JSONObject body = fieldJSON.getJSONObject("obstacles").getJSONObject(id);
             editField(false, new FieldEdit(new ID(id), FieldEdit.Type.CREATE, body.toString()));
         }
 
+        leftPane.resetPathingGrid();
         fieldPane.select(null);
     }
 

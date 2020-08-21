@@ -3,6 +3,7 @@ package com.hyperion.dashboard.pane;
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.MathUtils;
+import com.hyperion.common.MiscUtils;
 import com.hyperion.common.TextUtils;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
@@ -10,6 +11,8 @@ import com.hyperion.dashboard.net.Message;
 import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import com.hyperion.dashboard.uiobject.Simulator;
 import com.hyperion.motion.math.Pose;
+import com.hyperion.motion.pathplanning.DStarLite;
+import com.sun.tools.javac.comp.Flow;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,6 +34,9 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -59,11 +65,10 @@ public class LeftPane extends VBox {
         try {
             setBackground(Background.EMPTY);
             setPadding(new Insets(10, 0, 10, 0));
-            setSpacing(10);
             setAlignment(Pos.TOP_CENTER);
+            setSpacing(10);
 
-            width = (Screen.getPrimary().getVisualBounds().getWidth() - Dashboard.fieldPane.fieldSize) / 2.0 - 75;
-            if (System.getProperty("os.name").startsWith("Windows")) width += 40;
+            width = (Screen.getPrimary().getVisualBounds().getWidth() - Dashboard.fieldPane.fieldSize) / 2.0 - 35;
 
             Label fieldOptionsLabel = new Label("Field Options");
             fieldOptionsLabel.setTextFill(Color.YELLOW);
@@ -104,9 +109,10 @@ public class LeftPane extends VBox {
 
             getChildren().add(buttons);
 
-            HBox pGridOptions = new HBox(10);
+            FlowPane pGridOptions = new FlowPane();
+            pGridOptions.setPrefWrapLength(width);
 
-            showPathingGrid = new CheckBox("Show Pathing Grid");
+            showPathingGrid = new CheckBox("Show Pathing Grid ");
             showPathingGrid.setPrefWidth(2 * width / 3);
             showPathingGrid.setTextFill(Color.WHITE);
             showPathingGrid.setStyle("-fx-font: 20px \"Arial\"; -fx-focus-color: transparent;");
@@ -125,35 +131,16 @@ public class LeftPane extends VBox {
             resetPathingGrid.setStyle("-fx-font: 14px \"Arial\"; -fx-focus-color: transparent;");
             resetPathingGrid.setTextAlignment(TextAlignment.CENTER);
             resetPathingGrid.setPrefSize(width / 3, 30);
-            resetPathingGrid.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2) {
-                    for (FieldObject o : new ArrayList<>(Dashboard.fieldObjects)) {
-                        if (o.id.contains("pathPoint")) {
-                            Dashboard.editField(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
-                        }
-                    }
-
-                    double fsl = Constants.getDouble("localization.fieldSideLength");
-                    double mHat = Constants.getDouble("pathing.gridMhat");
-                    double buffer = (fsl % mHat) / 2.0;
-                    int n = (int) MathUtils.round((fsl - 2 * buffer) / mHat, 0) + 1;
-                    for (int r = 0; r < n; r++) {
-                        for (int c = 0; c < n; c++) {
-                            double x = -(fsl / 2.0) + buffer + r * mHat;
-                            double y = -(fsl / 2.0) + buffer + c * mHat;
-                            Dashboard.editField(new FieldEdit(new ID("pathPoint", r * n + c), FieldEdit.Type.CREATE, new JSONArray(new Pose(x, y, 0).toArray())));
-                        }
-                    }
-                }
-            });
+            resetPathingGrid.setOnMouseClicked(event -> resetPathingGrid());
             pGridOptions.getChildren().add(resetPathingGrid);
 
             getChildren().add(pGridOptions);
 
-            HBox obstacles = new HBox(10);
+            FlowPane obstacles = new FlowPane();
+            obstacles.setHgap(10);
+            obstacles.setPrefWrapLength(width);
 
             Label obstacleLabel = new Label("Obstacles:");
-            obstacleLabel.setPrefWidth(width / 4);
             obstacleLabel.setTextFill(Color.WHITE);
             obstacleLabel.setStyle("-fx-font: 20px \"Arial\";");
             obstacles.getChildren().add(obstacleLabel);
@@ -218,13 +205,15 @@ public class LeftPane extends VBox {
             simulationLabel.setPrefWidth(width);
             getChildren().add(simulationLabel);
 
-            HBox simulateHBox = new HBox(10);
+            FlowPane simulateOptions = new FlowPane();
+            simulateOptions.setHgap(10);
+            simulateOptions.setPrefWrapLength(width);
 
             simText = new TextField();
             simText.setStyle("-fx-font: 16px \"Arial\"; -fx-text-alignment:left; -fx-focus-color: transparent;");
             simText.setEditable(false);
             simText.setPrefSize(3.0 * width / 4.0, 40);
-            simulateHBox.getChildren().add(simText);
+            simulateOptions.getChildren().add(simText);
 
             simulate = new Button("Select\nSimulants");
             simulate.setStyle("-fx-font: 14px \"Arial\"; -fx-text-alignment:center; -fx-focus-color: transparent;");
@@ -248,9 +237,9 @@ public class LeftPane extends VBox {
                         break;
                 }
             });
-            simulateHBox.getChildren().add(simulate);
+            simulateOptions.getChildren().add(simulate);
 
-            getChildren().add(simulateHBox);
+            getChildren().add(simulateOptions);
 
             CheckBox simDynPath = new CheckBox("Simulate Dynamic Pathing");
             simDynPath.setPrefWidth(width);
@@ -260,31 +249,32 @@ public class LeftPane extends VBox {
             simDynPath.setOnMouseClicked(event -> Dashboard.simulator.isSimDynPath = simDynPath.isSelected());
             getChildren().add(simDynPath);
 
-            HBox errorHBox = new HBox();
+            FlowPane errorOptions = new FlowPane();
+            errorOptions.setPrefWrapLength(width);
 
             Label magLabel = new Label(" Error Magnitude: ");
             magLabel.setTextFill(Color.WHITE);
             magLabel.setStyle("-fx-font: 20px \"Arial\"; -fx-alignment:center;");
-            errorHBox.getChildren().add(magLabel);
+            errorOptions.getChildren().add(magLabel);
 
             errorMagSpinner = new Spinner<>(0, 1, 0.5, 0.05);
             errorMagSpinner.setStyle("-fx-font: 15px \"Arial\"; -fx-text-alignment:left; -fx-focus-color: transparent;");
             errorMagSpinner.setEditable(true);
-            errorMagSpinner.setPrefWidth(width / 6.0 + 10);
-            errorHBox.getChildren().add(errorMagSpinner);
+            errorMagSpinner.setPrefWidth(70);
+            errorOptions.getChildren().add(errorMagSpinner);
 
             Label probLabel = new Label(" Probability: ");
             probLabel.setTextFill(Color.WHITE);
             probLabel.setStyle("-fx-font: 20px \"Arial\"; -fx-alignment:center;");
-            errorHBox.getChildren().add(probLabel);
+            errorOptions.getChildren().add(probLabel);
 
             errorProbSpinner = new Spinner<>(0, 100, 35, 5);
             errorProbSpinner.setStyle("-fx-font: 15px \"Arial\"; -fx-text-alignment:left; -fx-focus-color: transparent;");
             errorProbSpinner.setEditable(true);
-            errorProbSpinner.setPrefWidth(width / 6.0 + 10);
-            errorHBox.getChildren().add(errorProbSpinner);
+            errorProbSpinner.setPrefWidth(80);
+            errorOptions.getChildren().add(errorProbSpinner);
 
-            getChildren().add(errorHBox);
+            getChildren().add(errorOptions);
 
             CheckBox simPID = new CheckBox("Simulate PID Correction");
             simPID.setPrefWidth(width);
@@ -344,6 +334,21 @@ public class LeftPane extends VBox {
         constantsDisplay.positionCaret(caretPosition);
         constantsDisplay.setScrollLeft(scrollLeft);
         constantsDisplay.setScrollTop(scrollTop);
+    }
+
+    public void resetPathingGrid() {
+        for (FieldObject o : new ArrayList<>(Dashboard.fieldObjects)) {
+            if (o.id.contains("pathPoint")) {
+                Dashboard.editField(false, new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
+            }
+        }
+
+        Pose[][] pathingGrid = DStarLite.generatePathingGrid();
+        for (int r = 0; r < pathingGrid.length; r++) {
+            for (int c = 0; c < pathingGrid[0].length; c++) {
+                Dashboard.editField(false, new FieldEdit(new ID("pathPoint", r * pathingGrid.length + c), FieldEdit.Type.CREATE, pathingGrid[r][c].toJSONArray()));
+            }
+        }
     }
 
 }

@@ -73,7 +73,7 @@
             "rotation": 1,
             "translation": 1
         },
-        "gridMhat": 50,
+        "gridMhat": 20,
         "obstacles": {
             "rInner": 33,
             "rBuffer": 5
