@@ -102,12 +102,14 @@ public class Motion {
         Iterator<String> keys = obstaclesObj.keys();
         while (!hw.ctx.isStarted() && !hw.ctx.isStopRequested() && keys.hasNext()) {
             String key = keys.next();
-            Obstacle fixedObstacle;
-            if (key.contains("rect"))
-                 fixedObstacle = new Obstacle.Rect(obstaclesObj.getJSONObject(key));
-            else
-                fixedObstacle = new Obstacle.Circle(obstaclesObj.getJSONObject(key));
-            fixedObstacles.add(fixedObstacle);
+            if (key.contains("fixed")) {
+                Obstacle fixedObstacle;
+                if (key.contains("rect"))
+                    fixedObstacle = new Obstacle.Rect(obstaclesObj.getJSONObject(key));
+                else
+                    fixedObstacle = new Obstacle.Circle(obstaclesObj.getJSONObject(key));
+                fixedObstacles.add(fixedObstacle);
+            }
         }
     }
 
