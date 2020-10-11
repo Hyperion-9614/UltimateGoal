@@ -17,6 +17,7 @@ import org.openftc.revextensions2.RevBulkData;
  * Makes all calculations and position updates for robot field-centric coordinate grid movement
  * References
  *  (1) https://github.com/acmerobotics/road-runner/blob/master/doc/pdf/Mobile_Robot_Kinematics_for_FTC.pdf
+ *  (2) https://www.sparknotes.com/math/precalc/conicsections/section5/#:~:text=A%20rotation%20of%20the%20coordinate,x%27%20and%20y%27%20axes.
  */
 
 public class Localizer {
@@ -51,8 +52,9 @@ public class Localizer {
 
     /**
      * Called by odometry thread every 10 ms
-     *     - Checks how much and in which direction the robot has moved
-     *     - Adds the deltas onto the current pose
+     * <p>
+     * -> Computes how much and in which direction the robot has moved
+     * -> Adds the deltas onto the current pose
      */
     public synchronized void update() {
         bulkDataL = hw.expansionHubL.getBulkInputData();
@@ -115,6 +117,10 @@ public class Localizer {
 
             /*
              * Add to robot position object
+             * Since dR is in the robot's coordinate frame, we essentially rotate the axes by -heading (+heading is the amount the axes are rotated by)
+             * so that it aligns with the global coordinate grid
+             * Refer to rotating coordinate grid axes - there are two formulas to convert an x, y point in one grid to an x', y' point in a rotated grid
+             * Those two formulas are present in the addXYT call
              */
             double theta = -Motion.robot.theta;
             Motion.robot.addXYT(dR[0] * Math.cos(theta) + dR[1] * Math.sin(theta),
