@@ -33,6 +33,7 @@ android {
 }
 
 dependencies {
+    annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
     implementation 'org.openftc:rev-extensions-2:1.2'
     implementation 'org.apache.commons:commons-math3:3.6.1'
     implementation project(path: ':HyperiLibs')
@@ -47,5 +48,5 @@ configurations {
     implementation.exclude group: "org.slf4j", module: "slf4j-api"
 }
 repositories {
-    mavenCentral()
+    maven { url = "https://dl.bintray.com/first-tech-challenge/ftcsdk/" }
 }
