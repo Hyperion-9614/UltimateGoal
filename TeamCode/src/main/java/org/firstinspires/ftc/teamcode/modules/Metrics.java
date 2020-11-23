@@ -56,8 +56,6 @@ public class Metrics {
         data.add(new Entry());
 
         data.add(new Entry("Vision"));
-        data.add(new Entry("Skystone 0", hw.cvPipeline.getDetectedSkystonePosition()));
-        data.add(new Entry("Skystone 1", (hw.cvPipeline.getDetectedSkystonePosition() + 3)));
         data.add(new Entry("Theoretical max FPS", hw.phoneCam.getCurrentPipelineMaxFps()));
         data.add(new Entry("Current FPS", String.format(Locale.US, "%.2f", hw.phoneCam.getFps())));
         data.add(new Entry("Total frame time ms", hw.phoneCam.getTotalFrameTimeMs()));

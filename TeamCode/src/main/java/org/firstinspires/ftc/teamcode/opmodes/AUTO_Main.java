@@ -35,54 +35,10 @@ public class AUTO_Main extends LinearOpMode {
     public void execute() {
         try {
             hw.autoTime = new ElapsedTime();
-            scan();
 
-            if (hw.opModeID.get(-1).equals("full")) {
-                goToStone(skyStone0);
-                pickUpBlock();
-                dragFoundation();
-
-//                goToStone(skyStone1);
-//                pickUpBlock();
-//                placeStone();
-            } else if (hw.opModeID.get(-1).equals("foundation")) {
-                dragFoundation();
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    // Determine skystone positions
-    private void scan() {
-        if (hw.cvPipeline.getPipelineActive()) {
-            hw.cvPipeline.setPipelineActive(false);
-            skyStone0 = hw.cvPipeline.getDetectedSkystonePosition();
-            if (hw.opModeID.contains("red"))
-                skyStone0 = 2 - skyStone0;
-            skyStone1 = skyStone0 + 3;
-        }
-        hw.killCV();
-    }
-
-    // Pick up a block
-    private void pickUpBlock() {
-
-    }
-
-    // Pivot drag foundation & push into building zone
-    private void dragFoundation() {
-
-    }
-
-    // Go to a stone position
-    private void goToStone(int position) {
-
-    }
-
-    // Place a stone on foundation
-    public void placeStone() {
-
     }
 
 }

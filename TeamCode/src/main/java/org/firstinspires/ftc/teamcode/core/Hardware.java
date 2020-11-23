@@ -10,9 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.modules.CvPipeline;
 import org.firstinspires.ftc.teamcode.modules.Metrics;
-import org.firstinspires.ftc.teamcode.modules.RectangleSampling;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -33,14 +31,13 @@ public class Hardware {
     public HardwareMap hwmp;
     public boolean isRunning;
     public Thread localizationUpdater;
-    public Thread unimetryUpdater;
+    public Thread metricsUpdater;
     public ElapsedTime autoTime;
 
     public LinearOpMode ctx;
     public ID opModeID = new ID("Choose OpMode");
 
     public OpenCvInternalCamera phoneCam;
-    public CvPipeline cvPipeline;
 
     public BTClient btClient;
     public Metrics metrics;
@@ -94,13 +91,13 @@ public class Hardware {
             btClient = new BTClient(this);
         metrics = new Metrics(this);
         initCV();
-        initUpdaters();
+        initThreads();
     }
 
     ///////////////////////// INIT //////////////////////////
 
     // Initialize localizationUpdater and unimetryUpdater threads
-    public void initUpdaters() {
+    public void initThreads() {
         localizationUpdater = new Thread(() -> {
             long lastUpdateTime = System.currentTimeMillis();
             while (!localizationUpdater.isInterrupted() && localizationUpdater.isAlive() && !ctx.isStopRequested()) {
@@ -112,16 +109,16 @@ public class Hardware {
         });
         localizationUpdater.start();
 
-        unimetryUpdater = new Thread(() -> {
+        metricsUpdater = new Thread(() -> {
             long lastUpdateTime = System.currentTimeMillis();
-            while (!unimetryUpdater.isInterrupted() && unimetryUpdater.isAlive() && !ctx.isStopRequested()) {
-                if (System.currentTimeMillis() - lastUpdateTime >= Constants.getInt("teamcode.unimetryDelay")) {
+            while (!metricsUpdater.isInterrupted() && metricsUpdater.isAlive() && !ctx.isStopRequested()) {
+                if (System.currentTimeMillis() - lastUpdateTime >= Constants.getInt("teamcode.metricsDelay")) {
                     lastUpdateTime = System.currentTimeMillis();
                     metrics.update();
                 }
             }
         });
-        unimetryUpdater.start();
+        metricsUpdater.start();
     }
 
     // Initialize CV pipeline
@@ -129,8 +126,6 @@ public class Hardware {
         int cameraMonitorViewId = hwmp.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmp.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
         phoneCam.openCameraDevice();
-        cvPipeline = new RectangleSampling();
-        phoneCam.setPipeline(cvPipeline);
         phoneCam.startStreaming(1280, 720, OpenCvCameraRotation.SIDEWAYS_LEFT);
         phoneCam.setFlashlightEnabled(true);
         for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
@@ -195,13 +190,6 @@ public class Hardware {
         }
     }
 
-    ///////////////////////// GENERAL & PRESETS //////////////////////////
-
-    // Choose between two values depending on opMode color
-    public double choose(double blue, double red) {
-        return opModeID.contains("blue") ? blue : red;
-    }
-
     ///////////////////////// END //////////////////////////
 
     public void killCV() {
@@ -226,8 +214,8 @@ public class Hardware {
 
         if (localizationUpdater != null && localizationUpdater.isAlive() && !localizationUpdater.isInterrupted())
             localizationUpdater.interrupt();
-        if (unimetryUpdater != null && unimetryUpdater.isAlive() && !unimetryUpdater.isInterrupted())
-            unimetryUpdater.interrupt();
+        if (metricsUpdater != null && metricsUpdater.isAlive() && !metricsUpdater.isInterrupted())
+            metricsUpdater.interrupt();
 
         try {
             if (opModeID.get(0).equals("auto")) {

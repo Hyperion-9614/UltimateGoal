@@ -185,11 +185,8 @@ public class Motion {
     public static void pidMove(Vector2D addVec) {
         pidMove(addVec, robot.theta);
     }
-    public static void pidMove(double coords, double blueDir, double redDir) {
-        pidMove(new Vector2D(coords, hw.choose(blueDir, redDir), false));
-    }
     public static void pidMove(double coords, double dir) {
-        pidMove(coords, dir, dir);
+        pidMove(new Vector2D(coords, dir, false));
     }
     public static void pidMove(Vector2D addVec, double targetHeading) {
         Pose target = robot.addVector(addVec);
