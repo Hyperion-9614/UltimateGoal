@@ -21,7 +21,7 @@ apply plugin: 'com.android.application'
 
 android {
 
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     signingConfigs {
         debug {
@@ -39,8 +39,8 @@ android {
     defaultConfig {
         signingConfig signingConfigs.debug
         applicationId 'com.qualcomm.ftcrobotcontroller'
-        minSdkVersion 23
-        targetSdkVersion 28
+        minSdkVersion 25
+        targetSdkVersion 29
         multiDexEnabled true
 
         /**
@@ -108,4 +108,5 @@ repositories {
         dirs rootProject.file('libs')
     }
 }
+
 apply from: 'build.release.gradle'

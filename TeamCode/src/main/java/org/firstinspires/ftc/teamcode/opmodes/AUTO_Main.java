@@ -19,9 +19,6 @@ public class AUTO_Main extends LinearOpMode {
 
     private Hardware hw;
 
-    public int skyStone0;
-    public int skyStone1;
-
     @Override
     public void runOpMode() {
         hw = new Hardware(this);

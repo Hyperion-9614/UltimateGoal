@@ -69,7 +69,7 @@ public class Hardware {
         this.ctx = ctx;
         this.hwmp = ctx.hardwareMap;
 
-        initFiles();
+//        initFiles();
 
         // Init hw
         expansionHubL = hwmp.get(ExpansionHubEx.class, "Expansion Hub L");
@@ -142,7 +142,7 @@ public class Hardware {
         this.opModeID = new ID(opModeID);
         status = "Running " + opModeID;
 
-        Pose startPose = Motion.waypoints.get(opModeID + ".waypoint.start");
+        Pose startPose = Motion.waypoints.get(new ID(opModeID + ".waypoint.start"));
         if (startPose == null) startPose = new Pose();
         Motion.start = new RigidBody(startPose);
         Motion.robot = new RigidBody(startPose);
@@ -228,8 +228,8 @@ public class Hardware {
                 IOUtils.writeFile(obj.toString(), fieldJSON);
             }
 
-            btClient.sendMessage("OPMODE_ENDED", new JSONObject());
-            btClient.close();
+//            btClient.sendMessage("OPMODE_ENDED", new JSONObject());
+////            btClient.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

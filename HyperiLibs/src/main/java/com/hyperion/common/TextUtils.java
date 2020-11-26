@@ -1,5 +1,7 @@
 package com.hyperion.common;
 
+
+
 import com.sun.javafx.tk.FontMetrics;
 import com.sun.javafx.tk.Toolkit;
 
@@ -37,14 +39,11 @@ public class TextUtils {
     }
 
     public static double stringWidth(FontMetrics metrics, String string) {
-        double length = 0;
-        for (char c : string.toCharArray()) {
-            length += metrics.getCharWidth(c);
-        }
-        return length;
+        return metrics.computeStringWidth(string);
     }
 
     public static double stringWidth(TextField field) {
         return stringWidth(Toolkit.getToolkit().getFontLoader().getFontMetrics(field.getFont()), field.getText());
     }
+
 }

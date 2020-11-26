@@ -2,19 +2,15 @@ package com.hyperion.dashboard.pane;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
-import com.hyperion.common.MathUtils;
-import com.hyperion.common.MiscUtils;
 import com.hyperion.common.TextUtils;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.net.FieldEdit;
 import com.hyperion.dashboard.net.Message;
-import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import com.hyperion.dashboard.uiobject.Simulator;
+import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.pathplanning.DStarLite;
-import com.sun.tools.javac.comp.Flow;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -34,8 +30,6 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;

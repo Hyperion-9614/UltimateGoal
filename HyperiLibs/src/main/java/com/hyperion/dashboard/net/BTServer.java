@@ -75,7 +75,7 @@ public class BTServer extends BTEndpoint {
         printBTLog("Metrics updated by device \"" + msg.sender + "\"");
 
         Dashboard.readUnimetry(msg.json);
-        Platform.runLater(() -> Dashboard.rightPane.setMetricsDisplayText());
+//        Platform.runLater(() -> Dashboard.rightPane.setMetricsDisplayText());
     }
 
     @Override
