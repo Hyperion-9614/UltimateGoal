@@ -56,20 +56,11 @@ public class Hardware {
     public DcMotor xROdo;
     public DcMotor yOdo;
 
-    public int opModeSelectorIndex = -1;
-    public String[] autoOpModeIDs = new String[]{ "auto.blue.full", "auto.red.full",
-                                                  "auto.blue.foundation", "auto.red.foundation",
-                                                  "auto.blue.brick", "auto.red.brick",
-                                                };
-    public String[] teleOpModeIDs = new String[]{ "tele.blue", "tele.red",
-                                                  "tele.test"
-                                                };
-
     public Hardware(LinearOpMode ctx) {
         this.ctx = ctx;
         this.hwmp = ctx.hardwareMap;
 
-//        initFiles();
+        initFiles();
 
         // Init hw
         expansionHubL = hwmp.get(ExpansionHubEx.class, "Expansion Hub L");
@@ -160,36 +151,6 @@ public class Hardware {
         }
     }
 
-    public void initLoop(boolean isAuto) {
-        String[] opModeIDs = isAuto ? autoOpModeIDs : teleOpModeIDs;
-        if (ctx.gamepad1.dpad_up) {
-            opModeSelectorIndex++;
-            if (opModeSelectorIndex >= opModeIDs.length)
-                opModeSelectorIndex = 0;
-            ctx.sleep(250);
-            initOpMode(opModeIDs[opModeSelectorIndex]);
-        } else if (ctx.gamepad1.dpad_down) {
-            opModeSelectorIndex--;
-            if (opModeSelectorIndex < 0)
-                opModeSelectorIndex = opModeIDs.length - 1;
-            ctx.sleep(250);
-            initOpMode(opModeIDs[opModeSelectorIndex]);
-        }
-
-        if (isAuto) {
-            ID parkID = new ID(opModeID, "waypoint", "park");
-            if (ctx.gamepad1.dpad_right) {
-                if (!opModeID.equals("Choose OpMode") && Motion.getWaypoint("parkEast") != null) {
-                    Motion.waypoints.put(parkID, Motion.getWaypoint("parkEast"));
-                }
-            } else if (ctx.gamepad1.dpad_left) {
-                if (!opModeID.equals("Choose OpMode") && Motion.getWaypoint("parkWest") != null) {
-                    Motion.waypoints.put(parkID, Motion.getWaypoint("parkWest"));
-                }
-            }
-        }
-    }
-
     ///////////////////////// END //////////////////////////
 
     public void killCV() {
@@ -228,8 +189,8 @@ public class Hardware {
                 IOUtils.writeFile(obj.toString(), fieldJSON);
             }
 
-//            btClient.sendMessage("OPMODE_ENDED", new JSONObject());
-////            btClient.close();
+            btClient.sendMessage("OPMODE_ENDED", new JSONObject());
+            btClient.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

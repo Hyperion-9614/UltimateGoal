@@ -104,9 +104,10 @@ public class LeftPane extends VBox {
             getChildren().add(buttons);
 
             FlowPane pGridOptions = new FlowPane();
+            pGridOptions.setHgap(10);
             pGridOptions.setPrefWrapLength(width);
 
-            showPathingGrid = new CheckBox("Show Pathing Grid ");
+            showPathingGrid = new CheckBox("Show Pathing Grid");
             showPathingGrid.setPrefWidth(2 * width / 3);
             showPathingGrid.setTextFill(Color.WHITE);
             showPathingGrid.setStyle("-fx-font: 20px \"Arial\"; -fx-focus-color: transparent;");

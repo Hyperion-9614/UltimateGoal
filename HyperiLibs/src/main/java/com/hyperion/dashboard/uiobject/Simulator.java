@@ -15,7 +15,6 @@ import com.hyperion.motion.pathplanning.DStarLite;
 import com.hyperion.motion.trajectory.PIDCtrl;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 
-import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;

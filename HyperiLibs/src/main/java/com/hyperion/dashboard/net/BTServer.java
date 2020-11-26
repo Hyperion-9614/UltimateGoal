@@ -32,7 +32,7 @@ public class BTServer extends BTEndpoint {
     }
 
     @Override
-    protected void onConnected(Message msg) throws Exception {
+    protected void onConnected(Message msg) {
         printBTLog("Connected to device \"" + msg.sender + "\"");
 
         sendMessage(Message.Event.CONSTANTS_UPDATED, IOUtils.readDataJSON("constants"));
@@ -53,12 +53,12 @@ public class BTServer extends BTEndpoint {
     }
 
     @Override
-    protected void onDisconnected(Message msg) throws Exception {
+    protected void onDisconnected(Message msg) {
         printBTLog("Disconnected from device \"" + msg.sender + "\"");
     }
 
     @Override
-    protected void onConstantsUpdated(Message msg) throws Exception {
+    protected void onConstantsUpdated(Message msg) {
         printBTLog("Constants updated by device \"" + msg.sender + "\"");
 
         Constants.init(new JSONObject(msg.json));
@@ -71,15 +71,15 @@ public class BTServer extends BTEndpoint {
     }
 
     @Override
-    protected void onMetricsUpdated(Message msg) throws Exception {
+    protected void onMetricsUpdated(Message msg) {
         printBTLog("Metrics updated by device \"" + msg.sender + "\"");
 
         Dashboard.readUnimetry(msg.json);
-//        Platform.runLater(() -> Dashboard.rightPane.setMetricsDisplayText());
+        Platform.runLater(() -> Dashboard.rightPane.setMetricsDisplayText());
     }
 
     @Override
-    protected void onOpModeEnded(Message msg) throws Exception {
+    protected void onOpModeEnded(Message msg) {
         printBTLog("OpMode ended in device \"" + msg.sender + "\"");
 
         Thread deleteRobotThread = new Thread(() -> {
@@ -108,29 +108,6 @@ public class BTServer extends BTEndpoint {
     @Override
     protected void onFieldEdited(Message msg) {
 
-    }
-
-    //////////////// MISCELLANEOUS ////////////////
-
-    public static JSONArray readDashboardAsFieldEdits(String json) {
-        JSONArray arr = new JSONArray();
-        try {
-            JSONObject root = new JSONObject(json);
-            JSONObject waypointsObject = root.getJSONObject("waypoints");
-            JSONObject splinesObject = root.getJSONObject("splines");
-
-            for (Iterator<String> keys = waypointsObject.keys(); keys.hasNext();) {
-                String key = keys.next();
-                arr.put(new FieldEdit(new ID(key), FieldEdit.Type.CREATE, waypointsObject.getJSONArray(key).toString()).toJSONObject());
-            }
-            for (Iterator<String> keys = splinesObject.keys(); keys.hasNext();) {
-                String key = keys.next();
-                arr.put(new FieldEdit(new ID(key), FieldEdit.Type.CREATE, splinesObject.getJSONObject(key).toString()).toJSONObject());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return arr;
     }
 
 }
