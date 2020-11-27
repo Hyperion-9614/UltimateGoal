@@ -54,7 +54,7 @@ public class MotionProfile {
         if (Constants.getInt("motionProfile.verbosity") == 2) {
             System.out.println("distance / curvature");
             for (double d = 0; d < spline.waypoints.get(spline.waypoints.size() - 1).distance; d += 1) {
-                System.out.println(d + " " + spline.getCurvature(d));
+                System.out.println(d + " / " + spline.getCurvature(d));
             }
             System.out.println();
         }
