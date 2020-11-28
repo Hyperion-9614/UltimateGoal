@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.hyperion.common.MathUtils;
 import com.hyperion.motion.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.firstinspires.ftc.teamcode.core.Motion;
@@ -27,6 +25,7 @@ public class TELE_Main extends LinearOpMode {
         hw = new Hardware(this);
         hw.initOpMode("tele");
         while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hw.isRunning))) {
+
 
         }
         executeLoop();

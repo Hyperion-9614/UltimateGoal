@@ -187,8 +187,8 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
     private WifiDirectChannelChanger wifiDirectChannelChanger;
 
     @SuppressLint("StaticFieldLeak")
-    JavaCameraView javaCameraView;
-    Mat mRgba;
+    public static JavaCameraView javaCameraView;
+    public static Mat mRgba;
     public static final String OPENCV_TAG = TAG + ":OpenCV";
     private final BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override

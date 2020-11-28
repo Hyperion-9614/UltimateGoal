@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
+import org.firstinspires.ftc.robotcontroller.internal.Vision;
 import org.firstinspires.ftc.teamcode.modules.Metrics;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -36,8 +38,6 @@ public class Hardware {
 
     public LinearOpMode ctx;
     public ID opModeID = new ID("Choose OpMode");
-
-    public OpenCvInternalCamera phoneCam;
 
     public BTClient btClient;
     public Metrics metrics;
@@ -75,13 +75,12 @@ public class Hardware {
         xROdo = fRDrive;
         yOdo = bLDrive;
 
-        // Init control, dashboard, telemetry, CV, & threads
+        // Init control, dashboard, telemetry, & threads
         Motion.init(this);
         Appendages.init(this);
         if (Constants.getBoolean("dashboard.isDebugging"))
             btClient = new BTClient(this);
         metrics = new Metrics(this);
-        initCV();
         initThreads();
     }
 
@@ -112,21 +111,6 @@ public class Hardware {
         metricsUpdater.start();
     }
 
-    // Initialize CV pipeline
-    private void initCV() {
-        int cameraMonitorViewId = hwmp.appContext.getResources().getIdentifier("java_camera_view", "id", hwmp.appContext.getPackageName());
-        phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
-        phoneCam.openCameraDevice();
-        phoneCam.startStreaming(1280, 720, OpenCvCameraRotation.SIDEWAYS_LEFT);
-        phoneCam.setFlashlightEnabled(true);
-        for (OpenCvInternalCamera.FrameTimingRange r : phoneCam.getFrameTimingRangesSupportedByHardware()) {
-            if (r.max == 30 && r.min == 30) {
-                phoneCam.setHardwareFrameTimingRange(r);
-                break;
-            }
-        }
-    }
-
     // Initialize OpMode
     public void initOpMode(String opModeID) {
         isRunning = true;
@@ -151,18 +135,13 @@ public class Hardware {
         }
     }
 
-    ///////////////////////// END //////////////////////////
+    ///////////////////////// MISC //////////////////////////
 
-    private void killCV() {
-        if (phoneCam != null) {
-            phoneCam.setFlashlightEnabled(false);
-            phoneCam.pauseViewport();
-            phoneCam.stopStreaming();
-            phoneCam.setPipeline(null);
-            phoneCam.closeCameraDevice();
-            System.gc();
-        }
+    public int stackHeight() {
+        return Vision.ringStack(FtcRobotControllerActivity.mRgba.dataAddr());
     }
+
+    ///////////////////////// END //////////////////////////
 
     // Wrap up OpMode
     public void end() {
