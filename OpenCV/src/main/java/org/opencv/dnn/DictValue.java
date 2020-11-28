@@ -8,7 +8,7 @@ package org.opencv.dnn;
 // C++: class DictValue
 /**
  * This struct stores the scalar value (or array) of one of the following type: double, cv::String or int64.
- * TODO: Maybe int64 is useless because double type exactly stores at least 2^52 integers.
+ * NEED TO DO: Maybe int64 is useless because double type exactly stores at least 2^52 integers.
  */
 public class DictValue {
 

@@ -16,7 +16,7 @@ public class MatOfFloat6 extends Mat {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //FIXME: do we need release() here?
+        //NEED TO FIX: do we need release() here?
     }
 
     public static MatOfFloat6 fromNativeAddr(long addr) {
@@ -27,7 +27,7 @@ public class MatOfFloat6 extends Mat {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //FIXME: do we need release() here?
+        //NEED TO FIX: do we need release() here?
     }
 
     public MatOfFloat6(float...a) {
@@ -45,7 +45,7 @@ public class MatOfFloat6 extends Mat {
             return;
         int num = a.length / _channels;
         alloc(num);
-        put(0, 0, a); //TODO: check ret val!
+        put(0, 0, a); //NEED TO DO: check ret val!
     }
 
     public float[] toArray() {
@@ -55,23 +55,23 @@ public class MatOfFloat6 extends Mat {
         float[] a = new float[num * _channels];
         if(num == 0)
             return a;
-        get(0, 0, a); //TODO: check ret val!
+        get(0, 0, a); //NEED TO DO: check ret val!
         return a;
     }
 
     public void fromList(List<Float> lb) {
-        if(lb==null || lb.size()==0)
+        if (lb == null || lb.size() == 0)
             return;
-        Float ab[] = lb.toArray(new Float[0]);
-        float a[] = new float[ab.length];
-        for(int i=0; i<ab.length; i++)
+        Float[] ab = lb.toArray(new Float[0]);
+        float[] a = new float[ab.length];
+        for (int i = 0; i < ab.length; i++)
             a[i] = ab[i];
         fromArray(a);
     }
 
     public List<Float> toList() {
         float[] a = toArray();
-        Float ab[] = new Float[a.length];
+        Float[] ab = new Float[a.length];
         for(int i=0; i<a.length; i++)
             ab[i] = a[i];
         return Arrays.asList(ab);

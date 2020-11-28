@@ -16,7 +16,7 @@ public class MatOfByte extends Mat {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //FIXME: do we need release() here?
+        //NEED TO FIX: do we need release() here?
     }
 
     public static MatOfByte fromNativeAddr(long addr) {
@@ -27,7 +27,7 @@ public class MatOfByte extends Mat {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //FIXME: do we need release() here?
+        //NEED TO FIX: do we need release() here?
     }
 
     public MatOfByte(byte...a) {
@@ -50,7 +50,7 @@ public class MatOfByte extends Mat {
             return;
         int num = a.length / _channels;
         alloc(num);
-        put(0, 0, a); //TODO: check ret val!
+        put(0, 0, a); //NEED TO DO: check ret val!
     }
 
     public void fromArray(int offset, int length, byte...a) {
@@ -59,12 +59,12 @@ public class MatOfByte extends Mat {
         if (a == null)
             throw new NullPointerException();
         if (length < 0 || length + offset > a.length)
-            throw new IllegalArgumentException("invalid 'length' parameter: " + Integer.toString(length));
+            throw new IllegalArgumentException("invalid 'length' parameter: " + length);
         if (a.length == 0)
             return;
         int num = length / _channels;
         alloc(num);
-        put(0, 0, a, offset, length); //TODO: check ret val!
+        put(0, 0, a, offset, length); //NEED TO DO: check ret val!
     }
 
     public byte[] toArray() {
@@ -74,23 +74,23 @@ public class MatOfByte extends Mat {
         byte[] a = new byte[num * _channels];
         if(num == 0)
             return a;
-        get(0, 0, a); //TODO: check ret val!
+        get(0, 0, a); //NEED TO DO: check ret val!
         return a;
     }
 
     public void fromList(List<Byte> lb) {
-        if(lb==null || lb.size()==0)
+        if (lb == null || lb.size() == 0)
             return;
-        Byte ab[] = lb.toArray(new Byte[0]);
-        byte a[] = new byte[ab.length];
-        for(int i=0; i<ab.length; i++)
+        Byte[] ab = lb.toArray(new Byte[0]);
+        byte[] a = new byte[ab.length];
+        for (int i = 0; i < ab.length; i++)
             a[i] = ab[i];
         fromArray(a);
     }
 
     public List<Byte> toList() {
         byte[] a = toArray();
-        Byte ab[] = new Byte[a.length];
+        Byte[] ab = new Byte[a.length];
         for(int i=0; i<a.length; i++)
             ab[i] = a[i];
         return Arrays.asList(ab);

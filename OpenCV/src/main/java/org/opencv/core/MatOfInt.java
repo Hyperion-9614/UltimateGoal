@@ -17,7 +17,7 @@ public class MatOfInt extends Mat {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //FIXME: do we need release() here?
+        //NEED TO FIX: do we need release() here?
     }
 
     public static MatOfInt fromNativeAddr(long addr) {
@@ -28,7 +28,7 @@ public class MatOfInt extends Mat {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //FIXME: do we need release() here?
+        //NEED TO FIX: do we need release() here?
     }
 
     public MatOfInt(int...a) {
@@ -46,7 +46,7 @@ public class MatOfInt extends Mat {
             return;
         int num = a.length / _channels;
         alloc(num);
-        put(0, 0, a); //TODO: check ret val!
+        put(0, 0, a); //NEED TO DO: check ret val!
     }
 
     public int[] toArray() {
@@ -56,23 +56,23 @@ public class MatOfInt extends Mat {
         int[] a = new int[num * _channels];
         if(num == 0)
             return a;
-        get(0, 0, a); //TODO: check ret val!
+        get(0, 0, a); //NEED TO DO: check ret val!
         return a;
     }
 
     public void fromList(List<Integer> lb) {
-        if(lb==null || lb.size()==0)
+        if (lb == null || lb.size() == 0)
             return;
-        Integer ab[] = lb.toArray(new Integer[0]);
-        int a[] = new int[ab.length];
-        for(int i=0; i<ab.length; i++)
+        Integer[] ab = lb.toArray(new Integer[0]);
+        int[] a = new int[ab.length];
+        for (int i = 0; i < ab.length; i++)
             a[i] = ab[i];
         fromArray(a);
     }
 
     public List<Integer> toList() {
         int[] a = toArray();
-        Integer ab[] = new Integer[a.length];
+        Integer[] ab = new Integer[a.length];
         for(int i=0; i<a.length; i++)
             ab[i] = a[i];
         return Arrays.asList(ab);

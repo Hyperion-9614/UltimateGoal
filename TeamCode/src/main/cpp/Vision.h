@@ -22,10 +22,10 @@ Mat getYCrCbImage(const Mat &croppedImageInput);
 
 std::vector<vector<Point>> getLargestContour(std::vector<vector<Point>> vec);
 
-Mat drawRectanglesImg(std::vector<vector<Point>> contours, const Mat &input);
+tuple<Mat, int> drawRectanglesImg(std::vector<vector<Point>> contours, const Mat &input);
 
 int numberOfRings(int width, int height);
 
-Mat postProcessImg(const Mat &maskedImageInput, const tuple<Mat, Mat> &images);
+tuple<Mat, int> postProcessImg(const Mat &maskedImageInput, const tuple<Mat, Mat> &images);
 
 #endif //HYPERION_VISION_H

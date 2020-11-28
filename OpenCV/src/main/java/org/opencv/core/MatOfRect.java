@@ -17,7 +17,7 @@ public class MatOfRect extends Mat {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //FIXME: do we need release() here?
+        //NEED TO FIX: do we need release() here?
     }
 
     public static MatOfRect fromNativeAddr(long addr) {
@@ -28,7 +28,7 @@ public class MatOfRect extends Mat {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //FIXME: do we need release() here?
+        //NEED TO FIX: do we need release() here?
     }
 
     public MatOfRect(Rect...a) {
@@ -46,31 +46,31 @@ public class MatOfRect extends Mat {
             return;
         int num = a.length;
         alloc(num);
-        int buff[] = new int[num * _channels];
+        int[] buff = new int[num * _channels];
         for(int i=0; i<num; i++) {
             Rect r = a[i];
-            buff[_channels*i+0] = (int) r.x;
-            buff[_channels*i+1] = (int) r.y;
-            buff[_channels*i+2] = (int) r.width;
-            buff[_channels*i+3] = (int) r.height;
+            buff[_channels * i + 0] = r.x;
+            buff[_channels * i + 1] = r.y;
+            buff[_channels * i + 2] = r.width;
+            buff[_channels * i + 3] = r.height;
         }
-        put(0, 0, buff); //TODO: check ret val!
+        put(0, 0, buff); //NEED TO DO: check ret val!
     }
 
 
     public Rect[] toArray() {
         int num = (int) total();
         Rect[] a = new Rect[num];
-        if(num == 0)
+        if (num == 0)
             return a;
-        int buff[] = new int[num * _channels];
-        get(0, 0, buff); //TODO: check ret val!
-        for(int i=0; i<num; i++)
-            a[i] = new Rect(buff[i*_channels], buff[i*_channels+1], buff[i*_channels+2], buff[i*_channels+3]);
+        int[] buff = new int[num * _channels];
+        get(0, 0, buff); //NEED TO DO: check ret val!
+        for (int i = 0; i < num; i++)
+            a[i] = new Rect(buff[i * _channels], buff[i * _channels + 1], buff[i * _channels + 2], buff[i * _channels + 3]);
         return a;
     }
     public void fromList(List<Rect> lr) {
-        Rect ap[] = lr.toArray(new Rect[0]);
+        Rect[] ap = lr.toArray(new Rect[0]);
         fromArray(ap);
     }
 

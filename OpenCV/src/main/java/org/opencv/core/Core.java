@@ -3,24 +3,33 @@
 //
 package org.opencv.core;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfDouble;
-import org.opencv.core.MatOfInt;
-import org.opencv.core.Scalar;
-import org.opencv.core.TermCriteria;
 import org.opencv.utils.Converters;
+
+import java.util.List;
 
 // C++: class Core
 
 public class Core {
     // these constants are wrapped inside functions to prevent inlining
-    private static String getVersion() { return "4.5.0"; }
-    private static String getNativeLibraryName() { return "opencv_java450"; }
-    private static int getVersionMajorJ() { return 4; }
-    private static int getVersionMinorJ() { return 5; }
-    private static int getVersionRevisionJ() { return 0; }
+    private static String getVersion() {
+        return "4.5.0";
+    }
+
+    private static String getNativeLibraryName() {
+        return "opencv_java450";
+    }
+
+    private static int getVersionMajorJ() {
+        return 4;
+    }
+
+    private static int getVersionMinorJ() {
+        return 5;
+    }
+
+    private static int getVersionRevisionJ() {
+        return 0;
+    }
     private static String getVersionStatusJ() { return ""; }
 
     public static final String VERSION = getVersion();
@@ -2017,7 +2026,7 @@ public class Core {
      * naive nearest neighbor finder
      *
      * see http://en.wikipedia.org/wiki/Nearest_neighbor_search
-     * TODO: document
+     * NEED TO DO: document
      * @param src1 automatically generated
      * @param src2 automatically generated
      * @param dist automatically generated
@@ -2035,18 +2044,19 @@ public class Core {
 
     /**
      * naive nearest neighbor finder
-     *
+     * <p>
      * see http://en.wikipedia.org/wiki/Nearest_neighbor_search
-     * TODO: document
-     * @param src1 automatically generated
-     * @param src2 automatically generated
-     * @param dist automatically generated
-     * @param dtype automatically generated
-     * @param nidx automatically generated
+     * NEED TO DO: document
+     *
+     * @param src1     automatically generated
+     * @param src2     automatically generated
+     * @param dist     automatically generated
+     * @param dtype    automatically generated
+     * @param nidx     automatically generated
      * @param normType automatically generated
-     * @param K automatically generated
-     * @param mask automatically generated
-     * @param update automatically generated
+     * @param K        automatically generated
+     * @param mask     automatically generated
+     * @param update   automatically generated
      */
     public static void batchDistance(Mat src1, Mat src2, Mat dist, int dtype, Mat nidx, int normType, int K, Mat mask, int update) {
         batchDistance_1(src1.nativeObj, src2.nativeObj, dist.nativeObj, dtype, nidx.nativeObj, normType, K, mask.nativeObj, update);
@@ -2056,7 +2066,7 @@ public class Core {
      * naive nearest neighbor finder
      *
      * see http://en.wikipedia.org/wiki/Nearest_neighbor_search
-     * TODO: document
+     * NEED TO DO: document
      * @param src1 automatically generated
      * @param src2 automatically generated
      * @param dist automatically generated
@@ -2074,7 +2084,7 @@ public class Core {
      * naive nearest neighbor finder
      *
      * see http://en.wikipedia.org/wiki/Nearest_neighbor_search
-     * TODO: document
+     * NEED TO DO: document
      * @param src1 automatically generated
      * @param src2 automatically generated
      * @param dist automatically generated
@@ -2091,7 +2101,7 @@ public class Core {
      * naive nearest neighbor finder
      *
      * see http://en.wikipedia.org/wiki/Nearest_neighbor_search
-     * TODO: document
+     * NEED TO DO: document
      * @param src1 automatically generated
      * @param src2 automatically generated
      * @param dist automatically generated
@@ -2107,7 +2117,7 @@ public class Core {
      * naive nearest neighbor finder
      *
      * see http://en.wikipedia.org/wiki/Nearest_neighbor_search
-     * TODO: document
+     * NEED TO DO: document
      * @param src1 automatically generated
      * @param src2 automatically generated
      * @param dist automatically generated
@@ -5701,9 +5711,9 @@ public static MinMaxLocResult minMaxLoc(Mat src, Mat mask) {
     MinMaxLocResult res = new MinMaxLocResult();
     long maskNativeObj=0;
     if (mask != null) {
-        maskNativeObj=mask.nativeObj;
+        maskNativeObj = mask.nativeObj;
     }
-    double resarr[] = n_minMaxLocManual(src.nativeObj, maskNativeObj);
+    double[] resarr = n_minMaxLocManual(src.nativeObj, maskNativeObj);
     res.minVal=resarr[0];
     res.maxVal=resarr[1];
     res.minLoc.x=resarr[2];
