@@ -17,11 +17,14 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
 @SuppressWarnings("ALL")
-public class FtcRobotControllerVisionActivity extends FtcRobotControllerActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
+public class FtcRobotControllerVisionActivity extends FtcRobotControllerActivity implements
+        CameraBridgeViewBase.CvCameraViewListener2 {
     private static final String TAG = "myTag";
+    //return the number of rings
+    public static int rings = 0;
+    private static boolean killOpenCV = false;
     @SuppressLint("StaticFieldLeak")
     public static FtcRobotControllerVisionActivity instance;
-    public static int rings;
     JavaCameraView javaCameraView;
     Mat mRgba;
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -38,37 +41,32 @@ public class FtcRobotControllerVisionActivity extends FtcRobotControllerActivity
             }
         }
     };
+    private static boolean openCVKilled = false;
 
-    @Override
+    public static void killOpenCV() {
+        killOpenCV = true;
+    }
+
+    public static void reviveOpenCV() {
+        killOpenCV = false;
+    }
+
+    @Override //start to stream frames from camera to algorithm
     public void onCameraViewStarted(int width, int height) {
         mRgba = new Mat(height, width, CvType.CV_8UC4);
     }
 
-    @Override
+    @Override //when the camera view is stopped, release all the mats
     public void onCameraViewStopped() {
-
+        mRgba.release();
     }
 
-    @Override
+    @Override //run the vision pipeline for the frames
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
         rings = Vision.ringStack(mRgba.getNativeObjAddr());
         Log.d(TAG, "in onCameraFrame!");
         return mRgba;
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        instance = this;
-        super.onCreate(savedInstanceState);
-
-        Log.d(TAG, "Thing is null: " + (findViewById(R.id.java_camera_view) == null));
-        javaCameraView = findViewById(R.id.java_camera_view);
-
-        javaCameraView.setCameraPermissionGranted();
-
-        javaCameraView.setVisibility(View.VISIBLE);
-        javaCameraView.setCvCameraViewListener(this);
     }
 
     public void onResume() {
@@ -83,6 +81,47 @@ public class FtcRobotControllerVisionActivity extends FtcRobotControllerActivity
         } else {
             Log.d(TAG, "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
+    }
+
+    public int getRings() {
+        return rings;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        instance = this;
+        super.onCreate(savedInstanceState);
+
+        Log.d(TAG, "Thing is null: " + (findViewById(R.id.java_camera_view) == null));
+        javaCameraView = findViewById(R.id.java_camera_view);
+
+        javaCameraView.setCameraPermissionGranted();
+
+        javaCameraView.setVisibility(View.VISIBLE);
+        javaCameraView.setCvCameraViewListener(this);
+        killOpenCV = false;
+    }
+
+    //turn off the view to save GPU and CPU power
+    public void disableView() {
+        if (javaCameraView != null) {
+            javaCameraView.disableView();
+        }
+    }
+
+    //enable view to start running the pipeline
+    public void enableView() {
+        if (javaCameraView != null) {
+            javaCameraView.enableView();
+        }
+    }
+
+    @Override //disable the view when the activity is stopped
+    public void onDestroy() {
+        super.onDestroy();
+        if (javaCameraView != null) {
+            javaCameraView.disableView();
         }
     }
 }

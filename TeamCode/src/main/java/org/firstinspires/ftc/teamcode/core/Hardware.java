@@ -131,12 +131,29 @@ public class Hardware {
         }
     }
 
-    ///////////////////////// Ring Stack Height //////////////////////////
+///////////////// COMPUTER VISION FUNCTIONS /////////////////////////
 
-    public int stackHeight() {
-        return FtcRobotControllerVisionActivity.rings;
+    //initialize camera by enabling view and not killing OpenCV
+    public void initializeCV() {
+        FtcRobotControllerVisionActivity.instance.enableView();
+        FtcRobotControllerVisionActivity.reviveOpenCV();
     }
-    ///////////////////////// END //////////////////////////
+
+    //destroy camera instance to save CPU + GPU power
+    public void destroyCV() {
+        FtcRobotControllerVisionActivity.instance.disableView();
+        FtcRobotControllerVisionActivity.killOpenCV();
+    }
+
+    //get the number of rings in the stack
+    public int getStackHeight() {
+        initializeCV();
+        int rings = FtcRobotControllerVisionActivity.instance.getRings();
+        destroyCV();
+        return rings;
+    }
+
+//////////////////////// END ////////////////////////////////////////////////
 
     // Wrap up OpMode
     public void end() {

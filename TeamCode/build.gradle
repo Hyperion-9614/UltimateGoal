@@ -45,4 +45,7 @@ android {
 
 dependencies {
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
+    implementation project(path: ':OpenCV')
+    implementation project(path: ':HyperiLibs')
+    implementation project(path: ':FtcRobotController')
 }
