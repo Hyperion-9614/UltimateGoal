@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.modules;
 
-import com.hyperion.common.*;
+import com.hyperion.common.Constants;
+import com.hyperion.common.MathUtils;
 
-import org.firstinspires.ftc.teamcode.core.*;
+import org.firstinspires.ftc.teamcode.core.Hardware;
+import org.firstinspires.ftc.teamcode.core.Motion;
 import org.json.JSONArray;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Custom telemetry for universal usability
@@ -13,7 +16,7 @@ import java.util.*;
 
 public class Metrics {
 
-    private Hardware hw;
+    private final Hardware hw;
 
     public List<Entry> data = new ArrayList<>();
     public String newLineSpaces = "";
@@ -56,10 +59,6 @@ public class Metrics {
         data.add(new Entry());
 
         data.add(new Entry("Vision"));
-        data.add(new Entry("Theoretical max FPS", hw.phoneCam.getCurrentPipelineMaxFps()));
-        data.add(new Entry("Current FPS", String.format(Locale.US, "%.2f", hw.phoneCam.getFps())));
-        data.add(new Entry("Total frame time ms", hw.phoneCam.getTotalFrameTimeMs()));
-        data.add(new Entry("Pipeline time ms", hw.phoneCam.getPipelineTimeMs()));
         data.add(new Entry());
 
     }
