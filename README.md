@@ -2,4 +2,4 @@
 
 <h1 align="center">9614 Hyperion</h2>
 <p align="center">
-<a href="https://travis-ci.com/Alpheron/HyperionFTC"><img alt="Build Status" src="https://travis-ci.com/Alpheron/HyperionFTC.svg?token=mfjmzBAuLfxQsS9xKwRc&branch=master"></a>
+[![Build Status](https://travis-ci.com/Alpheron/HyperionFTC.svg?branch=master)](https://travis-ci.com/Alpheron/HyperionFTC)
