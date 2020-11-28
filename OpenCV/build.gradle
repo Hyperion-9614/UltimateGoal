@@ -10,6 +10,10 @@ android {
         minSdkVersion 25
         targetSdkVersion 29
         multiDexEnabled true
+        lintOptions {
+            abortOnError false
+            disable 'InvalidPackage'
+        }
     }
 
 }
