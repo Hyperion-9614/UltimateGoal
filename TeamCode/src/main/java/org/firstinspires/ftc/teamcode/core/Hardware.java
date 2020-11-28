@@ -88,7 +88,7 @@ public class Hardware {
     ///////////////////////// INIT //////////////////////////
 
     // Initialize localizationUpdater and unimetryUpdater threads
-    public void initThreads() {
+    private void initThreads() {
         localizationUpdater = new Thread(() -> {
             long lastUpdateTime = System.currentTimeMillis();
             while (!localizationUpdater.isInterrupted() && localizationUpdater.isAlive() && !ctx.isStopRequested()) {
@@ -113,8 +113,8 @@ public class Hardware {
     }
 
     // Initialize CV pipeline
-    public void initCV() {
-        int cameraMonitorViewId = hwmp.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hwmp.appContext.getPackageName());
+    private void initCV() {
+        int cameraMonitorViewId = hwmp.appContext.getResources().getIdentifier("java_camera_view", "id", hwmp.appContext.getPackageName());
         phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
         phoneCam.openCameraDevice();
         phoneCam.startStreaming(1280, 720, OpenCvCameraRotation.SIDEWAYS_LEFT);
@@ -153,7 +153,7 @@ public class Hardware {
 
     ///////////////////////// END //////////////////////////
 
-    public void killCV() {
+    private void killCV() {
         if (phoneCam != null) {
             phoneCam.setFlashlightEnabled(false);
             phoneCam.pauseViewport();
