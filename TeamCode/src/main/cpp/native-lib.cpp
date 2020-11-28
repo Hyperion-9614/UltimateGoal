@@ -8,7 +8,7 @@ using namespace std;
 
 extern "C"
 JNIEXPORT int JNICALL
-Java_org_firstinspires_ftc_robotcontroller_internal_Vision_ringStack(JNIEnv *env, jclass
+Java_org_firstinspires_ftc_robotcontroller_vision_Vision_ringStack(JNIEnv *env, jclass
 type, jlong addrRgba) {
     Mat &img = *(Mat *) addrRgba;
     cvtColor(img, img, COLOR_RGB2BGR);

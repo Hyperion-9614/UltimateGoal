@@ -30,7 +30,7 @@ android {
     }
 
     defaultConfig {
-        ndkVersion "22.0.6917172-beta1"
+        ndkVersion "21.3.6528147"
         minSdkVersion 25
         targetSdkVersion 29
         multiDexEnabled true

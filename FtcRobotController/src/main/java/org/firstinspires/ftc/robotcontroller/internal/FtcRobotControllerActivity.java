@@ -1,22 +1,16 @@
 /* Copyright (c) 2014, 2015 Qualcomm Technologies Inc
-
 All rights reserved.
-
 Redistribution and use in source and binary forms, with or without modification,
 are permitted (subject to the limitations in the disclaimer below) provided that
 the following conditions are met:
-
 Redistributions of source code must retain the above copyright notice, this list
 of conditions and the following disclaimer.
-
 Redistributions in binary form must reproduce the above copyright notice, this
 list of conditions and the following disclaimer in the documentation and/or
 other materials provided with the distribution.
-
 Neither the name of Qualcomm Technologies Inc nor the names of its contributors
 may be used to endorse or promote products derived from this software without
 specific prior written permission.
-
 NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
 LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
@@ -31,7 +25,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package org.firstinspires.ftc.robotcontroller.internal;
 
-import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -48,22 +41,20 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 
 import com.google.blocks.ftcrobotcontroller.ProgrammingWebHandlers;
 import com.google.blocks.ftcrobotcontroller.runtime.BlocksOpMode;
@@ -124,22 +115,15 @@ import org.firstinspires.ftc.robotcore.internal.ui.UILocation;
 import org.firstinspires.ftc.robotcore.internal.webserver.RobotControllerWebInfo;
 import org.firstinspires.ftc.robotserver.internal.programmingmode.ProgrammingModeManager;
 import org.firstinspires.inspection.RcInspectionActivity;
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.CameraBridgeViewBase;
-import org.opencv.android.JavaCameraView;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.android.OpenCVLoader;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
 
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @SuppressWarnings("WeakerAccess")
-public class FtcRobotControllerActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
-
+public class FtcRobotControllerActivity extends Activity {
     public static final String TAG = "RCActivity";
+
     public String getTag() {
         return TAG;
     }
@@ -185,40 +169,6 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
     private static boolean permissionsValidated = false;
 
     private WifiDirectChannelChanger wifiDirectChannelChanger;
-
-    @SuppressLint("StaticFieldLeak")
-    public static JavaCameraView javaCameraView;
-    public static Mat mRgba;
-    public static final String OPENCV_TAG = TAG + ":OpenCV";
-    private final BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
-        @Override
-        public void onManagerConnected(int status) {
-            if (status == LoaderCallbackInterface.SUCCESS) {
-                System.loadLibrary("native-lib");
-                javaCameraView.enableView();
-            } else {
-                Log.d(OPENCV_TAG, "mLoaderCallback: could not load OpenCV");
-            }
-        }
-    };
-
-    @Override
-    public void onCameraViewStarted(int width, int height) {
-        mRgba = new Mat(height, width, CvType.CV_8UC4);
-    }
-
-    @Override
-    public void onCameraViewStopped() {
-        mRgba.release();
-    }
-
-    @Override
-    public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-        mRgba = inputFrame.rgba();
-        Vision.ringStack(mRgba.getNativeObjAddr());
-        Log.d(OPENCV_TAG, "in onCameraFrame!");
-        return mRgba;
-    }
 
     protected class RobotRestarter implements Restarter {
 
@@ -342,8 +292,8 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
         preferencesHelper.writeBooleanPrefIfDifferent(context.getString(R.string.pref_rc_connected), true);
         preferencesHelper.getSharedPreferences().registerOnSharedPreferenceChangeListener(sharedPreferencesListener);
 
-        entireScreenLayout = (LinearLayout) findViewById(R.id.entire_screen);
-        buttonMenu = (ImageButton) findViewById(R.id.menu_buttons);
+        entireScreenLayout = findViewById(R.id.entire_screen);
+        buttonMenu = findViewById(R.id.menu_buttons);
         buttonMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -361,7 +311,7 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
 
         updateMonitorLayout(getResources().getConfiguration());
 
-        BlocksOpMode.setActivityAndWebView(this, (WebView) findViewById(R.id.webViewBlocksRuntime));
+        BlocksOpMode.setActivityAndWebView(this, findViewById(R.id.webViewBlocksRuntime));
 
         /*
          * Paranoia as the ClassManagerFactory requires EXTERNAL_STORAGE permissions
@@ -384,13 +334,13 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
             cfgFileMgr.setActiveConfig(false, configFile);
         }
 
-        textDeviceName = (TextView) findViewById(R.id.textDeviceName);
-        textNetworkConnectionStatus = (TextView) findViewById(R.id.textNetworkConnectionStatus);
-        textRobotStatus = (TextView) findViewById(R.id.textRobotStatus);
-        textOpMode = (TextView) findViewById(R.id.textOpMode);
-        textErrorMessage = (TextView) findViewById(R.id.textErrorMessage);
-        textGamepad[0] = (TextView) findViewById(R.id.textGamepad1);
-        textGamepad[1] = (TextView) findViewById(R.id.textGamepad2);
+        textDeviceName = findViewById(R.id.textDeviceName);
+        textNetworkConnectionStatus = findViewById(R.id.textNetworkConnectionStatus);
+        textRobotStatus = findViewById(R.id.textRobotStatus);
+        textOpMode = findViewById(R.id.textOpMode);
+        textErrorMessage = findViewById(R.id.textErrorMessage);
+        textGamepad[0] = findViewById(R.id.textGamepad1);
+        textGamepad[1] = findViewById(R.id.textGamepad2);
         immersion = new ImmersiveMode(getWindow().getDecorView());
         dimmer = new Dimmer(this);
         dimmer.longBright();
@@ -424,11 +374,6 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
         }
 
         FtcAboutActivity.setBuildTimeFromBuildConfig(BuildConfig.BUILD_TIME);
-
-        Log.d(OPENCV_TAG, "java_camera_view " + ((findViewById(R.id.java_camera_view) == null) ? "is" : "isn't") + " null");
-        javaCameraView = findViewById(R.id.java_camera_view);
-        javaCameraView.setVisibility(View.VISIBLE);
-        javaCameraView.setCvCameraViewListener(this);
     }
 
     protected UpdateUI createUpdateUI() {
@@ -461,36 +406,25 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
         // check to see if there is a preferred Wi-Fi to use.
         checkPreferredChannel();
 
-        entireScreenLayout.setOnTouchListener((v, event) -> {
-            dimmer.handleDimTimer();
-            return false;
+        entireScreenLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                dimmer.handleDimTimer();
+                return false;
+            }
         });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        RobotLog.vv(OPENCV_TAG, "onResume()");
-        if (!OpenCVLoader.initDebug()) {
-            boolean success = OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, this, mLoaderCallback);
-            if (success) {
-                Log.d(OPENCV_TAG, "asynchronous initialization succeeded!");
-            } else {
-                Log.d(OPENCV_TAG, "asynchronous initialization failed!");
-            }
-        } else {
-            Log.d(OPENCV_TAG, "OpenCV library found inside package. Using it!");
-            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
-        }
+        RobotLog.vv(TAG, "onResume()");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         RobotLog.vv(TAG, "onPause()");
-
-        if (javaCameraView != null)
-            javaCameraView.disableView();
     }
 
     @Override
@@ -507,8 +441,7 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
         RobotLog.vv(TAG, "onDestroy()");
 
         shutdownRobot();  // Ensure the robot is put away to bed
-        if (callback != null)
-            callback.close();
+        if (callback != null) callback.close();
 
         PreferenceRemoterRC.getInstance().stop(prefRemoterStartResult);
         DeviceNameManagerFactory.getInstance().stop(deviceNameStartResult);
@@ -521,9 +454,6 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
             preferencesHelper.getSharedPreferences().unregisterOnSharedPreferenceChangeListener(sharedPreferencesListener);
 
         RobotLog.cancelWriteLogcatToDisk();
-
-        if (javaCameraView != null)
-            javaCameraView.disableView();
     }
 
     protected void bindToService() {
@@ -566,7 +496,7 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
         //
         // Control hubs are always running the access point model.  Everything else, for the time
         // being always runs the wifi direct model.
-        if (Device.isRevControlHub()) {
+        if (Device.isRevControlHub() == true) {
             networkType = NetworkType.RCWIRELESSAP;
         } else {
             networkType = NetworkType.fromString(preferencesHelper.readString(context.getString(R.string.pref_pairing_kind), NetworkType.globalDefaultAsString()));
@@ -605,11 +535,7 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
 
         RobotState robotState = robot.eventLoopManager.state;
 
-        if (robotState != RobotState.RUNNING) {
-            return false;
-        } else {
-            return true;
-        }
+        return robotState == RobotState.RUNNING;
     }
 
     @Override
@@ -686,7 +612,7 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
      * tfodMonitorView) based on the given configuration. Makes the children split the space.
      */
     private void updateMonitorLayout(Configuration configuration) {
-        LinearLayout monitorContainer = (LinearLayout) findViewById(R.id.monitorContainer);
+        LinearLayout monitorContainer = findViewById(R.id.monitorContainer);
         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             // When the phone is landscape, lay out the monitor views horizontally.
             monitorContainer.setOrientation(LinearLayout.HORIZONTAL);
@@ -837,21 +763,6 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
         }
     }
 
-    protected class SharedPreferencesListener implements SharedPreferences.OnSharedPreferenceChangeListener {
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            if (key.equals(context.getString(R.string.pref_app_theme))) {
-                ThemedActivity.restartForAppThemeChange(getTag(), getString(R.string.appThemeChangeRestartNotifyRC));
-            } else if (key.equals(context.getString(R.string.pref_wifi_automute))) {
-                if (preferencesHelper.readBoolean(context.getString(R.string.pref_wifi_automute), false)) {
-                    initWifiMute(true);
-                } else {
-                    initWifiMute(false);
-                }
-            }
-        }
-    }
-
     protected void initWifiMute(boolean enable) {
         if (enable) {
             wifiMuteStateMachine = new WifiMuteStateMachine();
@@ -872,6 +783,17 @@ public class FtcRobotControllerActivity extends Activity implements CameraBridge
             motionDetection.stopListening();
             motionDetection.purgeListeners();
             motionDetection = null;
+        }
+    }
+
+    protected class SharedPreferencesListener implements SharedPreferences.OnSharedPreferenceChangeListener {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            if (key.equals(context.getString(R.string.pref_app_theme))) {
+                ThemedActivity.restartForAppThemeChange(getTag(), getString(R.string.appThemeChangeRestartNotifyRC));
+            } else if (key.equals(context.getString(R.string.pref_wifi_automute))) {
+                initWifiMute(preferencesHelper.readBoolean(context.getString(R.string.pref_wifi_automute), false));
+            }
         }
     }
 

@@ -10,14 +10,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcontroller.internal.FtcRobotControllerActivity;
-import org.firstinspires.ftc.robotcontroller.internal.Vision;
+import org.firstinspires.ftc.robotcontroller.vision.FtcRobotControllerVisionActivity;
 import org.firstinspires.ftc.teamcode.modules.Metrics;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.revextensions2.ExpansionHubEx;
 
 import java.io.File;
@@ -135,12 +131,11 @@ public class Hardware {
         }
     }
 
-    ///////////////////////// MISC //////////////////////////
+    ///////////////////////// Ring Stack Height //////////////////////////
 
     public int stackHeight() {
-        return Vision.ringStack(FtcRobotControllerActivity.mRgba.dataAddr());
+        return FtcRobotControllerVisionActivity.rings;
     }
-
     ///////////////////////// END //////////////////////////
 
     // Wrap up OpMode
