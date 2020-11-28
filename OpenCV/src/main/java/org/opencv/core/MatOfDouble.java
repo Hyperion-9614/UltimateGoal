@@ -16,7 +16,7 @@ public class MatOfDouble extends Mat {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //FIXME: do we need release() here?
+        //NEED TO FIX: do we need release() here?
     }
 
     public static MatOfDouble fromNativeAddr(long addr) {
@@ -27,7 +27,7 @@ public class MatOfDouble extends Mat {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //FIXME: do we need release() here?
+        //NEED TO FIX: do we need release() here?
     }
 
     public MatOfDouble(double...a) {
@@ -45,7 +45,7 @@ public class MatOfDouble extends Mat {
             return;
         int num = a.length / _channels;
         alloc(num);
-        put(0, 0, a); //TODO: check ret val!
+        put(0, 0, a); //NEED TO DO: check ret val!
     }
 
     public double[] toArray() {
@@ -55,23 +55,23 @@ public class MatOfDouble extends Mat {
         double[] a = new double[num * _channels];
         if(num == 0)
             return a;
-        get(0, 0, a); //TODO: check ret val!
+        get(0, 0, a); //NEED TO DO: check ret val!
         return a;
     }
 
     public void fromList(List<Double> lb) {
-        if(lb==null || lb.size()==0)
+        if (lb == null || lb.size() == 0)
             return;
-        Double ab[] = lb.toArray(new Double[0]);
-        double a[] = new double[ab.length];
-        for(int i=0; i<ab.length; i++)
+        Double[] ab = lb.toArray(new Double[0]);
+        double[] a = new double[ab.length];
+        for (int i = 0; i < ab.length; i++)
             a[i] = ab[i];
         fromArray(a);
     }
 
     public List<Double> toList() {
         double[] a = toArray();
-        Double ab[] = new Double[a.length];
+        Double[] ab = new Double[a.length];
         for(int i=0; i<a.length; i++)
             ab[i] = a[i];
         return Arrays.asList(ab);

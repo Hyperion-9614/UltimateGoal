@@ -82,10 +82,10 @@ std::vector<vector<Point>> findContours(const Mat &input) {
     return contours;
 }
 
-Mat drawRectanglesImg(std::vector<vector<Point>> contours, const Mat &input) {
+tuple<Mat, int> drawRectanglesImg(std::vector<vector<Point>> contours, const Mat &input) {
     Mat originalImageCropped = input.clone();
     if (contours.empty()) {
-        return originalImageCropped;
+        return make_tuple(originalImageCropped, 0);
     } else {
         Scalar color = Scalar(0, 0, 255);
         std::vector<Rect> boundRect(contours.size());
@@ -96,19 +96,17 @@ Mat drawRectanglesImg(std::vector<vector<Point>> contours, const Mat &input) {
         int rings = numberOfRings(boundRect[0].width, boundRect[0].height);
         putText(originalImageCropped, std::to_string(rings), boundRect[0].tl(),
                 FONT_HERSHEY_DUPLEX, 1.0, CV_RGB(0, 255, 0), 2);
-        cout << rings;
-        cout << "\n";
-        return (originalImageCropped);
+        return make_tuple(originalImageCropped, rings);
     }
 }
 
 
-Mat postProcessImg(const Mat &maskedImageInput, const tuple<Mat, Mat> &images) {
+tuple<Mat, int> postProcessImg(const Mat &maskedImageInput, const tuple<Mat, Mat> &images) {
     Mat maskedImage = maskedImageInput.clone();
     Mat originalImageCropped = get<0>(images).clone();
     std::vector<vector<Point>> contours = findContours(maskedImage);
-    Mat rectsDrawn = drawRectanglesImg(contours, originalImageCropped);
-    cvtColor(rectsDrawn, rectsDrawn, COLOR_BGR2RGB);
-    return rectsDrawn;
+    tuple<Mat, int> rectsDrawn = drawRectanglesImg(contours, originalImageCropped);
+    cvtColor(get<0>(rectsDrawn), get<0>(rectsDrawn), COLOR_BGR2RGB);
+    return make_tuple(get<0>(rectsDrawn), get<1>(rectsDrawn));
 }
 

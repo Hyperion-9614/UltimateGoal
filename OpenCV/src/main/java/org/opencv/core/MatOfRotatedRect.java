@@ -3,8 +3,6 @@ package org.opencv.core;
 import java.util.Arrays;
 import java.util.List;
 
-import org.opencv.core.RotatedRect;
-
 
 
 public class MatOfRotatedRect extends Mat {
@@ -20,7 +18,7 @@ public class MatOfRotatedRect extends Mat {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //FIXME: do we need release() here?
+        //NEED TO FIX: do we need release() here?
     }
 
     public static MatOfRotatedRect fromNativeAddr(long addr) {
@@ -31,7 +29,7 @@ public class MatOfRotatedRect extends Mat {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //FIXME: do we need release() here?
+        //NEED TO FIX: do we need release() here?
     }
 
     public MatOfRotatedRect(RotatedRect...a) {
@@ -49,7 +47,7 @@ public class MatOfRotatedRect extends Mat {
             return;
         int num = a.length;
         alloc(num);
-        float buff[] = new float[num * _channels];
+        float[] buff = new float[num * _channels];
         for(int i=0; i<num; i++) {
             RotatedRect r = a[i];
             buff[_channels*i+0] = (float) r.center.x;
@@ -58,7 +56,7 @@ public class MatOfRotatedRect extends Mat {
             buff[_channels*i+3] = (float) r.size.height;
             buff[_channels*i+4] = (float) r.angle;
         }
-        put(0, 0, buff); //TODO: check ret val!
+        put(0, 0, buff); //NEED TO DO: check ret val!
     }
 
     public RotatedRect[] toArray() {
@@ -66,16 +64,16 @@ public class MatOfRotatedRect extends Mat {
         RotatedRect[] a = new RotatedRect[num];
         if(num == 0)
             return a;
-        float buff[] = new float[_channels];
+        float[] buff = new float[_channels];
         for(int i=0; i<num; i++) {
-            get(i, 0, buff); //TODO: check ret val!
-            a[i] = new RotatedRect(new Point(buff[0],buff[1]),new Size(buff[2],buff[3]),buff[4]);
+            get(i, 0, buff); //NEED TO DO: check ret val!
+            a[i] = new RotatedRect(new Point(buff[0], buff[1]), new Size(buff[2], buff[3]), buff[4]);
         }
         return a;
     }
 
     public void fromList(List<RotatedRect> lr) {
-        RotatedRect ap[] = lr.toArray(new RotatedRect[0]);
+        RotatedRect[] ap = lr.toArray(new RotatedRect[0]);
         fromArray(ap);
     }
 

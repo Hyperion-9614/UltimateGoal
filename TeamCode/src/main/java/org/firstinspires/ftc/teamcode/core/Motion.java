@@ -5,17 +5,17 @@ import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
 import com.hyperion.common.MathUtils;
-import com.hyperion.motion.pathplanning.DStarLite;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Vector2D;
+import com.hyperion.motion.pathplanning.DStarLite;
 import com.hyperion.motion.pathplanning.Obstacle;
+import com.hyperion.motion.trajectory.PIDCtrl;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import com.hyperion.motion.trajectory.PIDCtrl;
 import org.firstinspires.ftc.teamcode.modules.Localizer;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -247,7 +247,7 @@ public class Motion {
             if (isDynamic) {
                 pathPlanner.robotMoved(robot);
 
-                // TODO: Pass in empirical obstacle list
+                // NEED TO DO: Pass in empirical obstacle list
                 if (pathPlanner.updateDynamicObstacles(new ArrayList<>())) {
                     pathPlanner.recompute();
 
