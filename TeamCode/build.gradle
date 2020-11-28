@@ -31,10 +31,10 @@ android {
 
     defaultConfig {
         ndkVersion "21.3.6528147"
+        multiDexEnabled true
         minSdkVersion 25
         targetSdkVersion 29
         multiDexEnabled true
-        
         lintOptions {
             abortOnError false
             disable 'InvalidPackage'
@@ -45,7 +45,4 @@ android {
 
 dependencies {
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
-    implementation project(path: ':OpenCV')
-    implementation project(path: ':HyperiLibs')
-    implementation project(path: ':FtcRobotController')
 }
