@@ -18,6 +18,7 @@
 import java.util.regex.Pattern
 
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
 
@@ -41,7 +42,13 @@ android {
         applicationId 'com.qualcomm.ftcrobotcontroller'
         minSdkVersion 25
         targetSdkVersion 29
+        ndkVersion "22.0.6917172-beta1"
         multiDexEnabled true
+
+        lintOptions {
+            abortOnError false
+            disable 'InvalidPackage'
+        }
 
         /**
          * We keep the versionCode and versionName of robot controller applications in sync with
@@ -102,9 +109,8 @@ android {
         jniLibs.srcDir rootProject.file('libs')
     }
 
-    lintOptions {
-        abortOnError false
-        disable 'InvalidPackage'
+    buildFeatures {
+        viewBinding true
     }
 }
 

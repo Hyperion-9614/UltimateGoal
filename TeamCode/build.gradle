@@ -16,6 +16,31 @@ apply from: '../build.common.gradle'
 
 repositories {
     maven { url = "https://dl.bintray.com/first-tech-challenge/ftcsdk/" }
+    jcenter()
+}
+
+android {
+
+    compileSdkVersion 29
+
+    externalNativeBuild {
+        cmake {
+            path file('CMakeLists.txt')
+        }
+    }
+
+    defaultConfig {
+        ndkVersion "22.0.6917172-beta1"
+        minSdkVersion 25
+        targetSdkVersion 29
+        multiDexEnabled true
+        
+        lintOptions {
+            abortOnError false
+            disable 'InvalidPackage'
+        }
+    }
+
 }
 
 dependencies {

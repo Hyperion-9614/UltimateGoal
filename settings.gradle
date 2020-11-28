@@ -1,3 +1,4 @@
 include ':FtcRobotController'
+include ':OpenCV'
 include ':HyperiLibs'
 include ':TeamCode'
