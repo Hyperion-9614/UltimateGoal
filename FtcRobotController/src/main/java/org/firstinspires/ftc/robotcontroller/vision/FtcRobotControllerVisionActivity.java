@@ -65,7 +65,8 @@ public class FtcRobotControllerVisionActivity extends FtcRobotControllerActivity
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
         rings = Vision.ringStack(mRgba.getNativeObjAddr());
-        Log.d(TAG, "in onCameraFrame!");
+        String message = "Rings in frame: " + String.valueOf(rings);
+        Log.d(TAG, message);
         return mRgba;
     }
 
