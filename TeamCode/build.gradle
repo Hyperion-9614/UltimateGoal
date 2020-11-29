@@ -14,6 +14,7 @@
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 
+
 repositories {
     maven { url = "https://dl.bintray.com/first-tech-challenge/ftcsdk/" }
     jcenter()
@@ -30,11 +31,11 @@ android {
     }
 
     defaultConfig {
-        ndkVersion "21.3.6528147"
-        multiDexEnabled true
         minSdkVersion 25
         targetSdkVersion 29
+        ndkVersion "21.3.6528147"
         multiDexEnabled true
+
         lintOptions {
             abortOnError false
             disable 'InvalidPackage'

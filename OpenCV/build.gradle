@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 android {
 
@@ -6,10 +6,10 @@ android {
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "org.opencv"
         minSdkVersion 25
         targetSdkVersion 29
         multiDexEnabled true
+
         lintOptions {
             abortOnError false
             disable 'InvalidPackage'

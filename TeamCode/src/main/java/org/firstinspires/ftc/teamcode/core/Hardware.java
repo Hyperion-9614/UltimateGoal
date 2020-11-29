@@ -131,21 +131,21 @@ public class Hardware {
         }
     }
 
-///////////////// COMPUTER VISION FUNCTIONS /////////////////////////
+///////////////// COMPUTER VISION /////////////////////////
 
-    //initialize camera by enabling view and not killing OpenCV
+    // Initialize camera by enabling view and not killing OpenCV
     public void initializeCV() {
         FtcRobotControllerVisionActivity.instance.enableView();
         FtcRobotControllerVisionActivity.reviveOpenCV();
     }
 
-    //destroy camera instance to save CPU + GPU power
+    // Destroy camera instance to save CPU + GPU power
     public void destroyCV() {
         FtcRobotControllerVisionActivity.instance.disableView();
         FtcRobotControllerVisionActivity.killOpenCV();
     }
 
-    //get the number of rings in the stack
+    // Get the number of rings in the stack
     public int getStackHeight() {
         initializeCV();
         int rings = FtcRobotControllerVisionActivity.instance.getRings();
