@@ -131,7 +131,7 @@ public class Hardware {
         }
     }
 
-///////////////// COMPUTER VISION /////////////////////////
+    //////////////////////// COMPUTER VISION ////////////////////////
 
     // Initialize camera by enabling view and not killing OpenCV
     public void initializeCV() {
@@ -153,7 +153,7 @@ public class Hardware {
         return rings;
     }
 
-//////////////////////// END ////////////////////////////////////////////////
+//////////////////////// END ////////////////////////
 
     // Wrap up OpMode
     public void end() {

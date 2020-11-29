@@ -4,41 +4,41 @@ import java.util.*;
 
 public class ID {
 
-    public ArrayList<String> args;
+    public ArrayList<String> segments;
 
-    public ID(Object... args) {
-        this(TextUtils.join(".", args));
+    public ID(Object... segments) {
+        this(TextUtils.join(".", segments));
     }
 
     public ID(String idStr) {
-        this.args = new ArrayList<>(Arrays.asList(idStr.split("\\.")));
+        this.segments = new ArrayList<>(Arrays.asList(idStr.split("\\.")));
     }
 
     public String get(int i) {
-        if (i < 0) i += args.size();
-        return i < args.size() ? args.get(i) : "";
+        if (i < 0) i += segments.size();
+        return i < segments.size() ? segments.get(i) : "";
     }
 
     public void set(int i, Object val) {
-        if (i < 0) i += args.size();
-        args.set(i, val.toString());
+        if (i < 0) i += segments.size();
+        segments.set(i, val.toString());
     }
 
-    public void add(Object val) {
-        args.add(val.toString());
+    public void add(Object segment) {
+        segments.add(String.valueOf(segment));
     }
 
     public void remove(int i) {
-        if (i < 0) i += args.size();
-        args.remove(i);
+        if (i < 0) i += segments.size();
+        segments.remove(i);
     }
 
-    public void remove(Object val) {
-        args.remove(val);
+    public void remove(Object segment) {
+        segments.remove(String.valueOf(segment));
     }
 
-    public boolean contains(String val) {
-        return args.contains(val);
+    public boolean contains(Object segment) {
+        return segments.contains(String.valueOf(segment));
     }
 
     public boolean contains(ID otherID) {
@@ -46,16 +46,16 @@ public class ID {
     }
 
     public String sub(int start, int end) {
-        if (start <= args.size() - 1) {
+        if (start <= segments.size() - 1) {
             StringBuilder idStr = new StringBuilder();
-            for (int i = start; i < end; i++) idStr.append(args.get(i)).append(".");
+            for (int i = start; i < end; i++) idStr.append(segments.get(i)).append(".");
             return idStr.substring(0, idStr.length() - 1);
         }
         return "";
     }
 
     public String sub(int start) {
-        return sub(start, args.size());
+        return sub(start, segments.size());
     }
 
     public boolean equals(ID id) {
@@ -67,7 +67,7 @@ public class ID {
     }
 
     public int size() {
-        return args.size();
+        return segments.size();
     }
 
     @Override

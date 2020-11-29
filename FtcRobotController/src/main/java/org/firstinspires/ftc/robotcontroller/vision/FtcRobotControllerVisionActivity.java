@@ -19,7 +19,7 @@ import org.opencv.core.Mat;
 @SuppressWarnings("ALL")
 public class FtcRobotControllerVisionActivity extends FtcRobotControllerActivity implements
         CameraBridgeViewBase.CvCameraViewListener2 {
-    private static final String TAG = "myTag";
+    private static final String TAG = "RCActivity:Vision";
     //return the number of rings
     public static int rings = 0;
     private static boolean killOpenCV = false;

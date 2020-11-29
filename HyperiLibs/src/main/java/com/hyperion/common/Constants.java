@@ -3,6 +3,7 @@ package com.hyperion.common;
 import com.hyperion.motion.math.Pose;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -61,21 +62,25 @@ public class Constants {
     public static Object getByID(String id) {
         String[] split = id.split("\\.");
         JSONObject curr = root;
+        String currSegment = "";
         try {
             for (int i = 0; i < split.length; i++) {
                 int i0 = split[i].lastIndexOf("[");
                 int jAI = split[i].endsWith("]") ? Integer.parseInt(split[i].substring(i0 + 1, i0 + 2)) : -1;
                 if (jAI == -1) {
-                    if (i == split.length - 1) return curr.get(split[i]);
-                    else curr = curr.getJSONObject(split[i]);
+                    currSegment = split[i];
+                    if (i == split.length - 1) return curr.get(currSegment);
+                    else curr = curr.getJSONObject(currSegment);
                 } else {
+                    currSegment = split[i].substring(0, i0) + "[" + jAI + "]";
                     JSONArray jsonArray = curr.getJSONArray(split[i].substring(0, i0));
                     if (i == split.length - 1) return jsonArray.get(jAI);
                     else curr = jsonArray.getJSONObject(jAI);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (JSONException e) {
+            throw new MissingConstantException("No constant found | ID: '" + id + "' | Segment: '"
+                                                + currSegment + "'", e);
         }
         return curr;
     }
@@ -299,6 +304,14 @@ public class Constants {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static class MissingConstantException extends RuntimeException {
+
+        public MissingConstantException(String errorMessage, Throwable err) {
+            super(errorMessage, err);
+        }
+
     }
 
 }
