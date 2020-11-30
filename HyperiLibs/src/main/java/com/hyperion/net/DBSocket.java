@@ -22,6 +22,7 @@ public class DBSocket extends NetEP {
 
     @Override
     public void init() throws Exception {
+        sender = Message.Sender.DASHBOARD;
         serverSocket = new ServerSocket(Constants.getInt("net.port"));
         clientSocket = serverSocket.accept();
     }

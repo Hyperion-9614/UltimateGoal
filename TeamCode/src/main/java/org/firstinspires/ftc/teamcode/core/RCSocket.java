@@ -20,6 +20,7 @@ public class RCSocket extends NetEP {
 
     @Override
     public void init() throws Exception {
+        sender = Message.Sender.RC;
         clientSocket = new Socket(Constants.getString("net.ip"), Constants.getInt("net.port"));
     }
 

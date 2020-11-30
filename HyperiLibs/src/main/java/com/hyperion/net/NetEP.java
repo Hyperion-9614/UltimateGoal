@@ -21,6 +21,8 @@ public abstract class NetEP {
     public Thread initThread;
     public Thread msgHandler;
 
+    public Message.Sender sender;
+
     public NetEP() {
         initThread = new Thread(() -> {
             try {
@@ -113,15 +115,15 @@ public abstract class NetEP {
     }
 
     public void sendMessage(String event, JSONObject json) {
-        out.println(new Message(event, Message.Sender.DASHBOARD, json).toString());
+        out.println(new Message(event, sender, json).toString());
     }
 
     public void sendMessage(String event, JSONArray json) {
-        out.println(new Message(event, Message.Sender.DASHBOARD, json).toString());
+        out.println(new Message(event, sender, json).toString());
     }
 
     public void netLog(String message) {
-        System.out.println("[NET -- " + Message.Sender.DASHBOARD + " -- " + TextUtils.getFormattedDate() + "] " + message);
+        System.out.println("[NET -- " + sender + " -- " + TextUtils.getFormattedDate() + "] " + message);
     }
 
 }
