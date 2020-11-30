@@ -90,7 +90,10 @@
             "dragTime": 150,
             "constantsAutoSaveDelay": 1000
         },
-        "net": {"serviceUUID": "2d26618601fb47c28d9f10b8ec891363"},
         "version": "5.0"
+    },
+    "net": {
+        "ip": "127.0.0.1",
+        "port": 6666
     }
 }

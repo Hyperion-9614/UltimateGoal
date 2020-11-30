@@ -1,4 +1,4 @@
-package com.hyperion.dashboard.net;
+package com.hyperion.net;
 
 import com.hyperion.common.ID;
 

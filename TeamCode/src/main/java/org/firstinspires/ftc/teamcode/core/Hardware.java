@@ -5,6 +5,7 @@ import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
+import com.hyperion.net.Message;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -35,7 +36,7 @@ public class Hardware {
     public LinearOpMode ctx;
     public ID opModeID = new ID("Choose OpMode");
 
-    public BTClient btClient;
+    public RCSocket rcSocket;
     public Metrics metrics;
     public String status = opModeID.toString();
 
@@ -75,7 +76,7 @@ public class Hardware {
         Motion.init(this);
         Appendages.init(this);
         if (Constants.getBoolean("dashboard.isDebugging"))
-            btClient = new BTClient(this);
+            rcSocket = new RCSocket(this);
         metrics = new Metrics(this);
         initThreads();
     }
@@ -174,8 +175,8 @@ public class Hardware {
                 IOUtils.writeFile(obj.toString(), fieldJSON);
             }
 
-            btClient.sendMessage("OPMODE_ENDED", new JSONObject());
-            btClient.close();
+            rcSocket.sendMessage(Message.Event.OPMODE_ENDED, new JSONObject());
+            rcSocket.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

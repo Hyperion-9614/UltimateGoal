@@ -1,9 +1,6 @@
 package com.hyperion.common;
 
-import com.hyperion.dashboard.Dashboard;
-import com.hyperion.dashboard.net.FieldEdit;
-import com.hyperion.motion.math.Pose;
-import com.hyperion.motion.math.Vector2D;
+import com.hyperion.net.FieldEdit;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

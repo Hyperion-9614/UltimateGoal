@@ -1,4 +1,4 @@
-package com.hyperion.dashboard.net;
+package com.hyperion.net;
 
 import com.hyperion.common.TextUtils;
 
@@ -7,43 +7,39 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-import javax.bluetooth.DiscoveryAgent;
-import javax.bluetooth.LocalDevice;
-import javax.microedition.io.StreamConnection;
+public abstract class NetEP {
 
-public abstract class BTEndpoint {
-
-    public LocalDevice localDevice;
-    public DiscoveryAgent discoveryAgent;
-
-    public StreamConnection conn;
+    public ServerSocket serverSocket;
+    public Socket clientSocket;
     public BufferedReader in = null;
     public PrintWriter out = null;
 
+    public Thread initThread;
     public Thread msgHandler;
 
-    public BTEndpoint() {
-        try {
-            localDevice = LocalDevice.getLocalDevice();
-            discoveryAgent = localDevice.getDiscoveryAgent();
+    public NetEP() {
+        initThread = new Thread(() -> {
+            try {
+                init();
+                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                out = new PrintWriter(clientSocket.getOutputStream(), true);
 
-            btInit();
-            in = new BufferedReader(new InputStreamReader(conn.openInputStream()));
-            out = new PrintWriter(new OutputStreamWriter(conn.openOutputStream()));
-            startMessageHandlerThread();
-
-            sendMessage(Message.Event.CONNECTED, new JSONObject());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+                startMessageHandlerThread();
+                sendMessage(Message.Event.CONNECTED, new JSONObject());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        initThread.start();
     }
 
-    public abstract void btInit() throws Exception;
+    public abstract void init() throws Exception;
 
-    public void startMessageHandlerThread() {
+    private void startMessageHandlerThread() {
         msgHandler = new Thread(() -> {
             try {
                 Message msg;
@@ -73,26 +69,30 @@ public abstract class BTEndpoint {
                 e.printStackTrace();
             }
         });
-        msgHandler.start();
     }
 
     // Event handlers
     protected abstract void onConnected(Message msg) throws Exception;
+
     protected abstract void onDisconnected(Message msg) throws Exception;
+
     protected abstract void onConstantsUpdated(Message msg) throws Exception;
+
     protected abstract void onFieldEdited(Message msg) throws Exception;
+
     protected abstract void onMetricsUpdated(Message msg) throws Exception;
+
     protected abstract void onOpModeEnded(Message msg) throws Exception;
 
     public void close() {
         try {
-            JSONObject dcObj = new JSONObject();
-            dcObj.put("friendlyName", localDevice.getFriendlyName());
-            sendMessage(Message.Event.DISCONNECTED, dcObj);
+            sendMessage(Message.Event.DISCONNECTED, new JSONObject());
 
-            conn.close();
             in.close();
             out.close();
+            clientSocket.close();
+            serverSocket.close();
+
             if (msgHandler.isAlive() && !msgHandler.isInterrupted())
                 msgHandler.interrupt();
         } catch (Exception e) {
@@ -101,7 +101,7 @@ public abstract class BTEndpoint {
     }
 
     public void sendMessage(Message.Event event, String jsonStr) {
-        out.println(new Message(event, localDevice.getFriendlyName(), jsonStr).toString());
+        out.println(new Message(event, Message.Sender.DASHBOARD, jsonStr).toString());
     }
 
     public void sendMessage(Message.Event event, JSONObject json) {
@@ -113,15 +113,15 @@ public abstract class BTEndpoint {
     }
 
     public void sendMessage(String event, JSONObject json) {
-        out.println(new Message(event, localDevice.getFriendlyName(), json).toString());
+        out.println(new Message(event, Message.Sender.DASHBOARD, json).toString());
     }
 
     public void sendMessage(String event, JSONArray json) {
-        out.println(new Message(event, localDevice.getFriendlyName(), json).toString());
+        out.println(new Message(event, Message.Sender.DASHBOARD, json).toString());
     }
 
-    public void printBTLog(String message) {
-        System.out.println("[BT -- " + localDevice.getFriendlyName() + " -- " + TextUtils.getFormattedDate() + "] " + message);
+    public void netLog(String message) {
+        System.out.println("[NET -- " + Message.Sender.DASHBOARD + " -- " + TextUtils.getFormattedDate() + "] " + message);
     }
 
 }

@@ -3,15 +3,12 @@ package com.hyperion.dashboard.uiobject.fieldobject;
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.dashboard.Dashboard;
-import com.hyperion.dashboard.net.FieldEdit;
-import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import com.hyperion.motion.math.Pose;
 
 import org.json.JSONArray;
 
 import javafx.application.Platform;
 import javafx.scene.Group;
-import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.modules;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.MathUtils;
+import com.hyperion.net.Message;
 
 import org.firstinspires.ftc.teamcode.core.Hardware;
 import org.firstinspires.ftc.teamcode.core.Motion;
@@ -74,7 +75,7 @@ public class Metrics {
             }
             hw.ctx.telemetry.update();
             if (Constants.getBoolean("dashboard.isDebugging"))
-                hw.btClient.sendMessage("METRICS_UPDATED", dataArr);
+                hw.rcSocket.sendMessage(Message.Event.METRICS_UPDATED, dataArr);
         } catch (Exception e) {
             e.printStackTrace();
         }

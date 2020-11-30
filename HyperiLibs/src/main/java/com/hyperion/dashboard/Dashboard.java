@@ -4,9 +4,9 @@ import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
 import com.hyperion.common.MiscUtils;
-import com.hyperion.dashboard.net.BTServer;
-import com.hyperion.dashboard.net.FieldEdit;
-import com.hyperion.dashboard.net.Message;
+import com.hyperion.net.DBSocket;
+import com.hyperion.net.FieldEdit;
+import com.hyperion.net.Message;
 import com.hyperion.dashboard.pane.FieldPane;
 import com.hyperion.dashboard.pane.LeftPane;
 import com.hyperion.dashboard.pane.MenuPane;
@@ -61,7 +61,7 @@ public class Dashboard extends Application {
     public static RightPane rightPane;
     public static VisualPane visualPane;
     public static Simulator simulator;
-    public static BTServer btServer;
+    public static DBSocket dbSocket;
 
     public static List<FieldObject> fieldObjects = new ArrayList<>();
     public static Map<String, String> metrics = new HashMap<>();
@@ -76,7 +76,7 @@ public class Dashboard extends Application {
     public static void main(String[] args) {
         Constants.init(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
         if (Constants.getBoolean("dashboard.isDebugging")) {
-            btServer = new BTServer();
+            dbSocket = new DBSocket();
         }
         launch(args);
     }
@@ -249,8 +249,8 @@ public class Dashboard extends Application {
             }
             if (shouldSave) {
                 MiscUtils.writeFieldEditsToFieldJSON(Constants.getFile("data", "field.json"), edits);
-                if (btServer != null)
-                    btServer.sendMessage(Message.Event.FIELD_EDITED, editsArr);
+                if (dbSocket != null)
+                    dbSocket.sendMessage(Message.Event.FIELD_EDITED, editsArr);
             }
         } catch (Exception e) {
             e.printStackTrace();

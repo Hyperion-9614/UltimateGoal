@@ -20,5 +20,4 @@ dependencies {
     implementation 'org.mariuszgromada.math:MathParser.org-mXparser:4.4.2'
     implementation 'org.json:json:20201115'
     implementation 'com.github.javadev:underscore:1.60'
-    implementation 'io.ultreia:bluecove:2.1.1'
 }

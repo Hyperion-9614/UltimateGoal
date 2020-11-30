@@ -4,7 +4,7 @@ import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.MathUtils;
 import com.hyperion.dashboard.Dashboard;
-import com.hyperion.dashboard.net.FieldEdit;
+import com.hyperion.net.FieldEdit;
 import com.hyperion.dashboard.uiobject.fieldobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.fieldobject.ObstacleObj;
 import com.hyperion.dashboard.uiobject.fieldobject.Waypoint;

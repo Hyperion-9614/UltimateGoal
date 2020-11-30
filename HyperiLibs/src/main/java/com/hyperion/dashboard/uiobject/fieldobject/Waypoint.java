@@ -4,7 +4,7 @@ import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.TextUtils;
 import com.hyperion.dashboard.Dashboard;
-import com.hyperion.dashboard.net.FieldEdit;
+import com.hyperion.net.FieldEdit;
 import com.hyperion.dashboard.uiobject.Simulator;
 import com.hyperion.motion.math.Pose;
 

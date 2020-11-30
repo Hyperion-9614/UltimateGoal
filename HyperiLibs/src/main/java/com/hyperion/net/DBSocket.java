@@ -1,4 +1,4 @@
-package com.hyperion.dashboard.net;
+package com.hyperion.net;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
@@ -9,31 +9,26 @@ import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.net.ServerSocket;
 import java.util.Iterator;
-
-import javax.bluetooth.UUID;
-import javax.microedition.io.Connector;
-import javax.microedition.io.StreamConnectionNotifier;
 
 import javafx.application.Platform;
 
-public class BTServer extends BTEndpoint {
+public class DBSocket extends NetEP {
 
-    public BTServer() {
+    public DBSocket() {
         super();
     }
 
     @Override
-    public void btInit() throws Exception {
-        UUID serviceUUID = new UUID(Constants.getString("dashboard.net.serviceUUID"), false);
-        String serviceURL = "btspp://localhost:" + serviceUUID.toString() + ";name=HyperionSPP";
-        StreamConnectionNotifier notifier = (StreamConnectionNotifier) Connector.open(serviceURL);
-        conn = notifier.acceptAndOpen();
+    public void init() throws Exception {
+        serverSocket = new ServerSocket(Constants.getInt("net.port"));
+        clientSocket = serverSocket.accept();
     }
 
     @Override
     protected void onConnected(Message msg) {
-        printBTLog("Connected to device \"" + msg.sender + "\"");
+        netLog("Connected to device \"" + msg.sender + "\"");
 
         sendMessage(Message.Event.CONSTANTS_UPDATED, IOUtils.readDataJSON("constants"));
 
@@ -43,23 +38,23 @@ public class BTServer extends BTEndpoint {
         JSONObject splinesObject = root.getJSONObject("splines");
         for (Iterator<String> keys = waypointsObject.keys(); keys.hasNext();) {
             String key = keys.next();
-            fieldEdits.put(new FieldEdit(new ID(key), FieldEdit.Type.CREATE, waypointsObject.getJSONArray(key).toString()).toJSONObject());
+            fieldEdits.put(new com.hyperion.net.FieldEdit(new ID(key), com.hyperion.net.FieldEdit.Type.CREATE, waypointsObject.getJSONArray(key).toString()).toJSONObject());
         }
         for (Iterator<String> keys = splinesObject.keys(); keys.hasNext();) {
             String key = keys.next();
-            fieldEdits.put(new FieldEdit(new ID(key), FieldEdit.Type.CREATE, splinesObject.getJSONObject(key).toString()).toJSONObject());
+            fieldEdits.put(new com.hyperion.net.FieldEdit(new ID(key), FieldEdit.Type.CREATE, splinesObject.getJSONObject(key).toString()).toJSONObject());
         }
         sendMessage(Message.Event.FIELD_EDITED, fieldEdits);
     }
 
     @Override
     protected void onDisconnected(Message msg) {
-        printBTLog("Disconnected from device \"" + msg.sender + "\"");
+        netLog("Disconnected from device \"" + msg.sender + "\"");
     }
 
     @Override
     protected void onConstantsUpdated(Message msg) {
-        printBTLog("Constants updated by device \"" + msg.sender + "\"");
+        netLog("Constants updated by device \"" + msg.sender + "\"");
 
         Constants.init(new JSONObject(msg.json));
         Constants.write();
@@ -72,7 +67,7 @@ public class BTServer extends BTEndpoint {
 
     @Override
     protected void onMetricsUpdated(Message msg) {
-        printBTLog("Metrics updated by device \"" + msg.sender + "\"");
+        netLog("Metrics updated by device \"" + msg.sender + "\"");
 
         Dashboard.readUnimetry(msg.json);
         Platform.runLater(() -> Dashboard.rightPane.setMetricsDisplayText());
@@ -80,7 +75,7 @@ public class BTServer extends BTEndpoint {
 
     @Override
     protected void onOpModeEnded(Message msg) {
-        printBTLog("OpMode ended in device \"" + msg.sender + "\"");
+        netLog("OpMode ended in device \"" + msg.sender + "\"");
 
         Thread deleteRobotThread = new Thread(() -> {
             long start = System.currentTimeMillis();

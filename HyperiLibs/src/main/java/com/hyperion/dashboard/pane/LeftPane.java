@@ -4,8 +4,8 @@ import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.TextUtils;
 import com.hyperion.dashboard.Dashboard;
-import com.hyperion.dashboard.net.FieldEdit;
-import com.hyperion.dashboard.net.Message;
+import com.hyperion.net.FieldEdit;
+import com.hyperion.net.Message;
 import com.hyperion.dashboard.uiobject.Simulator;
 import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import com.hyperion.motion.math.Pose;
@@ -307,8 +307,8 @@ public class LeftPane extends VBox {
                                 Dashboard.constantsSave = constantsDisplay.getText();
                                 Constants.init(new JSONObject(Dashboard.constantsSave));
                                 Constants.write();
-                                if (Dashboard.btServer != null)
-                                    Dashboard.btServer.sendMessage(Message.Event.CONSTANTS_UPDATED, Dashboard.constantsSave);
+                                if (Dashboard.dbSocket != null)
+                                    Dashboard.dbSocket.sendMessage(Message.Event.CONSTANTS_UPDATED, Dashboard.constantsSave);
                                 Platform.runLater(() -> constantsLabel.setText("Constants"));
                             }
                         }

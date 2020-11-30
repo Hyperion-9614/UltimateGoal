@@ -52,8 +52,8 @@ public class MenuPane extends BorderPane {
             closeIcon.setFitHeight(20);
             close.setGraphic(closeIcon);
             close.setOnMouseClicked(event -> {
-                if (Dashboard.btServer != null)
-                    Dashboard.btServer.close();
+                if (Dashboard.dbSocket != null)
+                    Dashboard.dbSocket.close();
                 System.exit(0);
             });
             buttons.getChildren().add(close);
