@@ -9,6 +9,7 @@ import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.Iterator;
 
@@ -24,12 +25,15 @@ public class DBSocket extends NetEP {
     public void init() throws Exception {
         sender = Message.Sender.DASHBOARD;
         serverSocket = new ServerSocket(Constants.getInt("net.port"));
+        String iNetAddr = InetAddress.getLocalHost().toString();
+        Constants.setAtID("net.dbIP", iNetAddr.substring(iNetAddr.indexOf('/') + 1).trim(), true);
         clientSocket = serverSocket.accept();
     }
 
     @Override
     protected void onConnected(Message msg) {
-        netLog("Connected to device \"" + msg.sender + "\"");
+        String remote = clientSocket.getRemoteSocketAddress().toString();
+        netLog("Connected to \"" + msg.sender + "\" [IP: " + remote.substring(remote.indexOf('/') + 1).trim() + "]");
 
         sendMessage(Message.Event.CONSTANTS_UPDATED, IOUtils.readDataJSON("constants"));
 
@@ -50,12 +54,13 @@ public class DBSocket extends NetEP {
 
     @Override
     protected void onDisconnected(Message msg) {
-        netLog("Disconnected from device \"" + msg.sender + "\"");
+        String remote = clientSocket.getRemoteSocketAddress().toString();
+        netLog("Disconnected from \"" + msg.sender + "\" [IP: " + remote.substring(remote.indexOf('/') + 1).trim() + "]");
     }
 
     @Override
     protected void onConstantsUpdated(Message msg) {
-        netLog("Constants updated by device \"" + msg.sender + "\"");
+        netLog("Constants updated by \"" + msg.sender + "\"");
 
         Constants.init(new JSONObject(msg.json));
         Constants.write();
@@ -68,7 +73,7 @@ public class DBSocket extends NetEP {
 
     @Override
     protected void onMetricsUpdated(Message msg) {
-        netLog("Metrics updated by device \"" + msg.sender + "\"");
+        netLog("Metrics updated by \"" + msg.sender + "\"");
 
         Dashboard.readUnimetry(msg.json);
         Platform.runLater(() -> Dashboard.rightPane.setMetricsDisplayText());
@@ -76,7 +81,7 @@ public class DBSocket extends NetEP {
 
     @Override
     protected void onOpModeEnded(Message msg) {
-        netLog("OpMode ended in device \"" + msg.sender + "\"");
+        netLog("OpMode ended in \"" + msg.sender + "\"");
 
         Thread deleteRobotThread = new Thread(() -> {
             long start = System.currentTimeMillis();

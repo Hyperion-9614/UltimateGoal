@@ -1,5 +1,6 @@
 package com.hyperion.net;
 
+import com.hyperion.common.Constants;
 import com.hyperion.common.TextUtils;
 
 import org.json.JSONArray;
@@ -36,7 +37,8 @@ public abstract class NetEP {
                 e.printStackTrace();
             }
         });
-        initThread.start();
+        if (Constants.getBoolean("dashboard.isDebugging"))
+            initThread.start();
     }
 
     public abstract void init() throws Exception;
@@ -124,6 +126,11 @@ public abstract class NetEP {
 
     public void netLog(String message) {
         System.out.println("[NET -- " + sender + " -- " + TextUtils.getFormattedDate() + "] " + message);
+    }
+
+    public boolean isValid() {
+        return Constants.getBoolean("dashboard.isDebugging") && serverSocket != null
+               && !serverSocket.isClosed() && clientSocket != null && in != null && out != null;
     }
 
 }

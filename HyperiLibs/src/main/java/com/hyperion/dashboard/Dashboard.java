@@ -75,9 +75,7 @@ public class Dashboard extends Application {
 
     public static void main(String[] args) {
         Constants.init(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
-        if (Constants.getBoolean("dashboard.isDebugging")) {
-            dbSocket = new DBSocket();
-        }
+        dbSocket = new DBSocket();
         launch(args);
     }
 
@@ -249,7 +247,7 @@ public class Dashboard extends Application {
             }
             if (shouldSave) {
                 MiscUtils.writeFieldEditsToFieldJSON(Constants.getFile("data", "field.json"), edits);
-                if (dbSocket != null)
+                if (dbSocket.isValid())
                     dbSocket.sendMessage(Message.Event.FIELD_EDITED, editsArr);
             }
         } catch (Exception e) {

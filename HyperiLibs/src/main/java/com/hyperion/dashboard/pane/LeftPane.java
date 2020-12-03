@@ -108,7 +108,7 @@ public class LeftPane extends VBox {
             pGridOptions.setPrefWrapLength(width);
 
             showPathingGrid = new CheckBox("Show Pathing Grid");
-            showPathingGrid.setPrefWidth(2 * width / 3);
+            showPathingGrid.setPrefWidth(2 * width / 3 - 1);
             showPathingGrid.setTextFill(Color.WHITE);
             showPathingGrid.setStyle("-fx-font: 20px \"Arial\"; -fx-focus-color: transparent;");
             showPathingGrid.setTextAlignment(TextAlignment.LEFT);

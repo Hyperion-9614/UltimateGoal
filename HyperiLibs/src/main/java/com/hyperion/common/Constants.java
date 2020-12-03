@@ -253,9 +253,10 @@ public class Constants {
      * in the constants.json file to find the ID
      *
      * @param  id     the dot-separated flat ID String
-     * @param  value  the generic type value to set the
+     * @param  value  the generic type value to set the value at the ID to
+     * @param  write  should the edit be saved into the file?
      */
-    public static <T> void setAtID(String id, T value) {
+    public static <T> void setAtID(String id, T value, boolean write) {
         String[] split = id.split("\\.");
         JSONObject curr = root;
         try {
@@ -278,6 +279,7 @@ public class Constants {
             } else {
                 curr.put(split[i], value);
             }
+            if (write) write();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -52,7 +52,7 @@ public class MenuPane extends BorderPane {
             closeIcon.setFitHeight(20);
             close.setGraphic(closeIcon);
             close.setOnMouseClicked(event -> {
-                if (Dashboard.dbSocket != null)
+                if (Dashboard.dbSocket.isValid())
                     Dashboard.dbSocket.close();
                 System.exit(0);
             });

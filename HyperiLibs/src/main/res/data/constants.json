@@ -36,7 +36,7 @@
         "forceEndTimeLeft": 3500,
         "metricsDelay": 100,
         "localizationDelay": 10,
-        "autoOpModeIDs": [ "auto.full" ]
+        "autoOpModeIDs": ["auto.full"]
     },
     "pid": {
         "x": {
@@ -68,6 +68,10 @@
         },
         "verbose": false
     },
+    "net": {
+        "port": 6666,
+        "dbIP": "192.168.222.16"
+    },
     "pathing": {
         "obstacleMoveThreshold": 3,
         "endErrorThresholds": {
@@ -81,7 +85,7 @@
         }
     },
     "dashboard": {
-        "isDebugging": false,
+        "isDebugging": true,
         "gui": {
             "sizes": {
                 "waypoint": 24,
@@ -91,9 +95,5 @@
             "constantsAutoSaveDelay": 1000
         },
         "version": "5.0"
-    },
-    "net": {
-        "ip": "127.0.0.1",
-        "port": 6666
     }
 }

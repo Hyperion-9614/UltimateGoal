@@ -21,22 +21,24 @@ public class RCSocket extends NetEP {
     @Override
     public void init() throws Exception {
         sender = Message.Sender.RC;
-        clientSocket = new Socket(Constants.getString("net.ip"), Constants.getInt("net.port"));
+        clientSocket = new Socket(Constants.getString("net.dbIP"), Constants.getInt("net.port"));
     }
 
     @Override
     protected void onConnected(Message msg) {
-        netLog("Connected to device \"" + msg.sender + "\"");
+        String remote = clientSocket.getRemoteSocketAddress().toString();
+        netLog("Connected to \"" + msg.sender + "\" [IP: " + remote.substring(remote.indexOf('/') + 1).trim() + "]");
     }
 
     @Override
     protected void onDisconnected(Message msg) {
-        netLog("Disconnected from device \"" + msg.sender + "\"");
+        String remote = clientSocket.getRemoteSocketAddress().toString();
+        netLog("Disconnected from \"" + msg.sender + "\" [IP: " + remote.substring(remote.indexOf('/') + 1).trim() + "]");
     }
 
     @Override
     protected void onConstantsUpdated(Message msg) throws Exception {
-        netLog("Constants updated from device \"" + msg.sender + "\"");
+        netLog("Constants updated from \"" + msg.sender + "\"");
 
         Constants.init(new JSONObject(msg.json));
         Constants.write();
@@ -45,7 +47,7 @@ public class RCSocket extends NetEP {
 
     @Override
     protected void onFieldEdited(Message msg) {
-        netLog("Field edited from device \"" + msg.sender + "\"");
+        netLog("Field edited from \"" + msg.sender + "\"");
 
         MiscUtils.writeFieldEditsToFieldJSON(hw.fieldJSON, msg.json);
         Motion.init(hw);
