@@ -2,4 +2,4 @@
 
 <h1 align="center">9614 Hyperion</h2>
 <p align="center">
-<a href="https://travis-ci.com/Alpheron/HyperionFTC"><img alt="Build Status" src="https://travis-ci.com/Alpheron/HyperionFTC.svg?branch=master"></a>
+<a href="https://travis-ci.com/github/Hyperion-9614/UltimateGoal"><img alt="Build Status" src="https://travis-ci.com/github/Hyperion-9614/UltimateGoal.svg?branch=master"></a>
