@@ -247,8 +247,7 @@ public class Dashboard extends Application {
             }
             if (shouldSave) {
                 MiscUtils.writeFieldEditsToFieldJSON(Constants.getFile("data", "field.json"), edits);
-                if (dbSocket.isValid())
-                    dbSocket.sendMessage(Message.Event.FIELD_EDITED, editsArr);
+                dbSocket.sendMessage(Message.Event.FIELD_EDITED, editsArr);
             }
         } catch (Exception e) {
             e.printStackTrace();

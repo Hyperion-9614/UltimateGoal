@@ -307,8 +307,7 @@ public class LeftPane extends VBox {
                                 Dashboard.constantsSave = constantsDisplay.getText();
                                 Constants.init(new JSONObject(Dashboard.constantsSave));
                                 Constants.write();
-                                if (Dashboard.dbSocket != null)
-                                    Dashboard.dbSocket.sendMessage(Message.Event.CONSTANTS_UPDATED, Dashboard.constantsSave);
+                                Dashboard.dbSocket.sendMessage(Message.Event.CONSTANTS_UPDATED, Dashboard.constantsSave);
                                 Platform.runLater(() -> constantsLabel.setText("Constants"));
                             }
                         }

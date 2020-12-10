@@ -74,8 +74,7 @@ public class Metrics {
                     dataArr.put(new JSONArray(entry.toArray()));
             }
             hw.ctx.telemetry.update();
-            if (Constants.getBoolean("dashboard.isDebugging"))
-                hw.rcSocket.sendMessage(Message.Event.METRICS_UPDATED, dataArr);
+            hw.rcSocket.sendMessage(Message.Event.METRICS_UPDATED, dataArr);
         } catch (Exception e) {
             e.printStackTrace();
         }

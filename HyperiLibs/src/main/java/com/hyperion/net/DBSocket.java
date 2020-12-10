@@ -33,7 +33,7 @@ public class DBSocket extends NetEP {
     @Override
     protected void onConnected(Message msg) {
         String remote = clientSocket.getRemoteSocketAddress().toString();
-        netLog("Connected to \"" + msg.sender + "\" [IP: " + remote.substring(remote.indexOf('/') + 1).trim() + "]");
+        netLog(LogLevel.INFO, "Connected to \"" + msg.sender + "\" [IP: " + remote.substring(remote.indexOf('/') + 1).trim() + "]");
 
         sendMessage(Message.Event.CONSTANTS_UPDATED, IOUtils.readDataJSON("constants"));
 
@@ -55,12 +55,12 @@ public class DBSocket extends NetEP {
     @Override
     protected void onDisconnected(Message msg) {
         String remote = clientSocket.getRemoteSocketAddress().toString();
-        netLog("Disconnected from \"" + msg.sender + "\" [IP: " + remote.substring(remote.indexOf('/') + 1).trim() + "]");
+        netLog(LogLevel.INFO, "Disconnected from \"" + msg.sender + "\" [IP: " + remote.substring(remote.indexOf('/') + 1).trim() + "]");
     }
 
     @Override
     protected void onConstantsUpdated(Message msg) {
-        netLog("Constants updated by \"" + msg.sender + "\"");
+        netLog(LogLevel.INFO, "Constants updated by \"" + msg.sender + "\"");
 
         Constants.init(new JSONObject(msg.json));
         Constants.write();
@@ -73,7 +73,7 @@ public class DBSocket extends NetEP {
 
     @Override
     protected void onMetricsUpdated(Message msg) {
-        netLog("Metrics updated by \"" + msg.sender + "\"");
+        netLog(LogLevel.INFO, "Metrics updated by \"" + msg.sender + "\"");
 
         Dashboard.readUnimetry(msg.json);
         Platform.runLater(() -> Dashboard.rightPane.setMetricsDisplayText());
@@ -81,7 +81,7 @@ public class DBSocket extends NetEP {
 
     @Override
     protected void onOpModeEnded(Message msg) {
-        netLog("OpMode ended in \"" + msg.sender + "\"");
+        netLog(LogLevel.INFO, "OpMode ended in \"" + msg.sender + "\"");
 
         Thread deleteRobotThread = new Thread(() -> {
             long start = System.currentTimeMillis();

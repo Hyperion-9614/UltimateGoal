@@ -92,45 +92,52 @@ public abstract class NetEP {
         try {
             sendMessage(Message.Event.DISCONNECTED, new JSONObject());
 
-            in.close();
-            out.close();
-            clientSocket.close();
-            serverSocket.close();
+            if (isValid()) {
+                in.close();
+                out.close();
+                clientSocket.close();
+                serverSocket.close();
+            }
 
-            if (msgHandler.isAlive() && !msgHandler.isInterrupted())
+            if (msgHandler != null && msgHandler.isAlive() && !msgHandler.isInterrupted())
                 msgHandler.interrupt();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    public void sendMessage(Message msg) {
+        if (isValid())
+            out.println(msg.toString());
+        else
+            netLog(LogLevel.WARN, "Socket invalid when attempting to send message: " + msg.toPrettyString(5));
+    }
+
     public void sendMessage(Message.Event event, String jsonStr) {
-        out.println(new Message(event, Message.Sender.DASHBOARD, jsonStr).toString());
+        sendMessage(new Message(event, sender, jsonStr));
     }
 
     public void sendMessage(Message.Event event, JSONObject json) {
-        sendMessage(event, json.toString());
+        sendMessage(new Message(event, sender, json.toString()));
     }
 
     public void sendMessage(Message.Event event, JSONArray json) {
-        sendMessage(event, json.toString());
+        sendMessage(new Message(event, sender, json.toString()));
     }
 
-    public void sendMessage(String event, JSONObject json) {
-        out.println(new Message(event, sender, json).toString());
-    }
-
-    public void sendMessage(String event, JSONArray json) {
-        out.println(new Message(event, sender, json).toString());
-    }
-
-    public void netLog(String message) {
-        System.out.println("[NET -- " + sender + " -- " + TextUtils.getFormattedDate() + "] " + message);
+    public void netLog(LogLevel lvl, String message) {
+        System.out.println("[NET." + lvl.toString() + " -- " + sender + " -- " + TextUtils.getFormattedDate() + "] " + message);
     }
 
     public boolean isValid() {
-        return Constants.getBoolean("dashboard.isDebugging") && serverSocket != null
-               && !serverSocket.isClosed() && clientSocket != null && in != null && out != null;
+        return Constants.getBoolean("dashboard.isDebugging")
+                && serverSocket != null && !serverSocket.isClosed()
+                && clientSocket != null && !clientSocket.isClosed()
+                && in != null && out != null;
+    }
+
+    public enum LogLevel {
+        INFO, WARN, ERROR
     }
 
 }
