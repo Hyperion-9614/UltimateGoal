@@ -75,7 +75,7 @@ public class DBSocket extends NetEP {
     protected void onMetricsUpdated(Message msg) {
         netLog("Metrics updated by \"" + msg.sender + "\"");
 
-        Dashboard.readUnimetry(msg.json);
+        Dashboard.readMetrics(msg.json);
         Platform.runLater(() -> Dashboard.rightPane.setMetricsDisplayText());
     }
 

@@ -70,7 +70,7 @@
     },
     "net": {
         "port": 6666,
-        "dbIP": "192.168.222.16"
+        "dbIP": "192.168.222.24"
     },
     "pathing": {
         "obstacleMoveThreshold": 3,

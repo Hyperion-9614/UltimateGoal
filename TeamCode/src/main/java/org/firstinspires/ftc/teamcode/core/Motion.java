@@ -38,8 +38,8 @@ public class Motion {
     public static ArrayList<Obstacle> fixedObstacles = new ArrayList<>();
     public static ArrayList<Obstacle> dynamicObstacles = new ArrayList<>();
 
-    public static RigidBody start = new RigidBody(new Pose(0, 0, 0));
-    public static RigidBody robot = new RigidBody(start);
+    public static RigidBody start;
+    public static RigidBody robot;
     public static Map<ID, Pose> waypoints = new HashMap<>();
     public static Map<ID, SplineTrajectory> splines = new HashMap<>();
 
@@ -50,6 +50,9 @@ public class Motion {
             readWaypoints(fieldRoot);
             readSplines(fieldRoot);
             readFixedObstacles(fieldRoot);
+
+            start = new RigidBody(getWaypoint("start"));
+            robot = new RigidBody(start);
         } catch (Exception e) {
             e.printStackTrace();
         }

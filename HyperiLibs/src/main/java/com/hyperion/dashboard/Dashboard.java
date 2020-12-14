@@ -50,7 +50,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
 /**
- * Main UI client class
+ * Main UI class
  */
 
 public class Dashboard extends Application {
@@ -68,7 +68,7 @@ public class Dashboard extends Application {
     public static boolean isRobotOnField;
     public static int numPathPoints;
 
-    public static ID opModeID = new ID("auto.blue.full");
+    public static ID opModeID = new ID("auto.full");
     public static boolean isBuildingPaths;
     public static String constantsSave = "";
     public static boolean isLoaded = false;
@@ -146,7 +146,7 @@ public class Dashboard extends Application {
         stage.show();
     }
 
-    public static void readUnimetry(String json) {
+    public static void readMetrics(String json) {
         try {
             metrics = new LinkedHashMap<>();
             JSONArray dataArr = new JSONArray(json);

@@ -39,10 +39,7 @@ public class Hardware {
     public RCSocket rcSocket;
     public Metrics metrics;
     public String status = opModeID.toString();
-
     public File fieldJSON;
-    public File nnConfigJson;
-    public File modelConfig;
 
     public DcMotor fLDrive;
     public DcMotor fRDrive;
@@ -125,8 +122,6 @@ public class Hardware {
         try {
             Constants.init(new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/constants.json"));
             fieldJSON = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/field.json");
-            nnConfigJson = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/model/config.json");
-            modelConfig = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/model/model.config");
         } catch (Exception e) {
             e.printStackTrace();
         }
