@@ -72,8 +72,7 @@ public class Hardware {
         // Init control, dashboard, telemetry, & threads
         Motion.init(this);
         Appendages.init(this);
-        if (Constants.getBoolean("dashboard.isDebugging"))
-            rcSocket = new RCSocket(this);
+        rcSocket = new RCSocket(this);
         metrics = new Metrics(this);
         initThreads();
     }

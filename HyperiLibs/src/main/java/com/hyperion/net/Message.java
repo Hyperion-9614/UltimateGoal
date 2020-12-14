@@ -60,6 +60,10 @@ public class Message {
         return event.toString() + " " + sender.toString() + " " + json;
     }
 
+    public String toPrettyString(int jsonLength) {
+        return "< " + event.toString() + " | " + sender.toString() + " | " + json.substring(0, jsonLength) + "... >";
+    }
+
     public enum Event {
         NULL, CONNECTED, DISCONNECTED, CONSTANTS_UPDATED, FIELD_EDITED, OPMODE_ENDED, METRICS_UPDATED
     }
