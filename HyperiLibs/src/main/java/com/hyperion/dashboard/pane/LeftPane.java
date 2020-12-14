@@ -13,6 +13,7 @@ import com.hyperion.motion.pathplanning.DStarLite;
 
 import org.json.JSONObject;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -79,11 +80,13 @@ public class LeftPane extends VBox {
             clearOpMode.setPrefSize(width / 2.0, 50);
             clearOpMode.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
+                    ArrayList<FieldEdit> edits = new ArrayList<>();
                     for (FieldObject o : new ArrayList<>(Dashboard.fieldObjects)) {
-                        if (o.id.contains(Dashboard.opModeID)) {
-                            Dashboard.editField(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
+                        if (o.id.contains(Dashboard.opModeID.toString())) {
+                            edits.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
                         }
                     }
+                    Dashboard.editField(edits.toArray(new FieldEdit[]{}));
                 }
             });
             buttons.getChildren().add(clearOpMode);
@@ -94,9 +97,11 @@ public class LeftPane extends VBox {
             clearAllOpModes.setPrefSize(width / 2.0, 50);
             clearAllOpModes.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
+                    ArrayList<FieldEdit> edits = new ArrayList<>();
                     for (FieldObject o : new ArrayList<>(Dashboard.fieldObjects)) {
-                        Dashboard.editField(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
+                        edits.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
                     }
+                    Dashboard.editField(edits.toArray(new FieldEdit[]{}));
                 }
             });
             buttons.getChildren().add(clearAllOpModes);
@@ -170,13 +175,13 @@ public class LeftPane extends VBox {
 
             getChildren().add(obstacles);
 
-            ObservableList<String> options =
-                FXCollections.observableArrayList(
-             "auto.blue.full", "auto.red.full",
-                    "auto.blue.foundation", "auto.red.foundation",
-                    "auto.blue.brick", "auto.red.brick",
-                    "tele.blue", "tele.red"
-                );
+            ObservableList<String> options = FXCollections.observableArrayList();
+            for (Object auto : Constants.getJSONArray("teamcode.autoOpModeIDs")) {
+                options.add(String.valueOf(auto));
+            }
+            for (Object tele : Constants.getJSONArray("teamcode.teleOpModeIDs")) {
+                options.add(String.valueOf(tele));
+            }
             final ComboBox<String> opModeSelector = new ComboBox<>(options);
             opModeSelector.valueProperty().setValue(options.get(0));
             opModeSelector.setStyle("-fx-font: 24px \"Arial\"; -fx-focus-color: transparent;");
@@ -186,6 +191,7 @@ public class LeftPane extends VBox {
                 Dashboard.opModeID = new ID(newValue);
                 for (FieldObject o : Dashboard.fieldObjects) {
                     if (o.id.contains(Dashboard.opModeID)) {
+                        o.refreshDisplayGroup();
                         o.addDisplayGroup();
                     } else {
                         o.removeDisplayGroup();

@@ -46,6 +46,9 @@ public class ID {
     }
 
     public String sub(int start, int end) {
+        if (start < 0) start += segments.size();
+        if (end < 0) end += segments.size();
+
         if (start <= segments.size() - 1) {
             StringBuilder idStr = new StringBuilder();
             for (int i = start; i < end; i++) idStr.append(segments.get(i)).append(".");
@@ -56,6 +59,10 @@ public class ID {
 
     public String sub(int start) {
         return sub(start, segments.size());
+    }
+
+    public String opModeID() {
+        return sub(0, Constants.getInt("teamcode.opModeIDprefLength"));
     }
 
     public boolean equals(ID id) {

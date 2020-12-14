@@ -125,9 +125,7 @@ public class FieldPane extends Pane {
                         if (selectedWP.parentSpline != null) {
                             selectedWP.parentSpline.spline.waypoints.get(selectedWP.parentSpline.waypoints.indexOf(selectedWP)).setPose(selectedWP.pose);
                         }
-                        selectedWP.imgView.setRotate(Math.toDegrees(2 * Math.PI - vec.theta));
-                        selectedWP.selection.setRotate(selectedWP.imgView.getRotate());
-                        selectedWP.info.setText(selectedWP.pose.toString().replace(" | ", "\n"));
+                        selectedWP.refreshDisplayGroup();
                     } else if (obstacleSelState > 0 && currObstacle != null) {
                         currObstacle.end = new Pose(pose);
                         if (currObstacle.obstacle == null) currObstacle.createObstacle();
@@ -147,7 +145,7 @@ public class FieldPane extends Pane {
                                 if (selectedWP != null && selectedWP.parentSpline != null) {
                                     selectedWP.parentSpline.spline.waypoints.add(new RigidBody(newPose));
                                     selectedWP.parentSpline.spline.endPath();
-                                    selectedWP.id.set(5, selectedWP.parentSpline.spline.waypoints.size() - 1);
+                                    selectedWP.id.set(-1, selectedWP.parentSpline.spline.waypoints.size() - 1);
                                     Dashboard.editField(new FieldEdit(selectedWP.parentSpline.id, FieldEdit.Type.EDIT_BODY, selectedWP.parentSpline.spline.writeJSON()));
                                 } else {
                                     DisplaySpline newSpline = new DisplaySpline(newPose);
@@ -158,8 +156,6 @@ public class FieldPane extends Pane {
                                 Dashboard.editField(new FieldEdit(newWP.id, FieldEdit.Type.CREATE, new JSONArray(newWP.pose.toArray())));
                             }
                         }
-                    } else if (mouseEvent.getButton() == MouseButton.MIDDLE && (mouseEvent.getTarget() instanceof Rectangle || mouseEvent.getTarget() instanceof FieldPane)) {
-                        Dashboard.editField(new FieldEdit(new ID("pathPoint", Dashboard.numPathPoints), FieldEdit.Type.CREATE, new JSONArray(newPose.toArray())));
                     }
                 }
             }

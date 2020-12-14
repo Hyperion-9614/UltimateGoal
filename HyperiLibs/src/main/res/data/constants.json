@@ -33,10 +33,12 @@
         }
     },
     "teamcode": {
+        "opModeIDprefLength": 3,
+        "teleOpModeIDs": ["tele.blue.full"],
         "forceEndTimeLeft": 3500,
         "metricsDelay": 100,
         "localizationDelay": 10,
-        "autoOpModeIDs": ["auto.full"]
+        "autoOpModeIDs": ["auto.blue.full"]
     },
     "pid": {
         "x": {
@@ -91,7 +93,7 @@
                 "waypoint": 24,
                 "planningPoint": 4.5
             },
-            "dragTime": 150,
+            "dragTime": 100,
             "constantsAutoSaveDelay": 1000
         },
         "version": "5.0"

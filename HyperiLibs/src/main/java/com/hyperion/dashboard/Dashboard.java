@@ -68,13 +68,14 @@ public class Dashboard extends Application {
     public static boolean isRobotOnField;
     public static int numPathPoints;
 
-    public static ID opModeID = new ID("auto.full");
+    public static ID opModeID;
     public static boolean isBuildingPaths;
     public static String constantsSave = "";
     public static boolean isLoaded = false;
 
     public static void main(String[] args) {
         Constants.init(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
+        opModeID = new ID(Constants.getString("teamcode.autoOpModeIDs[0]"));
         dbSocket = new DBSocket();
         launch(args);
     }

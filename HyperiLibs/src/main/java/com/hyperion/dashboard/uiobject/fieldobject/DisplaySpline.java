@@ -102,15 +102,17 @@ public class DisplaySpline extends FieldObject {
             waypoint.addDisplayGroup();
         }
 
-        if (Dashboard.fieldPane.selectedWP != null && Dashboard.fieldPane.selectedWP.id.get(4).equals(id.get(4))) {
-            int i = Integer.parseInt(Dashboard.fieldPane.selectedWP.id.get(5));
+        Waypoint p = Dashboard.fieldPane.selectedWP;
+        int nameI = Constants.getInt("teamcode.opModeIDprefLength") + 2;
+        if (p != null && p.id.sub(0, nameI).equals(id.sub(0, nameI))) {
+            int i = Integer.parseInt(p.id.get(-1));
             Dashboard.fieldPane.select(waypoints.get(i));
         }
     }
 
     public void addDisplayGroup() {
         Platform.runLater(() -> {
-            if (id.sub(0, 3).equals(Dashboard.opModeID.toString())) {
+            if (id.opModeID().equals(Dashboard.opModeID.toString())) {
                 Dashboard.fieldPane.getChildren().add(displayGroup);
             }
         });

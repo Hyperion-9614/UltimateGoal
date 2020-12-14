@@ -65,7 +65,7 @@ public class Waypoint extends FieldObject {
 
             if (renderID) {
                 ID dispID = parentSpline != null ? parentSpline.id : id;
-                idField = new TextField(dispID.get(4).equals(" ") ? "" : dispID.get(4));
+                idField = new TextField(dispID.get(-1).equals(" ") ? "" : dispID.get(-1));
                 idField.setStyle("-fx-background-radius: 0; -fx-text-inner-color: rgba(255, 255, 255, 1.0); -fx-background-color: rgba(0, 0, 0, 0.6); -fx-focus-color: transparent;");
                 idField.setMinWidth(17);
                 idField.setMaxWidth(150);
@@ -86,7 +86,7 @@ public class Waypoint extends FieldObject {
                     if (event.getCode() == KeyCode.ENTER) {
                         ID oldID = parentSpline == null ? id : parentSpline.id;
                         ID newID = new ID(oldID);
-                        newID.set(4, idField.getText());
+                        newID.set(Constants.getInt("teamcode.opModeIDprefLength") + 1, idField.getText());
                         Dashboard.editField(new FieldEdit(oldID, FieldEdit.Type.EDIT_ID, newID));
                         Dashboard.fieldPane.requestFocus();
                     }
@@ -138,7 +138,7 @@ public class Waypoint extends FieldObject {
                             Dashboard.fieldPane.select(null);
                         } else {
                             if (Dashboard.fieldPane.selectedWP != null) {
-                                Dashboard.fieldPane.selectedWP.id.set(5, Math.min(Integer.parseInt(Dashboard.fieldPane.selectedWP.id.get(5)), parentSpline.spline.waypoints.size() - 1));
+                                Dashboard.fieldPane.selectedWP.id.set(-1, Math.min(Integer.parseInt(Dashboard.fieldPane.selectedWP.id.get(-1)), parentSpline.spline.waypoints.size() - 1));
                             }
                             Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.EDIT_BODY, parentSpline.spline.writeJSON().toString()));
                         }
@@ -212,11 +212,11 @@ public class Waypoint extends FieldObject {
         Platform.runLater(() -> {
             if (renderID) {
                 ID dispID = parentSpline != null ? parentSpline.id : id;
-                idField.setText(dispID.get(4).equals(" ") ? "" : dispID.get(4));
+                idField.setText(dispID.get(-1).equals(" ") ? "" : dispID.get(-1));
             }
-            if (parentSpline != null && parentSpline.id.sub(0, 3).equals(Dashboard.opModeID.toString())) {
+            if (parentSpline != null && parentSpline.id.opModeID().equals(Dashboard.opModeID.toString())) {
                 parentSpline.displayGroup.getChildren().add(displayGroup);
-            } else if (id.sub(0, 3).equals(Dashboard.opModeID.toString())) {
+            } else if (id.opModeID().equals(Dashboard.opModeID.toString())) {
                 Dashboard.fieldPane.getChildren().add(displayGroup);
             }
             displayGroup.toFront();
@@ -230,12 +230,12 @@ public class Waypoint extends FieldObject {
 
         if (renderID) {
             ID dispID = parentSpline != null ? parentSpline.id : id;
-            idField.setText(dispID.get(4).equals(" ") ? "" : dispID.get(4));
+            idField.setText(dispID.get(-1).equals(" ") ? "" : dispID.get(4));
             idField.relocate(display[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") + 3, display[1] - 24);
         }
 
         info.setText(pose.toString().replace(" | ", "\n")
-                                    .replace("°", "\u00B0")
+                                    .replace("°", "\u00B0".toLowerCase())
                                     .replace("θ", "\u03F4".toLowerCase()));
         info.relocate(display[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") + 3, display[1] + Constants.getDouble("dashboard.gui.sizes.waypoint") - 21);
 
