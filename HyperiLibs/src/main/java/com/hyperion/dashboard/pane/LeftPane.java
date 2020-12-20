@@ -6,14 +6,13 @@ import com.hyperion.common.TextUtils;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.net.FieldEdit;
 import com.hyperion.net.Message;
-import com.hyperion.dashboard.uiobject.Simulator;
+import com.hyperion.dashboard.uiobject.simulator.Simulator;
 import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.pathplanning.DStarLite;
 
 import org.json.JSONObject;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;

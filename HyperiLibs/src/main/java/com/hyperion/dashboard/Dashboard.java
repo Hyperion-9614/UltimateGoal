@@ -17,7 +17,7 @@ import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import com.hyperion.dashboard.uiobject.fieldobject.ObstacleObj;
 import com.hyperion.dashboard.uiobject.fieldobject.PathPoint;
 import com.hyperion.dashboard.uiobject.fieldobject.Robot;
-import com.hyperion.dashboard.uiobject.Simulator;
+import com.hyperion.dashboard.uiobject.simulator.Simulator;
 import com.hyperion.dashboard.uiobject.fieldobject.Waypoint;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.pathplanning.Obstacle;

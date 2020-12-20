@@ -36,9 +36,6 @@ public class Metrics {
         newLineSpaces = "";
 
         data.add(new Entry("Status", hw.status));
-        if (hw.opModeID.contains("auto")) {
-            data.add(new Entry("Park", Motion.getWaypoint("park") == null ? "null" : Motion.getWaypoint("park")));
-        }
         data.add(new Entry());
 
         data.add(new Entry("Motion"));

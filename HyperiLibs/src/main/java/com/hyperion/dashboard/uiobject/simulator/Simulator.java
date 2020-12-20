@@ -1,9 +1,10 @@
-package com.hyperion.dashboard.uiobject;
+package com.hyperion.dashboard.uiobject.simulator;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.MathUtils;
 import com.hyperion.dashboard.Dashboard;
+import com.hyperion.dashboard.uiobject.Arrow;
 import com.hyperion.dashboard.uiobject.fieldobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import com.hyperion.dashboard.uiobject.fieldobject.Robot;
@@ -154,7 +155,7 @@ public class Simulator {
                 if (isSimPID) {
                     Object[] pidCorr = PIDCtrl.correction(simRob.rB);
                     pidCorrAcc.setVec((Vector2D) pidCorr[0]);
-                    System.out.println("PID Corr: " + (Vector2D) pidCorr[0] + " " + (double) pidCorr[1]);
+                    System.out.println("PID Corr: " + pidCorr[0] + " " + pidCorr[1]);
                     pidCorrRot = (double) pidCorr[1];
                     simRob.rB.tVel.add(pidCorrAcc);
                     simRob.rB.addXYT(0, 0, pidCorrRot / 360.0);

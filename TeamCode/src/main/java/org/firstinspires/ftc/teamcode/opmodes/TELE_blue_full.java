@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.core.Motion;
  */
 
 @TeleOp
-public class TELE_Main extends LinearOpMode {
+public class TELE_blue_full extends LinearOpMode {
 
     private Hardware hw;
     private boolean isHtStarted;
@@ -23,11 +23,8 @@ public class TELE_Main extends LinearOpMode {
     @Override
     public void runOpMode() {
         hw = new Hardware(this);
-        hw.initOpMode("tele");
-        while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hw.isRunning))) {
-
-
-        }
+        hw.initOpMode("tele.blue.full");
+        while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hw.isRunning))) {}
         executeLoop();
         hw.end();
     }
