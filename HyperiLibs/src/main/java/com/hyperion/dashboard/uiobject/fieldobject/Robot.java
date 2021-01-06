@@ -58,9 +58,9 @@ public class Robot extends FieldObject {
             imgView.setFitHeight(Dashboard.fieldPane.robotSize);
             imgView.setPickOnBounds(true);
             if (id.get(-1).equals("setPoint")) {
-                ColorAdjust redify = new ColorAdjust();
-                redify.setHue(-0.5);
-                imgView.setEffect(redify);
+                ColorAdjust greenify = new ColorAdjust();
+                greenify.setHue(-0.5);
+                imgView.setEffect(greenify);
                 imgView.setCache(true);
                 imgView.setCacheHint(CacheHint.SPEED);
             }

@@ -229,7 +229,7 @@ public class Motion {
         PIDCtrl.reset();
 
         ElapsedTime timer = new ElapsedTime();
-        while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 8000
+        while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= Constants.getInt("spline.timeoutMS")
                && (robot.distanceTo(goal) > Constants.getDouble("pathing.endErrorThresholds.translation")
                || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))) {
             distance += last.distanceTo(robot);

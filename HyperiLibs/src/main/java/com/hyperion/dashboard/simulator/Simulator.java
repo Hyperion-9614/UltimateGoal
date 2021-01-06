@@ -120,7 +120,7 @@ public class Simulator {
 
             long startTime = System.currentTimeMillis();
             long lastTime = startTime;
-            while (state != State.INACTIVE && (System.currentTimeMillis() - startTime) <= 15000
+            while (state != State.INACTIVE && (System.currentTimeMillis() - startTime) <= Constants.getInt("spline.timeoutMS")
                    && (simRob.rB.distanceTo(goal) > Constants.getDouble("pathing.endErrorThresholds.translation")
                    || Math.abs(MathUtils.optThetaDiff(simRob.rB.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))) {
                 double dTime = (System.currentTimeMillis() - lastTime) / 1000.0;
@@ -139,10 +139,9 @@ public class Simulator {
                 if (isSimPID) {
                     Object[] pidCorr = PIDCtrl.correction(simRob.rB);
                     pidCorrVel.setVec((Vector2D) pidCorr[0]);
-                    System.out.println("PID Corr: " + (Vector2D) pidCorr[0] + " " + (double) pidCorr[1]);
                     pidCorrRot = (double) pidCorr[1];
                     simRob.rB.tVel.add(pidCorrVel);
-                    simRob.rB.addXYT(0, 0, pidCorrRot / 360.0);
+                    simRob.rB.addXYT(0, 0, pidCorrRot);
                 }
 
                 Vector2D dPos = simRob.rB.tVel.scaled(dTime);
@@ -178,7 +177,7 @@ public class Simulator {
 
             randomError.cancel();
 
-            if (System.currentTimeMillis() - startTime >= 10000) {
+            if (System.currentTimeMillis() - startTime >= Constants.getInt("spline.timeoutMS")) {
                 System.out.println(selectionStr() + " simulation timed out");
             }
 
