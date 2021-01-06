@@ -3,9 +3,9 @@ package com.hyperion.dashboard.uiobject.fieldobject;
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.dashboard.Dashboard;
-import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
+import com.hyperion.motion.math.Vector2D;
 
 import org.json.JSONArray;
 
@@ -18,9 +18,15 @@ import javafx.scene.text.Text;
 public class Robot extends FieldObject {
 
     public RigidBody rB;
+    public Vector2D mPVel;
+    public Vector2D pidCorrVel;
 
     public ImageView imgView;
     public Text info;
+
+    public Arrow mPVelArrow;
+    public Arrow pidCorrVelArrow;
+    public Arrow finalVelArrow;
 
     public Robot(ID id) {
         this.id = id;
@@ -54,6 +60,11 @@ public class Robot extends FieldObject {
             info = new Text();
             info.setFill(Color.WHITE);
             displayGroup.getChildren().add(info);
+
+            mPVelArrow = new Arrow(Color.WHITE, 15);
+            pidCorrVelArrow = new Arrow(Color.BLUE, 15);
+            finalVelArrow = new Arrow(Color.BLACK, 15);
+            displayGroup.getChildren().addAll(mPVelArrow.displayGroup, pidCorrVelArrow.displayGroup, finalVelArrow.displayGroup);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,6 +84,19 @@ public class Robot extends FieldObject {
                 .replace("θ", "\u03F4".toLowerCase())
                 .replace("²", "\u00B2"));
         info.relocate(display[0] + Dashboard.fieldPane.robotSize + 3, display[1] + Dashboard.fieldPane.robotSize - 21);
+
+        if (mPVel != null && pidCorrVel != null) {
+            mPVelArrow.set(rB, mPVel);
+            pidCorrVelArrow.set(rB, pidCorrVel);
+            mPVel = null;
+            pidCorrVel = null;
+        }
+        finalVelArrow.set(rB, rB.tVel);
+    }
+
+    public void setPIDandMPvels(Vector2D mPVel, Vector2D pidCorrVel) {
+        this.mPVel = mPVel;
+        this.pidCorrVel = pidCorrVel;
     }
 
     public void removeDisplayGroup() {

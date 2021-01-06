@@ -1,10 +1,10 @@
-package com.hyperion.dashboard.uiobject.simulator;
+package com.hyperion.dashboard.simulator;
 
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.MathUtils;
 import com.hyperion.dashboard.Dashboard;
-import com.hyperion.dashboard.uiobject.Arrow;
+import com.hyperion.dashboard.uiobject.fieldobject.Arrow;
 import com.hyperion.dashboard.uiobject.fieldobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import com.hyperion.dashboard.uiobject.fieldobject.Robot;
@@ -21,7 +21,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javafx.application.Platform;
-import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -68,10 +67,7 @@ public class Simulator {
                 displaySpline.addDisplayGroup();
             }
 
-            Arrow mPVelArrow = new Arrow(Color.WHITE, 15);
             Arrow errorAccArrow = new Arrow(Color.RED, 15);
-            Arrow pidAccArrow = new Arrow(Color.BLUE, 15);
-            Arrow finalVelArrow = new Arrow(Color.BLACK, 15);
             Robot simRob = new Robot(new ID("robot.simulation"), spline.getDPose(0));
 
             double[] toDisp = Dashboard.fieldPane.poseToDisplay(simRob.rB, 0);
@@ -82,13 +78,7 @@ public class Simulator {
             Platform.runLater(() -> {
                 Dashboard.leftPane.simulate.setText("Stop\nSim");
                 Dashboard.leftPane.simText.setText("Simulating " + selectionStr());
-
-                for (Node node : new Node[]{ simRob.displayGroup, mPVelArrow.displayGroup,
-                                             errorAccArrow.displayGroup, pidAccArrow.displayGroup,
-                                             finalVelArrow.displayGroup, setPointCircle }) {
-                    Dashboard.fieldPane.getChildren().add(node);
-                    node.toFront();
-                }
+                Dashboard.fieldPane.getChildren().add(simRob.displayGroup);
             });
 
             double lastTheta = spline.waypoints.get(0).theta;
@@ -101,7 +91,7 @@ public class Simulator {
 
             Vector2D mPVel = new Vector2D();
             Vector2D errorAcc = new Vector2D();
-            Vector2D pidCorrAcc = new Vector2D();
+            Vector2D pidCorrVel = new Vector2D();
             double pidCorrRot;
 
             errorMag = Dashboard.leftPane.errorMagSpinner.getValue();
@@ -154,10 +144,10 @@ public class Simulator {
 
                 if (isSimPID) {
                     Object[] pidCorr = PIDCtrl.correction(simRob.rB);
-                    pidCorrAcc.setVec((Vector2D) pidCorr[0]);
-                    System.out.println("PID Corr: " + pidCorr[0] + " " + pidCorr[1]);
+                    pidCorrVel.setVec((Vector2D) pidCorr[0]);
+                    System.out.println("PID Corr: " + (Vector2D) pidCorr[0] + " " + (double) pidCorr[1]);
                     pidCorrRot = (double) pidCorr[1];
-                    simRob.rB.tVel.add(pidCorrAcc);
+                    simRob.rB.tVel.add(pidCorrVel);
                     simRob.rB.addXYT(0, 0, pidCorrRot / 360.0);
                 }
 
@@ -176,10 +166,8 @@ public class Simulator {
                     setPointCircle.setCenterX(spDisp[0]);
                     setPointCircle.setCenterY(spDisp[1]);
 
-                    mPVelArrow.set(simRob.rB, mPVel);
                     errorAccArrow.set(simRob.rB, errorAcc);
-                    pidAccArrow.set(simRob.rB, pidCorrAcc);
-                    finalVelArrow.set(simRob.rB, simRob.rB.tVel);
+                    simRob.setPIDandMPvels(mPVel, pidCorrVel);
                 });
 
                 if (isSimDynPath) {
@@ -209,10 +197,7 @@ public class Simulator {
             }
 
             Platform.runLater(() -> {
-                Dashboard.fieldPane.getChildren().remove(mPVelArrow.displayGroup);
                 Dashboard.fieldPane.getChildren().remove(errorAccArrow.displayGroup);
-                Dashboard.fieldPane.getChildren().remove(pidAccArrow.displayGroup);
-                Dashboard.fieldPane.getChildren().remove(finalVelArrow.displayGroup);
                 Dashboard.fieldPane.getChildren().remove(simRob.displayGroup);
                 Dashboard.fieldPane.getChildren().remove(setPointCircle);
                 if (displaySpline.id.get(-1).equals("simulation")) {

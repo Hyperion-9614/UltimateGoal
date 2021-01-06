@@ -240,9 +240,9 @@ public class Motion {
             PIDCtrl.setGoal(setPoint);
 
             Object[] pidCorr = PIDCtrl.correction(robot);
-            Vector2D pidCorrAcc = (Vector2D) pidCorr[0];
+            Vector2D pidCorrVel = (Vector2D) pidCorr[0];
             double pidCorrRot = (double) pidCorr[1];
-            Vector2D worldVelVec = setPoint.tVel.added(pidCorrAcc).scaled(1 / Constants.getDouble("motionProfile.maxes.tVel"));
+            Vector2D worldVelVec = setPoint.tVel.added(pidCorrVel).scaled(1 / Constants.getDouble("motionProfile.maxes.tVel"));
 
             double[] wheelPowers = toMotorPowers(toRelVec(worldVelVec), pidCorrRot * Constants.getDouble("pid.kRot"));
             setDrive(wheelPowers);
