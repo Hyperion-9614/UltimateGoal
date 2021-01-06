@@ -29,7 +29,7 @@
         "maxes": {
             "aVel": 12.566,
             "tAcc": 100,
-            "tVel": 150
+            "tVel": 75
         }
     },
     "teamcode": {
@@ -42,21 +42,21 @@
     },
     "pid": {
         "x": {
-            "kP": 0.1,
+            "kP": 0.7,
             "kD": 0.1,
-            "kI": 0.0003
+            "kI": 0.0002
         },
         "y": {
-            "kP": 0.1,
+            "kP": 0.7,
             "kD": 0.1,
-            "kI": 0.0003
+            "kI": 0.0002
         },
         "theta": {
-            "kP": 0,
-            "kD": 0,
-            "kI": 0
+            "kP": 0.03,
+            "kD": 0.003,
+            "kI": 0.00007
         },
-        "kRot": 0.01
+        "kRot": 0.1
     },
     "spline": {
         "maxBisectionError": 0.05,
@@ -72,7 +72,7 @@
     },
     "net": {
         "port": 6666,
-        "dbIP": "169.254.142.46"
+        "dbIP": "192.168.222.24"
     },
     "pathing": {
         "obstacleMoveThreshold": 3,
@@ -88,6 +88,10 @@
     },
     "dashboard": {
         "isDebugging": true,
+        "simulator": {
+            "errorMag": 0.5,
+            "errorProb": 30
+        },
         "gui": {
             "sizes": {
                 "waypoint": 24,

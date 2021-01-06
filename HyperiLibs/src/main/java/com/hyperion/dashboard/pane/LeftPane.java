@@ -50,8 +50,6 @@ public class LeftPane extends VBox {
     public TextField simText;
     public Button simulate;
     public CheckBox showPathingGrid;
-    public Spinner<Double> errorMagSpinner;
-    public Spinner<Integer> errorProbSpinner;
 
     public double width;
 
@@ -248,33 +246,6 @@ public class LeftPane extends VBox {
             simDynPath.setTextAlignment(TextAlignment.LEFT);
             simDynPath.setOnMouseClicked(event -> Dashboard.simulator.isSimDynPath = simDynPath.isSelected());
             getChildren().add(simDynPath);
-
-            FlowPane errorOptions = new FlowPane();
-            errorOptions.setPrefWrapLength(width);
-
-            Label magLabel = new Label(" Error Magnitude: ");
-            magLabel.setTextFill(Color.WHITE);
-            magLabel.setStyle("-fx-font: 20px \"Arial\"; -fx-alignment:center;");
-            errorOptions.getChildren().add(magLabel);
-
-            errorMagSpinner = new Spinner<>(0, 1, 0.5, 0.05);
-            errorMagSpinner.setStyle("-fx-font: 15px \"Arial\"; -fx-text-alignment:left; -fx-focus-color: transparent;");
-            errorMagSpinner.setEditable(true);
-            errorMagSpinner.setPrefWidth(70);
-            errorOptions.getChildren().add(errorMagSpinner);
-
-            Label probLabel = new Label(" Probability: ");
-            probLabel.setTextFill(Color.WHITE);
-            probLabel.setStyle("-fx-font: 20px \"Arial\"; -fx-alignment:center;");
-            errorOptions.getChildren().add(probLabel);
-
-            errorProbSpinner = new Spinner<>(0, 100, 35, 5);
-            errorProbSpinner.setStyle("-fx-font: 15px \"Arial\"; -fx-text-alignment:left; -fx-focus-color: transparent;");
-            errorProbSpinner.setEditable(true);
-            errorProbSpinner.setPrefWidth(80);
-            errorOptions.getChildren().add(errorProbSpinner);
-
-            getChildren().add(errorOptions);
 
             CheckBox simPID = new CheckBox("Simulate PID Correction");
             simPID.setPrefWidth(width);

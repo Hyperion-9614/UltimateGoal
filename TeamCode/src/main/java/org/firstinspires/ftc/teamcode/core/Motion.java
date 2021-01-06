@@ -231,8 +231,7 @@ public class Motion {
         ElapsedTime timer = new ElapsedTime();
         while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 8000
                && (robot.distanceTo(goal) > Constants.getDouble("pathing.endErrorThresholds.translation")
-               || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))
-               && distance <= spline.totalArcLength()) {
+               || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))) {
             distance += last.distanceTo(robot);
             last = new Pose(robot);
 

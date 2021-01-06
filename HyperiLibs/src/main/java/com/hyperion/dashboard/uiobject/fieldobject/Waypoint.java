@@ -129,14 +129,12 @@ public class Waypoint extends FieldObject {
             try {
                 if (event.getButton() == MouseButton.SECONDARY) {
                     if (parentSpline != null) {
-                        parentSpline.spline.waypoints.remove(parentSpline.waypoints.indexOf(this));
-                        parentSpline.waypoints.remove(this);
-                        parentSpline.spline.endPath();
-                        removeDisplayGroup();
-                        if (parentSpline.waypoints.size() == 0) {
+                        if (parentSpline.waypoints.size() == 1 || (Dashboard.isSplineEditMode && Integer.parseInt(id.get(-1)) == 0)) {
                             Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.DELETE, "{}"));
                             Dashboard.fieldPane.select(null);
                         } else {
+                            parentSpline.spline.waypoints.remove(Integer.parseInt(id.get(-1)));
+                            parentSpline.spline.endPath();
                             if (Dashboard.fieldPane.selectedWP != null) {
                                 Dashboard.fieldPane.selectedWP.id.set(-1, Math.min(Integer.parseInt(Dashboard.fieldPane.selectedWP.id.get(-1)), parentSpline.spline.waypoints.size() - 1));
                             }

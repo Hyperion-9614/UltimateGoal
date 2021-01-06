@@ -69,7 +69,7 @@ public class Dashboard extends Application {
     public static int numPathPoints;
 
     public static ID opModeID;
-    public static boolean isBuildingPaths;
+    public static boolean isSplineEditMode;
     public static String constantsSave = "";
     public static boolean isLoaded = false;
 
@@ -127,7 +127,7 @@ public class Dashboard extends Application {
 
         Scene scene = new Scene(all, 1280, 720, Color.TRANSPARENT);
         scene.setOnKeyPressed(event -> {
-            isBuildingPaths = event.isShiftDown();
+            isSplineEditMode = event.isShiftDown();
             if (event.getCode() == KeyCode.ESCAPE) {
                 if (simulator.state == Simulator.State.SELECTING) {
                     simulator.state = Simulator.State.INACTIVE;
@@ -136,7 +136,7 @@ public class Dashboard extends Application {
                 }
             }
         });
-        scene.setOnKeyReleased(event -> isBuildingPaths = event.isShiftDown());
+        scene.setOnKeyReleased(event -> isSplineEditMode = event.isShiftDown());
 
         if (!isLoaded) {
             loadUIFromFieldJson();
