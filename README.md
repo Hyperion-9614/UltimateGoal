@@ -15,8 +15,8 @@
 * Checks the aspect ratio of the rings to find out how many rings are present in the stack
 * Images can be found below
 <p align="center">
-    <img src="doc/image/FourStack.gif" />
-    <img src="doc/image/SingleStack.gif" />
+    <img src="doc/image/FourStack.png" />
+    <img src="doc/image/SingleStack.png" />
 </p>
 
 <b>Spline Trajectory Calculator</b>
