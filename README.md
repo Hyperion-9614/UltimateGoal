@@ -1,47 +1,23 @@
-<h1 align="center">Hyperion-9614/UltimateGoal Build Status</h1>
+<h1 align="center">Build Status</h1>
 <p align="center">
 <a href="https://travis-ci.com/Alpheron/HyperionFTC"><img alt="Build Status" src="https://travis-ci.com/Hyperion-9614/UltimateGoal.svg?token=mfjmzBAuLfxQsS9xKwRc&branch=master"></a>
 
-<h2>Setup</h2>
-
-* Go to File -> Project Structure
-    * Select a version of jdk 8
-* Create a new run configuration (Application)
-    * Give the configuration the name "Dashboard"
-    * Select the Dashboard class in HyperiLibs as the main class
-    * Select the UltimateGoal.HyperiLibs module
-
-<h2>How to run (debugging/non-competition)</h2>
-
-* Ensure that the "dashboard.isDebugging" flag in constants.json is true
-* Run the Dashboard application
-* Using the Android Device File Explorer tab, move constants.json and field.json to
-  the RC's data/data/com.qualcomm.ftcrobotcontroller/files/hyperilibs folder
-  * If this is the first time, you'll have to make a hyperilibs folder manually in
-    data/data/com.qualcomm.ftcrobotcontroller/files 
-* Build and run this application on the RC, then select and run an opmode
-
-<h2>Libraries Used</h2>
-
-<u>Apache Commons Math3</u>: org.apache.commons:commons-math3:3.6.1
-* Provides advanced math functions, such as matrices and integration
-
-<u>Mariuszgromada’s mXparser</u>: org.mariuszgromada.math:MathParser.org-mXparser:4.4.2
-* Provides an easy way to parse and manipulate equations using Strings
-
-<u>org.json</u>: org.json:json:20201115
-* JSON parsing and manipulation
-
-<u>underscore</u>: com.github.javadev:underscore:1.60
-* Utility library - makes modern programming features available in Java
-
-<u>RevExtensions</u>: org.openftc:rev-extensions-2:1.2
-* Allows a programmer to more thoroughly access the capabilities of the FTC REV Expansion Hub, such as LED colors and bulk data reading
-
-<u>CommonsIO</u>: commons-io:commons-io:2.8.0
-* Improves input/output functionality
-
 <h2>Current Features</h2>
+
+<b>OpenCV Pipeline</b>
+* Written in C++ and processes each frame in 2 ms
+    * Allows the algorithm to run at ~500 fps (Capped at 30 due to hardware limitations)
+* Uses custom resolution upscaling algorithm to upscale the resolution to 1080p from 480/720p camera resolution
+* Applies multiple filters
+    * HSV filter to eliminate red tones
+    * YCrCb filter to filter out everything but the rings
+* Applies custom contouring algorithm to find the outline of all rings
+* Checks the aspect ratio of the rings to find out how many rings are present in the stack
+* Images can be found below
+<p align="center">
+    <img src="doc/image/FourStack.gif" />
+    <img src="doc/image/SingleStack.gif" />
+</p>
 
 <b>Spline Trajectory Calculator</b>
 * Computes and stores (JSON) a 2D cubic spline curve, essentially solving for the coefficients of 2(n - 1) cubic polynomials, n = # of waypoints, using continuity and a large tridiagonal matrix
@@ -85,5 +61,41 @@
 * Event-based communication between two sockets (robot controller phone and laptop running the Dashboard)
 * Allows a user to see a real-time representation of where the robot thinks it is on the field, according to the localization algorithm
 
-<b>OpenCV Pipeline</b>
-* Uses custom OpenCV C++ code to identify the number of orange rings in a stack
+<h2>Setup</h2>
+
+* Go to File -> Project Structure
+    * Select a version of jdk 8
+* Create a new run configuration (Application)
+    * Give the configuration the name "Dashboard"
+    * Select the Dashboard class in HyperiLibs as the main class
+    * Select the UltimateGoal.HyperiLibs module
+
+<h2>How to run (debugging/non-competition)</h2>
+
+* Ensure that the "dashboard.isDebugging" flag in constants.json is true
+* Run the Dashboard application
+* Using the Android Device File Explorer tab, move constants.json and field.json to
+  the RC's data/data/com.qualcomm.ftcrobotcontroller/files/hyperilibs folder
+  * If this is the first time, you'll have to make a hyperilibs folder manually in
+    data/data/com.qualcomm.ftcrobotcontroller/files 
+* Build and run this application on the RC, then select and run an opmode
+
+<h2>Libraries Used</h2>
+
+<u>Apache Commons Math3</u>: org.apache.commons:commons-math3:3.6.1
+* Provides advanced math functions, such as matrices and integration
+
+<u>Mariuszgromada’s mXparser</u>: org.mariuszgromada.math:MathParser.org-mXparser:4.4.2
+* Provides an easy way to parse and manipulate equations using Strings
+
+<u>org.json</u>: org.json:json:20201115
+* JSON parsing and manipulation
+
+<u>underscore</u>: com.github.javadev:underscore:1.60
+* Utility library - makes modern programming features available in Java
+
+<u>RevExtensions</u>: org.openftc:rev-extensions-2:1.2
+* Allows a programmer to more thoroughly access the capabilities of the FTC REV Expansion Hub, such as LED colors and bulk data reading
+
+<u>CommonsIO</u>: commons-io:commons-io:2.8.0
+* Improves input/output functionality
