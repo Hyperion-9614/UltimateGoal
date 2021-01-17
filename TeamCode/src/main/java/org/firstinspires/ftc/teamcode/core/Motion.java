@@ -38,11 +38,13 @@ public class Motion {
     public static DcMotor fRDrive;
     public static DcMotor bLDrive;
     public static DcMotor bRDrive;
+    public static DcMotor[] drives;
 
     // Odometry
     public static DcMotor xLOdo;
     public static DcMotor xROdo;
     public static DcMotor yOdo;
+    public static DcMotor[] odos;
 
     // Motion control
     public static Localizer localizer;
@@ -70,16 +72,13 @@ public class Motion {
         fRDrive = gerald.hwmp.dcMotor.get("fRDrive");
         bLDrive = gerald.hwmp.dcMotor.get("bLDrive");
         bRDrive = gerald.hwmp.dcMotor.get("bRDrive");
+        drives = new DcMotor[]{ fLDrive, fRDrive, bLDrive, bRDrive };
 
-        fLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        fRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        bLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        bRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        fLDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        fRDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        bLDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        bRDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        for (DcMotor drive : drives) {
+            drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
 
         fRDrive.setDirection(DcMotor.Direction.REVERSE);
         bRDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -88,10 +87,7 @@ public class Motion {
         xLOdo = fLDrive;
         xROdo = fRDrive;
         yOdo = bLDrive;
-
-        xLOdo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        xROdo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        yOdo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        odos = new DcMotor[]{ xLOdo, xROdo, yOdo };
     }
 
     // Init motion control modules
