@@ -33,6 +33,7 @@ public class Appendages {
 
     //////////////////////// INIT //////////////////////////
 
+    // Init appendage hardware
     public static void initHW() {
         // Shooter
         shooterL = gerald.hwmp.dcMotor.get("ShootR");
@@ -58,6 +59,7 @@ public class Appendages {
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
+    // Set start positions of appendages
     public static void initPositions() {
         shooterLoader.setPosition(Constants.getDouble("apndg.loader.park"));
         shooterFlap.setPosition(Constants.getDouble("apndg.shooter.park"));

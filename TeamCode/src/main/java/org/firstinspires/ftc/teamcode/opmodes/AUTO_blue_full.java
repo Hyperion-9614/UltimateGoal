@@ -14,19 +14,19 @@ import org.firstinspires.ftc.teamcode.core.Gerald;
 @Autonomous
 public class AUTO_blue_full extends LinearOpMode {
 
-    private Gerald hw;
+    private Gerald gerald;
 
     @Override
     public void runOpMode() {
-        hw = new Gerald(this);
-        hw.initOpMode("auto.blue.full");
+        gerald = new Gerald(this);
+        gerald.initOpMode("auto.blue.full");
         execute();
-        hw.end();
+        gerald.end();
     }
 
     public void execute() {
         try {
-            hw.autoTime = new ElapsedTime();
+            gerald.autoTime = new ElapsedTime();
 
         } catch (Exception e) {
             e.printStackTrace();

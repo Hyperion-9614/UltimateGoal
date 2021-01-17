@@ -11,11 +11,11 @@ import java.net.Socket;
 
 public class RCSocket extends NetEP {
 
-    public Gerald hw;
+    public Gerald gerald;
 
-    public RCSocket(Gerald hw) {
+    public RCSocket(Gerald gerald) {
         super();
-        this.hw = hw;
+        this.gerald = gerald;
     }
 
     @Override
@@ -42,15 +42,15 @@ public class RCSocket extends NetEP {
 
         Constants.init(new JSONObject(msg.json));
         Constants.write();
-        hw.initFiles();
+        gerald.initFiles();
     }
 
     @Override
     protected void onFieldEdited(Message msg) {
         netLog(LogLevel.INFO, "Field edited from \"" + msg.sender + "\"");
 
-        MiscUtils.writeFieldEditsToFieldJSON(hw.fieldJSON, msg.json);
-        Motion.init(hw);
+        MiscUtils.writeFieldEditsToFieldJSON(gerald.fieldJSON, msg.json);
+        Motion.init(gerald);
     }
 
     //////////////// UNUSED ////////////////

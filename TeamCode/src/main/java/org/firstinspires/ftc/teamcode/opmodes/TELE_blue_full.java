@@ -16,17 +16,17 @@ import org.firstinspires.ftc.teamcode.core.Motion;
 @TeleOp
 public class TELE_blue_full extends LinearOpMode {
 
-    private Gerald hw;
+    private Gerald gerald;
     private boolean isHtStarted;
     private double preHtTheta;
 
     @Override
     public void runOpMode() {
-        hw = new Gerald(this);
-        hw.initOpMode("tele.blue.full");
-        while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hw.isRunning))) {}
+        gerald = new Gerald(this);
+        gerald.initOpMode("tele.blue.full");
+        while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !gerald.isRunning))) {}
         executeLoop();
-        hw.end();
+        gerald.end();
     }
 
     public void executeLoop() {
