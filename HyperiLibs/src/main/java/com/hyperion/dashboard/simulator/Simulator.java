@@ -29,9 +29,6 @@ public class Simulator {
     public Thread simulationThread;
     public State state;
 
-    public double errorMag = 0.5;
-    public double errorProb = 0.35;
-
     public boolean isSimPID = true;
     public boolean isSimDynPath;
 
@@ -69,16 +66,14 @@ public class Simulator {
 
             Arrow errorAccArrow = new Arrow(Color.RED, 15);
             Robot simRob = new Robot(new ID("robot.simulation"), spline.getDPose(0));
-
-            double[] toDisp = Dashboard.fieldPane.poseToDisplay(simRob.rB, 0);
-            Circle setPointCircle = new Circle(toDisp[0], toDisp[1], 1.25 * Constants.getDouble("dashboard.gui.sizes.planningPoint"));
-            setPointCircle.setFill(Color.WHITE);
-            setPointCircle.setStroke(Color.BLACK);
+            Robot setPointRob = new Robot(new ID("robot.setPoint"), spline.getDPose(0));
 
             Platform.runLater(() -> {
                 Dashboard.leftPane.simulate.setText("Stop\nSim");
                 Dashboard.leftPane.simText.setText("Simulating " + selectionStr());
                 Dashboard.fieldPane.getChildren().add(simRob.displayGroup);
+                Dashboard.fieldPane.getChildren().add(setPointRob.displayGroup);
+                Dashboard.fieldPane.getChildren().add(errorAccArrow.displayGroup);
             });
 
             double lastTheta = spline.waypoints.get(0).theta;
@@ -94,8 +89,8 @@ public class Simulator {
             Vector2D pidCorrVel = new Vector2D();
             double pidCorrRot;
 
-            errorMag = Dashboard.leftPane.errorMagSpinner.getValue();
-            errorProb = Dashboard.leftPane.errorProbSpinner.getValue() / 100.0;
+            double errorMag = Constants.getDouble("dashboard.simulator.errorMag");
+            double errorProb = Constants.getInt("dashboard.simulator.errorProb");
 
             PIDCtrl.reset();
 
@@ -109,7 +104,7 @@ public class Simulator {
             class CollisionTask extends TimerTask {
                 @Override
                 public void run() {
-                    double kProb = (Math.random() <= errorProb) ? 0 : 1;
+                    double kProb = (Math.random() <= (errorProb / 100.0)) ? 1 : 0;
                     errorAcc.setVec(new Vector2D(kProb * errorMag * MathUtils.randInRange(new Random(), 0, 75),
                                                  kProb * MathUtils.randInRange(new Random(), 0, 2 * Math.PI), false));
                     try {
@@ -125,10 +120,9 @@ public class Simulator {
 
             long startTime = System.currentTimeMillis();
             long lastTime = startTime;
-            while (state != State.INACTIVE && (System.currentTimeMillis() - startTime) <= 10000
+            while (state != State.INACTIVE && (System.currentTimeMillis() - startTime) <= Constants.getInt("spline.timeoutMS")
                    && (simRob.rB.distanceTo(goal) > Constants.getDouble("pathing.endErrorThresholds.translation")
-                   || Math.abs(MathUtils.optThetaDiff(simRob.rB.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))
-                   && distance <= spline.totalArcLength()) {
+                   || Math.abs(MathUtils.optThetaDiff(simRob.rB.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))) {
                 double dTime = (System.currentTimeMillis() - lastTime) / 1000.0;
                 lastTime = System.currentTimeMillis();
                 distance += last.distanceTo(simRob.rB);
@@ -145,10 +139,9 @@ public class Simulator {
                 if (isSimPID) {
                     Object[] pidCorr = PIDCtrl.correction(simRob.rB);
                     pidCorrVel.setVec((Vector2D) pidCorr[0]);
-                    System.out.println("PID Corr: " + (Vector2D) pidCorr[0] + " " + (double) pidCorr[1]);
                     pidCorrRot = (double) pidCorr[1];
                     simRob.rB.tVel.add(pidCorrVel);
-                    simRob.rB.addXYT(0, 0, pidCorrRot / 360.0);
+                    simRob.rB.addXYT(0, 0, pidCorrRot);
                 }
 
                 Vector2D dPos = simRob.rB.tVel.scaled(dTime);
@@ -161,10 +154,8 @@ public class Simulator {
 
                 Platform.runLater(() -> {
                     simRob.refreshDisplayGroup();
-
-                    double[] spDisp = Dashboard.fieldPane.poseToDisplay(setPoint, 0);
-                    setPointCircle.setCenterX(spDisp[0]);
-                    setPointCircle.setCenterY(spDisp[1]);
+                    setPointRob.rB = setPoint;
+                    setPointRob.refreshDisplayGroup();
 
                     errorAccArrow.set(simRob.rB, errorAcc);
                     simRob.setPIDandMPvels(mPVel, pidCorrVel);
@@ -186,7 +177,7 @@ public class Simulator {
 
             randomError.cancel();
 
-            if (System.currentTimeMillis() - startTime >= 10000) {
+            if (System.currentTimeMillis() - startTime >= Constants.getInt("spline.timeoutMS")) {
                 System.out.println(selectionStr() + " simulation timed out");
             }
 
@@ -199,10 +190,7 @@ public class Simulator {
             Platform.runLater(() -> {
                 Dashboard.fieldPane.getChildren().remove(errorAccArrow.displayGroup);
                 Dashboard.fieldPane.getChildren().remove(simRob.displayGroup);
-                Dashboard.fieldPane.getChildren().remove(setPointCircle);
-                if (displaySpline.id.get(-1).equals("simulation")) {
-                    displaySpline.removeDisplayGroup();
-                }
+                Dashboard.fieldPane.getChildren().remove(setPointRob.displayGroup);
                 Dashboard.leftPane.simulate.setText("Select\nSimulants");
                 Dashboard.leftPane.simText.setText("");
             });

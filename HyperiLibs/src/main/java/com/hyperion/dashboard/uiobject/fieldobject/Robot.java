@@ -10,7 +10,9 @@ import com.hyperion.motion.math.Vector2D;
 import org.json.JSONArray;
 
 import javafx.application.Platform;
+import javafx.scene.CacheHint;
 import javafx.scene.Group;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -55,6 +57,13 @@ public class Robot extends FieldObject {
             imgView.setFitWidth(Dashboard.fieldPane.robotSize);
             imgView.setFitHeight(Dashboard.fieldPane.robotSize);
             imgView.setPickOnBounds(true);
+            if (id.get(-1).equals("setPoint")) {
+                ColorAdjust greenify = new ColorAdjust();
+                greenify.setHue(-0.5);
+                imgView.setEffect(greenify);
+                imgView.setCache(true);
+                imgView.setCacheHint(CacheHint.SPEED);
+            }
             displayGroup.getChildren().add(imgView);
 
             info = new Text();

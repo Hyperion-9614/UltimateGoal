@@ -29,7 +29,7 @@
         "maxes": {
             "aVel": 12.566,
             "tAcc": 100,
-            "tVel": 150
+            "tVel": 75
         }
     },
     "teamcode": {
@@ -66,25 +66,25 @@
     },
     "pid": {
         "x": {
-            "kP": 0.1,
-            "kD": 0.1,
-            "kI": 0.0003
+            "kP": 0.7,
+            "kD": 0.4,
+            "kI": 0.0002
         },
         "y": {
-            "kP": 0.1,
-            "kD": 0.1,
-            "kI": 0.0003
+            "kP": 0.7,
+            "kD": 0.4,
+            "kI": 0.0002
         },
         "theta": {
-            "kP": 0,
-            "kD": 0,
-            "kI": 0
-        },
-        "kRot": 0.01
+            "kP": 0.7,
+            "kD": 0.1,
+            "kI": 0.00002
+        }
     },
     "spline": {
+        "timeoutMS": 15000,
         "maxBisectionError": 0.05,
-        "segmentLength": 50,
+        "segmentLength": 75,
         "integrator": {
             "relAcc": 0.1,
             "minIters": 1,
@@ -92,17 +92,17 @@
             "n": 2,
             "absAcc": 0.01
         },
-        "verbose": false
+        "verbose": true
     },
     "net": {
         "port": 6666,
-        "dbIP": "169.254.142.46"
+        "dbIP": "127.0.0.1"
     },
     "pathing": {
         "obstacleMoveThreshold": 3,
         "endErrorThresholds": {
             "rotation": 1,
-            "translation": 1
+            "translation": 5
         },
         "gridMhat": 20,
         "obstacles": {
@@ -112,6 +112,10 @@
     },
     "dashboard": {
         "isDebugging": true,
+        "simulator": {
+            "errorMag": 0.5,
+            "errorProb": 50
+        },
         "gui": {
             "sizes": {
                 "waypoint": 24,

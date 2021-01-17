@@ -141,7 +141,7 @@ public class FieldPane extends Pane {
                         }
                     } else if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.getTarget().equals(fieldBorder)) {
                         if (fieldBorder.contains(mouseX - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, mouseY - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0)) {
-                            if (Dashboard.isBuildingPaths) {
+                            if (Dashboard.isSplineEditMode) {
                                 if (selectedWP != null && selectedWP.parentSpline != null) {
                                     selectedWP.parentSpline.spline.waypoints.add(new RigidBody(newPose));
                                     selectedWP.parentSpline.spline.endPath();
@@ -211,8 +211,13 @@ public class FieldPane extends Pane {
     public void select(Waypoint newSelected) {
         if (selectedWP != newSelected) {
             if (selectedWP != null) {
-                if (selectedWP.renderID)
-                    selectedWP.idField.setText(selectedWP.id.get(-1));
+                if (selectedWP.renderID) {
+                    if (selectedWP.parentSpline != null) {
+                        selectedWP.idField.setText(selectedWP.parentSpline.id.get(-1));
+                    } else {
+                        selectedWP.idField.setText(selectedWP.id.get(-1));
+                    }
+                }
                 selectedWP.displayGroup.getChildren().remove(selectedWP.selection);
                 requestFocus();
                 if (selectedWP.parentSpline != null) {

@@ -48,7 +48,6 @@ public class PIDCtrl {
         double dT = (System.currentTimeMillis() - lastTime) / 1000.0;
 
         Vector2D relTransErrVec = new Vector2D(robot, goal);
-        relTransErrVec.setTheta(-robot.theta + relTransErrVec.theta);
         double thetaError = MathUtils.optThetaDiff(robot.theta, goal.theta);
 
         time += dT;
