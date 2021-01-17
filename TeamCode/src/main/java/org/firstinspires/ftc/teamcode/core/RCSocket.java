@@ -11,9 +11,9 @@ import java.net.Socket;
 
 public class RCSocket extends NetEP {
 
-    public Hardware hw;
+    public Gerald hw;
 
-    public RCSocket(Hardware hw) {
+    public RCSocket(Gerald hw) {
         super();
         this.hw = hw;
     }

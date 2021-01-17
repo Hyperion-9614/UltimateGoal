@@ -4,7 +4,7 @@ import com.hyperion.motion.math.Vector2D;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.core.Hardware;
+import org.firstinspires.ftc.teamcode.core.Gerald;
 import org.firstinspires.ftc.teamcode.core.Motion;
 
 /**
@@ -16,13 +16,13 @@ import org.firstinspires.ftc.teamcode.core.Motion;
 @TeleOp
 public class TELE_blue_full extends LinearOpMode {
 
-    private Hardware hw;
+    private Gerald hw;
     private boolean isHtStarted;
     private double preHtTheta;
 
     @Override
     public void runOpMode() {
-        hw = new Hardware(this);
+        hw = new Gerald(this);
         hw.initOpMode("tele.blue.full");
         while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !hw.isRunning))) {}
         executeLoop();

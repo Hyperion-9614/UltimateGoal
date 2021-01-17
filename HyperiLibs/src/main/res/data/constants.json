@@ -34,11 +34,35 @@
     },
     "teamcode": {
         "opModeIDprefLength": 3,
+        "autoOpModeIDs": ["auto.blue.full"],
         "teleOpModeIDs": ["tele.blue.full"],
         "forceEndTimeLeft": 3500,
         "metricsDelay": 100,
-        "localizationDelay": 10,
-        "autoOpModeIDs": ["auto.blue.full"]
+        "localizationDelay": 10
+    },
+    "apndg": {
+        "loader": {
+            "park": 0.18,
+            "shoot": 0.45
+        },
+        "shooter": {
+            "park": 0.75
+        },
+        "wobble": {
+            "claw": {
+                "open": 1.0,
+                "close": 0.48,
+                "park": 0.55
+            },
+            "arm": {
+                "init": 0,
+                "initLeft": 2700,
+                "pickup": 750,
+                "autoLift": 1000,
+                "telePark": 2300,
+                "endLift": 2000
+            }
+        }
     },
     "pid": {
         "x": {

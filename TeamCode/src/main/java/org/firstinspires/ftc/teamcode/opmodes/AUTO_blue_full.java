@@ -1,13 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.hyperion.common.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.core.Hardware;
-import org.firstinspires.ftc.teamcode.core.Motion;
-import org.json.JSONArray;
+import org.firstinspires.ftc.teamcode.core.Gerald;
 
 /**
  *  Main AutoOp
@@ -17,11 +14,11 @@ import org.json.JSONArray;
 @Autonomous
 public class AUTO_blue_full extends LinearOpMode {
 
-    private Hardware hw;
+    private Gerald hw;
 
     @Override
     public void runOpMode() {
-        hw = new Hardware(this);
+        hw = new Gerald(this);
         hw.initOpMode("auto.blue.full");
         execute();
         hw.end();

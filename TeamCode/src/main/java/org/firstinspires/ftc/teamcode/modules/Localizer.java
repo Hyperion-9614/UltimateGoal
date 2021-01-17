@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
-import org.firstinspires.ftc.teamcode.core.Hardware;
+import org.firstinspires.ftc.teamcode.core.Gerald;
 import org.firstinspires.ftc.teamcode.core.Motion;
 import org.openftc.revextensions2.RevBulkData;
 
@@ -22,7 +22,7 @@ import org.openftc.revextensions2.RevBulkData;
 
 public class Localizer {
 
-    private Hardware hw;
+    private Gerald gerald;
 
     public RevBulkData bulkDataL;
     public RevBulkData bulkDataR;
@@ -38,16 +38,10 @@ public class Localizer {
     /**
      * Resets & initializes odometry modules
      *
-     * @param  hw     the root hardware instance
+     * @param  gerald     the root hardware instance
      */
-    public Localizer(Hardware hw) {
-        this.hw = hw;
-        this.hw.xLOdo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.hw.xROdo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.hw.yOdo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        this.hw.xLOdo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        this.hw.xROdo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        this.hw.yOdo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    public Localizer(Gerald gerald) {
+        this.gerald = gerald;
     }
 
     /**
@@ -57,14 +51,14 @@ public class Localizer {
      * -> Adds the deltas onto the current pose
      */
     public synchronized void update() {
-        bulkDataL = hw.expansionHubL.getBulkInputData();
-        bulkDataR = hw.expansionHubR.getBulkInputData();
+        bulkDataL = gerald.expansionHubL.getBulkInputData();
+        bulkDataR = gerald.expansionHubR.getBulkInputData();
 
-        if (hw != null && bulkDataL != null && bulkDataR != null) {
+        if (gerald != null && bulkDataL != null && bulkDataR != null) {
             // Read in the change in encoder counts of each odometry tracker
-            double xLNew = -bulkDataL.getMotorCurrentPosition(hw.xLOdo);
-            double xRNew = -bulkDataR.getMotorCurrentPosition(hw.xROdo);
-            double yNew = bulkDataL.getMotorCurrentPosition(hw.yOdo);
+            double xLNew = -bulkDataL.getMotorCurrentPosition(Motion.xLOdo);
+            double xRNew = -bulkDataR.getMotorCurrentPosition(Motion.xROdo);
+            double yNew = bulkDataL.getMotorCurrentPosition(Motion.yOdo);
             double tNew = System.currentTimeMillis();
 
             // Convert count deltas to meters

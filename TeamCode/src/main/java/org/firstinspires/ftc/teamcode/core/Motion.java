@@ -31,8 +31,20 @@ import java.util.Map;
 
 public class Motion {
 
-    public static Hardware hw;
+    public static Gerald gerald;
 
+    // Drive motors
+    public static DcMotor fLDrive;
+    public static DcMotor fRDrive;
+    public static DcMotor bLDrive;
+    public static DcMotor bRDrive;
+
+    // Odometry
+    public static DcMotor xLOdo;
+    public static DcMotor xROdo;
+    public static DcMotor yOdo;
+
+    // Motion control
     public static Localizer localizer;
     public static DStarLite pathPlanner;
     public static ArrayList<Obstacle> fixedObstacles = new ArrayList<>();
@@ -43,10 +55,49 @@ public class Motion {
     public static Map<ID, Pose> waypoints = new HashMap<>();
     public static Map<ID, SplineTrajectory> splines = new HashMap<>();
 
-    public static void init(Hardware hardware) {
-        hw = hardware;
+    public static void init(Gerald gerald) {
+        Motion.gerald = gerald;
+        initHW();
+        initMotion();
+    }
+
+    //////////////////////// INIT //////////////////////////
+
+    // Init motion-related hardware
+    public static void initHW() {
+        // Drive motors
+        fLDrive = gerald.hwmp.dcMotor.get("fLDrive");
+        fRDrive = gerald.hwmp.dcMotor.get("fRDrive");
+        bLDrive = gerald.hwmp.dcMotor.get("bLDrive");
+        bRDrive = gerald.hwmp.dcMotor.get("bRDrive");
+
+        fLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        fRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        bLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        bRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        fLDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        fRDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        bLDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        bRDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        fRDrive.setDirection(DcMotor.Direction.REVERSE);
+        bRDrive.setDirection(DcMotor.Direction.REVERSE);
+
+        // Odometry
+        xLOdo = fLDrive;
+        xROdo = fRDrive;
+        yOdo = bLDrive;
+
+        xLOdo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        xROdo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        yOdo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    // Init motion control modules
+    public static void initMotion() {
         try {
-            JSONObject fieldRoot = new JSONObject(IOUtils.readFile(hw.fieldJSON));
+            JSONObject fieldRoot = new JSONObject(IOUtils.readFile(Motion.gerald.fieldJSON));
             readWaypoints(fieldRoot);
             readSplines(fieldRoot);
             readFixedObstacles(fieldRoot);
@@ -57,18 +108,9 @@ public class Motion {
             e.printStackTrace();
         }
 
-        localizer = new Localizer(hw);
+        localizer = new Localizer(Motion.gerald);
         pathPlanner = new DStarLite(fixedObstacles);
-
-        for (DcMotor motor : hw.hwmp.dcMotor) {
-            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        }
-
-        hw.fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-        hw.bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     }
-
-    //////////////////////// INIT ////////////////////////////
 
     // Read waypoints from field.json file
     public static void readWaypoints(JSONObject root) throws Exception {
@@ -76,7 +118,7 @@ public class Motion {
         waypoints.clear();
 
         Iterator<String> keys = wpObj.keys();
-        while (!hw.ctx.isStarted() && !hw.ctx.isStopRequested() && keys.hasNext()) {
+        while (!gerald.ctx.isStarted() && !gerald.ctx.isStopRequested() && keys.hasNext()) {
             String key = keys.next();
             JSONArray waypointArray = wpObj.getJSONArray(key);
             Pose waypoint = new Pose(waypointArray.getDouble(0), waypointArray.getDouble(1), waypointArray.getDouble(2));
@@ -90,7 +132,7 @@ public class Motion {
         splines.clear();
 
         Iterator<String> keys = splinesObj.keys();
-        while (!hw.ctx.isStarted() && !hw.ctx.isStopRequested() && keys.hasNext()) {
+        while (!gerald.ctx.isStarted() && !gerald.ctx.isStopRequested() && keys.hasNext()) {
             String key = keys.next();
             SplineTrajectory spline = new SplineTrajectory(splinesObj.getJSONObject(key));
             splines.put(new ID(key), spline);
@@ -103,7 +145,7 @@ public class Motion {
         fixedObstacles.clear();
 
         Iterator<String> keys = obstaclesObj.keys();
-        while (!hw.ctx.isStarted() && !hw.ctx.isStopRequested() && keys.hasNext()) {
+        while (!gerald.ctx.isStarted() && !gerald.ctx.isStopRequested() && keys.hasNext()) {
             String key = keys.next();
             if (key.contains("fixed")) {
                 Obstacle fixedObstacle;
@@ -124,20 +166,20 @@ public class Motion {
     }
     public static void setDrive(double... powers) {
         if (powers.length == 4) {
-            hw.fLDrive.setPower(powers[0]);
-            hw.fRDrive.setPower(powers[1]);
-            hw.bLDrive.setPower(powers[2]);
-            hw.bRDrive.setPower(powers[3]);
+            fLDrive.setPower(powers[0]);
+            fRDrive.setPower(powers[1]);
+            bLDrive.setPower(powers[2]);
+            bRDrive.setPower(powers[3]);
         } else if (powers.length == 2) {
-            hw.fLDrive.setPower(powers[0]);
-            hw.bLDrive.setPower(powers[0]);
-            hw.fRDrive.setPower(powers[1]);
-            hw.bRDrive.setPower(powers[1]);
+            fLDrive.setPower(powers[0]);
+            bLDrive.setPower(powers[0]);
+            fRDrive.setPower(powers[1]);
+            bRDrive.setPower(powers[1]);
         }
     }
     public static void setDrive(double fLPower, double fRPower, double bLPower, double bRPower, long time) {
         setDrive(fLPower, fRPower, bLPower, bRPower);
-        hw.ctx.sleep(time);
+        gerald.ctx.sleep(time);
         setDrive(0);
     }
     public static void setDrive(Vector2D relVec, double rot) {
@@ -158,16 +200,16 @@ public class Motion {
 
     // Getters
     public static Pose getWaypoint(String name) {
-        return waypoints.get(new ID(hw.opModeID, "waypoint", name));
+        return waypoints.get(new ID(gerald.opModeID, "waypoint", name));
     }
     public static SplineTrajectory getSpline(String name) {
-        return splines.get(new ID(hw.opModeID, "spline", name));
+        return splines.get(new ID(gerald.opModeID, "spline", name));
     }
 
     ///////////////////////// ADVANCED MOTION /////////////////////////
 
     public static void pidMove(String waypoint) {
-        hw.status = "PID moving to waypoint " + waypoint;
+        gerald.status = "PID moving to waypoint " + waypoint;
         pidMove(getWaypoint(waypoint));
     }
     public static void pidMove(Pose target) {
@@ -175,7 +217,7 @@ public class Motion {
         PIDCtrl.setGoal(target);
 
         ElapsedTime timer = new ElapsedTime();
-        while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 3000
+        while (gerald.ctx.opModeIsActive() && !gerald.ctx.isStopRequested() && timer.milliseconds() <= 3000
                && (robot.distanceTo(target) > Constants.getDouble("pathing.endErrorThresholds.translation")
                || Math.abs(MathUtils.optThetaDiff(robot.theta, target.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))) {
             Object[] pidCorr = PIDCtrl.correction(robot);
@@ -198,7 +240,7 @@ public class Motion {
     }
 
     public static void translate(String waypoint) {
-        hw.status = "Translating to waypoint" + waypoint;
+        gerald.status = "Translating to waypoint" + waypoint;
         translate(getWaypoint(waypoint));
     }
     public static void translate(Pose target) {
@@ -206,16 +248,16 @@ public class Motion {
     }
 
     public static void rotate(String waypoint) {
-        hw.status = "Rotating to waypoint " + waypoint;
+        gerald.status = "Rotating to waypoint " + waypoint;
         rotate(getWaypoint(waypoint).theta);
     }
     public static void rotate(double targetTheta) {
-        hw.status = "Rotating to " + Math.toDegrees(targetTheta) + "\u00B0";
+        gerald.status = "Rotating to " + Math.toDegrees(targetTheta) + "\u00B0";
         pidMove(new Pose(robot.x, robot.y, targetTheta));
     }
 
     public static boolean followSpline(String spline) {
-        hw.status = "Following spline " + spline;
+        gerald.status = "Following spline " + spline;
         return followSpline(getSpline(spline), false);
     }
     public static boolean followSpline(SplineTrajectory spline, boolean isDynamic) {
@@ -229,7 +271,7 @@ public class Motion {
         PIDCtrl.reset();
 
         ElapsedTime timer = new ElapsedTime();
-        while (hw.ctx.opModeIsActive() && !hw.ctx.isStopRequested() && timer.milliseconds() <= 8000
+        while (gerald.ctx.opModeIsActive() && !gerald.ctx.isStopRequested() && timer.milliseconds() <= 8000
                && (robot.distanceTo(goal) > Constants.getDouble("pathing.endErrorThresholds.translation")
                || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))
                && distance <= spline.totalArcLength()) {
@@ -271,7 +313,7 @@ public class Motion {
         return followSpline(spline, false);
     }
     public static boolean straightSplineToPose(String waypoint) {
-        hw.status = "Splining to waypoint" + waypoint;
+        gerald.status = "Splining to waypoint" + waypoint;
         return straightSplineToPose(getWaypoint(waypoint));
     }
     public static boolean straightSplineToPose(Pose waypoint) {
@@ -280,7 +322,7 @@ public class Motion {
     }
 
     public static boolean dynamicSplineToPose(String waypoint) {
-        hw.status = "Pathfinding to waypoint" + waypoint;
+        gerald.status = "Pathfinding to waypoint" + waypoint;
         return dynamicSplineToPose(getWaypoint(waypoint));
     }
     public static boolean dynamicSplineToPose(Pose waypoint) {

@@ -23,55 +23,39 @@ import java.io.File;
  * Handles all hw interfacing and robot/external initialization
  */
 
-public class Hardware {
+public class Gerald {
 
     public ExpansionHubEx expansionHubL;
     public ExpansionHubEx expansionHubR;
     public HardwareMap hwmp;
+    public LinearOpMode ctx;
+
     public boolean isRunning;
     public Thread localizationUpdater;
     public Thread metricsUpdater;
     public ElapsedTime autoTime;
 
-    public LinearOpMode ctx;
     public ID opModeID = new ID("Choose OpMode");
-
     public RCSocket rcSocket;
     public Metrics metrics;
     public String status = opModeID.toString();
     public File fieldJSON;
 
-    public DcMotor fLDrive;
-    public DcMotor fRDrive;
-    public DcMotor bLDrive;
-    public DcMotor bRDrive;
-
-    public DcMotor xLOdo;
-    public DcMotor xROdo;
-    public DcMotor yOdo;
-
-    public Hardware(LinearOpMode ctx) {
+    public Gerald(LinearOpMode ctx) {
         this.ctx = ctx;
         this.hwmp = ctx.hardwareMap;
 
         initFiles();
 
-        // Init hw
+        // Init expansion hubs
         expansionHubL = hwmp.get(ExpansionHubEx.class, "Expansion Hub L");
         expansionHubR = hwmp.get(ExpansionHubEx.class, "Expansion Hub R");
 
-        fLDrive = hwmp.dcMotor.get("fLDrive");
-        fRDrive = hwmp.dcMotor.get("fRDrive");
-        bLDrive = hwmp.dcMotor.get("bLDrive");
-        bRDrive = hwmp.dcMotor.get("bRDrive");
-
-        xLOdo = fLDrive;
-        xROdo = fRDrive;
-        yOdo = bLDrive;
-
-        // Init control, dashboard, telemetry, & threads
+        // Init motion & appendages
         Motion.init(this);
         Appendages.init(this);
+
+        // Init dashboard, telemetry, & threads
         rcSocket = new RCSocket(this);
         metrics = new Metrics(this);
         initThreads();

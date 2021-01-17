@@ -9,16 +9,16 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature
-            android:name="android.hardware.camera"
+            android:name="android.gerald.camera"
             android:required="false" />
     <uses-feature
-            android:name="android.hardware.camera.autofocus"
+            android:name="android.gerald.camera.autofocus"
             android:required="false" />
     <uses-feature
-            android:name="android.hardware.camera.front"
+            android:name="android.gerald.camera.front"
             android:required="false" />
     <uses-feature
-            android:name="android.hardware.camera.front.autofocus"
+            android:name="android.gerald.camera.front.autofocus"
             android:required="false" />
 
     <application
@@ -56,11 +56,11 @@
             android:launchMode="singleTask" >
 
             <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+                <action android:name="android.gerald.usb.action.USB_DEVICE_ATTACHED" />
             </intent-filter>
 
             <meta-data
-                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:name="android.gerald.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
 
             <!--org.firstinspires.main.entry indicates that this app is compatible with the Dragonboard Control Hub-->

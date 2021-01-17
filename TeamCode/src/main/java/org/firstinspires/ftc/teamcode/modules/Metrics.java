@@ -4,7 +4,7 @@ import com.hyperion.common.Constants;
 import com.hyperion.common.MathUtils;
 import com.hyperion.net.Message;
 
-import org.firstinspires.ftc.teamcode.core.Hardware;
+import org.firstinspires.ftc.teamcode.core.Gerald;
 import org.firstinspires.ftc.teamcode.core.Motion;
 import org.json.JSONArray;
 
@@ -17,13 +17,13 @@ import java.util.List;
 
 public class Metrics {
 
-    private final Hardware hw;
+    private final Gerald hw;
 
     public List<Entry> data = new ArrayList<>();
     public String newLineSpaces = "";
 
-    public Metrics(Hardware hardware) {
-        this.hw = hardware;
+    public Metrics(Gerald gerald) {
+        this.hw = gerald;
     }
 
     public synchronized void update() {
