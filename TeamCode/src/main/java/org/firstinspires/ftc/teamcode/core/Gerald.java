@@ -94,7 +94,8 @@ public class Gerald {
         this.opModeID = new ID(opModeID);
         status = "Running " + opModeID;
 
-        Pose startPose = Motion.waypoints.get(new ID(opModeID + ".waypoint.start"));
+//        Pose startPose = Motion.getWaypoint(opModeID + ".waypoint.start");
+        Pose startPose = Motion.getSpline("test").waypoints.get(0);
         if (startPose == null) startPose = new Pose();
         Motion.start = new RigidBody(startPose);
         Motion.robot = new RigidBody(startPose);
