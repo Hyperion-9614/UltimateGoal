@@ -17,7 +17,9 @@ distanceToRing(const int &width, const Point &centerBox, const Mat &cameraFrame)
     double ringDim = 5 * 2.54;
     double ppi = width / ringDim;
     Point camOrigin(cameraFrame.rows / 2, cameraFrame.cols);
-    return make_tuple(norm(camOrigin - centerBox) * ppi, camOrigin);
+    double distance = sqrt(pow((double) norm(camOrigin - centerBox) * ppi, 2)
+                           - pow((double) 21, 2));
+    return make_tuple(distance, camOrigin);
 }
 
 tuple<Mat, double> drawRectanglesWithDistance(std::vector<vector<Point>> contours, const Mat &input,
