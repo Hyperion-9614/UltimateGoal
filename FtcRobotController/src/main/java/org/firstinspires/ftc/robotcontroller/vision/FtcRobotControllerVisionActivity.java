@@ -20,13 +20,15 @@ import org.opencv.core.Mat;
 public class FtcRobotControllerVisionActivity extends FtcRobotControllerActivity implements
         CameraBridgeViewBase.CvCameraViewListener2 {
     private static final String TAG = "RCActivity:Vision";
-    //return the number of rings
-    public static int rings = 0;
     private static boolean killOpenCV = false;
     @SuppressLint("StaticFieldLeak")
     public static FtcRobotControllerVisionActivity instance;
+    public static String pipeline;
+    public static int rings;
+    public static double distance;
     JavaCameraView javaCameraView;
     Mat mRgba;
+
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -61,11 +63,29 @@ public class FtcRobotControllerVisionActivity extends FtcRobotControllerActivity
         mRgba.release();
     }
 
+    public static void setPipeline(String name) {
+        pipeline = name;
+    }
+
+    public static double getDistance() {
+        return distance;
+    }
+
+    public static int getRings() {
+        return rings;
+    }
+
     @Override //run the vision pipeline for the frames
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        String message = "";
         mRgba = inputFrame.rgba();
-        rings = Vision.ringStack(mRgba.getNativeObjAddr());
-        String message = "Rings in frame: " + String.valueOf(rings);
+        if (pipeline == "ringStack") {
+            rings = Vision.ringStack(mRgba.getNativeObjAddr());
+            message = "Rings in frame: " + String.valueOf(rings);
+        } else if (pipeline == "ringLocalization") {
+            distance = Vision.ringLocalization(mRgba.getNativeObjAddr());
+            message = "Distance to nearest ring: " + String.valueOf(distance) + " CM.";
+        }
         Log.d(TAG, message);
         return mRgba;
     }
@@ -83,10 +103,6 @@ public class FtcRobotControllerVisionActivity extends FtcRobotControllerActivity
             Log.d(TAG, "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
-    }
-
-    public int getRings() {
-        return rings;
     }
 
     @Override

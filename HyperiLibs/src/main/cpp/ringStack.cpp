@@ -3,6 +3,7 @@
 //
 #include <jni.h>
 #include <opencv2/opencv.hpp>
+#include "ringStack.h"
 #include <iostream>
 #include <cmath>
 #include <tuple>
@@ -100,7 +101,6 @@ tuple<Mat, int> drawRectanglesImg(std::vector<vector<Point>> contours, const Mat
     }
 }
 
-
 tuple<Mat, int> postProcessImg(const Mat &maskedImageInput, const tuple<Mat, Mat> &images) {
     Mat maskedImage = maskedImageInput.clone();
     Mat originalImageCropped = get<0>(images).clone();
@@ -109,4 +109,3 @@ tuple<Mat, int> postProcessImg(const Mat &maskedImageInput, const tuple<Mat, Mat
     cvtColor(get<0>(rectsDrawn), get<0>(rectsDrawn), COLOR_BGR2RGB);
     return make_tuple(get<0>(rectsDrawn), get<1>(rectsDrawn));
 }
-

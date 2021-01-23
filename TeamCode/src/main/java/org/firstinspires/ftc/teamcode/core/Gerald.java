@@ -7,7 +7,6 @@ import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.net.Message;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -128,9 +127,16 @@ public class Gerald {
     // Get the number of rings in the stack
     public int getStackHeight() {
         initializeCV();
-        int rings = FtcRobotControllerVisionActivity.instance.getRings();
+        FtcRobotControllerVisionActivity.setPipeline("ringStack");
+        int rings = FtcRobotControllerVisionActivity.getRings();
         destroyCV();
         return rings;
+    }
+
+    public double distanceToRing() {
+        initializeCV();
+        FtcRobotControllerVisionActivity.setPipeline("ringLocalization");
+        return FtcRobotControllerVisionActivity.getDistance();
     }
 
 //////////////////////// END ////////////////////////
