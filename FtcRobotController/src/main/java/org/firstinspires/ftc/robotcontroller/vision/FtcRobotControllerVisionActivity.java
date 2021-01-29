@@ -86,7 +86,7 @@ public class FtcRobotControllerVisionActivity extends FtcRobotControllerActivity
             distance = Vision.ringLocalization(mRgba.getNativeObjAddr());
             message = "Distance to nearest ring: " + String.valueOf(distance) + " CM.";
         }
-        Log.d(TAG, message);
+//        Log.d(TAG, message);
         return mRgba;
     }
 

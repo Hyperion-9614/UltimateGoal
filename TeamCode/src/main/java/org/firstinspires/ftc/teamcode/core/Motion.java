@@ -54,8 +54,8 @@ public class Motion {
 
     public static RigidBody start;
     public static RigidBody robot;
-    public static Map<ID, Pose> waypoints = new HashMap<>();
-    public static Map<ID, SplineTrajectory> splines = new HashMap<>();
+    public static Map<String, Pose> waypoints = new HashMap<>();
+    public static Map<String, SplineTrajectory> splines = new HashMap<>();
 
     public static void init(Gerald gerald) {
         Motion.gerald = gerald;
@@ -77,34 +77,32 @@ public class Motion {
         for (DcMotor drive : drives) {
             drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
         fRDrive.setDirection(DcMotor.Direction.REVERSE);
         bRDrive.setDirection(DcMotor.Direction.REVERSE);
 
         // Odometry
-        xLOdo = fLDrive;
-        xROdo = fRDrive;
-        yOdo = bLDrive;
+        xLOdo = fRDrive;
+        xROdo = fLDrive;
+        yOdo = bRDrive;
         odos = new DcMotor[]{ xLOdo, xROdo, yOdo };
     }
 
     // Init motion control modules
     public static void initMotion() {
         try {
-            JSONObject fieldRoot = new JSONObject(IOUtils.readFile(Motion.gerald.fieldJSON));
+            JSONObject fieldRoot = new JSONObject(IOUtils.readFile(gerald.fieldJSON));
             readWaypoints(fieldRoot);
             readSplines(fieldRoot);
             readFixedObstacles(fieldRoot);
-
-            start = new RigidBody(getWaypoint("start"));
-            robot = new RigidBody(start);
+            setStartRB();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        localizer = new Localizer(Motion.gerald);
+        localizer = new Localizer(gerald);
         pathPlanner = new DStarLite(fixedObstacles);
     }
 
@@ -118,7 +116,7 @@ public class Motion {
             String key = keys.next();
             JSONArray waypointArray = wpObj.getJSONArray(key);
             Pose waypoint = new Pose(waypointArray.getDouble(0), waypointArray.getDouble(1), waypointArray.getDouble(2));
-            waypoints.put(new ID(key), waypoint);
+            waypoints.put(key, waypoint);
         }
     }
 
@@ -131,7 +129,7 @@ public class Motion {
         while (!gerald.ctx.isStarted() && !gerald.ctx.isStopRequested() && keys.hasNext()) {
             String key = keys.next();
             SplineTrajectory spline = new SplineTrajectory(splinesObj.getJSONObject(key));
-            splines.put(new ID(key), spline);
+            splines.put(key, spline);
         }
     }
 
@@ -152,6 +150,15 @@ public class Motion {
                 fixedObstacles.add(fixedObstacle);
             }
         }
+    }
+
+    // Sets start and robot rigidbodies to a fixed pose
+    public static void setStartRB() {
+//        Pose startPose = getSpline("test").waypoints.get(0);
+        Pose startPose = getWaypoint("start");
+        if (startPose == null) startPose = new Pose();
+        start = new RigidBody(startPose);
+        robot = new RigidBody(startPose);
     }
 
     ///////////////////////// RAW MOTION & HELPERS /////////////////////////
@@ -178,6 +185,9 @@ public class Motion {
         gerald.ctx.sleep(time);
         setDrive(0);
     }
+    public static void setDrive(double power, long time) {
+        setDrive(power, power, power, power, time);
+    }
     public static void setDrive(Vector2D relVec, double rot) {
         setDrive(toMotorPowers(relVec, rot));
     }
@@ -196,10 +206,10 @@ public class Motion {
 
     // Getters
     public static Pose getWaypoint(String name) {
-        return waypoints.get(new ID(gerald.opModeID, "waypoint", name));
+        return waypoints.get(new ID(gerald.opModeID, "waypoint", name).toString());
     }
     public static SplineTrajectory getSpline(String name) {
-        return splines.get(new ID(gerald.opModeID, "spline", name));
+        return splines.get(new ID(gerald.opModeID, "spline", name).toString());
     }
 
     ///////////////////////// ADVANCED MOTION /////////////////////////
@@ -252,9 +262,9 @@ public class Motion {
         pidMove(new Pose(robot.x, robot.y, targetTheta));
     }
 
-    public static boolean followSpline(String spline) {
+    public static boolean followSpline(String spline, boolean isDynamic) {
         gerald.status = "Following spline " + spline;
-        return followSpline(getSpline(spline), false);
+        return followSpline(getSpline(spline), isDynamic);
     }
     public static boolean followSpline(SplineTrajectory spline, boolean isDynamic) {
         if (!spline.waypoints.get(0).equals(robot))
@@ -282,7 +292,7 @@ public class Motion {
             double pidCorrRot = (double) pidCorr[1];
             Vector2D worldVelVec = setPoint.tVel.added(pidCorrVel).scaled(1 / Constants.getDouble("motionProfile.maxes.tVel"));
 
-            double[] wheelPowers = toMotorPowers(toRelVec(worldVelVec), pidCorrRot * Constants.getDouble("pid.kRot"));
+            double[] wheelPowers = toMotorPowers(toRelVec(worldVelVec), pidCorrRot / (2 * Math.PI));
             setDrive(wheelPowers);
 
             if (isDynamic) {

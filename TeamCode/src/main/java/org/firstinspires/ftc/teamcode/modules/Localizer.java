@@ -52,12 +52,12 @@ public class Localizer {
      */
     public synchronized void update() {
         bulkDataL = gerald.expansionHubL.getBulkInputData();
-        bulkDataR = gerald.expansionHubR.getBulkInputData();
+//        bulkDataR = gerald.expansionHubR.getBulkInputData();
 
-        if (gerald != null && bulkDataL != null && bulkDataR != null) {
+        if (gerald != null && bulkDataL != null) {
             // Read in the change in encoder counts of each odometry tracker
             double xLNew = -bulkDataL.getMotorCurrentPosition(Motion.xLOdo);
-            double xRNew = -bulkDataR.getMotorCurrentPosition(Motion.xROdo);
+            double xRNew = -bulkDataL.getMotorCurrentPosition(Motion.xROdo);
             double yNew = bulkDataL.getMotorCurrentPosition(Motion.yOdo);
             double tNew = System.currentTimeMillis();
 

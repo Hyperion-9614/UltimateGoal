@@ -22,8 +22,7 @@ public class TELE_blue_full extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        gerald = new Gerald(this);
-        gerald.initOpMode("tele.blue.full");
+        gerald = new Gerald(this, "tele.blue.full");
         while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !gerald.isRunning))) {}
         executeLoop();
         gerald.end();

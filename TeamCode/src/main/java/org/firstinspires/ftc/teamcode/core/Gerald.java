@@ -34,21 +34,23 @@ public class Gerald {
     public Thread metricsUpdater;
     public ElapsedTime autoTime;
 
-    public ID opModeID = new ID("Choose OpMode");
+    public String dataDirPref = "/data/data/com.qualcomm.ftcrobotcontroller/files/";
+    public ID opModeID;
     public RCSocket rcSocket;
     public Metrics metrics;
-    public String status = opModeID.toString();
+    public String status;
     public File fieldJSON;
 
-    public Gerald(LinearOpMode ctx) {
+    public Gerald(LinearOpMode ctx, String opModeID) {
         this.ctx = ctx;
         this.hwmp = ctx.hardwareMap;
+        this.opModeID = new ID(opModeID);
 
         initFiles();
 
         // Init expansion hubs
-        expansionHubL = hwmp.get(ExpansionHubEx.class, "Expansion Hub L");
-        expansionHubR = hwmp.get(ExpansionHubEx.class, "Expansion Hub R");
+        expansionHubL = hwmp.get(ExpansionHubEx.class, "Expansion Hub 3");
+//        expansionHubR = hwmp.get(ExpansionHubEx.class, "Expansion Hub R");
 
         // Init motion & appendages
         Motion.init(this);
@@ -58,6 +60,9 @@ public class Gerald {
         rcSocket = new RCSocket(this);
         metrics = new Metrics(this);
         initThreads();
+
+        isRunning = true;
+        status = "OpMode " + opModeID + " inited and ready to run";
     }
 
     ///////////////////////// INIT //////////////////////////
@@ -87,24 +92,11 @@ public class Gerald {
         metricsUpdater.start();
     }
 
-    // Initialize OpMode
-    public void initOpMode(String opModeID) {
-        isRunning = true;
-        this.opModeID = new ID(opModeID);
-        status = "Running " + opModeID;
-
-//        Pose startPose = Motion.getWaypoint(opModeID + ".waypoint.start");
-        Pose startPose = Motion.getSpline("test").waypoints.get(0);
-        if (startPose == null) startPose = new Pose();
-        Motion.start = new RigidBody(startPose);
-        Motion.robot = new RigidBody(startPose);
-    }
-
     // Init all files & resources
     public void initFiles() {
         try {
-            Constants.init(new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/constants.json"));
-            fieldJSON = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/field.json");
+            Constants.init(new File(dataDirPref + "hyperilibs/constants.json"));
+            fieldJSON = new File(dataDirPref + "hyperilibs/field.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
