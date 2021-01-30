@@ -1,23 +1,23 @@
 {
     "localization": {
-        "driveBase": 31.29,
-        "trackWidth": 33.53,
+        "driveBase": 30.48,
+        "trackWidth": 39.37,
         "odometryCyclesPerRevolution": 360,
         "fieldSideLength": 365.76,
-        "odometryWheelRadius": 2.9,
+        "odometryWheelRadius": 1.5875,
         "odometryPoses": {
             "xL": [
-                4.445,
-                18.415,
+                5.08,
+                19.05,
                 0
             ],
             "y": [
-                -3.4925,
-                -18.0975,
+                -5.08,
+                -19.05,
                 90
             ],
             "xR": [
-                4.445,
+                5.08,
                 -19.05,
                 0
             ]
@@ -28,15 +28,16 @@
         "verbosity": 0,
         "maxes": {
             "aVel": 12.566,
-            "tAcc": 100,
-            "tVel": 75
+            "aAcc": 15.708,
+            "tAcc": 400,
+            "tVel": 150
         }
     },
     "teamcode": {
         "opModeIDprefLength": 3,
         "teleOpModeIDs": ["tele.blue.full"],
         "forceEndTimeLeft": 3500,
-        "metricsDelay": 100,
+        "metricsDelay": 10,
         "autoOpModeIDs": ["auto.blue.full"],
         "localizationDelay": 10
     },
@@ -80,7 +81,7 @@
         }
     },
     "spline": {
-        "timeoutMS": 15000,
+        "timeoutMS": 10000,
         "maxBisectionError": 0.05,
         "segmentLength": 75,
         "integrator": {
@@ -100,13 +101,15 @@
         "obstacleMoveThreshold": 3,
         "endErrorThresholds": {
             "rotation": 1,
-            "translation": 5
+            "translation": 3
         },
         "gridMhat": 20,
         "obstacles": {
             "rInner": 33,
             "rBuffer": 5
-        }
+        },
+        "usePID": false,
+        "powerScale": 1
     },
     "dashboard": {
         "isDebugging": false,

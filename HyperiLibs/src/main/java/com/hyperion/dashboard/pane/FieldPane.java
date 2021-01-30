@@ -121,7 +121,7 @@ public class FieldPane extends Pane {
                     Pose pose = displayToPose(mouseEvent.getX(), mouseEvent.getY(), 0);
                     if (selectedWP != null) {
                         Vector2D vec = new Vector2D(selectedWP.pose, pose);
-                        selectedWP.pose.theta = MathUtils.norm(vec.theta, 0, 2 * Math.PI);
+                        selectedWP.pose.theta = MathUtils.round(MathUtils.norm(vec.theta, 0, 2 * Math.PI), 3);
                         if (selectedWP.parentSpline != null) {
                             selectedWP.parentSpline.spline.waypoints.get(selectedWP.parentSpline.waypoints.indexOf(selectedWP)).setPose(selectedWP.pose);
                         }
@@ -185,7 +185,7 @@ public class FieldPane extends Pane {
         double x3 = (x2 / (fieldSize / 2.0)) * (Constants.getDouble("localization.fieldSideLength") / 2);
         double y3 = (y2 / (fieldSize / 2.0)) * (Constants.getDouble("localization.fieldSideLength") / 2);
 
-        return new Pose(Math.round(x3 * 1000.0) / 1000.0, Math.round(y3 * 1000.0) / 1000.0);
+        return new Pose(MathUtils.round(x3, 3), MathUtils.round(y3, 3));
     }
 
     // Converts view to pose
@@ -234,8 +234,12 @@ public class FieldPane extends Pane {
                     selectedWP.parentSpline.displayGroup.getChildren().add(selectedWP.parentSpline.selection);
                     selectedWP.parentSpline.selection.toBack();
                     Dashboard.visualPane.updateGraphs(selectedWP.parentSpline);
+                } else {
+                    Dashboard.visualPane.updateGraphs(null);
                 }
                 selectedWP.info.setVisible(true);
+            } else {
+                Dashboard.visualPane.updateGraphs(null);
             }
         }
     }

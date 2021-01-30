@@ -23,13 +23,13 @@ public class TELE_blue_full extends LinearOpMode {
     @Override
     public void runOpMode() {
         gerald = new Gerald(this, "tele.blue.full");
-        while (!isStopRequested() && (!isStarted() || (opModeIsActive() && !gerald.isRunning))) {}
+        waitForStart();
         executeLoop();
         gerald.end();
     }
 
     public void executeLoop() {
-        while (opModeIsActive() && !isStopRequested()) {
+        while (opModeIsActive() && !isStopRequested() && gerald.isRunning) {
             /*
              * GAMEPAD 1
              * LEFT JOYSTICK : Translation in direction of joystick, relative to robot

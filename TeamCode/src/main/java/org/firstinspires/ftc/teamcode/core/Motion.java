@@ -13,13 +13,13 @@ import com.hyperion.motion.pathplanning.Obstacle;
 import com.hyperion.motion.trajectory.PIDCtrl;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.modules.Localizer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -77,7 +77,7 @@ public class Motion {
         for (DcMotor drive : drives) {
             drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
         fRDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -196,11 +196,11 @@ public class Motion {
         return worldVec.thetaed(-robot.theta + worldVec.theta + Math.PI / 2);
     }
     public static double[] toMotorPowers(Vector2D relVec, double rot) {
-        return new double[]{
-                relVec.x + relVec.y + rot,
-                -relVec.x + relVec.y - rot,
-                -relVec.x + relVec.y + rot,
-                relVec.x + relVec.y - rot
+        return new double[] {
+            relVec.x + relVec.y + rot,
+            -relVec.x + relVec.y - rot,
+            -relVec.x + relVec.y + rot,
+            relVec.x + relVec.y - rot
         };
     }
 
@@ -223,7 +223,7 @@ public class Motion {
         PIDCtrl.setGoal(target);
 
         ElapsedTime timer = new ElapsedTime();
-        while (gerald.ctx.opModeIsActive() && !gerald.ctx.isStopRequested() && timer.milliseconds() <= 3000
+        while (gerald.ctx.opModeIsActive() && !gerald.ctx.isStopRequested() && gerald.isRunning && timer.milliseconds() <= 3000
                && (robot.distanceTo(target) > Constants.getDouble("pathing.endErrorThresholds.translation")
                || Math.abs(MathUtils.optThetaDiff(robot.theta, target.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))) {
             Object[] pidCorr = PIDCtrl.correction(robot);
@@ -234,12 +234,15 @@ public class Motion {
         setDrive(0);
     }
     public static void pidMove(Vector2D addVec) {
+        gerald.status = "PIDMoving on " + addVec;
         pidMove(addVec, robot.theta);
     }
     public static void pidMove(double coords, double dir) {
+        gerald.status = "PIDMoving " + coords + " cm toward " + Math.toDegrees(dir) + "\u00B0";
         pidMove(new Vector2D(coords, dir, false));
     }
     public static void pidMove(Vector2D addVec, double targetHeading) {
+        gerald.status = "PIDMoving on " + addVec + " to heading " + Math.toDegrees(targetHeading) + "\u00B0";
         Pose target = robot.addVector(addVec);
         target.setTheta(targetHeading);
         pidMove(target);
@@ -250,6 +253,7 @@ public class Motion {
         translate(getWaypoint(waypoint));
     }
     public static void translate(Pose target) {
+        gerald.status = "Translating to pose" + target;
         pidMove(new Pose(target.x, target.y, robot.theta));
     }
 
@@ -258,7 +262,7 @@ public class Motion {
         rotate(getWaypoint(waypoint).theta);
     }
     public static void rotate(double targetTheta) {
-        gerald.status = "Rotating to " + Math.toDegrees(targetTheta) + "\u00B0";
+        gerald.status = "Rotating to heading " + Math.toDegrees(targetTheta) + "\u00B0";
         pidMove(new Pose(robot.x, robot.y, targetTheta));
     }
 
@@ -271,37 +275,49 @@ public class Motion {
             pidMove(spline.waypoints.get(0));
 
         double distance = 0;
+        double L = spline.totalArcLength();
         Pose last = new Pose(robot);
         Pose goal = new Pose(spline.waypoints.get(spline.waypoints.size() - 1));
 
         PIDCtrl.reset();
 
         ElapsedTime timer = new ElapsedTime();
-        while (gerald.ctx.opModeIsActive() && !gerald.ctx.isStopRequested() && timer.milliseconds() <= 8000
+        while (gerald.ctx.opModeIsActive() && !gerald.ctx.isStopRequested() && gerald.isRunning && timer.milliseconds() <= Constants.getLong("spline.timeoutMS")
                && (robot.distanceTo(goal) > Constants.getDouble("pathing.endErrorThresholds.translation")
-               || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))
-               && distance <= spline.totalArcLength()) {
+               || Math.abs(MathUtils.optThetaDiff(robot.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))) {
             distance += last.distanceTo(robot);
             last = new Pose(robot);
 
             RigidBody setPoint = spline.mP.getRigidBody(Math.min(distance + 1, spline.totalArcLength()));
-            PIDCtrl.setGoal(setPoint);
+            Vector2D worldVelVec = setPoint.tVel;
+            double rot = 0;
 
-            Object[] pidCorr = PIDCtrl.correction(robot);
-            Vector2D pidCorrVel = (Vector2D) pidCorr[0];
-            double pidCorrRot = (double) pidCorr[1];
-            Vector2D worldVelVec = setPoint.tVel.added(pidCorrVel).scaled(1 / Constants.getDouble("motionProfile.maxes.tVel"));
+            if (Constants.getBoolean("pathing.usePID")) {
+                PIDCtrl.setGoal(setPoint);
+                Object[] pidCorr = PIDCtrl.correction(robot);
+                Vector2D pidCorrVel = (Vector2D) pidCorr[0];
+                rot = (double) pidCorr[1];
+                worldVelVec.add(pidCorrVel);
+                if (Constants.getBoolean("spline.verbose"))
+                    System.out.println("PID(Vel/Rot): " + pidCorrVel + " / " + rot);
+            }
 
-            double[] wheelPowers = toMotorPowers(toRelVec(worldVelVec), pidCorrRot / (2 * Math.PI));
+            if (Constants.getBoolean("spline.verbose"))
+                System.out.println("D/wVel: " + MathUtils.round(distance, 3) + " / " + worldVelVec.toString());
+            worldVelVec = worldVelVec.scaled(Constants.getDouble("pathing.powerScale") / Constants.getDouble("motionProfile.maxes.tVel"));
+            if (distance <= 0.04 * L)
+                worldVelVec.setMagnitude(Math.max(worldVelVec.magnitude, 0.1));
+            double[] wheelPowers = toMotorPowers(toRelVec(worldVelVec), rot / (2 * Math.PI));
             setDrive(wheelPowers);
 
             if (isDynamic) {
                 pathPlanner.robotMoved(robot);
 
-                // NEED TO DO: Pass in empirical obstacle list
+                // TODO: Pass in empirical obstacle list
                 if (pathPlanner.updateDynamicObstacles(new ArrayList<>())) {
                     pathPlanner.recompute();
 
+                    gerald.status = "Recomputing spline with " + pathPlanner.getPath().size() + " waypoints";
                     spline = new SplineTrajectory(pathPlanner.getPath());
                     distance = 0;
                     PIDCtrl.reset();
@@ -313,28 +329,35 @@ public class Motion {
         return (robot.distanceTo(spline.waypoints.get(spline.waypoints.size() - 1)) <= Constants.getDouble("pathing.endErrorThresholds.translation"));
     }
 
-    public static boolean splineThroughPoses(Pose... waypoints) {
-        waypoints = ArrayUtils.combineArrs(new Pose[]{ new Pose(robot) }, waypoints);
-        SplineTrajectory spline = new SplineTrajectory(waypoints);
+    public static boolean splineThroughPoses(Pose... poses) {
+        poses = ArrayUtils.combineArrs(new Pose[]{ new Pose(robot) }, poses);
+        gerald.status = "Computing spline with " + poses.length + " waypoints";
+        SplineTrajectory spline = new SplineTrajectory(poses);
+        gerald.status = "Splining through poses ";
+        for (Pose p : poses)
+            gerald.status += p + ", ";
         return followSpline(spline, false);
     }
     public static boolean straightSplineToPose(String waypoint) {
-        gerald.status = "Splining to waypoint" + waypoint;
+        gerald.status = "Splining to waypoint " + waypoint;
         return straightSplineToPose(getWaypoint(waypoint));
     }
     public static boolean straightSplineToPose(Pose waypoint) {
-        SplineTrajectory spline = new SplineTrajectory(robot, new RigidBody(waypoint));
+        gerald.status = "Computing spline with 2 waypoints";
+        SplineTrajectory spline = new SplineTrajectory(robot, waypoint);
+        gerald.status = "Splining straight to pose " + waypoint;
         return followSpline(spline, false);
     }
 
     public static boolean dynamicSplineToPose(String waypoint) {
-        gerald.status = "Pathfinding to waypoint" + waypoint;
+        gerald.status = "Pathfinding to waypoint " + waypoint;
         return dynamicSplineToPose(getWaypoint(waypoint));
     }
-    public static boolean dynamicSplineToPose(Pose waypoint) {
-        pathPlanner.init(robot, waypoint);
-        ArrayList<Pose> path = pathPlanner.getPath();
-        SplineTrajectory spline = new SplineTrajectory(path.toArray(new Pose[]{}));
+    public static boolean dynamicSplineToPose(Pose pose) {
+        pathPlanner.init(robot, pose);
+        gerald.status = "Computing spline with 2 waypoints";
+        SplineTrajectory spline = new SplineTrajectory(pathPlanner.getPath());
+        gerald.status = "Pathfinding to pose " + pose;
         return followSpline(spline, true);
     }
 

@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.core;
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
-import com.hyperion.motion.math.Pose;
-import com.hyperion.motion.math.RigidBody;
 import com.hyperion.net.Message;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -147,7 +145,7 @@ public class Gerald {
             if (opModeID.get(0).equals("auto")) {
                 JSONObject obj = new JSONObject(IOUtils.readFile(fieldJSON));
                 JSONObject wpObj = obj.getJSONObject("waypoints");
-                wpObj.put("tele.waypoint.start", new JSONArray(Motion.robot.toArray()));
+                wpObj.put(new ID("tele", opModeID.sub(1, 2), "start").toString(), new JSONArray(Motion.robot.toArray()));
                 obj.put("waypoints", wpObj);
                 IOUtils.writeFile(obj.toString(), fieldJSON);
             }
