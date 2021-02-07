@@ -22,8 +22,8 @@ import java.io.File;
 
 public class Gerald {
 
-    public ExpansionHubEx expansionHubL;
-    public ExpansionHubEx expansionHubR;
+    public ExpansionHubEx controlHub;
+    public ExpansionHubEx expansionHub;
     public HardwareMap hwmp;
     public LinearOpMode ctx;
 
@@ -47,12 +47,12 @@ public class Gerald {
         initFiles();
 
         // Init expansion hubs
-        expansionHubL = hwmp.get(ExpansionHubEx.class, "Expansion Hub 3");
-//        expansionHubR = hwmp.get(ExpansionHubEx.class, "Expansion Hub R");
+        controlHub = hwmp.get(ExpansionHubEx.class, "Control Hub");
+//        expansionHub = hwmp.get(ExpansionHubEx.class, "Expansion Hub");
 
         // Init motion & appendages
         Motion.init(this);
-        Appendages.init(this);
+        Apndg.init(this);
 
         // Init dashboard, telemetry, & threads
         rcSocket = new RCSocket(this);

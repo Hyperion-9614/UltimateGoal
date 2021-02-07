@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.core.Apndg;
+import org.firstinspires.ftc.teamcode.core.Apndg.State;
 import org.firstinspires.ftc.teamcode.core.Gerald;
 import org.firstinspires.ftc.teamcode.core.Motion;
 
@@ -30,7 +32,11 @@ public class AUTO_blue_full extends LinearOpMode {
         try {
             gerald.autoTime = new ElapsedTime();
             gerald.status = "Running OpMode " + gerald.opModeID.toString();
-            Motion.straightSplineToPose(new Pose(200, 0, 0));
+
+            Apndg.loadRing();
+            Apndg.setShooter(State.ON);
+            sleep(5000);
+            Apndg.setShooter(State.OFF);
         } catch (Exception e) {
             e.printStackTrace();
         }

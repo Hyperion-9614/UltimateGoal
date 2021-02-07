@@ -42,25 +42,12 @@
         "localizationDelay": 10
     },
     "apndg": {
-        "loader": {
-            "shoot": 0.45,
-            "park": 0.18
+        "shooter": {
+            "power": 1.0
         },
-        "shooter": {"park": 0.75},
-        "wobble": {
-            "claw": {
-                "close": 0.48,
-                "open": 1,
-                "park": 0.55
-            },
-            "arm": {
-                "init": 0,
-                "autoLift": 1000,
-                "pickup": 750,
-                "endLift": 2000,
-                "telePark": 2300,
-                "initLeft": 2700
-            }
+        "loader": {
+            "back": 0.3,
+            "forth": 0.75
         }
     },
     "pid": {

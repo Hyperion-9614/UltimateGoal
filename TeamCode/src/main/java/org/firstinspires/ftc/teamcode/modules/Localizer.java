@@ -24,8 +24,8 @@ public class Localizer {
 
     private Gerald gerald;
 
-    public RevBulkData bulkDataL;
-    public RevBulkData bulkDataR;
+    public RevBulkData bulkDataC;
+    public RevBulkData bulkDataE;
 
     public double oldxlCounts;
     public double oldxrCounts;
@@ -51,14 +51,14 @@ public class Localizer {
      * -> Adds the deltas onto the current pose
      */
     public synchronized void update() {
-        bulkDataL = gerald.expansionHubL.getBulkInputData();
-//        bulkDataR = gerald.expansionHubR.getBulkInputData();
+        bulkDataC = gerald.controlHub.getBulkInputData();
+//        bulkDataE = gerald.expansionHub.getBulkInputData();
 
-        if (gerald != null && bulkDataL != null) {
+        if (gerald != null && bulkDataC != null) {
             // Read in the change in encoder counts of each odometry tracker
-            double xLNew = -bulkDataL.getMotorCurrentPosition(Motion.xLOdo);
-            double xRNew = -bulkDataL.getMotorCurrentPosition(Motion.xROdo);
-            double yNew = bulkDataL.getMotorCurrentPosition(Motion.yOdo);
+            double xLNew = -bulkDataC.getMotorCurrentPosition(Motion.xLOdo);
+            double xRNew = -bulkDataC.getMotorCurrentPosition(Motion.xROdo);
+            double yNew = bulkDataC.getMotorCurrentPosition(Motion.yOdo);
             double tNew = System.currentTimeMillis();
 
             // Convert count deltas to meters
