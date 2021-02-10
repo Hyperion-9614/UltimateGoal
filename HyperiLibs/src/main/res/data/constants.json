@@ -48,6 +48,9 @@
         "loader": {
             "back": 0.3,
             "forth": 0.75
+        },
+        "intake": {
+            "power": 1.0
         }
     },
     "pid": {

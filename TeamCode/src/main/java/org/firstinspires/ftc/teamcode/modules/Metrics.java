@@ -54,8 +54,8 @@ public class Metrics {
         data.add(new Entry());
 
         data.add(new Entry("Appendages"));
-        data.add(new Entry("ShooterL", Apndg.shooterL.getPower()));
-        data.add(new Entry("ShooterR", Apndg.shooterR.getPower()));
+        data.add(new Entry("ShooterL", Apndg.shooterF.getPower()));
+        data.add(new Entry("ShooterR", Apndg.shooterB.getPower()));
         data.add(new Entry("Loader", Apndg.loader.getPosition()));
         data.add(new Entry());
 

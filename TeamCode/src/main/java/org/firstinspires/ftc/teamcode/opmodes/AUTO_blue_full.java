@@ -33,7 +33,6 @@ public class AUTO_blue_full extends LinearOpMode {
             gerald.autoTime = new ElapsedTime();
             gerald.status = "Running OpMode " + gerald.opModeID.toString();
 
-            Apndg.loadRing();
             Apndg.setShooter(State.ON);
             sleep(5000);
             Apndg.setShooter(State.OFF);

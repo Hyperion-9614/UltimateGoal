@@ -161,4 +161,9 @@ public class Gerald {
         }
     }
 
+    // Sets the status to an empty string
+    public void clearStatus() {
+        status = "";
+    }
+
 }
