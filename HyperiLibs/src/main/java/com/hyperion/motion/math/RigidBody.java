@@ -92,9 +92,7 @@ public class RigidBody extends Pose {
 
     @Override
     public String toString() {
-        return new Pose(x, y, theta).toString() + " | tVel: " + tVel + " | tAcc: " + tAcc +
-                                                  " | aVel: " + MathUtils.round(Math.toDegrees(aVel), 3) +
-                                                  "°/s | aAcc: " + MathUtils.round(Math.toDegrees(aAcc), 3) + " °/s²";
-        }
+        return new Pose(x, y, theta).toString() + " | tVel: " + tVel + " | tAcc: " + tAcc;
+    }
 
 }

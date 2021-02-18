@@ -3,11 +3,8 @@ package org.firstinspires.ftc.teamcode.core;
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
-import com.hyperion.motion.math.Pose;
-import com.hyperion.motion.math.RigidBody;
 import com.hyperion.net.Message;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -25,8 +22,8 @@ import java.io.File;
 
 public class Gerald {
 
-    public ExpansionHubEx expansionHubL;
-    public ExpansionHubEx expansionHubR;
+    public ExpansionHubEx controlHub;
+    public ExpansionHubEx expansionHub;
     public HardwareMap hwmp;
     public LinearOpMode ctx;
 
@@ -35,30 +32,35 @@ public class Gerald {
     public Thread metricsUpdater;
     public ElapsedTime autoTime;
 
-    public ID opModeID = new ID("Choose OpMode");
+    public String dataDirPref = "/data/data/com.qualcomm.ftcrobotcontroller/files/";
+    public ID opModeID;
     public RCSocket rcSocket;
     public Metrics metrics;
-    public String status = opModeID.toString();
+    public String status;
     public File fieldJSON;
 
-    public Gerald(LinearOpMode ctx) {
+    public Gerald(LinearOpMode ctx, String opModeID) {
         this.ctx = ctx;
         this.hwmp = ctx.hardwareMap;
+        this.opModeID = new ID(opModeID);
 
         initFiles();
 
         // Init expansion hubs
-        expansionHubL = hwmp.get(ExpansionHubEx.class, "Expansion Hub L");
-        expansionHubR = hwmp.get(ExpansionHubEx.class, "Expansion Hub R");
+        controlHub = hwmp.get(ExpansionHubEx.class, "Control Hub");
+//        expansionHub = hwmp.get(ExpansionHubEx.class, "Expansion Hub");
 
         // Init motion & appendages
         Motion.init(this);
-        Appendages.init(this);
+        Apndg.init(this);
 
         // Init dashboard, telemetry, & threads
         rcSocket = new RCSocket(this);
         metrics = new Metrics(this);
         initThreads();
+
+        isRunning = true;
+        status = "OpMode " + opModeID + " inited and ready to run";
     }
 
     ///////////////////////// INIT //////////////////////////
@@ -88,24 +90,11 @@ public class Gerald {
         metricsUpdater.start();
     }
 
-    // Initialize OpMode
-    public void initOpMode(String opModeID) {
-        isRunning = true;
-        this.opModeID = new ID(opModeID);
-        status = "Running " + opModeID;
-
-//        Pose startPose = Motion.getWaypoint(opModeID + ".waypoint.start");
-        Pose startPose = Motion.getSpline("test").waypoints.get(0);
-        if (startPose == null) startPose = new Pose();
-        Motion.start = new RigidBody(startPose);
-        Motion.robot = new RigidBody(startPose);
-    }
-
     // Init all files & resources
     public void initFiles() {
         try {
-            Constants.init(new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/constants.json"));
-            fieldJSON = new File(hwmp.appContext.getFilesDir() + "/hyperilibs/data/field.json");
+            Constants.init(new File(dataDirPref + "hyperilibs/constants.json"));
+            fieldJSON = new File(dataDirPref + "hyperilibs/field.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -128,9 +117,16 @@ public class Gerald {
     // Get the number of rings in the stack
     public int getStackHeight() {
         initializeCV();
-        int rings = FtcRobotControllerVisionActivity.instance.getRings();
+        FtcRobotControllerVisionActivity.setPipeline("ringStack");
+        int rings = FtcRobotControllerVisionActivity.getRings();
         destroyCV();
         return rings;
+    }
+
+    public double distanceToRing() {
+        initializeCV();
+        FtcRobotControllerVisionActivity.setPipeline("ringLocalization");
+        return FtcRobotControllerVisionActivity.getDistance();
     }
 
 //////////////////////// END ////////////////////////
@@ -149,7 +145,7 @@ public class Gerald {
             if (opModeID.get(0).equals("auto")) {
                 JSONObject obj = new JSONObject(IOUtils.readFile(fieldJSON));
                 JSONObject wpObj = obj.getJSONObject("waypoints");
-                wpObj.put("tele.waypoint.start", new JSONArray(Motion.robot.toArray()));
+                wpObj.put(new ID("tele", opModeID.sub(1, 2), "start").toString(), new JSONArray(Motion.robot.toArray()));
                 obj.put("waypoints", wpObj);
                 IOUtils.writeFile(obj.toString(), fieldJSON);
             }
@@ -163,6 +159,11 @@ public class Gerald {
         if (!ctx.isStopRequested() || ctx.opModeIsActive()) {
             ctx.requestOpModeStop();
         }
+    }
+
+    // Sets the status to an empty string
+    public void clearStatus() {
+        status = "";
     }
 
 }

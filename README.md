@@ -4,16 +4,20 @@
 
 <h2>Current Features</h2>
 
-<b>OpenCV Pipeline</b>
+<b>OpenCV Pipelines</b>
 * Written in C++ and processes each frame in 2 ms
     * Allows the algorithm to run at ~500 fps (Capped at 30 due to hardware limitations)
 * Uses custom resolution upscaling algorithm to upscale the resolution to 1080p from 480/720p camera resolution
 * Applies multiple filters
     * HSV filter to eliminate red tones
     * YCrCb filter to filter out everything but the rings
+    * Custom color filtering tuning algorithm
+        * Uses K-Means Clustering to find the dominant color in a Region of Interest and tunes filters
 * Applies custom contouring algorithm to find the outline of all rings
 * Checks the aspect ratio of the rings to find out how many rings are present in the stack
+* Now also uses distance mapping to track rings and render in dashboard
 * Images can be found below
+
 <p align="center">
     <img src="doc/image/FourStack.png" />
     <img src="doc/image/SingleStack.png" />

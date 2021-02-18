@@ -112,7 +112,7 @@ public class Vector2D {
 
     @Override
     public String toString() {
-        return MathUtils.round(magnitude, 3) + ", " + MathUtils.round(Math.toDegrees(theta), 3) + "°";
+        return MathUtils.round(magnitude, 3) + ", " + MathUtils.round(Math.toDegrees(theta), 3) + "\u00B0";
     }
 
 }

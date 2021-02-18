@@ -12,7 +12,7 @@ public class Pose {
 
     public double x;
     public double y;
-    public double theta = 0;
+    public double theta;
 
     /**
      * Default constructor
@@ -235,7 +235,7 @@ public class Pose {
     @Override
     public String toString() {
         return "X: " + MathUtils.round(x, 3) + " | Y: " + MathUtils.round(y, 3)
-                + " | " + "\u03F4".toLowerCase() + ": " + MathUtils.round(Math.toDegrees(theta), 3) + "°";
+                + " | " + "\u03F4: " + MathUtils.round(Math.toDegrees(theta), 3) + "\u00B0";
     }
 
 }

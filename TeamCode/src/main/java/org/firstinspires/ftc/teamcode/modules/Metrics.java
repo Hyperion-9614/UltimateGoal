@@ -4,6 +4,7 @@ import com.hyperion.common.Constants;
 import com.hyperion.common.MathUtils;
 import com.hyperion.net.Message;
 
+import org.firstinspires.ftc.teamcode.core.Apndg;
 import org.firstinspires.ftc.teamcode.core.Gerald;
 import org.firstinspires.ftc.teamcode.core.Motion;
 import org.json.JSONArray;
@@ -53,6 +54,9 @@ public class Metrics {
         data.add(new Entry());
 
         data.add(new Entry("Appendages"));
+        data.add(new Entry("ShooterL", Apndg.shooterF.getPower()));
+        data.add(new Entry("ShooterR", Apndg.shooterB.getPower()));
+        data.add(new Entry("Loader", Apndg.loader.getPosition()));
         data.add(new Entry());
 
         data.add(new Entry("Gamepad 1"));

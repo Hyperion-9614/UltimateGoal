@@ -232,9 +232,7 @@ public class Waypoint extends FieldObject {
             idField.relocate(display[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") + 3, display[1] - 24);
         }
 
-        info.setText(pose.toString().replace(" | ", "\n")
-                                    .replace("°", "\u00B0".toLowerCase())
-                                    .replace("θ", "\u03F4".toLowerCase()));
+        info.setText(pose.toString().replace(" | ", "\n"));
         info.relocate(display[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") + 3, display[1] + Constants.getDouble("dashboard.gui.sizes.waypoint") - 21);
 
         selection.relocate(display[0] + Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0 - Dashboard.fieldPane.robotSize / 2.0,

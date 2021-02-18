@@ -109,8 +109,6 @@ public abstract class NetEP {
     public void sendMessage(Message msg) {
         if (isValid())
             out.println(msg.toString());
-        else
-            netLog(LogLevel.WARN, "Socket invalid when attempting to send message: " + msg.toPrettyString(20));
     }
 
     public void sendMessage(Message.Event event, String jsonStr) {

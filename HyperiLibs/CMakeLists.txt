@@ -23,7 +23,8 @@ add_library( # Sets the name of the library.
 
         # Provides a relative path to your source file(s).
         src/main/cpp/native-lib.cpp
-        src/main/cpp/Vision.cpp)
+        src/main/cpp/ringStack.cpp
+        src/main/cpp/ringLocalization.cpp)
 
 add_library(lib_opencv SHARED IMPORTED)
 
