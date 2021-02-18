@@ -7,6 +7,7 @@ import com.hyperion.motion.math.Piecewise;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 
+import org.apache.commons.math3.analysis.integration.BaseAbstractUnivariateIntegrator;
 import org.apache.commons.math3.analysis.integration.IterativeLegendreGaussIntegrator;
 import org.apache.commons.math3.analysis.integration.UnivariateIntegrator;
 import org.apache.commons.math3.linear.LUDecomposition;
@@ -17,7 +18,8 @@ import org.json.JSONObject;
 import org.mariuszgromada.math.mxparser.Function;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -268,10 +270,27 @@ public class SplineTrajectory {
         if (numIntervals >= 1) {
             if (shouldReparameterize) {
                 for (int i = 0; i < waypoints.size(); i++) {
-                    waypoints.get(i).distance = arcDistance(i);
-                    if (i == waypoints.size() - 1)
-                        length = waypoints.get(i).distance;
+                    int finalI = i;
+                    Thread distThread = new Thread(() -> {
+                        waypoints.get(finalI).distance = arcDistance(finalI);
+                        if (finalI == waypoints.size() - 1)
+                            length = waypoints.get(finalI).distance;
+                        synchronized (this) {
+                            notify();
+                        }
+                    });
+                    distThread.start();
                 }
+                synchronized (this) {
+                    while (length != waypoints.get(waypoints.size() - 1).distance) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
                 long t2 = System.currentTimeMillis();
                 if (verbose) System.out.printf("Segment Distances: %.3fs\n", MathUtils.round((t2 - t1) / 1000.0, 3));
                 generatePlanningPoints(verbose);
@@ -292,44 +311,63 @@ public class SplineTrajectory {
 
     private void generatePlanningPoints(boolean verbose) {
         planningPoints = new ArrayList<>();
-        planningPoints.add(new RigidBody(0, 0, waypoints.get(0).theta, this));
+        List<RigidBody> syncedPPs = Collections.synchronizedList(planningPoints);
+        syncedPPs.add(new RigidBody(0, 0, waypoints.get(0).theta, this));
         double L = arcDistance(waypoints.size() - 1);
         int numSegments = (int) Math.ceil(L / Constants.getDouble("spline.segmentLength"));
         segmentLength = L / numSegments;
 
         if (verbose) System.out.printf("* Generating %d Planning Points *\n", numSegments - 1);
         for (int i = 1; i < numSegments; i++) {
-            long start = System.currentTimeMillis();
-            double l = i * segmentLength;
-            int tJ;
-            for (tJ = 0; tJ < tauX.size(); tJ++) {
-                if (l >= waypoints.get(tJ).distance && l < waypoints.get(tJ + 1).distance) {
-                    break;
+            int finalI = i;
+            Thread bisectionThread = new Thread(() -> {
+                long start = System.currentTimeMillis();
+                double l = finalI * segmentLength;
+                int tJ;
+                for (tJ = 0; tJ < tauX.size(); tJ++) {
+                    if (l >= waypoints.get(tJ).distance && l < waypoints.get(tJ + 1).distance) {
+                        break;
+                    }
                 }
-            }
 
-            double tLeft = tJ;
-            double tRight = tJ + 1;
-            double tMiddle = (tLeft + tRight) / 2.0;
-            double tMiddleLength = arcDistance(tMiddle);
-            while (Math.abs(tMiddleLength - l) > Constants.getDouble("spline.maxBisectionError")) {
-                if (l > tMiddleLength) {
-                    tLeft = tMiddle;
-                } else if (l < tMiddleLength) {
-                    tRight = tMiddle;
+                double tLeft = tJ;
+                double tRight = tJ + 1;
+                double tMiddle = (tLeft + tRight) / 2.0;
+                double tMiddleLength = arcDistance(tMiddle);
+                while (Math.abs(tMiddleLength - l) > Constants.getDouble("spline.maxBisectionError")) {
+                    if (l > tMiddleLength) {
+                        tLeft = tMiddle;
+                    } else if (l < tMiddleLength) {
+                        tRight = tMiddle;
+                    }
+                    tMiddle = (tLeft + tRight) / 2.0;
+                    tMiddleLength = arcDistance(tMiddle);
                 }
-                tMiddle = (tLeft + tRight) / 2.0;
-                tMiddleLength = arcDistance(tMiddle);
-            }
-            double theta = waypoints.get(tJ).theta + MathUtils.optThetaDiff(waypoints.get(tJ).theta, waypoints.get(tJ + 1).theta)
-                           * ((l - waypoints.get(tJ).distance) / (waypoints.get(tJ + 1).distance - waypoints.get(tJ).distance));
-            planningPoints.add(new RigidBody(tMiddle, l, theta, this));
-            if (verbose) System.out.printf("    PP #%d: %.3fs\n", i, MathUtils.round((System.currentTimeMillis() - start) / 1000.0, 3));
+                double theta = waypoints.get(tJ).theta + MathUtils.optThetaDiff(waypoints.get(tJ).theta, waypoints.get(tJ + 1).theta)
+                        * ((l - waypoints.get(tJ).distance) / (waypoints.get(tJ + 1).distance - waypoints.get(tJ).distance));
+                planningPoints.add(new RigidBody(tMiddle, l, theta, this));
+                if (verbose) System.out.printf("    PP #%d: %.3fs\n", finalI, MathUtils.round((System.currentTimeMillis() - start) / 1000.0, 3));
+
+                synchronized (this) {
+                    notify();
+                }
+            });
+            bisectionThread.start();
         }
-        planningPoints.add(new RigidBody(waypoints.size() - 1, segmentLength * numSegments, waypoints.get(waypoints.size() - 1).theta, this));
+
+        try {
+            synchronized (this) {
+                while (syncedPPs.size() != numSegments)
+                    wait();
+                syncedPPs.add(new RigidBody(waypoints.size() - 1, segmentLength * numSegments, waypoints.get(waypoints.size() - 1).theta, this));
+                syncedPPs.sort((o1, o2) -> Double.compare(o1.distance, o2.distance));
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    // RARD Accuracy Metric: Random Average Reparameterization Deviation
+    // Calculates Random Averaged Reparameterization Deviation
     private double getRARD() {
         Pose[] tPoses = new Pose[10];
         Pose[] dPoses = new Pose[10];
@@ -351,12 +389,9 @@ public class SplineTrajectory {
         int t2 = (int) Math.floor(T1);
         double length = 0;
 
-        UnivariateIntegrator integrator = new IterativeLegendreGaussIntegrator(
-                Constants.getInt("spline.integrator.n"),
-                Constants.getDouble("spline.integrator.relAcc"),
-                Constants.getDouble("spline.integrator.relAcc"),
-                Constants.getInt("spline.integrator.minIters"),
-                Constants.getInt("spline.integrator.maxIters")
+        IterativeLegendreGaussIntegrator integrator = new IterativeLegendreGaussIntegrator(5,
+                BaseAbstractUnivariateIntegrator.DEFAULT_RELATIVE_ACCURACY,
+                BaseAbstractUnivariateIntegrator.DEFAULT_ABSOLUTE_ACCURACY
         );
         for (int T = 0; T < t2; T++) {
             length += arcLengthInterval(integrator, T, T + 1);
@@ -371,7 +406,7 @@ public class SplineTrajectory {
             String X = "(" + tauX.getExpressionString(Tstart, Tstart + 1, 1) + ")^2";
             String Y = "(" + tauY.getExpressionString(Tstart, Tstart + 1, 1) + ")^2";
             Function func = new Function("f(t) = sqrt(" + X + " + " + Y + ")");
-            return integrator.integrate(2000, func::calculate, Tstart, Tend);
+            return integrator.integrate(100000, func::calculate, Tstart, Tend);
         } else {
             return 0;
         }

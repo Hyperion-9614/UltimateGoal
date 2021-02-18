@@ -81,20 +81,13 @@
     },
     "spline": {
         "timeoutMS": 15000,
-        "maxBisectionError": 0.05,
-        "segmentLength": 75,
-        "integrator": {
-            "relAcc": 0.1,
-            "minIters": 1,
-            "maxIters": 8,
-            "n": 2,
-            "absAcc": 0.01
-        },
+        "maxBisectionError": 0.001,
+        "segmentLength": 50,
         "verbose": true
     },
     "net": {
         "port": 6666,
-        "dbIP": "192.168.49.156"
+        "dbIP": "192.168.222.13"
     },
     "pathing": {
         "obstacleMoveThreshold": 3,
