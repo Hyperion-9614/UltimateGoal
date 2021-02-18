@@ -1,23 +1,23 @@
 {
     "localization": {
-        "driveBase": 31.29,
-        "trackWidth": 33.53,
+        "driveBase": 30.48,
+        "trackWidth": 39.37,
         "odometryCyclesPerRevolution": 360,
         "fieldSideLength": 365.76,
-        "odometryWheelRadius": 2.9,
+        "odometryWheelRadius": 1.5875,
         "odometryPoses": {
             "xL": [
-                4.445,
-                18.415,
+                5.08,
+                19.05,
                 0
             ],
             "y": [
-                -3.4925,
-                -18.0975,
+                -5.08,
+                -19.05,
                 90
             ],
             "xR": [
-                4.445,
+                5.08,
                 -19.05,
                 0
             ]
@@ -28,38 +28,29 @@
         "verbosity": 0,
         "maxes": {
             "aVel": 12.566,
-            "tAcc": 100,
-            "tVel": 75
+            "aAcc": 15.708,
+            "tAcc": 400,
+            "tVel": 150
         }
     },
     "teamcode": {
         "opModeIDprefLength": 3,
         "teleOpModeIDs": ["tele.blue.full"],
         "forceEndTimeLeft": 3500,
-        "metricsDelay": 100,
+        "metricsDelay": 10,
         "autoOpModeIDs": ["auto.blue.full"],
         "localizationDelay": 10
     },
     "apndg": {
-        "loader": {
-            "shoot": 0.45,
-            "park": 0.18
+        "shooter": {
+            "power": 1.0
         },
-        "shooter": {"park": 0.75},
-        "wobble": {
-            "claw": {
-                "close": 0.48,
-                "open": 1,
-                "park": 0.55
-            },
-            "arm": {
-                "init": 0,
-                "autoLift": 1000,
-                "pickup": 750,
-                "endLift": 2000,
-                "telePark": 2300,
-                "initLeft": 2700
-            }
+        "loader": {
+            "back": 0.3,
+            "forth": 0.75
+        },
+        "intake": {
+            "power": 1.0
         }
     },
     "pid": {
@@ -80,29 +71,38 @@
         }
     },
     "spline": {
-        "timeoutMS": 15000,
-        "maxBisectionError": 0.001,
-        "segmentLength": 50,
+        "timeoutMS": 10000,
+        "maxBisectionError": 0.05,
+        "segmentLength": 75,
+        "integrator": {
+            "relAcc": 0.1,
+            "minIters": 1,
+            "maxIters": 8,
+            "n": 2,
+            "absAcc": 0.01
+        },
         "verbose": true
     },
     "net": {
         "port": 6666,
-        "dbIP": "192.168.222.13"
+        "dbIP": "192.168.222.16"
     },
     "pathing": {
         "obstacleMoveThreshold": 3,
         "endErrorThresholds": {
             "rotation": 1,
-            "translation": 5
+            "translation": 3
         },
         "gridMhat": 20,
         "obstacles": {
             "rInner": 33,
             "rBuffer": 5
-        }
+        },
+        "usePID": false,
+        "powerScale": 1
     },
     "dashboard": {
-        "isDebugging": true,
+        "isDebugging": false,
         "simulator": {
             "errorMag": 0.5,
             "errorProb": 50
