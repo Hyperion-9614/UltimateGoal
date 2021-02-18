@@ -387,14 +387,16 @@ public class SplineTrajectory {
     public double arcDistance(double T1) {
         if (T1 == 0) return 0;
         int t2 = (int) Math.floor(T1);
-        double length = 0;
+        double length = waypoints.get(t2).distance;
 
         IterativeLegendreGaussIntegrator integrator = new IterativeLegendreGaussIntegrator(5,
                 BaseAbstractUnivariateIntegrator.DEFAULT_RELATIVE_ACCURACY,
                 BaseAbstractUnivariateIntegrator.DEFAULT_ABSOLUTE_ACCURACY
         );
-        for (int T = 0; T < t2; T++) {
-            length += arcLengthInterval(integrator, T, T + 1);
+        if (t2 != 0 && waypoints.get(t2).distance == 0) {
+            for (int T = 0; T < t2; T++) {
+                length += arcLengthInterval(integrator, T, T + 1);
+            }
         }
 
         length += arcLengthInterval(integrator, t2, T1);
