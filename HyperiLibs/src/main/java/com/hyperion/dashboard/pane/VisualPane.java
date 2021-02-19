@@ -39,7 +39,7 @@ public class VisualPane extends VBox {
     public void updateGraphs(DisplaySpline displaySpline) {
         Platform.runLater(() -> {
             tVdGraph.getData().clear();
-            if (displaySpline.waypoints.size() >= 2) {
+            if (displaySpline != null && displaySpline.waypoints.size() >= 2) {
                 HashMap<String, Piecewise> map = new HashMap<>();
                 map.put("Velocity (cm/s)", displaySpline.spline.mP.transVelProfile);
                 tVdGraph.rePlot(map);

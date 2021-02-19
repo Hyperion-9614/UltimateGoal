@@ -71,16 +71,9 @@
         }
     },
     "spline": {
-        "timeoutMS": 10000,
-        "maxBisectionError": 0.05,
-        "segmentLength": 75,
-        "integrator": {
-            "relAcc": 0.1,
-            "minIters": 1,
-            "maxIters": 8,
-            "n": 2,
-            "absAcc": 0.01
-        },
+        "timeoutMS": 15000,
+        "maxBisectionError": 0.001,
+        "segmentLength": 50,
         "verbose": true
     },
     "net": {
