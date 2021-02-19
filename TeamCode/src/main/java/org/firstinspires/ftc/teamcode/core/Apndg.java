@@ -38,23 +38,23 @@ public class Apndg {
      */
     public static void initHW() {
         // Shooter
-        shooterF = Motion.bLDrive;
-        shooterB = Motion.bRDrive;
-        loader = gerald.hwmp.servo.get("loader");
-
-        shooterF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooterB.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooterF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        shooterB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        shooterF = Motion.bLDrive;
+//        shooterB = Motion.bRDrive;
+//        loader = gerald.hwmp.servo.get("loader");
+//
+//        shooterF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        shooterB.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        shooterF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        shooterB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Intake
-        intakeL = Motion.bLDrive;
-        intakeR = Motion.bRDrive;
-
-        intakeL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        intakeR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        intakeL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        intakeR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        intakeL = Motion.bLDrive;
+//        intakeR = Motion.bRDrive;
+//
+//        intakeL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        intakeR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        intakeL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        intakeR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        intakeR.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Wobble
@@ -165,6 +165,7 @@ public class Apndg {
     }
 
     public static class States {
+
         public static State shooter;
         public static State loader;
         public static State intake;
