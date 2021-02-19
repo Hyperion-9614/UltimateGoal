@@ -44,8 +44,8 @@ public class Apndg {
 
         shooterF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooterB.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        shooterF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        shooterB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooterF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Intake
         intakeL = Motion.bLDrive;
@@ -53,8 +53,8 @@ public class Apndg {
 
         intakeL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intakeR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        intakeL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intakeR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intakeR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        intakeR.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Wobble
