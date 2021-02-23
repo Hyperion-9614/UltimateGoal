@@ -127,7 +127,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess"})
 public class FtcRobotControllerActivity extends Activity
   {
   public static final String TAG = "RCActivity";
@@ -289,7 +289,7 @@ public class FtcRobotControllerActivity extends Activity
 
     PreferenceRemoterRC.getInstance().start(prefRemoterStartResult);
 
-    receivedUsbAttachmentNotifications = new ConcurrentLinkedQueue<UsbDevice>();
+    receivedUsbAttachmentNotifications = new ConcurrentLinkedQueue<>();
     eventLoop = null;
 
     setContentView(R.layout.activity_ftc_controller);
@@ -300,19 +300,12 @@ public class FtcRobotControllerActivity extends Activity
 
     entireScreenLayout = (LinearLayout) findViewById(R.id.entire_screen);
     buttonMenu = (ImageButton) findViewById(R.id.menu_buttons);
-    buttonMenu.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        PopupMenu popupMenu = new PopupMenu(FtcRobotControllerActivity.this, v);
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-          @Override
-          public boolean onMenuItemClick(MenuItem item) {
-            return onOptionsItemSelected(item); // Delegate to the handler for the hardware menu button
-          }
-        });
-        popupMenu.inflate(R.menu.ftc_robot_controller);
-        popupMenu.show();
-      }
+    buttonMenu.setOnClickListener(v -> {
+      PopupMenu popupMenu = new PopupMenu(FtcRobotControllerActivity.this, v);
+      // Delegate to the handler for the hardware menu button
+      popupMenu.setOnMenuItemClickListener(this::onOptionsItemSelected);
+      popupMenu.inflate(R.menu.ftc_robot_controller);
+      popupMenu.show();
     });
 
     updateMonitorLayout(getResources().getConfiguration());
@@ -404,12 +397,9 @@ public class FtcRobotControllerActivity extends Activity
     super.onStart();
     RobotLog.vv(TAG, "onStart()");
 
-    entireScreenLayout.setOnTouchListener(new View.OnTouchListener() {
-      @Override
-      public boolean onTouch(View v, MotionEvent event) {
-        dimmer.handleDimTimer();
-        return false;
-      }
+    entireScreenLayout.setOnTouchListener((v, event) -> {
+      dimmer.handleDimTimer();
+      return false;
     });
   }
 
@@ -493,7 +483,7 @@ public class FtcRobotControllerActivity extends Activity
     //
     // Control hubs are always running the access point model.  Everything else, for the time
     // being always runs the wifi direct model.
-    if (Device.isRevControlHub() == true) {
+    if (Device.isRevControlHub()) {
       networkType = NetworkType.RCWIRELESSAP;
     } else {
       networkType = NetworkType.fromString(preferencesHelper.readString(context.getString(R.string.pref_pairing_kind), NetworkType.globalDefaultAsString()));
@@ -532,11 +522,7 @@ public class FtcRobotControllerActivity extends Activity
 
     RobotState robotState = robot.eventLoopManager.state;
 
-    if (robotState != RobotState.RUNNING) {
-      return false;
-    } else {
-      return true;
-    }
+    return robotState == RobotState.RUNNING;
   }
 
   @Override
@@ -587,13 +573,11 @@ public class FtcRobotControllerActivity extends Activity
       finishAffinity();
 
       //For lollipop and up, we can clear ourselves from the recents list too
-      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        List<ActivityManager.AppTask> tasks = manager.getAppTasks();
+      ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+      List<ActivityManager.AppTask> tasks = manager.getAppTasks();
 
-        for (ActivityManager.AppTask task : tasks) {
-          task.finishAndRemoveTask();
-        }
+      for (ActivityManager.AppTask task : tasks) {
+        task.finishAndRemoveTask();
       }
 
       // Allow the user to use the Control Hub operating system's UI, instead of relaunching the app
@@ -681,12 +665,8 @@ public class FtcRobotControllerActivity extends Activity
       callback.updateRobotStatus(controllerService.getRobotStatus());
       // Only show this first-time toast on headless systems: what we have now on non-headless suffices
       requestRobotSetup(LynxConstants.isRevControlHub()
-        ? new Runnable() {
-            @Override public void run() {
-              showRestartRobotCompleteToast(R.string.toastRobotSetupComplete);
-            }
-          }
-        : null);
+        ? (Runnable) () -> showRestartRobotCompleteToast(R.string.toastRobotSetupComplete)
+              : null);
     }
   }
 
@@ -728,11 +708,7 @@ public class FtcRobotControllerActivity extends Activity
     RobotLog.clearGlobalErrorMsg();
     RobotLog.clearGlobalWarningMsg();
     shutdownRobot();
-    requestRobotSetup(new Runnable() {
-      @Override public void run() {
-        showRestartRobotCompleteToast(R.string.toastRestartRobotComplete);
-        }
-      });
+    requestRobotSetup(() -> showRestartRobotCompleteToast(R.string.toastRestartRobotComplete));
   }
 
   private void showRestartRobotCompleteToast(@StringRes int resid) {
@@ -760,12 +736,9 @@ public class FtcRobotControllerActivity extends Activity
   protected void hittingMenuButtonBrightensScreen() {
     ActionBar actionBar = getActionBar();
     if (actionBar != null) {
-      actionBar.addOnMenuVisibilityListener(new ActionBar.OnMenuVisibilityListener() {
-        @Override
-        public void onMenuVisibilityChanged(boolean isVisible) {
-          if (isVisible) {
-            dimmer.handleDimTimer();
-          }
+      actionBar.addOnMenuVisibilityListener(isVisible -> {
+        if (isVisible) {
+          dimmer.handleDimTimer();
         }
       });
     }
@@ -776,11 +749,7 @@ public class FtcRobotControllerActivity extends Activity
       if (key.equals(context.getString(R.string.pref_app_theme))) {
         ThemedActivity.restartForAppThemeChange(getTag(), getString(R.string.appThemeChangeRestartNotifyRC));
       } else if (key.equals(context.getString(R.string.pref_wifi_automute))) {
-        if (preferencesHelper.readBoolean(context.getString(R.string.pref_wifi_automute), false)) {
-          initWifiMute(true);
-        } else {
-          initWifiMute(false);
-        }
+        initWifiMute(preferencesHelper.readBoolean(context.getString(R.string.pref_wifi_automute), false));
       }
     }
   }
@@ -793,13 +762,7 @@ public class FtcRobotControllerActivity extends Activity
 
       motionDetection = new MotionDetection(2.0, 10);
       motionDetection.startListening();
-      motionDetection.registerListener(new MotionDetection.MotionDetectionListener() {
-        @Override
-        public void onMotionDetected(double vector)
-        {
-          wifiMuteStateMachine.consumeEvent(WifiMuteEvent.USER_ACTIVITY);
-        }
-      });
+      motionDetection.registerListener(vector -> wifiMuteStateMachine.consumeEvent(WifiMuteEvent.USER_ACTIVITY));
     } else {
       wifiMuteStateMachine.stop();
       wifiMuteStateMachine = null;
