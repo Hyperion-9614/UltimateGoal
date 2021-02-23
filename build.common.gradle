@@ -20,16 +20,9 @@ import java.util.regex.Pattern
 apply plugin: 'com.android.application'
 
 android {
+
     compileSdkVersion 29
-    applicationId 'com.qualcomm.ftcrobotcontroller'
-    minSdkVersion 25
-    targetSdkVersion 29
-    ndkVersion "21.3.6528147"
-    multiDexEnabled true
-    lintOptions {
-        abortOnError false
-        disable 'InvalidPackage'
-    }
+
     signingConfigs {
         release {
             def apkStoreFile = System.getenv("APK_SIGNING_STORE_FILE")
@@ -129,5 +122,5 @@ repositories {
     flatDir {
         dirs rootProject.file('libs')
     }
+    jcenter()
 }
-apply from: 'build.release.gradle'
