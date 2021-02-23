@@ -18,11 +18,11 @@ Sensor:    	This is a Sample OpMode that shows how to use a specific sensor.
             required to read and display the sensor values.
 
 Hardware:	This is not an actual OpMode, but a helper class that is used to describe
-            one particular robot's gerald configuration:   eg: For the K9 or Pushbot.
+            one particular robot's hardware configuration:   eg: For the K9 or Pushbot.
             Look at any Pushbot sample to see how this can be used in an OpMode.
             Teams can copy one of these to create their own robot definition.
 
-Pushbot:	This is a Sample OpMode that uses the Pushbot robot gerald as a base.
+Pushbot:	This is a Sample OpMode that uses the Pushbot robot hardware as a base.
             It may be used to provide some standard baseline Pushbot opmodes, or
             to demonstrate how a particular sensor or concept can be used directly on the
             Pushbot chassis.
