@@ -34,7 +34,6 @@ import android.os.Bundle;
 
 import com.qualcomm.ftcrobotcontroller.R;
 
-import org.firstinspires.ftc.robotcontroller.vision.FtcRobotControllerVisionActivity;
 import org.firstinspires.ftc.robotcore.internal.system.Misc;
 import org.firstinspires.ftc.robotcore.internal.system.PermissionValidatorActivity;
 
@@ -57,7 +56,7 @@ public class PermissionValidatorWrapper extends PermissionValidatorActivity {
         add(Manifest.permission.READ_PHONE_STATE);
     }};
 
-    private final static Class startApplication = FtcRobotControllerVisionActivity.class;
+    private final static Class startApplication = FtcRobotControllerActivity.class;
 
     public String mapPermissionToExplanation(final String permission) {
         if (permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
