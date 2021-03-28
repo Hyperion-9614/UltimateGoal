@@ -65,8 +65,7 @@ public class Apndg {
      * Sets positions of appendages to init state
      */
     public static void initPositions() {
-        setShooter(State.OFF);
-        setLoader(State.BACK);
+//        setLoader(State.BACK);
     }
 
     /**
@@ -79,7 +78,7 @@ public class Apndg {
         double power = Constants.getDouble("apndg.shooter.power");
         switch (state) {
             case ON:
-                shooterF.setPower(-power);
+                shooterF.setPower(power);
                 shooterB.setPower(-power);
                 break;
             case OFF:

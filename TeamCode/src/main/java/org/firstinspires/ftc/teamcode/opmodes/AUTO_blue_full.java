@@ -33,10 +33,7 @@ public class AUTO_blue_full extends LinearOpMode {
             gerald.autoTime = new ElapsedTime();
             gerald.status = "Running OpMode " + gerald.opModeID.toString();
 
-            Apndg.setShooter(State.ON);
-            Motion.pidMove("wobble0");
-            Apndg.setShooter(State.OFF);
-            Motion.straightSplineToPose(new Pose(200, 0, 0));
+            Motion.pidMove(200, 0);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -13,6 +13,7 @@ import com.hyperion.motion.pathplanning.Obstacle;
 import com.hyperion.motion.trajectory.PIDCtrl;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.modules.Localizer;
@@ -80,8 +81,8 @@ public class Motion {
             drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
-        fRDrive.setDirection(DcMotor.Direction.REVERSE);
-        bRDrive.setDirection(DcMotor.Direction.REVERSE);
+        fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Odometry
         xLOdo = fRDrive;
@@ -155,8 +156,9 @@ public class Motion {
     // Sets start and robot rigidbodies to a fixed pose
     public static void setStartRB() {
 //        Pose startPose = getSpline("test").waypoints.get(0);
-        Pose startPose = getWaypoint("start");
-        if (startPose == null) startPose = new Pose();
+//        Pose startPose = getWaypoint("start");
+//        if (startPose == null) startPose = new Pose();
+        Pose startPose = new Pose(0, 0, 0);
         start = new RigidBody(startPose);
         robot = new RigidBody(startPose);
     }
