@@ -47,8 +47,6 @@ public class LeftPane extends VBox {
     public Timer constantsSaveTimer = new Timer();
     private long mostRecentSaveTime;
 
-    public TextField simText;
-    public Button simulate;
     public CheckBox showPathingGrid;
 
     public double width;
@@ -206,57 +204,6 @@ public class LeftPane extends VBox {
             FlowPane simulateOptions = new FlowPane();
             simulateOptions.setHgap(10);
             simulateOptions.setPrefWrapLength(width);
-
-            simText = new TextField();
-            simText.setStyle("-fx-font: 16px \"Arial\"; -fx-text-alignment:left; -fx-focus-color: transparent;");
-            simText.setEditable(false);
-            simText.setPrefSize(3.0 * width / 4.0, 40);
-            simulateOptions.getChildren().add(simText);
-
-            simulate = new Button("Select\nSimulants");
-            simulate.setStyle("-fx-font: 14px \"Arial\"; -fx-text-alignment:center; -fx-focus-color: transparent;");
-            simulate.setTextAlignment(TextAlignment.CENTER);
-            simulate.setPrefSize(width / 4.0, 40);
-            simulate.setOnMouseClicked(event -> {
-                switch (Dashboard.simulator.state) {
-                    case INACTIVE:
-                        Dashboard.simulator.state = Simulator.State.SELECTING;
-                        simulate.setText("Simulate");
-                        break;
-                    case SELECTING:
-                        if (Dashboard.simulator.simulants[1] != null) {
-                            Dashboard.simulator.simulate();
-                        }
-                        break;
-                    case SIMULATING:
-                        Dashboard.simulator.state = Simulator.State.INACTIVE;
-                        simText.setText("");
-                        while (Dashboard.simulator.simulationThread != null && Dashboard.simulator.simulationThread.isAlive()) {}
-                        break;
-                }
-            });
-            simulateOptions.getChildren().add(simulate);
-
-            getChildren().add(simulateOptions);
-
-            CheckBox simDynPath = new CheckBox("Simulate Dynamic Pathing");
-            simDynPath.setPrefWidth(width);
-            simDynPath.setTextFill(Color.WHITE);
-            simDynPath.setStyle("-fx-font: 20px \"Arial\"; -fx-focus-color: transparent;");
-            simDynPath.setTextAlignment(TextAlignment.LEFT);
-            simDynPath.setOnMouseClicked(event -> Dashboard.simulator.isSimDynPath = simDynPath.isSelected());
-            getChildren().add(simDynPath);
-
-            CheckBox simPID = new CheckBox("Simulate PID Correction");
-            simPID.setPrefWidth(width);
-            simPID.setTextFill(Color.WHITE);
-            simPID.setStyle("-fx-font: 20px \"Arial\"; -fx-focus-color: transparent;");
-            simPID.setTextAlignment(TextAlignment.LEFT);
-            simPID.setOnMouseClicked(event -> {
-                Dashboard.simulator.isSimPID = simPID.isSelected();
-            });
-            simPID.setSelected(true);
-            getChildren().add(simPID);
 
             Label constantsLabel = new Label("Constants");
             constantsLabel.setTextFill(Color.YELLOW);

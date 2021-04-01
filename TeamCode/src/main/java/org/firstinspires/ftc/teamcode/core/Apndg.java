@@ -14,9 +14,13 @@ public class Apndg {
     public static Gerald gerald;
 
     // Shooter
-    public static DcMotor shooterF;
-    public static DcMotor shooterB;
+    public static DcMotor shooterL;
+    public static DcMotor shooterR;
+    public static Servo flap;
+
+    // Transfer
     public static Servo loader;
+    public static Servo elevator;
 
     // Intake
     public static DcMotor intakeL;
@@ -38,14 +42,18 @@ public class Apndg {
      */
     public static void initHW() {
         // Shooter
-//        shooterF = Motion.bLDrive;
-//        shooterB = Motion.bRDrive;
-//        loader = gerald.hwmp.servo.get("loader");
+//        shooterL = Motion.bLDrive;
+//        shooterR = Motion.bRDrive;
+        flap = gerald.hwmp.servo.get("flap");
 //
-//        shooterF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        shooterB.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        shooterF.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        shooterB.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        shooterL.setMode(DcMotor.RunModae.STOP_AND_RESET_ENCODER);
+//        shooterR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Transfer
+        loader = gerald.hwmp.servo.get("loader");
+        elevator = gerald.hwmp.servo.get("elevator");
 
         // Intake
 //        intakeL = Motion.bLDrive;
@@ -65,7 +73,9 @@ public class Apndg {
      * Sets positions of appendages to init state
      */
     public static void initPositions() {
-//        setLoader(State.BACK);
+        setElevator(State.DOWN);
+        setLoader(State.OUT);
+        setFlap(45);
     }
 
     /**
@@ -78,14 +88,23 @@ public class Apndg {
         double power = Constants.getDouble("apndg.shooter.power");
         switch (state) {
             case ON:
-                shooterF.setPower(power);
-                shooterB.setPower(-power);
+                shooterL.setPower(power);
+                shooterR.setPower(-power);
                 break;
             case OFF:
-                shooterF.setPower(0);
-                shooterB.setPower(0);
+                shooterL.setPower(0);
+                shooterR.setPower(0);
                 break;
         }
+    }
+
+    /**
+     * Sets the elevator to the given angle with the horizontal
+     *
+     * @param  angleDeg  the angle with the horizontal to angle the shooter flap
+     */
+    public static void setFlap(double angleDeg) {
+
     }
 
     /**
@@ -101,6 +120,23 @@ public class Apndg {
                 break;
             case FORTH:
                 loader.setPosition(Constants.getDouble("apndg.loader.forth"));
+                break;
+        }
+    }
+
+    /**
+     * Sets the elevator to the given state
+     *
+     * @param  state  DOWN | UP
+     */
+    public static void setElevator(State state) {
+        States.elevator = state;
+        switch (state) {
+            case DOWN:
+                elevator.setPosition(Constants.getDouble("apndg.elevator.down"));
+                break;
+            case UP:
+                elevator.setPosition(Constants.getDouble("apndg.elevator.up"));
                 break;
         }
     }
@@ -148,25 +184,28 @@ public class Apndg {
      */
     public static void shoot(double angleDeg, int numTimes) {
         gerald.status = "Shooting at angle " + angleDeg + "\u00B0 " + numTimes + " times";
-        // change flap
-        if (States.intake != State.OFF)
-            setIntake(State.OFF);
+        setFlap(angleDeg);
+        setIntake(State.OFF);
         setShooter(State.ON);
         for (int i = 0; i < numTimes; i++)
             loadRing();
-        if (numTimes > 0)
+        if (numTimes > 0) {
             setShooter(State.OFF);
-        gerald.clearStatus();
+            gerald.clearStatus();
+        } else {
+            gerald.status = "Shooter enabled indefinitely";
+        }
     }
 
     public enum State {
-        ON, OFF, BACK, FORTH, IN, OUT
+        ON, OFF, BACK, FORTH, IN, OUT, DOWN, UP
     }
 
     public static class States {
 
         public static State shooter;
         public static State loader;
+        public static State elevator;
         public static State intake;
 
     }

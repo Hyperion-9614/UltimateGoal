@@ -32,8 +32,6 @@ public class AUTO_blue_full extends LinearOpMode {
         try {
             gerald.autoTime = new ElapsedTime();
             gerald.status = "Running OpMode " + gerald.opModeID.toString();
-
-            Motion.pidMove(200, 0);
         } catch (Exception e) {
             e.printStackTrace();
         }

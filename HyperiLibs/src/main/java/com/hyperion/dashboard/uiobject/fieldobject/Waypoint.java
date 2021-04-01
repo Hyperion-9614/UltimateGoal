@@ -152,26 +152,10 @@ public class Waypoint extends FieldObject {
 
         displayGroup.setOnMousePressed((event -> {
             if (event.getButton() == MouseButton.PRIMARY) {
-                if (Dashboard.simulator.state == Simulator.State.SELECTING) {
-                    if (parentSpline != null) {
-                        Dashboard.simulator.simulants[0] = parentSpline;
-                        Dashboard.simulator.simulants[1] = parentSpline;
-                    } else {
-                        if (Dashboard.simulator.isSelectingFirst) {
-                            Dashboard.simulator.simulants[0] = this;
-                            Dashboard.simulator.isSelectingFirst = false;
-                        } else {
-                            Dashboard.simulator.simulants[1] = this;
-                            Dashboard.simulator.isSelectingFirst = true;
-                        }
-                    }
-                    Dashboard.leftPane.simText.setText("Selected " + Dashboard.simulator.selectionStr());
-                } else {
-                    startDragTime = System.currentTimeMillis();
-                    dragDx = imgView.getLayoutX() - event.getSceneX();
-                    dragDy = imgView.getLayoutY() - event.getSceneY();
-                    Dashboard.fieldPane.select(this);
-                }
+                startDragTime = System.currentTimeMillis();
+                dragDx = imgView.getLayoutX() - event.getSceneX();
+                dragDy = imgView.getLayoutY() - event.getSceneY();
+                Dashboard.fieldPane.select(this);
             }
         }));
 

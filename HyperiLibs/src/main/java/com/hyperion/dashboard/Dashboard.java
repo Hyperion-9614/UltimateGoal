@@ -128,13 +128,6 @@ public class Dashboard extends Application {
         Scene scene = new Scene(all, 1280, 720, Color.TRANSPARENT);
         scene.setOnKeyPressed(event -> {
             isSplineEditMode = event.isShiftDown();
-            if (event.getCode() == KeyCode.ESCAPE) {
-                if (simulator.state == Simulator.State.SELECTING) {
-                    simulator.state = Simulator.State.INACTIVE;
-                    leftPane.simulate.setText("Select\nSimulants");
-                    leftPane.simText.setText("");
-                }
-            }
         });
         scene.setOnKeyReleased(event -> isSplineEditMode = event.isShiftDown());
 
