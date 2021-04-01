@@ -91,6 +91,10 @@ public class Vector2D {
         return new Vector2D(magnitude, newTheta, false);
     }
 
+    public void addMagnitude(double dMag) {
+        setMagnitude(magnitude + dMag);
+    }
+
     public void rotate(double dTheta) {
         setTheta(theta + dTheta);
     }

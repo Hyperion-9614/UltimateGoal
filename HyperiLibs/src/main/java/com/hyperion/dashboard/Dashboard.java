@@ -232,8 +232,6 @@ public class Dashboard extends Application {
                         while (iter.hasNext()) {
                             FieldObject next = iter.next();
                             if (next.id.equals(edit.id)) {
-                                if (next.id.contains("pathPoint"))
-                                    numPathPoints--;
                                 next.removeDisplayGroup();
                                 iter.remove();
                                 break;

@@ -1,9 +1,11 @@
 package com.hyperion.dashboard.uiobject.fieldobject;
 
+import com.hyperion.common.ID;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.Vector2D;
 
+import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
@@ -13,7 +15,10 @@ import javafx.scene.shape.*;
  * https://gist.github.com/kn0412/2086581e98a32c8dfa1f69772f14bca4
  */
 
-public class Arrow {
+public class Arrow extends FieldObject {
+
+    public Pose origin;
+    public Vector2D vec;
 
     public Color color;
     public double headSize;
@@ -28,27 +33,37 @@ public class Arrow {
     public Line lHead;
     public Line rHead;
 
-    public Arrow(Color color, double headSize) {
+    public Arrow(ID id, Color color, double headSize, Pose origin, Vector2D vec) {
+        this.id = id;
         this.color = color;
         this.headSize = headSize;
+        this.origin = origin;
+        this.vec = vec;
+        createDisplayGroup();
+    }
+
+    @Override
+    public void createDisplayGroup() {
+        displayGroup = new Group();
 
         shaft = new Line();
         shaft.setStroke(color);
         shaft.setStrokeWidth(3);
+
         lHead = new Line();
         lHead.setStroke(color);
         lHead.setStrokeWidth(3);
+
         rHead = new Line();
         rHead.setStroke(color);
         rHead.setStrokeWidth(3);
 
-        displayGroup = new Group();
         displayGroup.getChildren().addAll(shaft, lHead, rHead);
     }
 
-    public Arrow(Color color, double headSize, double[] start, double[] end) {
-        this(color, headSize);
-        set(start, end);
+    @Override
+    public void addDisplayGroup() {
+        Platform.runLater(() -> Dashboard.fieldPane.getChildren().add(displayGroup));
     }
 
     public double[] getStart() {
@@ -58,7 +73,11 @@ public class Arrow {
         return new double[]{ shaft.getEndX(), shaft.getEndY() };
     }
 
-    public void set(double[] start, double[] end) {
+    @Override
+    public void refreshDisplayGroup() {
+        double[] start = Dashboard.fieldPane.poseToDisplay(origin, 0);
+        double[] end = Dashboard.fieldPane.poseToDisplay(origin.addVector(vec), 0);
+
         startX = start[0];
         startY = start[1];
         endX = end[0];
@@ -93,14 +112,8 @@ public class Arrow {
         rHead.setEndY(endY);
     }
 
-    public void set(Pose origin, Vector2D vec) {
-        set(Dashboard.fieldPane.poseToDisplay(origin, 0),
-            Dashboard.fieldPane.poseToDisplay(origin.addVector(vec), 0));
+    @Override
+    public void removeDisplayGroup() {
+        Platform.runLater(() -> Dashboard.fieldPane.getChildren().remove(displayGroup));
     }
-
-    public void set(Pose origin, Pose dest) {
-        set(Dashboard.fieldPane.poseToDisplay(origin, 0),
-            Dashboard.fieldPane.poseToDisplay(dest, 0));
-    }
-
 }

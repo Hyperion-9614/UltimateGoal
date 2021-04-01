@@ -41,6 +41,10 @@
         "autoOpModeIDs": ["auto.blue.full"],
         "localizationDelay": 10
     },
+    "simulator": {
+        "kSlip": 0.1,
+        "kStrafe": 0.5
+    },
     "apndg": {
         "shooter": {
             "power": 1.0

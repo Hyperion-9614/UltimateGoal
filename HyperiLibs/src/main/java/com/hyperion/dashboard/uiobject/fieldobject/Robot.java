@@ -20,15 +20,11 @@ import javafx.scene.text.Text;
 public class Robot extends FieldObject {
 
     public RigidBody rB;
-    public Vector2D mPVel;
-    public Vector2D pidCorrVel;
+    public Arrow vel;
+    public Arrow acc;
 
     public ImageView imgView;
     public Text info;
-
-    public Arrow mPVelArrow;
-    public Arrow pidCorrVelArrow;
-    public Arrow finalVelArrow;
 
     public Robot(ID id) {
         this.id = id;
@@ -70,10 +66,8 @@ public class Robot extends FieldObject {
             info.setFill(Color.WHITE);
             displayGroup.getChildren().add(info);
 
-            mPVelArrow = new Arrow(Color.WHITE, 15);
-            pidCorrVelArrow = new Arrow(Color.BLUE, 15);
-            finalVelArrow = new Arrow(Color.BLACK, 15);
-            displayGroup.getChildren().addAll(mPVelArrow.displayGroup, pidCorrVelArrow.displayGroup, finalVelArrow.displayGroup);
+            vel = new Arrow(new ID(id, "arrow", "vel"), Color.BLACK, 15, rB, rB.tVel);
+            acc = new Arrow(new ID(id, "arrow", "acc"), Color.BLACK, 15, rB, rB.tAcc);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -81,36 +75,32 @@ public class Robot extends FieldObject {
 
     public void addDisplayGroup() {
         Platform.runLater(() -> Dashboard.fieldPane.getChildren().add(displayGroup));
+        vel.addDisplayGroup();
+        acc.addDisplayGroup();
     }
 
     public void refreshDisplayGroup() {
-        double[] display = Dashboard.fieldPane.poseToDisplay(rB, Dashboard.fieldPane.robotSize);
-        imgView.relocate(display[0], display[1]);
-        imgView.setRotate(display[2]);
+        Platform.runLater(() -> {
+            double[] display = Dashboard.fieldPane.poseToDisplay(rB, Dashboard.fieldPane.robotSize);
+            imgView.relocate(display[0], display[1]);
+            imgView.setRotate(display[2]);
 
-        info.setText(rB.toString().replace(" | ", "\n")
-                .replace("°", "\u00B0")
-                .replace("θ", "\u03F4".toLowerCase())
-                .replace("²", "\u00B2"));
-        info.relocate(display[0] + Dashboard.fieldPane.robotSize + 3, display[1] + Dashboard.fieldPane.robotSize - 21);
+            info.setText(rB.toString().replace(" | ", "\n")
+                    .replace("°", "\u00B0")
+                    .replace("θ", "\u03F4".toLowerCase())
+                    .replace("²", "\u00B2"));
+            info.relocate(display[0] + Dashboard.fieldPane.robotSize + 3, display[1] + Dashboard.fieldPane.robotSize - 21);
 
-        if (mPVel != null && pidCorrVel != null) {
-            mPVelArrow.set(rB, mPVel);
-            pidCorrVelArrow.set(rB, pidCorrVel);
-            mPVel = null;
-            pidCorrVel = null;
-        }
-        finalVelArrow.set(rB, rB.tVel);
-    }
-
-    public void setPIDandMPvels(Vector2D mPVel, Vector2D pidCorrVel) {
-        this.mPVel = mPVel;
-        this.pidCorrVel = pidCorrVel;
+            vel.refreshDisplayGroup();
+            acc.refreshDisplayGroup();
+        });
     }
 
     public void removeDisplayGroup() {
         Platform.runLater(() -> Dashboard.fieldPane.getChildren().remove(displayGroup));
         Dashboard.isRobotOnField = false;
+        vel.removeDisplayGroup();
+        acc.removeDisplayGroup();
     }
 
     public void select() {

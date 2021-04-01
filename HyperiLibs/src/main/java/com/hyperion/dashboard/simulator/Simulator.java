@@ -3,214 +3,103 @@ package com.hyperion.dashboard.simulator;
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.MathUtils;
-import com.hyperion.dashboard.Dashboard;
-import com.hyperion.dashboard.uiobject.fieldobject.Arrow;
-import com.hyperion.dashboard.uiobject.fieldobject.DisplaySpline;
-import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import com.hyperion.dashboard.uiobject.fieldobject.Robot;
-import com.hyperion.dashboard.uiobject.fieldobject.Waypoint;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
 import com.hyperion.motion.math.Vector2D;
-import com.hyperion.motion.pathplanning.DStarLite;
-import com.hyperion.motion.trajectory.PIDCtrl;
-import com.hyperion.motion.trajectory.SplineTrajectory;
 
-import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javafx.application.Platform;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class Simulator {
 
+    public ArrayList<Simulation> simulations;
     public Thread simulationThread;
-    public State state;
 
-    public boolean isSimPID = true;
-    public boolean isSimDynPath;
-
-    public FieldObject[] simulants;
-    public boolean isSelectingFirst = true;
-    public DStarLite pathPlanner;
+    public RigidBody robot;
 
     public Simulator() {
-        this.state = State.INACTIVE;
-        simulants = new FieldObject[2];
+        robot = new RigidBody(new Pose(0, 0, 0));
+
+        simulations = new ArrayList<>();
+        simulations.add(new Test());
     }
 
-    public void simulate() {
+    public void simulate(String name) {
+        Simulation sim = simulations.stream()
+                .filter(s -> s.id.sub(2).equals(name))
+                .collect(Collectors.toList()).get(0);
         simulationThread = new Thread(() -> {
-            state = State.SIMULATING;
-            pathPlanner = new DStarLite(Dashboard.fieldPane.fixedObstacles);
-
-            DisplaySpline displaySpline;
-            SplineTrajectory spline;
-            if (simulants[0] instanceof DisplaySpline) {
-                displaySpline = (DisplaySpline) simulants[0];
-                spline = displaySpline.spline;
-            } else {
-                Pose start = ((Waypoint) simulants[0]).pose;
-                Pose goal = ((Waypoint) simulants[1]).pose;
-                if (isSimDynPath) {
-                    pathPlanner.init(start, goal);
-                    spline = new SplineTrajectory(pathPlanner.getPath());
-                } else {
-                    spline = new SplineTrajectory(start, goal);
-                }
-                displaySpline = new DisplaySpline(new ID(Dashboard.opModeID, "spline", "simulation"), spline);
-                displaySpline.addDisplayGroup();
-            }
-
-            Arrow errorAccArrow = new Arrow(Color.RED, 15);
-            Robot simRob = new Robot(new ID("robot.simulation"), spline.getDPose(0));
-            Robot setPointRob = new Robot(new ID("robot.setPoint"), spline.getDPose(0));
-
-            Platform.runLater(() -> {
-                Dashboard.leftPane.simulate.setText("Stop\nSim");
-                Dashboard.leftPane.simText.setText("Simulating " + selectionStr());
-                Dashboard.fieldPane.getChildren().add(simRob.displayGroup);
-                Dashboard.fieldPane.getChildren().add(setPointRob.displayGroup);
-                Dashboard.fieldPane.getChildren().add(errorAccArrow.displayGroup);
-            });
-
-            double lastTheta = spline.waypoints.get(0).theta;
-            double lastAngVel = 0;
-            double distance = 0;
-
-            simRob.rB = spline.mP.getRigidBody(0);
-            Pose last = new Pose(simRob.rB);
-            Pose goal = new Pose(spline.waypoints.get(spline.waypoints.size() - 1));
-
-            Vector2D mPVel = new Vector2D();
-            Vector2D errorAcc = new Vector2D();
-            Vector2D pidCorrVel = new Vector2D();
-            double pidCorrRot;
-
-            double errorMag = Constants.getDouble("dashboard.simulator.errorMag");
-            double errorProb = Constants.getInt("dashboard.simulator.errorProb");
-
-            PIDCtrl.reset();
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            Timer collisionTimer = new Timer();
-            class CollisionTask extends TimerTask {
-                @Override
-                public void run() {
-                    double kProb = (Math.random() <= (errorProb / 100.0)) ? 1 : 0;
-                    errorAcc.setVec(new Vector2D(kProb * errorMag * MathUtils.randInRange(new Random(), 0, 75),
-                                                 kProb * MathUtils.randInRange(new Random(), 0, 2 * Math.PI), false));
-                    try {
-                        Thread.sleep((int) MathUtils.randInRange(new Random(), 0, 1500));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    collisionTimer.schedule(new CollisionTask(), (int) MathUtils.randInRange(new Random(), 0, 1500));
-                }
-            }
-            CollisionTask randomError = new CollisionTask();
-            randomError.run();
-
-            long startTime = System.currentTimeMillis();
-            long lastTime = startTime;
-            while (state != State.INACTIVE && (System.currentTimeMillis() - startTime) <= Constants.getInt("spline.timeoutMS")
-                   && (simRob.rB.distanceTo(goal) > Constants.getDouble("pathing.endErrorThresholds.translation")
-                   || Math.abs(MathUtils.optThetaDiff(simRob.rB.theta, goal.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))) {
-                double dTime = (System.currentTimeMillis() - lastTime) / 1000.0;
-                lastTime = System.currentTimeMillis();
-                distance += last.distanceTo(simRob.rB);
-                last = new Pose(simRob.rB);
-
-                RigidBody setPoint = spline.mP.getRigidBody(Math.min(distance + 1, spline.totalArcLength()));
-                PIDCtrl.setGoal(setPoint);
-
-                mPVel.setVec(setPoint.tVel);
-                simRob.rB.tVel.setVec(setPoint.tVel);
-
-                simRob.rB.tVel.add(errorAcc);
-
-                if (isSimPID) {
-                    Object[] pidCorr = PIDCtrl.correction(simRob.rB);
-                    pidCorrVel.setVec((Vector2D) pidCorr[0]);
-                    pidCorrRot = (double) pidCorr[1];
-                    simRob.rB.tVel.add(pidCorrVel);
-                    simRob.rB.addXYT(0, 0, pidCorrRot);
-                }
-
-                Vector2D dPos = simRob.rB.tVel.scaled(dTime);
-                simRob.rB.setPose(simRob.rB.addVector(dPos));
-
-                simRob.rB.aVel = (simRob.rB.theta - lastTheta) / dTime;
-                lastTheta = simRob.rB.theta;
-                simRob.rB.aAcc = (simRob.rB.aVel - lastAngVel) / dTime;
-                lastAngVel = simRob.rB.aVel;
-
-                Platform.runLater(() -> {
-                    simRob.refreshDisplayGroup();
-                    setPointRob.rB = setPoint;
-                    setPointRob.refreshDisplayGroup();
-
-                    errorAccArrow.set(simRob.rB, errorAcc);
-                    simRob.setPIDandMPvels(mPVel, pidCorrVel);
-                });
-
-                if (isSimDynPath) {
-                    pathPlanner.robotMoved(simRob.rB);
-
-                    if (pathPlanner.updateDynamicObstacles(Dashboard.fieldPane.dynamicObstacles)) {
-                        pathPlanner.recompute();
-
-                        spline = new SplineTrajectory(pathPlanner.getPath());
-                        displaySpline.refreshDisplayGroup();
-                        distance = 0;
-                        PIDCtrl.reset();
-                    }
-                }
-            }
-
-            randomError.cancel();
-
-            if (System.currentTimeMillis() - startTime >= Constants.getInt("spline.timeoutMS")) {
-                System.out.println(selectionStr() + " simulation timed out");
-            }
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            Platform.runLater(() -> {
-                Dashboard.fieldPane.getChildren().remove(errorAccArrow.displayGroup);
-                Dashboard.fieldPane.getChildren().remove(simRob.displayGroup);
-                Dashboard.fieldPane.getChildren().remove(setPointRob.displayGroup);
-                Dashboard.leftPane.simulate.setText("Select\nSimulants");
-                Dashboard.leftPane.simText.setText("");
-            });
-
-            simulants = new FieldObject[2];
-            state = State.INACTIVE;
+            sim.init(robot);
+            sim.run();
         });
         simulationThread.start();
-    }
 
-    public String selectionStr() {
-        if (simulants[0] instanceof DisplaySpline) {
-            return simulants[0].id.toString();
-        } else {
-            return (simulants[0] == null ? "" : simulants[0].id.get(-1)) + " -> " + (simulants[1] == null ? "" : simulants[1].id.get(-1));
+        Robot simRob = new Robot(new ID("robot.sim"), robot);
+        simRob.addDisplayGroup();
+
+        Vector2D lastTvel = new Vector2D();
+        double lastAVel = 0;
+
+        long startTime = System.currentTimeMillis();
+        long lastTime = startTime;
+        while (sim.state == Simulation.State.RUNNING) {
+            double dTime = (System.currentTimeMillis() - lastTime) / 1000.0;
+            lastTime = System.currentTimeMillis();
+
+            setEmpiricalMotionVectors(sim, dTime);
+            robot.addXYT(robot.tVel.x * dTime, robot.tVel.y * dTime, robot.aVel * dTime);
+            robot.theta = MathUtils.norm(robot.theta, 0, 2 * Math.PI);
+
+            robot.tAcc = new Vector2D(Math.abs(robot.tVel.magnitude - lastTvel.magnitude),
+                    MathUtils.norm(robot.tVel.theta + (robot.tVel.magnitude < lastTvel.magnitude ? Math.PI : 0), 0, 2 * Math.PI),
+                    false).scaled(1.0 / dTime);
+            lastTvel = new Vector2D(robot.tVel);
+            robot.aVel = (robot.aVel - lastAVel) / dTime;
+            lastAVel = robot.aVel;
         }
+        simRob.removeDisplayGroup();
     }
 
-    public enum State {
-        INACTIVE, SELECTING, SIMULATING
+    /**
+     * Sets the robot's translational/angular acceleration and velocity based on mechanum powers and realistic physics
+     *
+     * @param  sim    the simultion instance
+     * @param  dTime  the change in time
+     */
+    private void setEmpiricalMotionVectors(Simulation sim, double dTime) {
+        /* fL | turn: 0, pi | roll: pi/4, 5pi/4
+         * fR | turn: 0, pi | roll: 7pi/4, 3pi/4
+         * bL | turn: 0, pi | roll: 7pi/4, 3pi/4
+         * bR | turn: 0, pi | roll: pi/4, 5pi/4
+         */
+        double kReal = 1 - Constants.getDouble("simulator.kSlip");
+        double kStrafe = Constants.getDouble("simulator.kStrafe") * (sim.fLPow - sim.bLPow) / 2;
+
+        Vector2D fLturn = new Vector2D(sim.fLPow, getDir(sim.fLPow, 0, 1), false);
+        Vector2D fLroll = new Vector2D(kStrafe * sim.fLPow, getDir(sim.fLPow, 1.0/4, 5.0/4), false);
+
+        Vector2D fRturn = new Vector2D(sim.fRPow, getDir(sim.fRPow, 0, 1), false);
+        Vector2D fRroll = new Vector2D(kStrafe * sim.fRPow, getDir(sim.fRPow, 7.0/4, 3.0/4), false);
+
+        Vector2D bLturn = new Vector2D(sim.bLPow, getDir(sim.bLPow, 0, 1), false);
+        Vector2D bLroll = new Vector2D(kStrafe * sim.bLPow, getDir(sim.bLPow, 7.0/4, 3.0/4), false);
+
+        Vector2D bRturn = new Vector2D(sim.bRPow, getDir(sim.bRPow, 0, 1), false);
+        Vector2D bRroll = new Vector2D(kStrafe * sim.bRPow, getDir(sim.bRPow, 1.0/4, 5.0/4), false);
+
+        Vector2D x = fLturn.added(bLturn).added(fRturn).added(bRturn);
+        Vector2D y = fLroll.added(bLroll).added(fRroll).added(bRroll);
+
+        Vector2D finalVec = x.added(y).scaled(kReal);
+        double rot = (sim.fLPow - sim.bRPow) / 2;
+
+        robot.tVel.setVec(finalVec.scaled(Constants.getDouble("motionProfile.maxes.tVel")));
+        robot.aVel = -rot * Constants.getDouble("motionProfile.maxes.aVel");
+    }
+
+    private double getDir(double pow, double nForth, double nBack) {
+        return MathUtils.sign(pow) == 1 ? nForth * Math.PI : nBack * Math.PI;
     }
 
 }
