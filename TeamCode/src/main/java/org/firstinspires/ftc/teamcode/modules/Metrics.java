@@ -54,9 +54,12 @@ public class Metrics {
         data.add(new Entry());
 
         data.add(new Entry("Appendages"));
-//        data.add(new Entry("ShooterL", Apndg.shooterF.getPower()));
-//        data.add(new Entry("ShooterR", Apndg.shooterB.getPower()));
-//        data.add(new Entry("Loader", Apndg.loader.getPosition()));
+        data.add(new Entry("Shooter", Apndg.States.shooter
+                + " - L: " + MathUtils.round(Apndg.shooterL.getPower(), 2)
+                + " R: " + MathUtils.round(Apndg.shooterR.getPower(), 2)));
+        data.add(new Entry("Flap", MathUtils.round(Apndg.States.flap, 2) + "\u00B0 - " + MathUtils.round(Apndg.flap.getPosition(), 2)));
+        data.add(new Entry("Loader", Apndg.States.loader + " - " + MathUtils.round(Apndg.loader.getPosition(), 2)));
+        data.add(new Entry("Elevator", Apndg.States.elevator + " - " + MathUtils.round(Apndg.elevator.getPosition(), 2)));
         data.add(new Entry());
 
         data.add(new Entry("Gamepad 1"));

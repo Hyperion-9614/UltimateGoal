@@ -50,12 +50,12 @@
             "power": 1.0
         },
         "loader": {
-            "back": 0.3,
-            "forth": 0.75
+            "out": 0.3,
+            "in": 0.75
         },
         "elevator": {
-            "down": 0,
-            "up": 0.5
+            "down": 0.6,
+            "up": 0.3
         },
         "intake": {
             "power": 1.0

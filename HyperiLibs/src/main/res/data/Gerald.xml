@@ -7,6 +7,8 @@
             <NeveRest20Gearmotor name="bRDrive" port="2" />
             <NeveRest20Gearmotor name="bLDrive" port="3" />
             <Servo name="loader" port="0" />
+            <Servo name="elevator" port="1" />
+            <Servo name="flap" port="2" />
             <LynxEmbeddedIMU name="imu" port="0" bus="0" />
         </LynxModule>
     </LynxUsbDevice>

@@ -42,14 +42,14 @@ public class Apndg {
      */
     public static void initHW() {
         // Shooter
-//        shooterL = Motion.bLDrive;
-//        shooterR = Motion.bRDrive;
+        shooterL = Motion.fLDrive;
+        shooterR = Motion.fRDrive;
         flap = gerald.hwmp.servo.get("flap");
-//
-//        shooterL.setMode(DcMotor.RunModae.STOP_AND_RESET_ENCODER);
-//        shooterR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        shooterL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooterR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Transfer
         loader = gerald.hwmp.servo.get("loader");
@@ -104,22 +104,22 @@ public class Apndg {
      * @param  angleDeg  the angle with the horizontal to angle the shooter flap
      */
     public static void setFlap(double angleDeg) {
-
+        States.flap = angleDeg;
     }
 
     /**
      * Sets the loader to the given state
      *
-     * @param  state  BACK | FORTH
+     * @param  state  OUT | IN
      */
     public static void setLoader(State state) {
         States.loader = state;
         switch (state) {
-            case BACK:
-                loader.setPosition(Constants.getDouble("apndg.loader.back"));
+            case OUT:
+                loader.setPosition(Constants.getDouble("apndg.loader.out"));
                 break;
-            case FORTH:
-                loader.setPosition(Constants.getDouble("apndg.loader.forth"));
+            case IN:
+                loader.setPosition(Constants.getDouble("apndg.loader.in"));
                 break;
         }
     }
@@ -169,10 +169,12 @@ public class Apndg {
      * Loads a ring into the shooter
      */
     public static void loadRing() {
-        setLoader(State.FORTH);
+        if (States.loader != State.OUT)
+            setLoader(State.OUT);
         gerald.ctx.sleep(500);
-        setLoader(State.BACK);
+        setLoader(State.IN);
         gerald.ctx.sleep(500);
+        setLoader(State.OUT);
     }
 
     /**
@@ -185,8 +187,12 @@ public class Apndg {
     public static void shoot(double angleDeg, int numTimes) {
         gerald.status = "Shooting at angle " + angleDeg + "\u00B0 " + numTimes + " times";
         setFlap(angleDeg);
-        setIntake(State.OFF);
+//        if (States.intake != State.OFF)
+//            setIntake(State.OFF);
+        if (States.elevator != State.UP)
+            setElevator(State.UP);
         setShooter(State.ON);
+        gerald.ctx.sleep(500);
         for (int i = 0; i < numTimes; i++)
             loadRing();
         if (numTimes > 0) {
@@ -198,12 +204,13 @@ public class Apndg {
     }
 
     public enum State {
-        ON, OFF, BACK, FORTH, IN, OUT, DOWN, UP
+        ON, OFF, IN, OUT, DOWN, UP
     }
 
     public static class States {
 
         public static State shooter;
+        public static double flap;
         public static State loader;
         public static State elevator;
         public static State intake;

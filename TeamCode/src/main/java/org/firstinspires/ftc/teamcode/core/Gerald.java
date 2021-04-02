@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.core;
 
+import android.content.Context;
+import android.content.ContextWrapper;
+
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
@@ -32,7 +35,7 @@ public class Gerald {
     public Thread metricsUpdater;
     public ElapsedTime autoTime;
 
-    public String dataDirPref = "/data/data/com.qualcomm.ftcrobotcontroller/files/";
+    public File filesDir;
     public ID opModeID;
     public RCSocket rcSocket;
     public Metrics metrics;
@@ -43,6 +46,7 @@ public class Gerald {
         this.ctx = ctx;
         this.hwmp = ctx.hardwareMap;
         this.opModeID = new ID(opModeID);
+        this.filesDir = ctx.hardwareMap.appContext.getFilesDir(); // /data/user/0/com.qualcomm.ftcrobotcontroller/files
 
         initFiles();
 
@@ -93,8 +97,8 @@ public class Gerald {
     // Init all files & resources
     public void initFiles() {
         try {
-            Constants.init(new File(dataDirPref + "hyperilibs/constants.json"));
-            fieldJSON = new File(dataDirPref + "hyperilibs/field.json");
+            Constants.init(new File(filesDir + "/hyperilibs/constants.json"));
+            fieldJSON = new File(filesDir + "/hyperilibs/field.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
