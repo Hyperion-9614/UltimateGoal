@@ -42,9 +42,7 @@ public class RCSocket extends NetEP {
 
         Constants.init(new JSONObject(msg.json));
         Constants.write();
-
-        Apndg.init(gerald);
-        Motion.init(gerald);
+        Apndg.setShooterPIDF();
     }
 
     @Override
