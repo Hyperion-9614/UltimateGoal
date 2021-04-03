@@ -42,7 +42,9 @@ public class RCSocket extends NetEP {
 
         Constants.init(new JSONObject(msg.json));
         Constants.write();
-        gerald.initFiles();
+
+        Apndg.init(gerald);
+        Motion.init(gerald);
     }
 
     @Override
@@ -51,6 +53,11 @@ public class RCSocket extends NetEP {
 
         MiscUtils.writeFieldEditsToFieldJSON(gerald.fieldJSON, msg.json);
         Motion.init(gerald);
+    }
+
+    @Override
+    protected void onSignal(Message msg) {
+        // TODO: opMode started/stopped from dashboard
     }
 
     //////////////// UNUSED ////////////////

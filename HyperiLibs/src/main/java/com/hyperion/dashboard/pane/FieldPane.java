@@ -38,17 +38,19 @@ import javafx.stage.Stage;
 
 public class FieldPane extends Pane {
 
+    private Rectangle fieldBorder;
     public double fieldSize;
     public double robotSize;
-
-    private Rectangle fieldBorder;
 
     public double mouseX, mouseY;
     public long startDragTime;
     public boolean isDragging;
 
     public Waypoint selectedWP;
+    public boolean isRobotOnField;
+    public boolean isSplineEditMode;
 
+    public int numPathPoints;
     public boolean isObstacleFixed;
     public ArrayList<Obstacle> dynamicObstacles = new ArrayList<>();
     public ArrayList<Obstacle> fixedObstacles = new ArrayList<>();
@@ -141,7 +143,7 @@ public class FieldPane extends Pane {
                         }
                     } else if (mouseEvent.getButton() == MouseButton.SECONDARY && mouseEvent.getTarget().equals(fieldBorder)) {
                         if (fieldBorder.contains(mouseX - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0, mouseY - Constants.getDouble("dashboard.gui.sizes.waypoint") / 2.0)) {
-                            if (Dashboard.isSplineEditMode) {
+                            if (isSplineEditMode) {
                                 if (selectedWP != null && selectedWP.parentSpline != null) {
                                     selectedWP.parentSpline.spline.waypoints.add(new RigidBody(newPose));
                                     selectedWP.parentSpline.spline.endPath();

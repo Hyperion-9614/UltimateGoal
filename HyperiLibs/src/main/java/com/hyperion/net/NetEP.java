@@ -67,6 +67,8 @@ public abstract class NetEP {
                         case OPMODE_ENDED:
                             onOpModeEnded(msg);
                             break;
+                        case SIGNAL:
+                            onSignal(msg);
                     }
                 }
             } catch (Exception e) {
@@ -77,16 +79,12 @@ public abstract class NetEP {
 
     // Event handlers
     protected abstract void onConnected(Message msg) throws Exception;
-
     protected abstract void onDisconnected(Message msg) throws Exception;
-
     protected abstract void onConstantsUpdated(Message msg) throws Exception;
-
     protected abstract void onFieldEdited(Message msg) throws Exception;
-
     protected abstract void onMetricsUpdated(Message msg) throws Exception;
-
     protected abstract void onOpModeEnded(Message msg) throws Exception;
+    protected abstract void onSignal(Message msg) throws Exception;
 
     public void close() {
         try {

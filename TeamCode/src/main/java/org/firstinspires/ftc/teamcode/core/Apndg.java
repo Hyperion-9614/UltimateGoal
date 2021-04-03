@@ -54,6 +54,13 @@ public class Apndg {
         shooterL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooterR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        double kP = Constants.getDouble("pid.shooterL.kP");
+        double kI = Constants.getDouble("pid.shooterL.kI");
+        double kD = Constants.getDouble("pid.shooterL.kD");
+        double kF = Constants.getDouble("pid.shooterL.kF");
+        shooterL.setVelocityPIDFCoefficients(kP, kI, kD, kF);
+        shooterR.setVelocityPIDFCoefficients(kP, kI, kD, kF);
+
         // Transfer
         loader = gerald.hwmp.servo.get("loader");
         hopper = gerald.hwmp.servo.get("elevator");

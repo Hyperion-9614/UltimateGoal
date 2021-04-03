@@ -46,6 +46,7 @@ public class LeftPane extends VBox {
     public TextArea constantsDisplay;
     public Timer constantsSaveTimer = new Timer();
     private long mostRecentSaveTime;
+    public String constantsSave = "";
 
     public CheckBox showPathingGrid;
 
@@ -57,7 +58,6 @@ public class LeftPane extends VBox {
             setPadding(new Insets(10, 0, 10, 0));
             setAlignment(Pos.TOP_CENTER);
             setSpacing(10);
-
             width = (Screen.getPrimary().getVisualBounds().getWidth() - Dashboard.fieldPane.fieldSize) / 2.0 - 35;
 
             Label fieldOptionsLabel = new Label("Field Options");
@@ -170,15 +170,15 @@ public class LeftPane extends VBox {
 
             getChildren().add(obstacles);
 
-            ObservableList<String> options = FXCollections.observableArrayList();
+            ObservableList<String> opModeIDs = FXCollections.observableArrayList();
             for (Object auto : Constants.getJSONArray("teamcode.autoOpModeIDs")) {
-                options.add(String.valueOf(auto));
+                opModeIDs.add(String.valueOf(auto));
             }
             for (Object tele : Constants.getJSONArray("teamcode.teleOpModeIDs")) {
-                options.add(String.valueOf(tele));
+                opModeIDs.add(String.valueOf(tele));
             }
-            final ComboBox<String> opModeSelector = new ComboBox<>(options);
-            opModeSelector.valueProperty().setValue(options.get(0));
+            final ComboBox<String> opModeSelector = new ComboBox<>(opModeIDs);
+            opModeSelector.valueProperty().setValue(opModeIDs.get(0));
             opModeSelector.setStyle("-fx-font: 24px \"Arial\"; -fx-focus-color: transparent;");
             opModeSelector.setPrefSize(width + 10, 60);
             opModeSelector.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -195,16 +195,6 @@ public class LeftPane extends VBox {
             });
             getChildren().add(opModeSelector);
 
-            Label simulationLabel = new Label("Simulation Options");
-            simulationLabel.setTextFill(Color.YELLOW);
-            simulationLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
-            simulationLabel.setPrefWidth(width);
-            getChildren().add(simulationLabel);
-
-            FlowPane simulateOptions = new FlowPane();
-            simulateOptions.setHgap(10);
-            simulateOptions.setPrefWrapLength(width);
-
             Label constantsLabel = new Label("Constants");
             constantsLabel.setTextFill(Color.YELLOW);
             constantsLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
@@ -213,12 +203,12 @@ public class LeftPane extends VBox {
 
             constantsDisplay = new TextArea();
             constantsDisplay.setStyle("-fx-font: 14px \"Arial\"; -fx-focus-color: transparent;");
-            constantsDisplay.setPrefSize(width, width + 135);
+            constantsDisplay.setPrefSize(width, width + 200);
             constantsDisplay.setEditable(true);
             setConstantsDisplayText(Constants.root.toString(4));
-            Dashboard.constantsSave = Constants.root.toString(4);
+            constantsSave = Constants.root.toString(4);
             constantsDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
-                if (TextUtils.condensedEquals(newValue, Dashboard.constantsSave)) {
+                if (TextUtils.condensedEquals(newValue, constantsSave)) {
                     constantsLabel.setText("Constants");
                 } else {
                     constantsLabel.setText("Constants (*)");
@@ -227,10 +217,10 @@ public class LeftPane extends VBox {
                         @Override
                         public void run() {
                             if (System.currentTimeMillis() >= mostRecentSaveTime) {
-                                Dashboard.constantsSave = constantsDisplay.getText();
-                                Constants.init(new JSONObject(Dashboard.constantsSave));
+                                constantsSave = constantsDisplay.getText();
+                                Constants.init(new JSONObject(constantsSave));
                                 Constants.write();
-                                Dashboard.dbSocket.sendMessage(Message.Event.CONSTANTS_UPDATED, Dashboard.constantsSave);
+                                Dashboard.dbSocket.sendMessage(Message.Event.CONSTANTS_UPDATED, constantsSave);
                                 Platform.runLater(() -> constantsLabel.setText("Constants"));
                             }
                         }
@@ -254,18 +244,24 @@ public class LeftPane extends VBox {
     }
 
     public void resetPathingGrid() {
-        for (FieldObject o : new ArrayList<>(Dashboard.fieldObjects)) {
+        // Delete
+        ArrayList<FieldEdit> fieldEdits = new ArrayList<>();
+        for (FieldObject o : Dashboard.fieldObjects) {
             if (o.id.contains("pathPoint")) {
-                Dashboard.editField(false, new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
+                fieldEdits.add(new FieldEdit(o.id, FieldEdit.Type.DELETE, "{}"));
             }
         }
+        Dashboard.editField(false, fieldEdits.toArray(new FieldEdit[]{}));
 
+        // Calculate & add
+        fieldEdits.clear();
         Pose[][] pathingGrid = DStarLite.generatePathingGrid();
         for (int r = 0; r < pathingGrid.length; r++) {
             for (int c = 0; c < pathingGrid[0].length; c++) {
-                Dashboard.editField(false, new FieldEdit(new ID("pathPoint", r * pathingGrid.length + c), FieldEdit.Type.CREATE, pathingGrid[r][c].toJSONArray()));
+                fieldEdits.add(new FieldEdit(new ID("pathPoint", r * pathingGrid.length + c), FieldEdit.Type.CREATE, pathingGrid[r][c].toJSONArray()));
             }
         }
+        Dashboard.editField(false, fieldEdits.toArray(new FieldEdit[]{}));
     }
 
 }

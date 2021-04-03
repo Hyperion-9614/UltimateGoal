@@ -98,7 +98,7 @@ public class Robot extends FieldObject {
 
     public void removeDisplayGroup() {
         Platform.runLater(() -> Dashboard.fieldPane.getChildren().remove(displayGroup));
-        Dashboard.isRobotOnField = false;
+        Dashboard.fieldPane.isRobotOnField = false;
         vel.removeDisplayGroup();
         acc.removeDisplayGroup();
     }

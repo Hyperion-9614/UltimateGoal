@@ -2,6 +2,8 @@ package com.hyperion.dashboard.pane;
 
 import com.hyperion.dashboard.Dashboard;
 
+import java.util.HashMap;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -37,7 +39,7 @@ public class RightPane extends VBox {
 
             telemetryDisplay = new TextArea();
             telemetryDisplay.setStyle("-fx-font: 14px \"Arial\"; -fx-focus-color: transparent;");
-            telemetryDisplay.setPrefSize(width, width + 655);
+            telemetryDisplay.setPrefSize(width, width + 455);
             telemetryDisplay.setEditable(false);
             getChildren().add(telemetryDisplay);
         } catch (Exception e) {
@@ -45,11 +47,10 @@ public class RightPane extends VBox {
         }
     }
 
-    public void setTelemetryDisplayText() {
+    public void setTelemetryDisplayText(HashMap<String, String> telemetry) {
         StringBuilder telemetryStr = new StringBuilder();
-
-        for (String key : Dashboard.telemetry.keySet()) {
-            String value = Dashboard.telemetry.get(key).trim();
+        for (String key : telemetry.keySet()) {
+            String value = telemetry.get(key).trim();
             if (!key.isEmpty() && value.isEmpty()) {
                 telemetryStr.append(key);
             } else if (!key.isEmpty()) {

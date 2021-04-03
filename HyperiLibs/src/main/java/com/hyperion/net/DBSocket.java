@@ -5,12 +5,14 @@ import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
 import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
+import com.hyperion.motion.math.RigidBody;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import javafx.application.Platform;
@@ -65,7 +67,7 @@ public class DBSocket extends NetEP {
         Constants.init(new JSONObject(msg.json));
         Constants.write();
 
-        Dashboard.constantsSave = msg.json;
+        Dashboard.leftPane.constantsSave = msg.json;
         if (Dashboard.leftPane != null) {
             Dashboard.leftPane.setConstantsDisplayText(Constants.root.toString(4));
         }
@@ -75,8 +77,31 @@ public class DBSocket extends NetEP {
     protected void onMetricsUpdated(Message msg) {
         netLog(LogLevel.INFO, "Metrics updated by \"" + msg.sender + "\"");
 
-        Dashboard.readMetrics(msg.json);
-        Platform.runLater(() -> Dashboard.rightPane.setTelemetryDisplayText());
+        JSONObject metricsObj = new JSONObject(msg.json);
+
+        // Update telemetry
+        HashMap<String, String> telemetry = new HashMap<>();
+        JSONObject dataObj = metricsObj.getJSONObject("telemetry");
+        for (String key : dataObj.keySet()) {
+            telemetry.put(key, dataObj.getString(key));
+        }
+        Platform.runLater(() -> Dashboard.rightPane.setTelemetryDisplayText(telemetry));
+
+        // Update robot position
+        Dashboard.editField(new FieldEdit(new ID("robot"), Dashboard.fieldPane.isRobotOnField ? FieldEdit.Type.EDIT_BODY : FieldEdit.Type.CREATE,
+                new JSONArray(new RigidBody(telemetry.get("Current")).toArray()).toString()));
+        Dashboard.fieldPane.isRobotOnField = true;
+
+        // Update velocity motors graph
+        JSONObject silentObj = metricsObj.getJSONObject("silent");
+        JSONObject velMotors = silentObj.getJSONObject("velMotors");
+        if (Dashboard.visualPane.velMotors.size() == 0) {
+            Dashboard.visualPane.velMotors.addAll(velMotors.keySet());
+            Dashboard.visualPane.velMotorSelector.valueProperty()
+                    .setValue(Dashboard.visualPane.velMotors.get(0));
+        }
+        JSONObject motorData = velMotors.getJSONObject(Dashboard.visualPane.velMotorSelector.valueProperty().getValue());
+        Dashboard.visualPane.updateVelMotorGraph(motorData.getDouble("currRPM"), motorData.getDouble("targetRPM"));
     }
 
     @Override
@@ -96,7 +121,7 @@ public class DBSocket extends NetEP {
                             break;
                         }
                     }
-                    Dashboard.isRobotOnField = false;
+                    Dashboard.fieldPane.isRobotOnField = false;
                     break;
                 }
             }
@@ -108,6 +133,11 @@ public class DBSocket extends NetEP {
 
     @Override
     protected void onFieldEdited(Message msg) {
+
+    }
+
+    @Override
+    protected void onSignal(Message msg) {
 
     }
 

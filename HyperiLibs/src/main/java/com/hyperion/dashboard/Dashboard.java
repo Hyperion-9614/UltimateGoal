@@ -63,14 +63,7 @@ public class Dashboard extends Application {
     public static DBSocket dbSocket;
 
     public static List<FieldObject> fieldObjects = new ArrayList<>();
-    public static Map<String, String> telemetry = new HashMap<>();
-    public static boolean isRobotOnField;
-    public static int numPathPoints;
-
     public static ID opModeID;
-    public static boolean isSplineEditMode;
-    public static String constantsSave = "";
-    public static boolean isLoaded = false;
 
     public static void main(String[] args) {
         Constants.init(new File(System.getProperty("user.dir") + "/HyperiLibs/src/main/res/data/constants.json"));
@@ -126,40 +119,13 @@ public class Dashboard extends Application {
 
         Scene scene = new Scene(all, 1280, 720, Color.TRANSPARENT);
         scene.setOnKeyPressed(event -> {
-            isSplineEditMode = event.isShiftDown();
+            fieldPane.isSplineEditMode = event.isShiftDown();
         });
-        scene.setOnKeyReleased(event -> isSplineEditMode = event.isShiftDown());
+        scene.setOnKeyReleased(event -> fieldPane.isSplineEditMode = event.isShiftDown());
 
-        if (!isLoaded) {
-            loadUIFromFieldJson();
-            isLoaded = true;
-        }
-
+        loadUIFromFieldJson();
         stage.setScene(scene);
         stage.show();
-    }
-
-    public static void readMetrics(String json) {
-        try {
-            JSONObject metricsObj = new JSONObject(json);
-
-            telemetry = new LinkedHashMap<>();
-            JSONObject dataObj = metricsObj.getJSONObject("telemetry");
-            for (String key : dataObj.keySet()) {
-                telemetry.put(key, dataObj.getString(key));
-            }
-            editField(new FieldEdit(new ID("robot"), isRobotOnField ? FieldEdit.Type.EDIT_BODY : FieldEdit.Type.CREATE,
-                      new JSONArray(new RigidBody(telemetry.get("Current")).toArray()).toString()));
-            isRobotOnField = true;
-
-            JSONObject silentObj = metricsObj.getJSONObject("silent");
-            JSONObject velMotors = silentObj.getJSONObject("velMotors");
-            for (String motor : velMotors.keySet()) {
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public static void editField(boolean shouldSave, FieldEdit... edits) {
@@ -175,7 +141,7 @@ public class Dashboard extends Application {
                             newObj = new Waypoint(edit.id, new JSONArray(edit.body));
                         } else if (edit.id.contains("pathPoint")) {
                             newObj = new PathPoint(edit.id, new JSONArray(edit.body));
-                            numPathPoints++;
+                            fieldPane.numPathPoints++;
                         } else if (edit.id.contains("obstacle")) {
                             if (edit.id.contains("rect")) {
                                 newObj = new ObstacleObj.Rect(edit.id, new JSONObject(edit.body));
@@ -186,7 +152,7 @@ public class Dashboard extends Application {
                             toAddTo.add(((ObstacleObj) newObj).obstacle);
                         } else {
                             newObj = new Robot(new ID("robot.realtime"), new JSONArray(edit.body));
-                            isRobotOnField = true;
+                            fieldPane.isRobotOnField = true;
                         }
 
                         fieldObjects.add(newObj);

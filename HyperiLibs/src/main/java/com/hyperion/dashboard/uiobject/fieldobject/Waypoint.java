@@ -129,7 +129,7 @@ public class Waypoint extends FieldObject {
             try {
                 if (event.getButton() == MouseButton.SECONDARY) {
                     if (parentSpline != null) {
-                        if (parentSpline.waypoints.size() == 1 || (Dashboard.isSplineEditMode && Integer.parseInt(id.get(-1)) == 0)) {
+                        if (parentSpline.waypoints.size() == 1 || (Dashboard.fieldPane.isSplineEditMode && Integer.parseInt(id.get(-1)) == 0)) {
                             Dashboard.editField(new FieldEdit(parentSpline.id, FieldEdit.Type.DELETE, "{}"));
                             Dashboard.fieldPane.select(null);
                         } else {
