@@ -50,8 +50,8 @@
             "power": 1.0
         },
         "loader": {
-            "out": 0.3,
-            "in": 0.75
+            "out": 0.27,
+            "in": 0.7
         },
         "elevator": {
             "down": 0.6,

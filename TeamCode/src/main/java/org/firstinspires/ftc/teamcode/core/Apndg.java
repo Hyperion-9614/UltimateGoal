@@ -171,10 +171,11 @@ public class Apndg {
     public static void loadRing() {
         if (States.loader != State.OUT)
             setLoader(State.OUT);
-        gerald.ctx.sleep(500);
+        gerald.ctx.sleep(200);
         setLoader(State.IN);
-        gerald.ctx.sleep(500);
+        gerald.ctx.sleep(100);
         setLoader(State.OUT);
+        gerald.ctx.sleep(200);
     }
 
     /**
@@ -183,19 +184,21 @@ public class Apndg {
      * @param  angleDeg  the angle to shoot at (0 - 90 deg)
      * @param  numTimes  number of times to load/shoot
      *                   input -1 if shooter should stay on indefinitely
+     * @param  turnOff   should the shooter turn off after firing all rings
      */
-    public static void shoot(double angleDeg, int numTimes) {
+    public static void shoot(double angleDeg, int numTimes, boolean turnOff) {
         gerald.status = "Shooting at angle " + angleDeg + "\u00B0 " + numTimes + " times";
         setFlap(angleDeg);
 //        if (States.intake != State.OFF)
 //            setIntake(State.OFF);
         if (States.elevator != State.UP)
             setElevator(State.UP);
-        setShooter(State.ON);
+        if (States.shooter != State.ON)
+            setShooter(State.ON);
         gerald.ctx.sleep(500);
         for (int i = 0; i < numTimes; i++)
             loadRing();
-        if (numTimes > 0) {
+        if (numTimes > 0 && turnOff) {
             setShooter(State.OFF);
             gerald.clearStatus();
         } else {
