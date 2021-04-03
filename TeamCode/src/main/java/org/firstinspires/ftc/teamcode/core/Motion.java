@@ -13,6 +13,7 @@ import com.hyperion.motion.pathplanning.Obstacle;
 import com.hyperion.motion.trajectory.PIDCtrl;
 import com.hyperion.motion.trajectory.SplineTrajectory;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -35,17 +36,17 @@ public class Motion {
     public static Gerald gerald;
 
     // Drive motors
-    public static DcMotor fLDrive;
-    public static DcMotor fRDrive;
-    public static DcMotor bLDrive;
-    public static DcMotor bRDrive;
-    public static DcMotor[] drives;
+    public static DcMotorEx fLDrive;
+    public static DcMotorEx fRDrive;
+    public static DcMotorEx bLDrive;
+    public static DcMotorEx bRDrive;
+    public static DcMotorEx[] drives;
 
     // Odometry
-    public static DcMotor xLOdo;
-    public static DcMotor xROdo;
-    public static DcMotor yOdo;
-    public static DcMotor[] odos;
+    public static DcMotorEx xLOdo;
+    public static DcMotorEx xROdo;
+    public static DcMotorEx yOdo;
+    public static DcMotorEx[] odos;
 
     // Motion control
     public static Localizer localizer;
@@ -69,11 +70,11 @@ public class Motion {
     // Init motion-related hardware
     public static void initHW() {
         // Drive motors
-        fLDrive = gerald.hwmp.dcMotor.get("fLDrive");
-        fRDrive = gerald.hwmp.dcMotor.get("fRDrive");
-        bLDrive = gerald.hwmp.dcMotor.get("bLDrive");
-        bRDrive = gerald.hwmp.dcMotor.get("bRDrive");
-        drives = new DcMotor[]{ fLDrive, fRDrive, bLDrive, bRDrive };
+        fLDrive = gerald.hwmp.get(DcMotorEx.class, "fLDrive");
+        fRDrive = gerald.hwmp.get(DcMotorEx.class, "fRDrive");
+        bLDrive = gerald.hwmp.get(DcMotorEx.class, "bLDrive");
+        bRDrive = gerald.hwmp.get(DcMotorEx.class, "bRDrive");
+        drives = new DcMotorEx[]{ fLDrive, fRDrive, bLDrive, bRDrive };
 
         for (DcMotor drive : drives) {
             drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -88,7 +89,7 @@ public class Motion {
         xLOdo = fRDrive;
         xROdo = fLDrive;
         yOdo = bRDrive;
-        odos = new DcMotor[]{ xLOdo, xROdo, yOdo };
+        odos = new DcMotorEx[]{ xLOdo, xROdo, yOdo };
     }
 
     // Init motion control modules

@@ -76,7 +76,7 @@ public class DBSocket extends NetEP {
         netLog(LogLevel.INFO, "Metrics updated by \"" + msg.sender + "\"");
 
         Dashboard.readMetrics(msg.json);
-        Platform.runLater(() -> Dashboard.rightPane.setMetricsDisplayText());
+        Platform.runLater(() -> Dashboard.rightPane.setTelemetryDisplayText());
     }
 
     @Override

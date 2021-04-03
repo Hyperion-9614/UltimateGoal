@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode.modules;
 import com.hyperion.common.Constants;
 import com.hyperion.common.MathUtils;
 import com.hyperion.net.Message;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.core.Apndg;
 import org.firstinspires.ftc.teamcode.core.Gerald;
 import org.firstinspires.ftc.teamcode.core.Motion;
-import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,11 +57,11 @@ public class Metrics {
 
         data.add(new Entry("Appendages"));
         data.add(new Entry("Shooter", Apndg.States.shooter
-                + " - L: " + MathUtils.round(Apndg.shooterL.getPower(), 2)
-                + " R: " + MathUtils.round(Apndg.shooterR.getPower(), 2)));
-        data.add(new Entry("Flap", MathUtils.round(Apndg.States.flap, 2) + "\u00B0 - " + MathUtils.round(Apndg.flap.getPosition(), 2)));
+                + " - L: " + MathUtils.round(MathUtils.radToRPM(Apndg.shooterL.getVelocity(AngleUnit.RADIANS)), 2)
+                + " RPM R: " + MathUtils.round(MathUtils.radToRPM(Apndg.shooterR.getVelocity(AngleUnit.RADIANS)), 2) + " RPM"));
+        data.add(new Entry("Flap", MathUtils.round(Apndg.States.flapDeg, 2) + "\u00B0 - " + MathUtils.round(Apndg.flap.getPosition(), 2)));
         data.add(new Entry("Loader", Apndg.States.loader + " - " + MathUtils.round(Apndg.loader.getPosition(), 2)));
-        data.add(new Entry("Elevator", Apndg.States.elevator + " - " + MathUtils.round(Apndg.elevator.getPosition(), 2)));
+        data.add(new Entry("Hopper", Apndg.States.hopper + " - " + MathUtils.round(Apndg.hopper.getPosition(), 2)));
         data.add(new Entry());
 
         data.add(new Entry("Gamepad 1"));
@@ -75,21 +77,49 @@ public class Metrics {
 
     }
 
+    public synchronized void appendSilentData() throws Exception {
+        JSONObject velMotorsObj = new JSONObject();
+        for (DcMotorEx motor : new DcMotorEx[]{ Apndg.shooterL }) {
+            JSONObject motorData = new JSONObject();
+            motorData.put("currRPM", MathUtils.radToRPM(motor.getVelocity(AngleUnit.RADIANS)));
+            double targetRPM = 0;
+            if (motor.getDeviceName().equals("shooterL"))
+                targetRPM = Apndg.States.shooterLrpm;
+            motorData.put("targetRPM", targetRPM);
+            velMotorsObj.put(motor.getDeviceName(), motorData);
+        }
+        data.add(new Entry("velMotors", velMotorsObj));
+    }
+
     public synchronized void updateTelemetry() {
         try {
-            JSONArray dataArr = new JSONArray();
-            for (int i = 0; i < data.size(); i++) {
+            JSONObject telemetryDataObj = new JSONObject();
+            int i;
+            for (i = 0; i < data.size(); i++) {
                 Entry entry = data.get(i);
                 gerald.ctx.telemetry.addData(entry.token0, entry.token1);
                 if (Constants.getBoolean("dashboard.isDebugging"))
-                    dataArr.put(new JSONArray(entry.toArray()));
+                    telemetryDataObj.put(entry.token0, entry.token1);
             }
             gerald.ctx.telemetry.update();
-            gerald.rcSocket.sendMessage(Message.Event.METRICS_UPDATED, dataArr);
+
+            appendSilentData();
+            JSONObject silentDataObj = new JSONObject();
+            for (int j = i; j < data.size(); j++) {
+                Entry entry = data.get(j);
+                if (Constants.getBoolean("dashboard.isDebugging"))
+                    silentDataObj.put(entry.token0, entry.token1);
+            }
+
+            JSONObject metricsObj = new JSONObject();
+            metricsObj.put("telemetry", telemetryDataObj);
+            metricsObj.put("silent", silentDataObj);
+            gerald.rcSocket.sendMessage(Message.Event.METRICS_UPDATED, metricsObj);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     class Entry {
 
@@ -109,10 +139,6 @@ public class Metrics {
         public Entry(String token0, Object token1) {
             this.token0 = token0;
             this.token1 = token1 == null ? "" : token1.toString();
-        }
-
-        public String[] toArray() {
-            return new String[]{ token0, token1 };
         }
 
     }

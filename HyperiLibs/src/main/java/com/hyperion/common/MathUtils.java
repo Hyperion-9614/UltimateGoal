@@ -87,4 +87,12 @@ public class MathUtils {
         return a + (b - a) / 2;
     }
 
+    public static double radToRPM(double rad) {
+        return 60 * rad / (2 * Math.PI);
+    }
+
+    public static double rpmToRad(double rpm) {
+        return (2 * Math.PI) * rpm / 60;
+    }
+
 }

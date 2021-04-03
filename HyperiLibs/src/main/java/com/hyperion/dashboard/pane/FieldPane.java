@@ -233,13 +233,13 @@ public class FieldPane extends Pane {
                 if (selectedWP.parentSpline != null) {
                     selectedWP.parentSpline.displayGroup.getChildren().add(selectedWP.parentSpline.selection);
                     selectedWP.parentSpline.selection.toBack();
-                    Dashboard.visualPane.updateGraphs(selectedWP.parentSpline);
+                    Dashboard.visualPane.updateSplineMpGraph(selectedWP.parentSpline);
                 } else {
-                    Dashboard.visualPane.updateGraphs(null);
+                    Dashboard.visualPane.updateSplineMpGraph(null);
                 }
                 selectedWP.info.setVisible(true);
             } else {
-                Dashboard.visualPane.updateGraphs(null);
+                Dashboard.visualPane.updateSplineMpGraph(null);
             }
         }
     }

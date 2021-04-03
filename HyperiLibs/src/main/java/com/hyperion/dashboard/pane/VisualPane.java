@@ -1,5 +1,6 @@
 package com.hyperion.dashboard.pane;
 
+import com.hyperion.dashboard.uiobject.ContinuousScatterPlot;
 import com.hyperion.dashboard.uiobject.fieldobject.DisplaySpline;
 import com.hyperion.dashboard.uiobject.PiecewiseLineGraph;
 import com.hyperion.motion.math.Piecewise;
@@ -8,7 +9,6 @@ import java.util.HashMap;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.VBox;
 
@@ -18,32 +18,37 @@ import javafx.scene.layout.VBox;
 
 public class VisualPane extends VBox {
 
-    public PiecewiseLineGraph tVdGraph;
+    public PiecewiseLineGraph splineMpGraph;
+    public ContinuousScatterPlot velMotorGraph;
 
     public VisualPane() {
         setBackground(Background.EMPTY);
         setAlignment(Pos.TOP_CENTER);
 
-        NumberAxis xAxis = new NumberAxis();
-        NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Distance (cm)");
-        yAxis.setLabel("Translational Velocity (cm/s)");
+        splineMpGraph = new PiecewiseLineGraph("Spline Motion Profile", "Distance (cm)", "Velocity (cm/s)");
+        getChildren().add(splineMpGraph);
 
-        tVdGraph = new PiecewiseLineGraph(xAxis, yAxis);
-        tVdGraph.setCreateSymbols(false);
-        tVdGraph.setTitle("Translational Velocity vs. Distance");
-
-        getChildren().add(tVdGraph);
+        velMotorGraph = new ContinuousScatterPlot("Velocity Motor", "Time (s)", "Velocity (rpm)");
+        velMotorGraph.init("Current", "Target");
+        getChildren().add(velMotorGraph);
     }
 
-    public void updateGraphs(DisplaySpline displaySpline) {
+    public void updateSplineMpGraph(DisplaySpline displaySpline) {
         Platform.runLater(() -> {
-            tVdGraph.getData().clear();
+            splineMpGraph.getData().clear();
             if (displaySpline != null && displaySpline.waypoints.size() >= 2) {
                 HashMap<String, Piecewise> map = new HashMap<>();
                 map.put("Velocity (cm/s)", displaySpline.spline.mP.transVelProfile);
-                tVdGraph.rePlot(map);
+                splineMpGraph.rePlot(map);
             }
+        });
+    }
+
+    public void updateVelMotorGraph(double currRPM, double targetRPM) {
+        Platform.runLater(() -> {
+            double timeS = System.currentTimeMillis() / 1000.0;
+            velMotorGraph.addData("Current", timeS, currRPM);
+            velMotorGraph.addData("Target", timeS, targetRPM);
         });
     }
 

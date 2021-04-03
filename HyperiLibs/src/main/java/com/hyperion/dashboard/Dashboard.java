@@ -39,7 +39,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -64,7 +63,7 @@ public class Dashboard extends Application {
     public static DBSocket dbSocket;
 
     public static List<FieldObject> fieldObjects = new ArrayList<>();
-    public static Map<String, String> metrics = new HashMap<>();
+    public static Map<String, String> telemetry = new HashMap<>();
     public static boolean isRobotOnField;
     public static int numPathPoints;
 
@@ -142,16 +141,22 @@ public class Dashboard extends Application {
 
     public static void readMetrics(String json) {
         try {
-            metrics = new LinkedHashMap<>();
-            JSONArray dataArr = new JSONArray(json);
-            for (int i = 0; i < dataArr.length(); i++) {
-                JSONArray miniObj = dataArr.getJSONArray(i);
-                metrics.put(miniObj.getString(0), miniObj.getString(1));
-            }
+            JSONObject metricsObj = new JSONObject(json);
 
+            telemetry = new LinkedHashMap<>();
+            JSONObject dataObj = metricsObj.getJSONObject("telemetry");
+            for (String key : dataObj.keySet()) {
+                telemetry.put(key, dataObj.getString(key));
+            }
             editField(new FieldEdit(new ID("robot"), isRobotOnField ? FieldEdit.Type.EDIT_BODY : FieldEdit.Type.CREATE,
-                      new JSONArray(new RigidBody(metrics.get("Current")).toArray()).toString()));
+                      new JSONArray(new RigidBody(telemetry.get("Current")).toArray()).toString()));
             isRobotOnField = true;
+
+            JSONObject silentObj = metricsObj.getJSONObject("silent");
+            JSONObject velMotors = silentObj.getJSONObject("velMotors");
+            for (String motor : velMotors.keySet()) {
+
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -47,13 +47,13 @@
     },
     "apndg": {
         "shooter": {
-            "power": 1.0
+            "rpm": 6700
         },
         "loader": {
             "out": 0.27,
             "in": 0.7
         },
-        "elevator": {
+        "hopper": {
             "down": 0.6,
             "up": 0.3
         },

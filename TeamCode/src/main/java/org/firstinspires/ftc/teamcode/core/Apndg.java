@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.core;
 
 import com.hyperion.common.Constants;
+import com.hyperion.common.MathUtils;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 /**
  * Manages all appendages (servos, arms, etc.) on robot
@@ -14,13 +17,13 @@ public class Apndg {
     public static Gerald gerald;
 
     // Shooter
-    public static DcMotor shooterL;
-    public static DcMotor shooterR;
+    public static DcMotorEx shooterL;
+    public static DcMotorEx shooterR;
     public static Servo flap;
 
     // Transfer
     public static Servo loader;
-    public static Servo elevator;
+    public static Servo hopper;
 
     // Intake
     public static DcMotor intakeL;
@@ -53,7 +56,7 @@ public class Apndg {
 
         // Transfer
         loader = gerald.hwmp.servo.get("loader");
-        elevator = gerald.hwmp.servo.get("elevator");
+        hopper = gerald.hwmp.servo.get("elevator");
 
         // Intake
 //        intakeL = Motion.bLDrive;
@@ -61,9 +64,8 @@ public class Apndg {
 //
 //        intakeL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        intakeR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        intakeL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        intakeR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        intakeR.setDirection(DcMotorSimple.Direction.REVERSE);
+//        intakeL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        intakeR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Wobble
 
@@ -73,7 +75,7 @@ public class Apndg {
      * Sets positions of appendages to init state
      */
     public static void initPositions() {
-        setElevator(State.DOWN);
+        setHopper(State.DOWN);
         setLoader(State.OUT);
         setFlap(45);
     }
@@ -85,15 +87,17 @@ public class Apndg {
      */
     public static void setShooter(State state) {
         States.shooter = state;
-        double power = Constants.getDouble("apndg.shooter.power");
+        double rpm = Constants.getDouble("apndg.shooter.rpm");
         switch (state) {
             case ON:
-                shooterL.setPower(power);
-                shooterR.setPower(-power);
+                shooterL.setVelocity(MathUtils.rpmToRad(rpm), AngleUnit.RADIANS);
+                shooterR.setVelocity(-MathUtils.rpmToRad(rpm), AngleUnit.RADIANS);
+                States.shooterLrpm = rpm;
                 break;
             case OFF:
-                shooterL.setPower(0);
-                shooterR.setPower(0);
+                shooterL.setVelocity(0);
+                shooterR.setVelocity(0);
+                States.shooterLrpm = 0;
                 break;
         }
     }
@@ -104,7 +108,7 @@ public class Apndg {
      * @param  angleDeg  the angle with the horizontal to angle the shooter flap
      */
     public static void setFlap(double angleDeg) {
-        States.flap = angleDeg;
+        States.flapDeg = angleDeg;
     }
 
     /**
@@ -129,14 +133,14 @@ public class Apndg {
      *
      * @param  state  DOWN | UP
      */
-    public static void setElevator(State state) {
-        States.elevator = state;
+    public static void setHopper(State state) {
+        States.hopper = state;
         switch (state) {
             case DOWN:
-                elevator.setPosition(Constants.getDouble("apndg.elevator.down"));
+                hopper.setPosition(Constants.getDouble("apndg.hopper.down"));
                 break;
             case UP:
-                elevator.setPosition(Constants.getDouble("apndg.elevator.up"));
+                hopper.setPosition(Constants.getDouble("apndg.hopper.up"));
                 break;
         }
     }
@@ -191,8 +195,8 @@ public class Apndg {
         setFlap(angleDeg);
 //        if (States.intake != State.OFF)
 //            setIntake(State.OFF);
-        if (States.elevator != State.UP)
-            setElevator(State.UP);
+        if (States.hopper != State.UP)
+            setHopper(State.UP);
         if (States.shooter != State.ON)
             setShooter(State.ON);
         gerald.ctx.sleep(500);
@@ -213,9 +217,10 @@ public class Apndg {
     public static class States {
 
         public static State shooter;
-        public static double flap;
+        public static double shooterLrpm;
+        public static double flapDeg;
         public static State loader;
-        public static State elevator;
+        public static State hopper;
         public static State intake;
 
     }

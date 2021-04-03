@@ -7,13 +7,21 @@ import java.util.Locale;
 
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.paint.Color;
 
 public class PiecewiseLineGraph extends LineChart<Number, Number> {
 
-    public PiecewiseLineGraph(Axis<Number> numberAxis, Axis<Number> numberAxis2) {
-        super(numberAxis, numberAxis2);
+    private NumberAxis x;
+
+    public PiecewiseLineGraph(String title, String xLabel, String yLabel) {
+        super(new NumberAxis(), new NumberAxis());
+        setTitle(title);
+        setCreateSymbols(false);
+        getXAxis().setLabel(xLabel);
+        getYAxis().setLabel(yLabel);
+        setCreateSymbols(false);
     }
 
     public void rePlot(HashMap<String, Piecewise> map) {
