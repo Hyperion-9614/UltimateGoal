@@ -43,7 +43,8 @@
     },
     "simulator": {
         "kSlip": 0.1,
-        "kStrafe": 0.5
+        "kStrafe": 0.5,
+        "renderDelay": 10
     },
     "apndg": {
         "shooter": {

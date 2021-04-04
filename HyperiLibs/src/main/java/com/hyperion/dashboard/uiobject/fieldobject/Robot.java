@@ -49,6 +49,8 @@ public class Robot extends FieldObject {
     public void createDisplayGroup() {
         try {
             displayGroup = new Group();
+            displayGroup.setCache(true);
+            displayGroup.setCacheHint(CacheHint.SPEED);
 
             imgView = new ImageView(Constants.getFile("img", "robot.png").toURI().toURL().toString());
             imgView.setFitWidth(Dashboard.fieldPane.robotSize);

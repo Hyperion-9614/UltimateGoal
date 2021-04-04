@@ -53,21 +53,23 @@ public class Simulator {
             long lastTime = startTime;
 
             while (activeSim != null && activeSim.state == Simulation.State.RUNNING) {
-                double dTime = (System.currentTimeMillis() - lastTime) / 1000.0;
-                lastTime = System.currentTimeMillis();
+                if (System.currentTimeMillis() -  lastTime >= Constants.getDouble("simulator.renderDelay")) {
+                    double dTime = (System.currentTimeMillis() - lastTime) / 1000.0;
+                    lastTime = System.currentTimeMillis();
 
-                setEmpiricalMotionVectors(activeSim, dTime);
-                robot.addXYT(robot.tVel.x * dTime, robot.tVel.y * dTime, robot.aVel * dTime);
-                robot.theta = MathUtils.norm(robot.theta, 0, 2 * Math.PI);
+                    setEmpiricalMotionVectors(activeSim, dTime);
+                    robot.addXYT(robot.tVel.x * dTime, robot.tVel.y * dTime, robot.aVel * dTime);
+                    robot.theta = MathUtils.norm(robot.theta, 0, 2 * Math.PI);
 
-                double aX = (robot.tVel.x - lastTvel.x) / dTime;
-                double aY = (robot.tVel.y - lastTvel.y) / dTime;
-                robot.tAcc = new Vector2D(aX, aY, true);
-                lastTvel = new Vector2D(robot.tVel);
-                robot.aAcc = (robot.aVel - lastAVel) / dTime;
-                lastAVel = robot.aVel;
+                    double aX = (robot.tVel.x - lastTvel.x) / dTime;
+                    double aY = (robot.tVel.y - lastTvel.y) / dTime;
+                    robot.tAcc = new Vector2D(aX, aY, true);
+                    lastTvel = new Vector2D(robot.tVel);
+                    robot.aAcc = (robot.aVel - lastAVel) / dTime;
+                    lastAVel = robot.aVel;
 
-                simRob.refreshDisplayGroup();
+                    simRob.refreshDisplayGroup();
+                }
             }
             simRob.removeDisplayGroup();
         });
