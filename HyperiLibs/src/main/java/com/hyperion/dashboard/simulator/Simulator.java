@@ -3,6 +3,7 @@ package com.hyperion.dashboard.simulator;
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.MathUtils;
+import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.uiobject.fieldobject.Robot;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.math.RigidBody;
@@ -11,11 +12,14 @@ import com.hyperion.motion.math.Vector2D;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import javafx.scene.shape.Rectangle;
+
 public class Simulator {
 
     public ArrayList<Simulation> simulations;
-    public Thread simulationThread;
-
+    public Thread opModeThread;
+    public Thread engineThread;
+    public Simulation activeSim;
     public RigidBody robot;
 
     public Simulator() {
@@ -25,40 +29,49 @@ public class Simulator {
         simulations.add(new Test());
     }
 
-    public void simulate(String name) {
-        Simulation sim = simulations.stream()
-                .filter(s -> s.id.sub(2).equals(name))
+    public void simulate(String id) {
+        activeSim = simulations.stream()
+                .filter(s -> s.id.equals(id))
                 .collect(Collectors.toList()).get(0);
-        simulationThread = new Thread(() -> {
-            sim.init(robot);
-            sim.run();
+        robot = new RigidBody(activeSim.start);
+
+        opModeThread = new Thread(() -> {
+            activeSim.init(robot);
+            activeSim.run();
+            if (activeSim != null)
+                activeSim.end();
         });
-        simulationThread.start();
+        opModeThread.start();
 
-        Robot simRob = new Robot(new ID("robot.sim"), robot);
-        simRob.addDisplayGroup();
+        engineThread = new Thread(() -> {
+            Robot simRob = new Robot(new ID("robot", "sim"), robot);
+            simRob.addDisplayGroup();
 
-        Vector2D lastTvel = new Vector2D();
-        double lastAVel = 0;
+            Vector2D lastTvel = new Vector2D();
+            double lastAVel = 0;
+            long startTime = System.currentTimeMillis();
+            long lastTime = startTime;
 
-        long startTime = System.currentTimeMillis();
-        long lastTime = startTime;
-        while (sim.state == Simulation.State.RUNNING) {
-            double dTime = (System.currentTimeMillis() - lastTime) / 1000.0;
-            lastTime = System.currentTimeMillis();
+            while (activeSim != null && activeSim.state == Simulation.State.RUNNING) {
+                double dTime = (System.currentTimeMillis() - lastTime) / 1000.0;
+                lastTime = System.currentTimeMillis();
 
-            setEmpiricalMotionVectors(sim, dTime);
-            robot.addXYT(robot.tVel.x * dTime, robot.tVel.y * dTime, robot.aVel * dTime);
-            robot.theta = MathUtils.norm(robot.theta, 0, 2 * Math.PI);
+                setEmpiricalMotionVectors(activeSim, dTime);
+                robot.addXYT(robot.tVel.x * dTime, robot.tVel.y * dTime, robot.aVel * dTime);
+                robot.theta = MathUtils.norm(robot.theta, 0, 2 * Math.PI);
 
-            robot.tAcc = new Vector2D(Math.abs(robot.tVel.magnitude - lastTvel.magnitude),
-                    MathUtils.norm(robot.tVel.theta + (robot.tVel.magnitude < lastTvel.magnitude ? Math.PI : 0), 0, 2 * Math.PI),
-                    false).scaled(1.0 / dTime);
-            lastTvel = new Vector2D(robot.tVel);
-            robot.aVel = (robot.aVel - lastAVel) / dTime;
-            lastAVel = robot.aVel;
-        }
-        simRob.removeDisplayGroup();
+                double aX = (robot.tVel.x - lastTvel.x) / dTime;
+                double aY = (robot.tVel.y - lastTvel.y) / dTime;
+                robot.tAcc = new Vector2D(aX, aY, true);
+                lastTvel = new Vector2D(robot.tVel);
+                robot.aAcc = (robot.aVel - lastAVel) / dTime;
+                lastAVel = robot.aVel;
+
+                simRob.refreshDisplayGroup();
+            }
+            simRob.removeDisplayGroup();
+        });
+        engineThread.start();
     }
 
     /**
@@ -91,11 +104,20 @@ public class Simulator {
         Vector2D x = fLturn.added(bLturn).added(fRturn).added(bRturn);
         Vector2D y = fLroll.added(bLroll).added(fRroll).added(bRroll);
 
-        Vector2D finalVec = x.added(y).scaled(kReal);
+        Vector2D finalVelRel = x.added(y).scaled(kReal * Constants.getDouble("motionProfile.maxes.tVel") / 4);
+        Vector2D worldVel = finalVelRel.thetaed(robot.theta + finalVelRel.theta);
         double rot = (sim.fLPow - sim.bRPow) / 2;
 
-        robot.tVel.setVec(finalVec.scaled(Constants.getDouble("motionProfile.maxes.tVel")));
+        robot.tVel.setVec(worldVel);
         robot.aVel = -rot * Constants.getDouble("motionProfile.maxes.aVel");
+
+        double[] display = Dashboard.fieldPane.poseToDisplay(robot, Dashboard.fieldPane.robotSize);
+        Rectangle rect = new Rectangle(display[0], display[1], Dashboard.fieldPane.robotSize, Dashboard.fieldPane.robotSize);
+        boolean[] intersects = Dashboard.fieldPane.getWBBIntersects(rect);
+        double xComp = robot.tVel.x, yComp = robot.tVel.y;
+        if (!intersects[0]) xComp = 0;
+        if (!intersects[1]) yComp = 0;
+        robot.tVel.setVec(new Vector2D(xComp, yComp, true));
     }
 
     private double getDir(double pow, double nForth, double nBack) {

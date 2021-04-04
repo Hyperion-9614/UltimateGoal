@@ -71,7 +71,7 @@ public class FieldPane extends Pane {
                     BackgroundPosition.DEFAULT, new BackgroundSize(fieldSize, fieldSize, false, false, false, false));
             setBackground(new Background(bgImg));
 
-            fieldBorder = new Rectangle(0, 0, fieldSize, fieldSize);
+            fieldBorder = new Rectangle(robotSize / 2, robotSize / 2, fieldSize - robotSize, fieldSize - robotSize);
             fieldBorder.getStrokeDashArray().addAll(20d, 15d);
             fieldBorder.setFill(Color.TRANSPARENT);
             fieldBorder.setStroke(new Color(1, 1, 1, 1));
@@ -198,12 +198,12 @@ public class FieldPane extends Pane {
     }
 
     // Get intersection with WBBs
-    public boolean[] getWBBIntersects(Rectangle rect, Rectangle rectX, Rectangle rectY) {
+    public boolean[] getWBBIntersects(Rectangle rect) {
         boolean[] intersects = new boolean[]{true, true};
-        if (rect.getX() <= fieldBorder.getX() || rect.getX() + rect.getWidth() >= fieldBorder.getX() + fieldBorder.getWidth()) {
+        if (rect.getX() + rect.getWidth() / 2 <= fieldBorder.getX() || rect.getX() + rect.getWidth() / 2 >= fieldBorder.getX() + fieldBorder.getWidth()) {
             intersects[0] = false;
         }
-        if (rect.getY() <= fieldBorder.getY() || rect.getY() + rect.getHeight() >= fieldBorder.getY() + fieldBorder.getHeight()) {
+        if (rect.getY() + rect.getHeight() / 2 <= fieldBorder.getY() || rect.getY() + rect.getHeight() / 2 >= fieldBorder.getY() + fieldBorder.getHeight()) {
             intersects[1] = false;
         }
         return intersects;

@@ -104,9 +104,9 @@ public class Localizer {
              * Calculate instantaneous translational velocity & acceleration based on change in pose & change in time
              */
             Motion.robot.tVel = new Vector2D(dR[0], dR[1], true).scaled(1.0 / dT);
-            Motion.robot.tAcc = new Vector2D(Math.abs(Motion.robot.tVel.magnitude - lastTvel.magnitude),
-                                                      MathUtils.norm(Motion.robot.tVel.theta + (Motion.robot.tVel.magnitude < lastTvel.magnitude ? Math.PI : 0), 0, 2 * Math.PI),
-                                                 false).scaled(1.0 / dT);
+            double aX = (Motion.robot.tVel.x - lastTvel.x) / dT;
+            double aY = (Motion.robot.tVel.y - lastTvel.y) / dT;
+            Motion.robot.tAcc = new Vector2D(aX, aY, true);
             lastTvel = new Vector2D(Motion.robot.tVel);
 
             /*

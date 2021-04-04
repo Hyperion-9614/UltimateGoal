@@ -75,41 +75,43 @@ public class Arrow extends FieldObject {
 
     @Override
     public void refreshDisplayGroup() {
-        double[] start = Dashboard.fieldPane.poseToDisplay(origin, 0);
-        double[] end = Dashboard.fieldPane.poseToDisplay(origin.addVector(vec), 0);
+        Platform.runLater(() -> {
+            double[] start = Dashboard.fieldPane.poseToDisplay(origin, 0);
+            double[] end = Dashboard.fieldPane.poseToDisplay(origin.addVector(vec), 0);
 
-        startX = start[0];
-        startY = start[1];
-        endX = end[0];
-        endY = end[1];
+            startX = start[0];
+            startY = start[1];
+            endX = end[0];
+            endY = end[1];
 
-        shaft.setStartX(startX);
-        shaft.setStartY(startY);
-        shaft.setEndX(endX);
-        shaft.setEndY(endY);
+            shaft.setStartX(startX);
+            shaft.setStartY(startY);
+            shaft.setEndX(endX);
+            shaft.setEndY(endY);
 
-        // Head
-        double angle = Math.atan2((endY - startY), (endX - startX)) - Math.PI / 2.0;
-        double sin = Math.sin(angle);
-        double cos = Math.cos(angle);
+            // Head
+            double angle = Math.atan2((endY - startY), (endX - startX)) - Math.PI / 2.0;
+            double sin = Math.sin(angle);
+            double cos = Math.cos(angle);
 
-        // Point 1
-        double x1 = (- 1.0 / 2.0 * cos + Math.sqrt(3) / 2 * sin) * headSize + endX;
-        double y1 = (- 1.0 / 2.0 * sin - Math.sqrt(3) / 2 * cos) * headSize + endY;
+            // Point 1
+            double x1 = (-1.0 / 2.0 * cos + Math.sqrt(3) / 2 * sin) * headSize + endX;
+            double y1 = (-1.0 / 2.0 * sin - Math.sqrt(3) / 2 * cos) * headSize + endY;
 
-        // Point 2
-        double x2 = (1.0 / 2.0 * cos + Math.sqrt(3) / 2 * sin) * headSize + endX;
-        double y2 = (1.0 / 2.0 * sin - Math.sqrt(3) / 2 * cos) * headSize + endY;
+            // Point 2
+            double x2 = (1.0 / 2.0 * cos + Math.sqrt(3) / 2 * sin) * headSize + endX;
+            double y2 = (1.0 / 2.0 * sin - Math.sqrt(3) / 2 * cos) * headSize + endY;
 
-        lHead.setStartX(x1);
-        lHead.setStartY(y1);
-        lHead.setEndX(endX);
-        lHead.setEndY(endY);
+            lHead.setStartX(x1);
+            lHead.setStartY(y1);
+            lHead.setEndX(endX);
+            lHead.setEndY(endY);
 
-        rHead.setStartX(x2);
-        rHead.setStartY(y2);
-        rHead.setEndX(endX);
-        rHead.setEndY(endY);
+            rHead.setStartX(x2);
+            rHead.setStartY(y2);
+            rHead.setEndX(endX);
+            rHead.setEndY(endY);
+        });
     }
 
     @Override

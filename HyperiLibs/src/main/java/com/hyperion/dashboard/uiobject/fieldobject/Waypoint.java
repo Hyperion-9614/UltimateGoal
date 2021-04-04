@@ -164,9 +164,7 @@ public class Waypoint extends FieldObject {
             double newY = event.getSceneY() + dragDy;
 
             Rectangle rect = new Rectangle(newX, newY, Constants.getDouble("dashboard.gui.sizes.waypoint"), Constants.getDouble("dashboard.gui.sizes.waypoint"));
-            Rectangle rectX = new Rectangle(newX, imgView.getLayoutY(), Constants.getDouble("dashboard.gui.sizes.waypoint"), Constants.getDouble("dashboard.gui.sizes.waypoint"));
-            Rectangle rectY = new Rectangle(imgView.getLayoutX(), newY, Constants.getDouble("dashboard.gui.sizes.waypoint"), Constants.getDouble("dashboard.gui.sizes.waypoint"));
-            boolean[] intersects = Dashboard.fieldPane.getWBBIntersects(rect, rectX, rectY);
+            boolean[] intersects = Dashboard.fieldPane.getWBBIntersects(rect);
             if (intersects[0]) imgView.setLayoutX(newX);
             if (intersects[1]) imgView.setLayoutY(newY);
             pose = Dashboard.fieldPane.viewToPose(imgView, Constants.getDouble("dashboard.gui.sizes.waypoint"));

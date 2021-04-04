@@ -15,6 +15,7 @@ import javafx.scene.Group;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
 public class Robot extends FieldObject {
@@ -26,15 +27,15 @@ public class Robot extends FieldObject {
     public ImageView imgView;
     public Text info;
 
-    public Robot(ID id) {
+    public Robot(ID id, RigidBody rB) {
         this.id = id;
+        this.rB = rB;
         createDisplayGroup();
+        refreshDisplayGroup();
     }
 
-    public Robot(ID id, RigidBody rB) {
-        this(id);
-        this.rB = new RigidBody(rB);
-        refreshDisplayGroup();
+    public Robot(ID id) {
+        this(id, new Pose(0, 0, 0));
     }
 
     public Robot(ID id, Pose pose) {
@@ -67,7 +68,7 @@ public class Robot extends FieldObject {
             displayGroup.getChildren().add(info);
 
             vel = new Arrow(new ID(id, "arrow", "vel"), Color.BLACK, 15, rB, rB.tVel);
-            acc = new Arrow(new ID(id, "arrow", "acc"), Color.BLACK, 15, rB, rB.tAcc);
+            acc = new Arrow(new ID(id, "arrow", "acc"), Color.WHITE, 15, rB, rB.tAcc);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -90,10 +91,9 @@ public class Robot extends FieldObject {
                     .replace("θ", "\u03F4".toLowerCase())
                     .replace("²", "\u00B2"));
             info.relocate(display[0] + Dashboard.fieldPane.robotSize + 3, display[1] + Dashboard.fieldPane.robotSize - 21);
-
-            vel.refreshDisplayGroup();
-            acc.refreshDisplayGroup();
         });
+        vel.refreshDisplayGroup();
+        acc.refreshDisplayGroup();
     }
 
     public void removeDisplayGroup() {

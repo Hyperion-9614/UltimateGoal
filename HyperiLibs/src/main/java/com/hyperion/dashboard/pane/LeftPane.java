@@ -4,6 +4,7 @@ import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.TextUtils;
 import com.hyperion.dashboard.Dashboard;
+import com.hyperion.dashboard.simulator.Simulation;
 import com.hyperion.net.FieldEdit;
 import com.hyperion.net.Message;
 import com.hyperion.dashboard.simulator.Simulator;
@@ -49,6 +50,7 @@ public class LeftPane extends VBox {
     public String constantsSave = "";
 
     public CheckBox showPathingGrid;
+    public Button runStopSim;
 
     public double width;
 
@@ -194,6 +196,42 @@ public class LeftPane extends VBox {
                 }
             });
             getChildren().add(opModeSelector);
+
+            Label simulationOptionsLabel = new Label("Simulation Options");
+            simulationOptionsLabel.setTextFill(Color.YELLOW);
+            simulationOptionsLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
+            simulationOptionsLabel.setPrefWidth(width);
+            getChildren().add(simulationOptionsLabel);
+
+            HBox simOptions = new HBox();
+            simOptions.setSpacing(10);
+
+            ObservableList<String> sims = FXCollections.observableArrayList();
+            for (Simulation sim : Dashboard.simulator.simulations) {
+                sims.add(sim.id.toString());
+            }
+            final ComboBox<String> simSelector = new ComboBox<>(sims);
+            simSelector.valueProperty().setValue(sims.get(0));
+            simSelector.setStyle("-fx-font: 20px \"Arial\"; -fx-focus-color: transparent;");
+            simSelector.setPrefSize(2 * width / 3, 50);
+            simOptions.getChildren().add(simSelector);
+
+            runStopSim = new Button("Run OpMode\nSimulation");
+            runStopSim.setStyle("-fx-font: 14px \"Arial\"; -fx-focus-color: transparent;");
+            runStopSim.setTextAlignment(TextAlignment.CENTER);
+            runStopSim.setPrefSize(width / 3, 50);
+            runStopSim.setOnMouseClicked(event -> {
+                if (runStopSim.getText().startsWith("Run")) {
+                    Dashboard.simulator.simulate(simSelector.getValue());
+                    runStopSim.setText("Stop OpMode\nSimulation");
+                } else if (runStopSim.getText().startsWith("Stop")) {
+                    if (Dashboard.simulator.activeSim != null)
+                        Dashboard.simulator.activeSim.end();
+                    runStopSim.setText("Run OpMode\nSimulation");
+                }
+            });
+            simOptions.getChildren().add(runStopSim);
+            getChildren().add(simOptions);
 
             Label constantsLabel = new Label("Constants");
             constantsLabel.setTextFill(Color.YELLOW);
