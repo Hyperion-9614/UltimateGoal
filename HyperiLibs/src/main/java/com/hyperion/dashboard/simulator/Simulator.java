@@ -12,6 +12,7 @@ import com.hyperion.motion.math.Vector2D;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
+import javafx.application.Platform;
 import javafx.scene.shape.Rectangle;
 
 public class Simulator {
@@ -30,50 +31,81 @@ public class Simulator {
     }
 
     public void simulate(String id) {
-        activeSim = simulations.stream()
+        Simulation sim = simulations.stream()
                 .filter(s -> s.id.equals(id))
                 .collect(Collectors.toList()).get(0);
-        robot = new RigidBody(activeSim.start);
+        try {
+            activeSim = sim.getClass().newInstance();
+            robot = new RigidBody(activeSim.start);
 
-        opModeThread = new Thread(() -> {
-            activeSim.init(robot);
-            activeSim.run();
-            if (activeSim != null)
-                activeSim.end();
-        });
-        opModeThread.start();
+            opModeThread = new Thread(() -> {
+                activeSim.init(robot);
+                activeSim.run();
+                stopSim();
+            });
+            opModeThread.start();
 
-        engineThread = new Thread(() -> {
-            Robot simRob = new Robot(new ID("robot", "sim"), robot);
-            simRob.addDisplayGroup();
+            engineThread = new Thread(() -> {
+                Robot simRob = new Robot(new ID("robot", "sim"), robot);
+                simRob.addDisplayGroup();
 
-            Vector2D lastTvel = new Vector2D();
-            double lastAVel = 0;
-            long startTime = System.currentTimeMillis();
-            long lastTime = startTime;
+                Vector2D lastTvel = new Vector2D();
+                double lastAVel = 0;
+                long startTime = System.currentTimeMillis();
+                long lastTime = startTime;
 
-            while (activeSim != null && activeSim.state == Simulation.State.RUNNING) {
-                if (System.currentTimeMillis() -  lastTime >= Constants.getDouble("simulator.renderDelay")) {
-                    double dTime = (System.currentTimeMillis() - lastTime) / 1000.0;
-                    lastTime = System.currentTimeMillis();
+                while (activeSim != null && activeSim.state != Simulation.State.INACTIVE && opModeThread != null && !opModeThread.isInterrupted()) {
+                    if (System.currentTimeMillis() - lastTime >= Constants.getDouble("simulator.renderDelay")) {
+                        double dTime = (System.currentTimeMillis() - lastTime) / 1000.0;
+                        lastTime = System.currentTimeMillis();
 
-                    setEmpiricalMotionVectors(activeSim, dTime);
-                    robot.addXYT(robot.tVel.x * dTime, robot.tVel.y * dTime, robot.aVel * dTime);
-                    robot.theta = MathUtils.norm(robot.theta, 0, 2 * Math.PI);
+                        setEmpiricalMotionVectors(activeSim, dTime);
+                        robot.addXYT(robot.tVel.x * dTime, robot.tVel.y * dTime, robot.aVel * dTime);
+                        robot.theta = MathUtils.norm(robot.theta, 0, 2 * Math.PI);
 
-                    double aX = (robot.tVel.x - lastTvel.x) / dTime;
-                    double aY = (robot.tVel.y - lastTvel.y) / dTime;
-                    robot.tAcc = new Vector2D(aX, aY, true);
-                    lastTvel = new Vector2D(robot.tVel);
-                    robot.aAcc = (robot.aVel - lastAVel) / dTime;
-                    lastAVel = robot.aVel;
+                        double aX = (robot.tVel.x - lastTvel.x) / dTime;
+                        double aY = (robot.tVel.y - lastTvel.y) / dTime;
+                        robot.tAcc = new Vector2D(aX, aY, true);
+                        lastTvel = new Vector2D(robot.tVel);
+                        robot.aAcc = (robot.aVel - lastAVel) / dTime;
+                        lastAVel = robot.aVel;
 
-                    simRob.refreshDisplayGroup();
+                        simRob.refreshDisplayGroup();
+                    }
                 }
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                simRob.removeDisplayGroup();
+            });
+            engineThread.start();
+
+            Platform.runLater(() -> Dashboard.leftPane.setSimDisables(true, false));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Stops the current active sim
+     */
+    public void stopSim() {
+        try {
+            if (activeSim != null) {
+                activeSim.setDrive(0);
+                activeSim.state = Simulation.State.INACTIVE;
             }
-            simRob.removeDisplayGroup();
-        });
-        engineThread.start();
+            activeSim = null;
+            if (opModeThread != null) {
+                opModeThread.interrupt();
+                opModeThread = null;
+            }
+            Platform.runLater(() -> Dashboard.leftPane.setSimDisables(false, true));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

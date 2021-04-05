@@ -65,17 +65,17 @@
     "pid": {
         "x": {
             "kP": 0.7,
-            "kI": 0.0002,
+            "kI": 2,
             "kD": 0.4
         },
         "y": {
             "kP": 0.7,
-            "kI": 0.0002,
+            "kI": 2,
             "kD": 0.4
         },
         "theta": {
             "kP": 0.7,
-            "kI": 0.00002,
+            "kI": 2,
             "kD": 0.1
         },
         "shooterL": {
@@ -99,7 +99,7 @@
         "obstacleMoveThreshold": 3,
         "endErrorThresholds": {
             "rotation": 1,
-            "translation": 3
+            "translation": 2
         },
         "gridMhat": 20,
         "obstacles": {

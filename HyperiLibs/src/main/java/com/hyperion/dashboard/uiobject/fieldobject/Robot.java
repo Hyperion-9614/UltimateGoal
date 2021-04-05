@@ -60,8 +60,6 @@ public class Robot extends FieldObject {
                 ColorAdjust greenify = new ColorAdjust();
                 greenify.setHue(-0.5);
                 imgView.setEffect(greenify);
-                imgView.setCache(true);
-                imgView.setCacheHint(CacheHint.SPEED);
             }
             displayGroup.getChildren().add(imgView);
 

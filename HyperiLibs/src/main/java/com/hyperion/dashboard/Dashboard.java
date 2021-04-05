@@ -60,6 +60,7 @@ public class Dashboard extends Application {
     public static RightPane rightPane;
     public static VisualPane visualPane;
     public static Simulator simulator;
+    public static ScrollPane sp;
     public static DBSocket dbSocket;
 
     public static List<FieldObject> fieldObjects = new ArrayList<>();
@@ -104,7 +105,7 @@ public class Dashboard extends Application {
         sideStuff.getChildren().add(hbox);
         sideStuff.getChildren().add(visualPane);
 
-        ScrollPane sp = new ScrollPane();
+        sp = new ScrollPane();
         sp.setMaxHeight(fieldPane.fieldSize);
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);

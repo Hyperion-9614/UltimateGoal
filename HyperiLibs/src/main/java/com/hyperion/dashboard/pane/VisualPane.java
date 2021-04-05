@@ -55,6 +55,12 @@ public class VisualPane extends VBox {
         splineMpGraph = new PiecewiseLineGraph("Spline Motion Profile", "Distance (cm)", "Velocity (cm/s)");
         getChildren().add(splineMpGraph);
 
+        Label pidfTunerLabel = new Label("Motor PIDF Tuner");
+        pidfTunerLabel.setTextFill(Color.YELLOW);
+        pidfTunerLabel.setStyle("-fx-font: 32px \"Arial\"; -fx-alignment:center;");
+        pidfTunerLabel.setPrefWidth(getPrefWidth());
+        getChildren().add(pidfTunerLabel);
+
         velMotorGraph = new ContinuousScatterPlot("Velocity Motor", "Time (s)", "Velocity (rpm)");
         velMotorGraph.init("Current", "Target");
         getChildren().add(velMotorGraph);

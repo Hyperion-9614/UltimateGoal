@@ -10,7 +10,6 @@ public class Test extends Simulation {
 
     @Override
     public void run() {
-        setDrive(1, 1, 1, 1);
-        sleep(3000);
+        pidMove(new Pose(100, 0, 0));
     }
 }

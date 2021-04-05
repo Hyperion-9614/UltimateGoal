@@ -7,7 +7,6 @@ import com.hyperion.dashboard.Dashboard;
 import com.hyperion.dashboard.simulator.Simulation;
 import com.hyperion.net.FieldEdit;
 import com.hyperion.net.Message;
-import com.hyperion.dashboard.simulator.Simulator;
 import com.hyperion.dashboard.uiobject.fieldobject.FieldObject;
 import com.hyperion.motion.math.Pose;
 import com.hyperion.motion.pathplanning.DStarLite;
@@ -18,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,9 +27,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -37,6 +36,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Screen;
+import javafx.util.Duration;
 
 /**
  * Contains field controls, options, and config
@@ -50,7 +50,7 @@ public class LeftPane extends VBox {
     public String constantsSave = "";
 
     public CheckBox showPathingGrid;
-    public Button runStopSim;
+    public Button playSim, stopSim;
 
     public double width;
 
@@ -204,6 +204,7 @@ public class LeftPane extends VBox {
             getChildren().add(simulationOptionsLabel);
 
             HBox simOptions = new HBox();
+            simOptions.setAlignment(Pos.CENTER_LEFT);
             simOptions.setSpacing(10);
 
             ObservableList<String> sims = FXCollections.observableArrayList();
@@ -212,25 +213,53 @@ public class LeftPane extends VBox {
             }
             final ComboBox<String> simSelector = new ComboBox<>(sims);
             simSelector.valueProperty().setValue(sims.get(0));
-            simSelector.setStyle("-fx-font: 20px \"Arial\"; -fx-focus-color: transparent;");
-            simSelector.setPrefSize(2 * width / 3, 50);
+            simSelector.setStyle("-fx-font: 16px \"Arial\"; -fx-focus-color: transparent;");
+            simSelector.setPrefSize(width / 2, 50);
             simOptions.getChildren().add(simSelector);
 
-            runStopSim = new Button("Run OpMode\nSimulation");
-            runStopSim.setStyle("-fx-font: 14px \"Arial\"; -fx-focus-color: transparent;");
-            runStopSim.setTextAlignment(TextAlignment.CENTER);
-            runStopSim.setPrefSize(width / 3, 50);
-            runStopSim.setOnMouseClicked(event -> {
-                if (runStopSim.getText().startsWith("Run")) {
-                    Dashboard.simulator.simulate(simSelector.getValue());
-                    runStopSim.setText("Stop OpMode\nSimulation");
-                } else if (runStopSim.getText().startsWith("Stop")) {
-                    if (Dashboard.simulator.activeSim != null)
-                        Dashboard.simulator.activeSim.end();
-                    runStopSim.setText("Run OpMode\nSimulation");
-                }
+            ScaleTransition scaleUp = new ScaleTransition(Duration.millis(150));
+            scaleUp.setFromX(1); scaleUp.setFromY(1); scaleUp.setToX(1.2); scaleUp.setToY(1.2);
+
+            ScaleTransition scaleDown = new ScaleTransition(Duration.millis(150));
+            scaleDown.setFromX(1.2); scaleDown.setFromY(1.2); scaleDown.setToX(1); scaleDown.setToY(1);
+
+            playSim = new Button();
+            playSim.setBackground(Background.EMPTY);
+            playSim.setOnMouseEntered(e -> {
+                scaleUp.setNode(playSim);
+                scaleUp.play();
             });
-            simOptions.getChildren().add(runStopSim);
+            playSim.setOnMouseExited(e -> {
+                scaleDown.setNode(playSim);
+                scaleDown.play();
+            });
+            ImageView playSimIcon = new ImageView(Constants.getFile("img", "play.png").toURI().toURL().toString());
+            playSimIcon.setFitWidth(40);
+            playSimIcon.setFitHeight(40);
+            playSim.setGraphic(playSimIcon);
+            playSim.setOnMouseClicked(event -> {
+                Dashboard.simulator.simulate(simSelector.getValue());
+            });
+            playSim.setDisable(false);
+            simOptions.getChildren().add(playSim);
+
+            stopSim = new Button();
+            stopSim.setBackground(Background.EMPTY);
+            stopSim.setOnMouseEntered(e -> {
+                scaleUp.setNode(stopSim);
+                scaleUp.play();
+            });
+            stopSim.setOnMouseExited(e -> {
+                scaleDown.setNode(stopSim);
+                scaleDown.play();
+            });
+            ImageView stopSimIcon = new ImageView(Constants.getFile("img", "stop.png").toURI().toURL().toString());
+            stopSimIcon.setFitWidth(40);
+            stopSimIcon.setFitHeight(40);
+            stopSim.setGraphic(stopSimIcon);
+            stopSim.setOnMouseClicked(event -> Dashboard.simulator.stopSim());
+            stopSim.setDisable(true);
+            simOptions.getChildren().add(stopSim);
             getChildren().add(simOptions);
 
             Label constantsLabel = new Label("Constants");
@@ -300,6 +329,11 @@ public class LeftPane extends VBox {
             }
         }
         Dashboard.editField(false, fieldEdits.toArray(new FieldEdit[]{}));
+    }
+
+    public void setSimDisables(boolean run, boolean stop) {
+        playSim.setDisable(run);
+        stopSim.setDisable(stop);
     }
 
 }
