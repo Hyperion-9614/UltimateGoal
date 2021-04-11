@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import javafx.application.Platform;
-import javafx.scene.shape.Rectangle;
 
 public class Simulator {
 
@@ -21,6 +20,7 @@ public class Simulator {
     public Thread opModeThread;
     public Thread engineThread;
     public Simulation activeSim;
+    
     public RigidBody robot;
 
     public Simulator() {
@@ -36,12 +36,12 @@ public class Simulator {
                 .collect(Collectors.toList()).get(0);
         try {
             activeSim = sim.getClass().newInstance();
-            robot = new RigidBody(activeSim.start);
+            activeSim.init();
+            robot = Simotion.robot;
 
             opModeThread = new Thread(() -> {
-                activeSim.init(robot);
                 activeSim.run();
-                stopSim();
+                stop();
             });
             opModeThread.start();
 
@@ -49,11 +49,8 @@ public class Simulator {
                 Robot simRob = new Robot(new ID("robot", "sim"), robot);
                 simRob.addDisplayGroup();
 
-                Vector2D lastTvel = new Vector2D();
-                double lastAVel = 0;
                 long startTime = System.currentTimeMillis();
                 long lastTime = startTime;
-
                 while (activeSim != null && activeSim.state != Simulation.State.INACTIVE && opModeThread != null && !opModeThread.isInterrupted()) {
                     if (System.currentTimeMillis() - lastTime >= Constants.getDouble("simulator.renderDelay")) {
                         double dTime = (System.currentTimeMillis() - lastTime) / 1000.0;
@@ -62,13 +59,6 @@ public class Simulator {
                         setEmpiricalMotionVectors(activeSim, dTime);
                         robot.addXYT(robot.tVel.x * dTime, robot.tVel.y * dTime, robot.aVel * dTime);
                         robot.theta = MathUtils.norm(robot.theta, 0, 2 * Math.PI);
-
-                        double aX = (robot.tVel.x - lastTvel.x) / dTime;
-                        double aY = (robot.tVel.y - lastTvel.y) / dTime;
-                        robot.tAcc = new Vector2D(aX, aY, true);
-                        lastTvel = new Vector2D(robot.tVel);
-                        robot.aAcc = (robot.aVel - lastAVel) / dTime;
-                        lastAVel = robot.aVel;
 
                         simRob.refreshDisplayGroup();
                     }
@@ -91,17 +81,18 @@ public class Simulator {
     /**
      * Stops the current active sim
      */
-    public void stopSim() {
+    public void stop() {
         try {
             if (activeSim != null) {
-                activeSim.setDrive(0);
+                Simotion.setDrive(0);
                 activeSim.state = Simulation.State.INACTIVE;
             }
-            activeSim = null;
             if (opModeThread != null) {
                 opModeThread.interrupt();
                 opModeThread = null;
             }
+            Simotion.clear();
+            activeSim = null;
             Platform.runLater(() -> Dashboard.leftPane.setSimDisables(false, true));
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,47 +106,70 @@ public class Simulator {
      * @param  dTime  the change in time
      */
     private void setEmpiricalMotionVectors(Simulation sim, double dTime) {
-        /* fL | turn: 0, pi | roll: pi/4, 5pi/4
-         * fR | turn: 0, pi | roll: 7pi/4, 3pi/4
-         * bL | turn: 0, pi | roll: 7pi/4, 3pi/4
-         * bR | turn: 0, pi | roll: pi/4, 5pi/4
-         */
-        double kReal = 1 - Constants.getDouble("simulator.kSlip");
-        double kStrafe = Constants.getDouble("simulator.kStrafe") * (sim.fLPow - sim.bLPow) / 2;
+        /* Calculate tAcc and aAcc using mecanum forces & kinematics */
 
-        Vector2D fLturn = new Vector2D(sim.fLPow, getDir(sim.fLPow, 0, 1), false);
-        Vector2D fLroll = new Vector2D(kStrafe * sim.fLPow, getDir(sim.fLPow, 1.0/4, 5.0/4), false);
+        // Constants
+        double MdriveT = Constants.getDouble("simulator.MdriveTorque");
+        double wRadius = Constants.getDouble("simulator.wheelRadius");
+        double trackWidth = Constants.getDouble("localization.trackWidth");
+        double driveBase = Constants.getDouble("localization.driveBase");
+        double l2 = Math.pow(trackWidth, 2) + Math.pow(driveBase, 2);
+        double rRadius = Math.sqrt(l2) / 2;
+        double rMass = Constants.getDouble("simulator.robotMass");
+        double kFrF = Constants.getDouble("simulator.kFrF");
 
-        Vector2D fRturn = new Vector2D(sim.fRPow, getDir(sim.fRPow, 0, 1), false);
-        Vector2D fRroll = new Vector2D(kStrafe * sim.fRPow, getDir(sim.fRPow, 7.0/4, 3.0/4), false);
+        // Per-wheel forces
+        Vector2D fL_Ff = new Vector2D(Math.abs(sim.fLPow) * MdriveT / wRadius,
+                scalToDir(sim.fLPow, 0, Math.PI), false);
+        Vector2D fL_Fc = new Vector2D(fL_Ff.mag / Math.cos(Math.PI / 4),
+                scalToDir(sim.fLPow, 7 * Math.PI / 4, 3 * Math.PI / 4), false);
+        fL_Ff = fL_Ff.scaled(kFrF);
 
-        Vector2D bLturn = new Vector2D(sim.bLPow, getDir(sim.bLPow, 0, 1), false);
-        Vector2D bLroll = new Vector2D(kStrafe * sim.bLPow, getDir(sim.bLPow, 7.0/4, 3.0/4), false);
+        Vector2D fR_Ff = new Vector2D(Math.abs(sim.fRPow) * MdriveT / wRadius,
+                scalToDir(sim.fRPow, 0, Math.PI), false);
+        Vector2D fR_Fc = new Vector2D(fR_Ff.mag / Math.cos(Math.PI / 4),
+                scalToDir(sim.fRPow, Math.PI / 4, 5 * Math.PI / 4), false);
+        fR_Ff = fR_Ff.scaled(kFrF);
 
-        Vector2D bRturn = new Vector2D(sim.bRPow, getDir(sim.bRPow, 0, 1), false);
-        Vector2D bRroll = new Vector2D(kStrafe * sim.bRPow, getDir(sim.bRPow, 1.0/4, 5.0/4), false);
+        Vector2D bL_Ff = new Vector2D(Math.abs(sim.bLPow) * MdriveT / wRadius,
+                scalToDir(sim.bLPow, 0, Math.PI), false);
+        Vector2D bL_Fc = new Vector2D(bL_Ff.mag / Math.cos(Math.PI / 4),
+                scalToDir(sim.bLPow, Math.PI / 4, 5 * Math.PI / 4), false);
+        bL_Ff = bL_Ff.scaled(kFrF);
 
-        Vector2D x = fLturn.added(bLturn).added(fRturn).added(bRturn);
-        Vector2D y = fLroll.added(bLroll).added(fRroll).added(bRroll);
+        Vector2D bR_Ff = new Vector2D(Math.abs(sim.bRPow) * MdriveT / wRadius,
+                scalToDir(sim.bRPow, 0, Math.PI), false);
+        Vector2D bR_Fc = new Vector2D(bR_Ff.mag / Math.cos(Math.PI / 4),
+                scalToDir(sim.bRPow, 7 * Math.PI / 4, 3 * Math.PI / 4), false);
+        bR_Ff = bR_Ff.scaled(kFrF);
 
-        Vector2D finalVelRel = x.added(y).scaled(kReal * Constants.getDouble("motionProfile.maxes.tVel") / 4);
-        Vector2D worldVel = finalVelRel.thetaed(robot.theta + finalVelRel.theta);
-        double rot = (sim.fLPow - sim.bRPow) / 2;
+        // Translational
+        Vector2D Ff = fL_Ff.added(fR_Ff).added(bL_Ff).added(bR_Ff);
+        Vector2D Fc = fL_Fc.added(fR_Fc).added(bL_Fc).added(bR_Fc);
+        Vector2D Ft = Ff.added(Fc);
+        robot.tAcc = Ft.scaled(1 / rMass);
+        robot.tAcc.setTheta(robot.tAcc.theta + robot.theta);
 
-        robot.tVel.setVec(worldVel);
-        robot.aVel = -rot * Constants.getDouble("motionProfile.maxes.aVel");
+        // Rotational
+        Vector2D Fl = fL_Ff.added(bL_Ff);
+        Vector2D Fr = fR_Ff.added(bR_Ff);
+        double Tl = rRadius * Fl.mag * dirToScal(Fl.theta, Math.PI);
+        double Tr = rRadius * Fr.mag * dirToScal(Fr.theta, 0);
+        double T = Tl + Tr;
+        double I = (rMass / 12) * l2;
+        robot.aAcc = T / I;
 
-        double[] display = Dashboard.fieldPane.poseToDisplay(robot, Dashboard.fieldPane.robotSize);
-        Rectangle rect = new Rectangle(display[0], display[1], Dashboard.fieldPane.robotSize, Dashboard.fieldPane.robotSize);
-        boolean[] intersects = Dashboard.fieldPane.getWBBIntersects(rect);
-        double xComp = robot.tVel.x, yComp = robot.tVel.y;
-        if (!intersects[0]) xComp = 0;
-        if (!intersects[1]) yComp = 0;
-        robot.tVel.setVec(new Vector2D(xComp, yComp, true));
+        /* Vf = Vi + A(delta t) */
+        robot.tVel.add(robot.tAcc.scaled(dTime));
+        robot.aVel += robot.aAcc * dTime;
     }
 
-    private double getDir(double pow, double nForth, double nBack) {
-        return MathUtils.sign(pow) == 1 ? nForth * Math.PI : nBack * Math.PI;
+    private double scalToDir(double pow, double pos, double neg) {
+        return MathUtils.sign(pow) == 1 ? pos : neg;
+    }
+
+    private double dirToScal(double dir, double pos) {
+        return MathUtils.doubEquals(dir, pos) ? 1 : -1;
     }
 
 }

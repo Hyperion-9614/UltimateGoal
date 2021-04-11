@@ -257,7 +257,7 @@ public class LeftPane extends VBox {
             stopSimIcon.setFitWidth(40);
             stopSimIcon.setFitHeight(40);
             stopSim.setGraphic(stopSimIcon);
-            stopSim.setOnMouseClicked(event -> Dashboard.simulator.stopSim());
+            stopSim.setOnMouseClicked(event -> Dashboard.simulator.stop());
             stopSim.setDisable(true);
             simOptions.getChildren().add(stopSim);
             getChildren().add(simOptions);

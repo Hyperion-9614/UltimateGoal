@@ -62,32 +62,32 @@ public class MotionProfile {
 
     // Establish forward consistency among velocities of planning points based on maximum acceleration (accelerational constraints)
     public void forwardTransAccConsistency() {
-        spline.planningPoints.get(0).tVel.setMagnitude(0);
+        spline.planningPoints.get(0).tVel.setMag(0);
         for (int i = 1; i < spline.planningPoints.size() - 1; i++) {
             RigidBody p0 = spline.planningPoints.get(i - 1);
             RigidBody p1 = spline.planningPoints.get(i);
 
             double vMinAt = 0;
-            if (Math.pow(p0.tVel.magnitude, 2) > 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p1.distance - p0.distance))
-                vMinAt = Math.sqrt(Math.pow(p0.tVel.magnitude, 2) - 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p1.distance - p0.distance));
-            double vMaxAt = Math.sqrt(Math.pow(p0.tVel.magnitude, 2) + 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p1.distance - p0.distance));
-            p1.tVel.setMagnitude(MathUtils.clip(p1.tVel.magnitude, vMinAt, vMaxAt));
+            if (Math.pow(p0.tVel.mag, 2) > 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p1.distance - p0.distance))
+                vMinAt = Math.sqrt(Math.pow(p0.tVel.mag, 2) - 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p1.distance - p0.distance));
+            double vMaxAt = Math.sqrt(Math.pow(p0.tVel.mag, 2) + 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p1.distance - p0.distance));
+            p1.tVel.setMag(MathUtils.clip(p1.tVel.mag, vMinAt, vMaxAt));
         }
         printPlanningPoints("for");
     }
 
     // Establish backward consistency among velocities of planning points based on maximum acceleration (accelerational constraints)
     public void backwardTransAccConsistency() {
-        spline.planningPoints.get(spline.planningPoints.size() - 1).tVel.setMagnitude(0);
+        spline.planningPoints.get(spline.planningPoints.size() - 1).tVel.setMag(0);
         for (int i = spline.planningPoints.size() - 2; i > 0; i--) {
             RigidBody p0 = spline.planningPoints.get(i + 1);
             RigidBody p1 = spline.planningPoints.get(i);
 
             double vMinAt = 0;
-            if (Math.pow(p0.tVel.magnitude, 2) > 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p0.distance - p1.distance))
-                vMinAt = Math.sqrt(Math.pow(p0.tVel.magnitude, 2) - 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p0.distance - p1.distance));
-            double vMaxAt = Math.sqrt(Math.pow(p0.tVel.magnitude, 2) + 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p0.distance - p1.distance));
-            p1.tVel.setMagnitude(MathUtils.clip(p1.tVel.magnitude, vMinAt, vMaxAt));
+            if (Math.pow(p0.tVel.mag, 2) > 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p0.distance - p1.distance))
+                vMinAt = Math.sqrt(Math.pow(p0.tVel.mag, 2) - 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p0.distance - p1.distance));
+            double vMaxAt = Math.sqrt(Math.pow(p0.tVel.mag, 2) + 2 * Constants.getDouble("motionProfile.maxes.tAcc") * (p0.distance - p1.distance));
+            p1.tVel.setMag(MathUtils.clip(p1.tVel.mag, vMinAt, vMaxAt));
         }
         printPlanningPoints("back");
     }
@@ -95,7 +95,7 @@ public class MotionProfile {
     // Cap translational velocities at the given constant
     public void capTransVels() {
         for (RigidBody p : spline.planningPoints) {
-            p.tVel.setMagnitude(Math.min(p.tVel.magnitude, Constants.getDouble("motionProfile.maxes.tVel")));
+            p.tVel.setMag(Math.min(p.tVel.mag, Constants.getDouble("motionProfile.maxes.tVel")));
         }
         printPlanningPoints("cap");
     }
@@ -105,11 +105,11 @@ public class MotionProfile {
         for (int i = 0; i < spline.planningPoints.size() - 1; i++) {
             RigidBody p0 = spline.planningPoints.get(i);
             RigidBody p1 = spline.planningPoints.get(i + 1);
-            double acc = (Math.pow(p1.tVel.magnitude, 2) - Math.pow(p0.tVel.magnitude, 2)) / (2 * (p1.distance - p0.distance));
-            p0.tAcc.setMagnitude(acc);
+            double acc = (Math.pow(p1.tVel.mag, 2) - Math.pow(p0.tVel.mag, 2)) / (2 * (p1.distance - p0.distance));
+            p0.tAcc.setMag(acc);
             p0.tAcc.setTheta(p0.tVel.theta + (acc < 0 ? Math.PI : 0));
         }
-        spline.planningPoints.get(spline.planningPoints.size() - 1).tAcc.setMagnitude(0);
+        spline.planningPoints.get(spline.planningPoints.size() - 1).tAcc.setMag(0);
     }
 
     // Generate piecewise velocity profile
@@ -123,8 +123,8 @@ public class MotionProfile {
 
     // Set an interval in the translational velocity profile
     public void setTVPInterval(RigidBody pp0, RigidBody pp1) {
-        double slope = MathUtils.slope(pp0.distance, pp0.tVel.magnitude, pp1.distance, pp1.tVel.magnitude);
-        transVelProfile.setInterval(pp0.distance, pp1.distance, "(" + slope + ")*t + (" + -(slope * pp0.distance) + ") + (" + pp0.tVel.magnitude + ")");
+        double slope = MathUtils.slope(pp0.distance, pp0.tVel.mag, pp1.distance, pp1.tVel.mag);
+        transVelProfile.setInterval(pp0.distance, pp1.distance, "(" + slope + ")*t + (" + -(slope * pp0.distance) + ") + (" + pp0.tVel.mag + ")");
     }
 
     public void printPlanningPoints(String label) {

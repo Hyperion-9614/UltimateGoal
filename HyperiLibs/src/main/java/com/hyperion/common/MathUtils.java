@@ -12,6 +12,10 @@ public class MathUtils {
         return Precision.round(n, places);
     }
 
+    public static boolean doubEquals(double a, double b) {
+        return (Math.abs(a - b) <= Math.pow(10, -6));
+    }
+
     public static boolean isCollinear(Pose o1, Pose o2, Pose o3) {
         if (slope(o1, o2) == slope(o2, o3)) return true;
         return false;

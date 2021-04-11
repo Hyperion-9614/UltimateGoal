@@ -21,7 +21,6 @@ import org.firstinspires.ftc.teamcode.modules.Localizer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -309,7 +308,7 @@ public class Motion {
                 System.out.println("D/wVel: " + MathUtils.round(distance, 3) + " / " + worldVelVec.toString());
             worldVelVec = worldVelVec.scaled(Constants.getDouble("pathing.powerScale") / Constants.getDouble("motionProfile.maxes.tVel"));
             if (distance <= 0.04 * L)
-                worldVelVec.setMagnitude(Math.max(worldVelVec.magnitude, 0.1));
+                worldVelVec.setMag(Math.max(worldVelVec.mag, 0.1));
             double[] wheelPowers = toMotorPowers(toRelVec(worldVelVec), rot / (2 * Math.PI));
             setDrive(wheelPowers);
 

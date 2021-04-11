@@ -42,8 +42,10 @@
         "localizationDelay": 10
     },
     "simulator": {
-        "kSlip": 0.1,
-        "kStrafe": 0.5,
+        "MdriveTorque": 3000,
+        "wheelRadius": 5.08,
+        "robotMass": 18,
+        "kFrF": 0.7,
         "renderDelay": 10
     },
     "apndg": {

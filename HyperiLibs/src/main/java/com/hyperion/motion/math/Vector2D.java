@@ -10,7 +10,7 @@ public class Vector2D {
 
     public double x, y;
     public double theta;
-    public double magnitude;
+    public double mag;
 
     public Vector2D() {
 
@@ -25,14 +25,14 @@ public class Vector2D {
             x = a;
             y = b;
 
-            magnitude = MathUtils.round(Math.sqrt(x * x + y * y), 3);
+            mag = MathUtils.round(Math.sqrt(x * x + y * y), 3);
             theta = MathUtils.norm(Math.atan2(y, x));
         } else {
-            magnitude = Math.abs(MathUtils.round(a, 3));
+            mag = Math.abs(a);
             theta = MathUtils.norm(b);
 
-            x = magnitude * Math.cos(theta);
-            y = magnitude * Math.sin(theta);
+            x = mag * Math.cos(theta);
+            y = mag * Math.sin(theta);
         }
     }
 
@@ -47,7 +47,7 @@ public class Vector2D {
     public void add(Vector2D v2) {
         this.x += v2.x;
         this.y += v2.y;
-        this.magnitude = MathUtils.round(Math.sqrt(x * x + y * y), 3);
+        this.mag = MathUtils.round(Math.sqrt(x * x + y * y), 3);
         this.theta = MathUtils.norm(Math.atan2(y, x));
     }
 
@@ -56,11 +56,11 @@ public class Vector2D {
     }
 
     public Vector2D scaled(double k) {
-        return new Vector2D(k * magnitude, theta, false);
+        return new Vector2D(k * mag, theta, false);
     }
 
     public Vector2D rotated(double dTheta) {
-        return new Vector2D(magnitude, theta + dTheta, false);
+        return new Vector2D(mag, theta + dTheta, false);
     }
 
     public double dot(Vector2D vec) {
@@ -79,7 +79,7 @@ public class Vector2D {
         return magnituded(1);
     }
 
-    public void setMagnitude(double newMag) {
+    public void setMag(double newMag) {
         setVec(new Vector2D(newMag, theta, false));
     }
 
@@ -88,11 +88,11 @@ public class Vector2D {
     }
 
     public Vector2D thetaed(double newTheta) {
-        return new Vector2D(magnitude, newTheta, false);
+        return new Vector2D(mag, newTheta, false);
     }
 
     public void addMagnitude(double dMag) {
-        setMagnitude(magnitude + dMag);
+        setMag(mag + dMag);
     }
 
     public void rotate(double dTheta) {
@@ -100,23 +100,23 @@ public class Vector2D {
     }
 
     public double[] toArray() {
-        return new double[]{ magnitude, theta };
+        return new double[]{mag, theta };
     }
 
     public void setVec(Vector2D newVec) {
         x = newVec.x;
         y = newVec.y;
-        magnitude = newVec.magnitude;
+        mag = newVec.mag;
         theta = newVec.theta;
     }
 
     public boolean equals(Vector2D other) {
-        return (MathUtils.round(other.magnitude, 3) == MathUtils.round(magnitude, 3)) && (MathUtils.round(MathUtils.norm(other.theta, 0, 2 * Math.PI), 3) == MathUtils.round(MathUtils.norm(theta, 0, 2 * Math.PI), 3));
+        return (MathUtils.round(other.mag, 3) == MathUtils.round(mag, 3)) && (MathUtils.round(MathUtils.norm(other.theta, 0, 2 * Math.PI), 3) == MathUtils.round(MathUtils.norm(theta, 0, 2 * Math.PI), 3));
     }
 
     @Override
     public String toString() {
-        return MathUtils.round(magnitude, 3) + ", " + MathUtils.round(Math.toDegrees(theta), 3) + "\u00B0";
+        return MathUtils.round(mag, 3) + ", " + MathUtils.round(Math.toDegrees(theta), 3) + "\u00B0";
     }
 
 }
