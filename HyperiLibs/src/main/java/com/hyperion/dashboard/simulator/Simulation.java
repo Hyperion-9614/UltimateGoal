@@ -13,6 +13,7 @@ public abstract class Simulation {
     public ID id;
     public State state;
     public Pose start;
+    public String status;
 
     public double fLPow;
     public double fRPow;
@@ -35,7 +36,7 @@ public abstract class Simulation {
 
     protected void sleep(long ms) {
         long start = System.currentTimeMillis();
-        while (System.currentTimeMillis() - start < ms && state == Simulation.State.ACTIVE) {
+        while (System.currentTimeMillis() - start < ms && state == State.ACTIVE) {
 
         }
     }

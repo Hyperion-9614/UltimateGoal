@@ -21,8 +21,8 @@ import javafx.scene.text.Text;
 public class Robot extends FieldObject {
 
     public RigidBody rB;
-    public Arrow vel;
     public Arrow acc;
+    public Arrow vel;
 
     public ImageView imgView;
     public Text info;
@@ -67,8 +67,8 @@ public class Robot extends FieldObject {
             info.setFill(Color.WHITE);
             displayGroup.getChildren().add(info);
 
-            vel = new Arrow(new ID(id, "arrow", "vel"), Color.BLACK, 15, rB, rB.tVel);
             acc = new Arrow(new ID(id, "arrow", "acc"), Color.WHITE, 15, rB, rB.tAcc);
+            vel = new Arrow(new ID(id, "arrow", "vel"), Color.BLACK, 15, rB, rB.tVel);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -76,8 +76,8 @@ public class Robot extends FieldObject {
 
     public void addDisplayGroup() {
         Platform.runLater(() -> Dashboard.fieldPane.getChildren().add(displayGroup));
-        vel.addDisplayGroup();
         acc.addDisplayGroup();
+        vel.addDisplayGroup();
     }
 
     public void refreshDisplayGroup() {
@@ -92,15 +92,15 @@ public class Robot extends FieldObject {
                     .replace("²", "\u00B2"));
             info.relocate(display[0] + Dashboard.fieldPane.robotSize + 3, display[1] + Dashboard.fieldPane.robotSize - 21);
         });
-        vel.refreshDisplayGroup();
         acc.refreshDisplayGroup();
+        vel.refreshDisplayGroup();
     }
 
     public void removeDisplayGroup() {
         Platform.runLater(() -> Dashboard.fieldPane.getChildren().remove(displayGroup));
         Dashboard.fieldPane.isRobotOnField = false;
-        vel.removeDisplayGroup();
         acc.removeDisplayGroup();
+        vel.removeDisplayGroup();
     }
 
     public void select() {

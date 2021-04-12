@@ -1,5 +1,6 @@
 package com.hyperion.dashboard.simulator;
 
+import com.hyperion.common.ArrayUtils;
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.MathUtils;
@@ -49,9 +50,8 @@ public class Simulator {
                 Robot simRob = new Robot(new ID("robot", "sim"), robot);
                 simRob.addDisplayGroup();
 
-                long startTime = System.currentTimeMillis();
-                long lastTime = startTime;
-                while (activeSim != null && activeSim.state != Simulation.State.INACTIVE && opModeThread != null && !opModeThread.isInterrupted()) {
+                long lastTime = System.currentTimeMillis();
+                while (activeSim != null && activeSim.state == Simulation.State.ACTIVE && opModeThread != null && !opModeThread.isInterrupted()) {
                     if (System.currentTimeMillis() - lastTime >= Constants.getDouble("simulator.renderDelay")) {
                         double dTime = (System.currentTimeMillis() - lastTime) / 1000.0;
                         lastTime = System.currentTimeMillis();
@@ -83,16 +83,16 @@ public class Simulator {
      */
     public void stop() {
         try {
-            if (activeSim != null) {
-                Simotion.setDrive(0);
-                activeSim.state = Simulation.State.INACTIVE;
-            }
             if (opModeThread != null) {
                 opModeThread.interrupt();
                 opModeThread = null;
             }
             Simotion.clear();
-            activeSim = null;
+            if (activeSim != null) {
+                Simotion.setDrive(0);
+                activeSim.state = Simulation.State.INACTIVE;
+                activeSim = null;
+            }
             Platform.runLater(() -> Dashboard.leftPane.setSimDisables(false, true));
         } catch (Exception e) {
             e.printStackTrace();
@@ -108,8 +108,11 @@ public class Simulator {
     private void setEmpiricalMotionVectors(Simulation sim, double dTime) {
         /* Calculate tAcc and aAcc using mecanum forces & kinematics */
 
+        if (Constants.getInt("simulator.verbosity") == 2) {
+            ArrayUtils.printArray(new double[]{ sim.fLPow, sim.fRPow, sim.bLPow, sim.bRPow });
+        }
+
         // Constants
-        double MdriveT = Constants.getDouble("simulator.MdriveTorque");
         double wRadius = Constants.getDouble("simulator.wheelRadius");
         double trackWidth = Constants.getDouble("localization.trackWidth");
         double driveBase = Constants.getDouble("localization.driveBase");
@@ -119,35 +122,39 @@ public class Simulator {
         double kFrF = Constants.getDouble("simulator.kFrF");
 
         // Per-wheel forces
-        Vector2D fL_Ff = new Vector2D(Math.abs(sim.fLPow) * MdriveT / wRadius,
-                scalToDir(sim.fLPow, 0, Math.PI), false);
+        double fLTorque = getTorque(sim.fLPow);
+        Vector2D fL_Ff = new Vector2D(fLTorque / wRadius,
+                scalToDir(fLTorque, 0, Math.PI), false);
         Vector2D fL_Fc = new Vector2D(fL_Ff.mag / Math.cos(Math.PI / 4),
-                scalToDir(sim.fLPow, 7 * Math.PI / 4, 3 * Math.PI / 4), false);
+                scalToDir(fLTorque, 7 * Math.PI / 4, 3 * Math.PI / 4), false);
         fL_Ff = fL_Ff.scaled(kFrF);
 
-        Vector2D fR_Ff = new Vector2D(Math.abs(sim.fRPow) * MdriveT / wRadius,
-                scalToDir(sim.fRPow, 0, Math.PI), false);
+        double fRTorque = getTorque(sim.fRPow);
+        Vector2D fR_Ff = new Vector2D(fRTorque / wRadius,
+                scalToDir(fRTorque, 0, Math.PI), false);
         Vector2D fR_Fc = new Vector2D(fR_Ff.mag / Math.cos(Math.PI / 4),
-                scalToDir(sim.fRPow, Math.PI / 4, 5 * Math.PI / 4), false);
+                scalToDir(fRTorque, Math.PI / 4, 5 * Math.PI / 4), false);
         fR_Ff = fR_Ff.scaled(kFrF);
 
-        Vector2D bL_Ff = new Vector2D(Math.abs(sim.bLPow) * MdriveT / wRadius,
-                scalToDir(sim.bLPow, 0, Math.PI), false);
+        double bLTorque = getTorque(sim.bLPow);
+        Vector2D bL_Ff = new Vector2D(bLTorque / wRadius,
+                scalToDir(bLTorque, 0, Math.PI), false);
         Vector2D bL_Fc = new Vector2D(bL_Ff.mag / Math.cos(Math.PI / 4),
-                scalToDir(sim.bLPow, Math.PI / 4, 5 * Math.PI / 4), false);
+                scalToDir(bLTorque, Math.PI / 4, 5 * Math.PI / 4), false);
         bL_Ff = bL_Ff.scaled(kFrF);
 
-        Vector2D bR_Ff = new Vector2D(Math.abs(sim.bRPow) * MdriveT / wRadius,
-                scalToDir(sim.bRPow, 0, Math.PI), false);
+        double bRTorque = getTorque(sim.bRPow);
+        Vector2D bR_Ff = new Vector2D(bRTorque / wRadius,
+                scalToDir(bRTorque, 0, Math.PI), false);
         Vector2D bR_Fc = new Vector2D(bR_Ff.mag / Math.cos(Math.PI / 4),
-                scalToDir(sim.bRPow, 7 * Math.PI / 4, 3 * Math.PI / 4), false);
+                scalToDir(bRTorque, 7 * Math.PI / 4, 3 * Math.PI / 4), false);
         bR_Ff = bR_Ff.scaled(kFrF);
 
         // Translational
         Vector2D Ff = fL_Ff.added(fR_Ff).added(bL_Ff).added(bR_Ff);
         Vector2D Fc = fL_Fc.added(fR_Fc).added(bL_Fc).added(bR_Fc);
         Vector2D Ft = Ff.added(Fc);
-        robot.tAcc = Ft.scaled(1 / rMass);
+        robot.tAcc.setVec(Ft.scaled(1 / rMass));
         robot.tAcc.setTheta(robot.tAcc.theta + robot.theta);
 
         // Rotational
@@ -159,9 +166,16 @@ public class Simulator {
         double I = (rMass / 12) * l2;
         robot.aAcc = T / I;
 
-        /* Vf = Vi + A(delta t) */
+        /* Vf = Vi + A(delta t), but only if you're not running into a wall */
+        // TODO: wall collision
         robot.tVel.add(robot.tAcc.scaled(dTime));
         robot.aVel += robot.aAcc * dTime;
+    }
+
+    private double getTorque(double pow) {
+        double driveT = Constants.getDouble("simulator.driveTorque");
+        double stallT = Constants.getDouble("simulator.stallTorque");
+        return (Math.abs(pow) * driveT - stallT);
     }
 
     private double scalToDir(double pow, double pos, double neg) {

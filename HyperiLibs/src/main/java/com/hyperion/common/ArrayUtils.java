@@ -43,7 +43,7 @@ public class ArrayUtils {
      */
     public static void printArray(double[] arr) {
         System.out.print("[ ");
-        for (double d : arr) System.out.print(d + " ");
+        for (double d : arr) System.out.print(round(d, 3) + " ");
         System.out.println("]");
     }
 
@@ -57,7 +57,7 @@ public class ArrayUtils {
         for (double[] r : arr) {
             System.out.print("[ ");
             for (double c : r) {
-                System.out.print(c + " ");
+                System.out.print(round(c, 3) + " ");
             }
             System.out.println("]");
         }

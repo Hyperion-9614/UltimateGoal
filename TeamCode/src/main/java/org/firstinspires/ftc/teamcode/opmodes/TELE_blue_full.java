@@ -38,7 +38,7 @@ public class TELE_blue_full extends LinearOpMode {
              * LEFT JOYSTICK : Translation in direction of joystick, relative to robot
              * RIGHT JOYSTICK : Pivot in direction of joystick, relative to robot
              */
-            Vector2D vel = new Vector2D(-gamepad1.left_stick_x, -gamepad1.left_stick_y, true);
+            Vector2D vel = new Vector2D(gamepad1.left_stick_x, -gamepad1.left_stick_y, true).rotated(-Math.PI / 2);
             double rot = gamepad1.right_stick_x;
             if (rot == 0) {
                 isHtStarted = false;

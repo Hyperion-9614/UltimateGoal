@@ -23,13 +23,22 @@
             ]
         }
     },
+    "simulator": {
+        "robotMass": 20,
+        "wheelRadius": 5.08,
+        "renderDelay": 10,
+        "kFrF": 0.7,
+        "verbosity": 2,
+        "driveTorque": 500,
+        "stallTorque": 100
+    },
     "io": {"resPrefix": "\\HyperiLibs\\src\\main\\res"},
     "motionProfile": {
         "verbosity": 0,
         "maxes": {
             "aVel": 12.566,
-            "aAcc": 15.708,
             "tAcc": 400,
+            "aAcc": 15.708,
             "tVel": 150
         }
     },
@@ -41,50 +50,39 @@
         "autoOpModeIDs": ["auto.blue.full"],
         "localizationDelay": 10
     },
-    "simulator": {
-        "MdriveTorque": 3000,
-        "wheelRadius": 5.08,
-        "robotMass": 18,
-        "kFrF": 0.7,
-        "renderDelay": 10
-    },
     "apndg": {
-        "shooter": {
-            "rpm": 6700
-        },
         "loader": {
-            "out": 0.27,
-            "in": 0.7
+            "in": 0.7,
+            "out": 0.27
         },
+        "shooter": {"rpm": 6700},
         "hopper": {
-            "down": 0.6,
-            "up": 0.3
+            "up": 0.3,
+            "down": 0.6
         },
-        "intake": {
-            "power": 1.0
-        }
+        "intake": {"power": 1}
     },
     "pid": {
         "x": {
-            "kP": 0.7,
-            "kI": 2,
-            "kD": 0.4
+            "kP": 0.5,
+            "kD": 0,
+            "kI": 0
         },
         "y": {
-            "kP": 0.7,
-            "kI": 2,
-            "kD": 0.4
-        },
-        "theta": {
-            "kP": 0.7,
-            "kI": 2,
-            "kD": 0.1
+            "kP": 0,
+            "kD": 0,
+            "kI": 0
         },
         "shooterL": {
             "kP": 1,
-            "kI": 2,
             "kD": 1,
-            "kF": 2
+            "kF": 2,
+            "kI": 2
+        },
+        "theta": {
+            "kP": 0,
+            "kD": 0,
+            "kI": 0
         }
     },
     "spline": {
@@ -99,6 +97,7 @@
     },
     "pathing": {
         "obstacleMoveThreshold": 3,
+        "powerScale": 1,
         "endErrorThresholds": {
             "rotation": 1,
             "translation": 2
@@ -108,8 +107,7 @@
             "rInner": 33,
             "rBuffer": 5
         },
-        "usePID": false,
-        "powerScale": 1
+        "usePID": false
     },
     "dashboard": {
         "isDebugging": false,

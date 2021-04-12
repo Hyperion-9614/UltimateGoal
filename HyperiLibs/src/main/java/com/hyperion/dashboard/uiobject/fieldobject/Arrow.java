@@ -77,7 +77,7 @@ public class Arrow extends FieldObject {
     public void refreshDisplayGroup() {
         Platform.runLater(() -> {
             double[] start = Dashboard.fieldPane.poseToDisplay(origin, 0);
-            double[] end = Dashboard.fieldPane.poseToDisplay(origin.addVector(vec), 0);
+            double[] end = Dashboard.fieldPane.poseToDisplay(origin.addVector(vec.scaled(0.3).magnituded(Math.min(vec.mag, 75))), 0);
 
             startX = start[0];
             startY = start[1];
