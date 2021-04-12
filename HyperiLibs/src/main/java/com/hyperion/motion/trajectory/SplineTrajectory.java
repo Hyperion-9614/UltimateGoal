@@ -440,7 +440,7 @@ public class SplineTrajectory {
     }
 
     public Pose getDPose(double distance) {
-        if (distance == waypoints.get(waypoints.size() - 1).distance)
+        if (MathUtils.doubEquals(distance, waypoints.get(waypoints.size() - 1).distance))
             return waypoints.get(waypoints.size() - 1);
         int interval = getPlanningPointInterval(distance);
         double theta = MathUtils.norm(planningPoints.get(interval).theta + MathUtils.optThetaDiff(planningPoints.get(interval).theta, planningPoints.get(interval + 1).theta)

@@ -11,6 +11,6 @@ public class Test extends Simulation {
 
     @Override
     public void run() {
-        Simotion.pidMove("xTest");
+        Simotion.followSpline("test", false);
     }
 }

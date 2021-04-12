@@ -24,13 +24,14 @@
         }
     },
     "simulator": {
-        "robotMass": 20,
-        "wheelRadius": 5.08,
+        "wheelMass": 0.4,
+        "kMotorTorque": 10,
+        "robotMass": 18,
+        "wheelRadius": 5,
+        "maxMotorRPM": 700,
         "renderDelay": 10,
         "kFrF": 0.7,
-        "verbosity": 2,
-        "driveTorque": 500,
-        "stallTorque": 100
+        "verbosity": 1
     },
     "io": {"resPrefix": "\\HyperiLibs\\src\\main\\res"},
     "motionProfile": {
@@ -64,14 +65,14 @@
     },
     "pid": {
         "x": {
-            "kP": 0.5,
-            "kD": 0,
-            "kI": 0
+            "kP": 10,
+            "kD": 4,
+            "kI": 1E-7
         },
         "y": {
-            "kP": 0,
-            "kD": 0,
-            "kI": 0
+            "kP": 10,
+            "kD": 4,
+            "kI": 1E-7
         },
         "shooterL": {
             "kP": 1,
@@ -80,9 +81,9 @@
             "kI": 2
         },
         "theta": {
-            "kP": 0,
-            "kD": 0,
-            "kI": 0
+            "kP": 4,
+            "kD": 1.6,
+            "kI": 1E-7
         }
     },
     "spline": {
@@ -100,7 +101,7 @@
         "powerScale": 1,
         "endErrorThresholds": {
             "rotation": 1,
-            "translation": 2
+            "translation": 1
         },
         "gridMhat": 20,
         "obstacles": {

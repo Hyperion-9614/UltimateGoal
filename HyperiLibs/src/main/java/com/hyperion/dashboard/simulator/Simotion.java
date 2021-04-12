@@ -167,17 +167,14 @@ public class Simotion {
         PIDCtrl.reset();
         PIDCtrl.setGoal(target);
 
-        double initialD = new Vector2D(robot, target).mag;
         long start = System.currentTimeMillis();
-        while (sim != null && sim.state == Simulation.State.ACTIVE && robot != null) {
-            // && (System.currentTimeMillis() - start) <= 6000
-            // && (robot.distanceTo(target) > Constants.getDouble("pathing.endErrorThresholds.translation")
-            // || Math.abs(MathUtils.optThetaDiff(robot.theta, target.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))
-            Vector2D world = new Vector2D(robot, target).scaled(1 / initialD);
-            setDrive(toRelVec(world), 0);
-//            Object[] pidCorr = PIDCtrl.correction(robot);
-//            double[] wheelPowers = toMotorPowers(toRelVec((Vector2D) pidCorr[0]), (double) pidCorr[1]);
-//            setDrive(wheelPowers);
+        while (sim != null && sim.state == Simulation.State.ACTIVE && robot != null
+                && (System.currentTimeMillis() - start) <= 6000
+                && (robot.distanceTo(target) > Constants.getDouble("pathing.endErrorThresholds.translation")
+                || Math.abs(MathUtils.optThetaDiff(robot.theta, target.theta)) > Math.toRadians(Constants.getDouble("pathing.endErrorThresholds.rotation")))) {
+            Object[] pidCorr = PIDCtrl.correction(robot);
+            double[] wheelPowers = toMotorPowers(toRelVec((Vector2D) pidCorr[0]), (double) pidCorr[1]);
+            setDrive(wheelPowers);
         }
 
         setDrive(0);

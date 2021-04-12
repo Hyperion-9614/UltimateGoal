@@ -23,6 +23,10 @@ public class Simulator {
     public Simulation activeSim;
     
     public RigidBody robot;
+    private double lastFlPow;
+    private double lastFrPow;
+    private double lastBlPow;
+    private double lastBrPow;
 
     public Simulator() {
         robot = new RigidBody(new Pose(0, 0, 0));
@@ -38,17 +42,28 @@ public class Simulator {
         try {
             activeSim = sim.getClass().newInstance();
             activeSim.init();
-            robot = Simotion.robot;
 
-            opModeThread = new Thread(() -> {
-                activeSim.run();
-                stop();
-            });
-            opModeThread.start();
+            robot = Simotion.robot;
+            lastFlPow = 0;
+            lastFrPow = 0;
+            lastBlPow = 0;
+            lastBrPow = 0;
 
             engineThread = new Thread(() -> {
                 Robot simRob = new Robot(new ID("robot", "sim"), robot);
                 simRob.addDisplayGroup();
+
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                opModeThread = new Thread(() -> {
+                    activeSim.run();
+                    stop();
+                });
+                opModeThread.start();
 
                 long lastTime = System.currentTimeMillis();
                 while (activeSim != null && activeSim.state == Simulation.State.ACTIVE && opModeThread != null && !opModeThread.isInterrupted()) {
@@ -63,6 +78,7 @@ public class Simulator {
                         simRob.refreshDisplayGroup();
                     }
                 }
+
                 try {
                     Thread.sleep(1500);
                 } catch (InterruptedException e) {
@@ -87,11 +103,11 @@ public class Simulator {
                 opModeThread.interrupt();
                 opModeThread = null;
             }
-            Simotion.clear();
             if (activeSim != null) {
                 Simotion.setDrive(0);
                 activeSim.state = Simulation.State.INACTIVE;
                 activeSim = null;
+                Simotion.clear();
             }
             Platform.runLater(() -> Dashboard.leftPane.setSimDisables(false, true));
         } catch (Exception e) {
@@ -120,30 +136,35 @@ public class Simulator {
         double rRadius = Math.sqrt(l2) / 2;
         double rMass = Constants.getDouble("simulator.robotMass");
         double kFrF = Constants.getDouble("simulator.kFrF");
+        double kMotorTorque = Constants.getDouble("simulator.kMotorTorque");
 
         // Per-wheel forces
-        double fLTorque = getTorque(sim.fLPow);
+        double fLTorque = calculateWheelTorque(sim.fLPow, lastFlPow, dTime);
+        lastFlPow = sim.fLPow;
         Vector2D fL_Ff = new Vector2D(fLTorque / wRadius,
                 scalToDir(fLTorque, 0, Math.PI), false);
         Vector2D fL_Fc = new Vector2D(fL_Ff.mag / Math.cos(Math.PI / 4),
                 scalToDir(fLTorque, 7 * Math.PI / 4, 3 * Math.PI / 4), false);
         fL_Ff = fL_Ff.scaled(kFrF);
 
-        double fRTorque = getTorque(sim.fRPow);
+        double fRTorque = calculateWheelTorque(sim.fRPow, lastFrPow, dTime);
+        lastFrPow = sim.fRPow;
         Vector2D fR_Ff = new Vector2D(fRTorque / wRadius,
                 scalToDir(fRTorque, 0, Math.PI), false);
         Vector2D fR_Fc = new Vector2D(fR_Ff.mag / Math.cos(Math.PI / 4),
                 scalToDir(fRTorque, Math.PI / 4, 5 * Math.PI / 4), false);
         fR_Ff = fR_Ff.scaled(kFrF);
 
-        double bLTorque = getTorque(sim.bLPow);
+        double bLTorque = calculateWheelTorque(sim.bLPow, lastBlPow, dTime);
+        lastBlPow = sim.bLPow;
         Vector2D bL_Ff = new Vector2D(bLTorque / wRadius,
                 scalToDir(bLTorque, 0, Math.PI), false);
         Vector2D bL_Fc = new Vector2D(bL_Ff.mag / Math.cos(Math.PI / 4),
                 scalToDir(bLTorque, Math.PI / 4, 5 * Math.PI / 4), false);
         bL_Ff = bL_Ff.scaled(kFrF);
 
-        double bRTorque = getTorque(sim.bRPow);
+        double bRTorque = calculateWheelTorque(sim.bRPow, lastBrPow, dTime);
+        lastBrPow = sim.bRPow;
         Vector2D bR_Ff = new Vector2D(bRTorque / wRadius,
                 scalToDir(bRTorque, 0, Math.PI), false);
         Vector2D bR_Fc = new Vector2D(bR_Ff.mag / Math.cos(Math.PI / 4),
@@ -154,7 +175,7 @@ public class Simulator {
         Vector2D Ff = fL_Ff.added(fR_Ff).added(bL_Ff).added(bR_Ff);
         Vector2D Fc = fL_Fc.added(fR_Fc).added(bL_Fc).added(bR_Fc);
         Vector2D Ft = Ff.added(Fc);
-        robot.tAcc.setVec(Ft.scaled(1 / rMass));
+        robot.tAcc.setVec(Ft.scaled(kMotorTorque / rMass));
         robot.tAcc.setTheta(robot.tAcc.theta + robot.theta);
 
         // Rotational
@@ -172,10 +193,16 @@ public class Simulator {
         robot.aVel += robot.aAcc * dTime;
     }
 
-    private double getTorque(double pow) {
-        double driveT = Constants.getDouble("simulator.driveTorque");
-        double stallT = Constants.getDouble("simulator.stallTorque");
-        return (Math.abs(pow) * driveT - stallT);
+    // Calculates motor torque from RPM
+    private double calculateWheelTorque(double pow, double lastPow, double dTime) {
+        double maxRPM = Constants.getDouble("simulator.maxMotorRPM");
+        double maxAngVel = maxRPM * (2 * Math.PI / 60);
+        double wheelMass = Constants.getDouble("simulator.wheelMass");
+        double wheelRadius = Constants.getDouble("simulator.wheelRadius");
+        // T = I(alpha) = I((Vf - Vi)/dT)
+        double Iwheel = 0.5 * wheelMass * Math.pow(wheelRadius, 2);
+        double alpha = (pow - lastPow) * maxAngVel / dTime;
+        return Iwheel * alpha;
     }
 
     private double scalToDir(double pow, double pos, double neg) {
