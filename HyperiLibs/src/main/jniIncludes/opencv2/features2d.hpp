@@ -143,11 +143,9 @@ namespace cv {
 #ifdef __EMSCRIPTEN__
     class CV_EXPORTS_W Feature2D : public Algorithm
 #else
-
-    class CV_EXPORTS_W Feature2D
-
-    : public virtual Algorithm
-#endif {
+    class CV_EXPORTS_W Feature2D : public virtual Algorithm
+#endif
+{
     public:
     virtual ~
 
