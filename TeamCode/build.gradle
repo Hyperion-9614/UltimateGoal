@@ -26,7 +26,7 @@ android {
     defaultConfig {
         minSdkVersion 25
         targetSdkVersion 30
-        ndkVersion "23.0.7123448"
+        ndkVersion "22.1.7171670"
         multiDexEnabled true
         lintOptions {
             abortOnError false

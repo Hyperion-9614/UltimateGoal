@@ -27,5 +27,5 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    ndkVersion '23.0.7123448'
+    ndkVersion '22.1.7171670'
 }
