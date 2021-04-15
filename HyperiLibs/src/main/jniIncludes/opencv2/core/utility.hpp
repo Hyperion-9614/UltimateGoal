@@ -59,9 +59,7 @@
 #include <functional>
 
 #if !defined(_M_CEE)
-
 #include <mutex>  // std::mutex, std::lock_guard
-
 #endif
 
 namespace cv {
@@ -188,11 +186,21 @@ can make debugging more convenient.
   \return the previous error handler
 */
     CV_EXPORTS ErrorCallback
-    redirectError(ErrorCallback errCallback, void *userdata = 0, void **prevUserdata = 0);
+    redirectError( ErrorCallback
+    errCallback,
+    void *userdata = 0,
+    void **prevUserdata = 0
+    );
 
-    CV_EXPORTS String tempfile(const char *suffix = 0);
+    CV_EXPORTS String
 
-    CV_EXPORTS void glob(String pattern, std::vector<String> &result, bool recursive = false);
+    tempfile(const char *suffix = 0);
+
+    CV_EXPORTS void glob(String
+    pattern,
+    std::vector <String> &result,
+    bool recursive = false
+    );
 
 /** @brief OpenCV will try to set the number of threads for the next parallel region.
 
@@ -254,7 +262,10 @@ Returned value is raw cmake output including version control system revision, co
 compiler flags, enabled modules and third party libraries, etc. Output format depends on target
 architecture.
  */
-    CV_EXPORTS_W const String &getBuildInformation();
+    CV_EXPORTS_W const String
+    &
+
+    getBuildInformation();
 
 /** @brief Returns library version string
 
@@ -262,7 +273,9 @@ For example "3.4.1-dev".
 
 @sa getMajorVersion, getMinorVersion, getRevisionVersion
 */
-    CV_EXPORTS_W String getVersionString();
+    CV_EXPORTS_W String
+
+    getVersionString();
 
 /** @brief Returns major library version */
     CV_EXPORTS_W int getVersionMajor();
@@ -280,7 +293,9 @@ turned on). It can be used to initialize RNG or to measure a function execution 
 tick count before and after the function call.
 @sa getTickFrequency, TickMeter
  */
-    CV_EXPORTS_W int64 getTickCount();
+    CV_EXPORTS_W int64
+
+    getTickCount();
 
 /** @brief Returns the number of ticks per second.
 
@@ -306,85 +321,98 @@ It is also possible to compute the average time over multiple runs:
 
 @sa getTickCount, getTickFrequency
 */
-    class CV_EXPORTS_W TickMeter {
-    public:
-        //! the default constructor
-        CV_WRAP TickMeter() {
-            reset();
-        }
+    class CV_EXPORTS_W TickMeter
+            {
+                    public:
+                    //! the default constructor
+                    CV_WRAP TickMeter()
+                    {
+                        reset();
+                    }
 
-        //! starts counting ticks.
-        CV_WRAP void start() {
-            startTime = cv::getTickCount();
-        }
+                    //! starts counting ticks.
+                    CV_WRAP void start()
+                    {
+                        startTime = cv::getTickCount();
+                    }
 
-        //! stops counting ticks.
-        CV_WRAP void stop() {
-            int64 time = cv::getTickCount();
-            if (startTime == 0)
-                return;
-            ++counter;
-            sumTime += (time - startTime);
-            startTime = 0;
-        }
+                    //! stops counting ticks.
+                    CV_WRAP void stop()
+                    {
+                        int64 time = cv::getTickCount();
+                        if (startTime == 0)
+                            return;
+                        ++counter;
+                        sumTime += (time - startTime);
+                        startTime = 0;
+                    }
 
-        //! returns counted ticks.
-        CV_WRAP int64 getTimeTicks() const {
-            return sumTime;
-        }
+                    //! returns counted ticks.
+                    CV_WRAP int64 getTimeTicks() const
+                    {
+                        return sumTime;
+                    }
 
-        //! returns passed time in microseconds.
-        CV_WRAP double getTimeMicro() const {
-            return getTimeMilli() * 1e3;
-        }
+                    //! returns passed time in microseconds.
+                    CV_WRAP double getTimeMicro() const
+                    {
+                        return getTimeMilli() * 1e3;
+                    }
 
-        //! returns passed time in milliseconds.
-        CV_WRAP double getTimeMilli() const {
-            return getTimeSec() * 1e3;
-        }
+                    //! returns passed time in milliseconds.
+                    CV_WRAP double getTimeMilli() const
+                    {
+                        return getTimeSec() * 1e3;
+                    }
 
-        //! returns passed time in seconds.
-        CV_WRAP double getTimeSec() const {
-            return (double) getTimeTicks() / getTickFrequency();
-        }
+                    //! returns passed time in seconds.
+                    CV_WRAP double getTimeSec()   const
+                    {
+                        return (double) getTimeTicks() / getTickFrequency();
+                    }
 
-        //! returns internal counter value.
-        CV_WRAP int64 getCounter() const {
-            return counter;
-        }
+                    //! returns internal counter value.
+                    CV_WRAP int64 getCounter() const
+                    {
+                        return counter;
+                    }
 
-        //! returns average FPS (frames per second) value.
-        CV_WRAP double getFPS() const {
-            const double sec = getTimeSec();
-            if (sec < DBL_EPSILON)
-                return 0.;
-            return counter / sec;
-        }
+                    //! returns average FPS (frames per second) value.
+                    CV_WRAP double getFPS() const
+                    {
+                        const double sec = getTimeSec();
+                        if (sec < DBL_EPSILON)
+                            return 0.;
+                        return counter / sec;
+                    }
 
-        //! returns average time in seconds
-        CV_WRAP double getAvgTimeSec() const {
-            if (counter <= 0)
-                return 0.;
-            return getTimeSec() / counter;
-        }
+                    //! returns average time in seconds
+                    CV_WRAP double getAvgTimeSec() const
+                    {
+                        if (counter <= 0)
+                            return 0.;
+                        return getTimeSec() / counter;
+                    }
 
-        //! returns average time in milliseconds
-        CV_WRAP double getAvgTimeMilli() const {
-            return getAvgTimeSec() * 1e3;
-        }
+                    //! returns average time in milliseconds
+                    CV_WRAP double getAvgTimeMilli() const
+                    {
+                        return getAvgTimeSec() * 1e3;
+                    }
 
-        //! resets internal values.
-        CV_WRAP void reset() {
-            startTime = 0;
-            sumTime = 0;
-            counter = 0;
-        }
+                    //! resets internal values.
+                    CV_WRAP void reset()
+                    {
+                        startTime = 0;
+                        sumTime = 0;
+                        counter = 0;
+                    }
 
-    private:
-        int64 counter;
-        int64 sumTime;
-        int64 startTime;
-    };
+                    private:
+                    int64 counter;
+                    int64 sumTime;
+                    int64 startTime;
+            };
 
 /** @brief output operator
 @code
@@ -413,7 +441,9 @@ frequency depending on the load, the number of CPU clocks spent in some code can
 converted to time units. Therefore, getTickCount is generally a preferable solution for measuring
 execution time.
  */
-    CV_EXPORTS_W int64 getCPUTickCount();
+    CV_EXPORTS_W int64
+
+    getCPUTickCount();
 
 /** @brief Returns true if the specified feature is supported by the host hardware.
 
@@ -429,7 +459,9 @@ in OpenCV.
 
 Returns empty string if feature is not defined
 */
-    CV_EXPORTS_W String getHardwareFeatureName(int feature);
+    CV_EXPORTS_W String
+
+    getHardwareFeatureName(int feature);
 
 /** @brief Returns list of CPU features enabled during compilation.
 
@@ -441,7 +473,9 @@ Returned value is a string containing space separated list of CPU features with 
 
 Example: `SSE SSE2 SSE3 *SSE4.1 *SSE4.2 *FP16 *AVX *AVX2 *AVX512-SKX?`
 */
-    CV_EXPORTS_W std::string getCPUFeaturesLine();
+    CV_EXPORTS_W std::string
+
+    getCPUFeaturesLine();
 
 /** @brief Returns the number of logical CPUs available for the process.
  */
@@ -572,35 +606,49 @@ The function returns true if the optimized code is enabled. Otherwise, it return
 /////////////////////////////// Parallel Primitives //////////////////////////////////
 
 /** @brief Base class for parallel data processors
-*/
-    class CV_EXPORTS ParallelLoopBody {
-    public:
-        virtual ~ParallelLoopBody();
 
-        virtual void operator()(const Range &range) const = 0;
-    };
+@ingroup core_parallel
+*/
+    class CV_EXPORTS ParallelLoopBody
+            {
+                    public:
+                    virtual ~ParallelLoopBody();
+                    virtual void operator() (const Range& range) const = 0;
+            };
 
 /** @brief Parallel data processor
+
+@ingroup core_parallel
 */
     CV_EXPORTS void
     parallel_for_(const Range &range, const ParallelLoopBody &body, double nstripes = -1.);
 
+//! @ingroup core_parallel
     class ParallelLoopBodyLambdaWrapper : public ParallelLoopBody {
     private:
         std::function<void(const Range &)> m_functor;
     public:
-        ParallelLoopBodyLambdaWrapper(std::function<void(const Range &)> functor) :
-                m_functor(functor) {}
+        inline
+        ParallelLoopBodyLambdaWrapper(std::function<void(const Range &)> functor)
+                : m_functor(functor) {
+            // nothing
+        }
 
-        virtual void operator()(const cv::Range &range) const CV_OVERRIDE {
+        virtual void operator()(const cv::Range &range) const
+
+        CV_OVERRIDE
+        {
             m_functor(range);
         }
     };
 
-    inline void parallel_for_(const Range &range, std::function<void(const Range &)> functor,
-                              double nstripes = -1.) {
+//! @ingroup core_parallel
+    static inline
+    void parallel_for_(const Range &range, std::function<void(const Range &)> functor,
+                       double nstripes = -1.) {
         parallel_for_(range, ParallelLoopBodyLambdaWrapper(functor), nstripes);
     }
+
 
 /////////////////////////////// forEach method of cv::Mat ////////////////////////////
     template<typename _Tp, typename Functor>
@@ -620,14 +668,17 @@ The function returns true if the optimized code is enabled. Otherwise, it return
 
         class PixelOperationWrapper : public ParallelLoopBody {
         public:
-            PixelOperationWrapper(Mat_<_Tp> *const frame, const Functor &_operation)
+            PixelOperationWrapper(Mat_ <_Tp> *const frame, const Functor &_operation)
                     : mat(frame), op(_operation) {}
 
             virtual ~PixelOperationWrapper() {}
 
             // ! Overloaded virtual operator
             // convert range call to row call.
-            virtual void operator()(const Range &range) const CV_OVERRIDE {
+            virtual void operator()(const Range &range) const
+
+            CV_OVERRIDE
+            {
                 const int DIMS = mat->dims;
                 const int COLS = mat->size[DIMS - 1];
                 if (DIMS <= 2) {
@@ -653,9 +704,8 @@ The function returns true if the optimized code is enabled. Otherwise, it return
                     }
                 }
             }
-
         private:
-            Mat_<_Tp> *const mat;
+            Mat_ <_Tp> *const mat;
             const Functor op;
 
             // ! Call operator for each elements in this row.
@@ -705,14 +755,14 @@ The function returns true if the optimized code is enabled. Otherwise, it return
         };
 
         parallel_for_(cv::Range(0, LINES),
-                      PixelOperationWrapper(reinterpret_cast<Mat_<_Tp> *>(this), operation));
+                      PixelOperationWrapper(reinterpret_cast<Mat_ <_Tp> *>(this), operation));
     }
 
 /////////////////////////// Synchronization Primitives ///////////////////////////////
 
 #if !defined(_M_CEE)
     typedef std::recursive_mutex Mutex;
-    typedef std::lock_guard<cv::Mutex> AutoLock;
+    typedef std::lock_guard <cv::Mutex> AutoLock;
 #endif
 
 
@@ -793,150 +843,152 @@ For the described keys:
     Parameter 'fps': can not convert: [aaa] to [double]
 @endcode
  */
-    class CV_EXPORTS CommandLineParser {
-    public:
+    class CV_EXPORTS CommandLineParser
+            {
+                    public:
 
-        /** @brief Constructor
+                    /** @brief Constructor
 
-        Initializes command line parser object
+                    Initializes command line parser object
 
-        @param argc number of command line arguments (from main())
-        @param argv array of command line arguments (from main())
-        @param keys string describing acceptable command line parameters (see class description for syntax)
-        */
-        CommandLineParser(int argc, const char *const argv[], const String &keys);
+                    @param argc number of command line arguments (from main())
+                    @param argv array of command line arguments (from main())
+                    @param keys string describing acceptable command line parameters (see class description for syntax)
+                    */
+                    CommandLineParser(int argc, const char* const argv[], const String& keys);
 
-        /** @brief Copy constructor */
-        CommandLineParser(const CommandLineParser &parser);
+                    /** @brief Copy constructor */
+                    CommandLineParser(const CommandLineParser& parser);
 
-        /** @brief Assignment operator */
-        CommandLineParser &operator=(const CommandLineParser &parser);
+                    /** @brief Assignment operator */
+                    CommandLineParser& operator= (const CommandLineParser& parser);
 
-        /** @brief Destructor */
-        ~CommandLineParser();
+                    /** @brief Destructor */
+                    ~CommandLineParser();
 
-        /** @brief Returns application path
+                    /** @brief Returns application path
 
-        This method returns the path to the executable from the command line (`argv[0]`).
+                    This method returns the path to the executable from the command line (`argv[0]`).
 
-        For example, if the application has been started with such a command:
-        @code{.sh}
-        $ ./bin/my-executable
-        @endcode
-        this method will return `./bin`.
-        */
-        String getPathToApplication() const;
+                    For example, if the application has been started with such a command:
+                    @code{.sh}
+                    $ ./bin/my-executable
+                    @endcode
+                    this method will return `./bin`.
+                    */
+                    String getPathToApplication() const;
 
-        /** @brief Access arguments by name
+                    /** @brief Access arguments by name
 
-        Returns argument converted to selected type. If the argument is not known or can not be
-        converted to selected type, the error flag is set (can be checked with @ref check).
+                    Returns argument converted to selected type. If the argument is not known or can not be
+                    converted to selected type, the error flag is set (can be checked with @ref check).
 
-        For example, define:
-        @code{.cpp}
-        String keys = "{N count||}";
-        @endcode
+                    For example, define:
+                    @code{.cpp}
+                    String keys = "{N count||}";
+                    @endcode
 
-        Call:
-        @code{.sh}
-        $ ./my-app -N=20
-        # or
-        $ ./my-app --count=20
-        @endcode
+                    Call:
+                    @code{.sh}
+                    $ ./my-app -N=20
+                    # or
+                    $ ./my-app --count=20
+                    @endcode
 
-        Access:
-        @code{.cpp}
-        int N = parser.get<int>("N");
-        @endcode
+                    Access:
+                    @code{.cpp}
+                    int N = parser.get<int>("N");
+                    @endcode
 
-        @param name name of the argument
-        @param space_delete remove spaces from the left and right of the string
-        @tparam T the argument will be converted to this type if possible
+                    @param name name of the argument
+                    @param space_delete remove spaces from the left and right of the string
+                    @tparam T the argument will be converted to this type if possible
 
-        @note You can access positional arguments by their `@`-prefixed name:
-        @code{.cpp}
-        parser.get<String>("@image");
-        @endcode
-         */
-        template<typename T>
-        T get(const String &name, bool space_delete = true) const {
-            T val = T();
-            getByName(name, space_delete, ParamType<T>::type, (void *) &val);
-            return val;
-        }
+                    @note You can access positional arguments by their `@`-prefixed name:
+                    @code{.cpp}
+                    parser.get<String>("@image");
+                    @endcode
+                     */
+                    template <typename T>
+                    T get(const String& name, bool space_delete = true) const
+                    {
+                        T val = T();
+                        getByName(name, space_delete, ParamType<T>::type, (void *) &val);
+                        return val;
+                    }
 
-        /** @brief Access positional arguments by index
+                    /** @brief Access positional arguments by index
 
-        Returns argument converted to selected type. Indexes are counted from zero.
+                    Returns argument converted to selected type. Indexes are counted from zero.
 
-        For example, define:
-        @code{.cpp}
-        String keys = "{@arg1||}{@arg2||}"
-        @endcode
+                    For example, define:
+                    @code{.cpp}
+                    String keys = "{@arg1||}{@arg2||}"
+                    @endcode
 
-        Call:
-        @code{.sh}
-        ./my-app abc qwe
-        @endcode
+                    Call:
+                    @code{.sh}
+                    ./my-app abc qwe
+                    @endcode
 
-        Access arguments:
-        @code{.cpp}
-        String val_1 = parser.get<String>(0); // returns "abc", arg1
-        String val_2 = parser.get<String>(1); // returns "qwe", arg2
-        @endcode
+                    Access arguments:
+                    @code{.cpp}
+                    String val_1 = parser.get<String>(0); // returns "abc", arg1
+                    String val_2 = parser.get<String>(1); // returns "qwe", arg2
+                    @endcode
 
-        @param index index of the argument
-        @param space_delete remove spaces from the left and right of the string
-        @tparam T the argument will be converted to this type if possible
-         */
-        template<typename T>
-        T get(int index, bool space_delete = true) const {
-            T val = T();
-            getByIndex(index, space_delete, ParamType<T>::type, (void *) &val);
-            return val;
-        }
+                    @param index index of the argument
+                    @param space_delete remove spaces from the left and right of the string
+                    @tparam T the argument will be converted to this type if possible
+                     */
+                    template <typename T>
+                    T get(int index, bool space_delete = true) const
+                    {
+                        T val = T();
+                        getByIndex(index, space_delete, ParamType<T>::type, (void *) &val);
+                        return val;
+                    }
 
-        /** @brief Check if field was provided in the command line
+                    /** @brief Check if field was provided in the command line
 
-        @param name argument name to check
-        */
-        bool has(const String &name) const;
+                    @param name argument name to check
+                    */
+                    bool has(const String& name) const;
 
-        /** @brief Check for parsing errors
+                    /** @brief Check for parsing errors
 
-        Returns false if error occurred while accessing the parameters (bad conversion, missing arguments,
-        etc.). Call @ref printErrors to print error messages list.
-         */
-        bool check() const;
+                    Returns false if error occurred while accessing the parameters (bad conversion, missing arguments,
+                    etc.). Call @ref printErrors to print error messages list.
+                     */
+                    bool check() const;
 
-        /** @brief Set the about message
+                    /** @brief Set the about message
 
-        The about message will be shown when @ref printMessage is called, right before arguments table.
-         */
-        void about(const String &message);
+                    The about message will be shown when @ref printMessage is called, right before arguments table.
+                     */
+                    void about(const String& message);
 
-        /** @brief Print help message
+                    /** @brief Print help message
 
-        This method will print standard help message containing the about message and arguments description.
+                    This method will print standard help message containing the about message and arguments description.
 
-        @sa about
-        */
-        void printMessage() const;
+                    @sa about
+                    */
+                    void printMessage() const;
 
-        /** @brief Print list of errors occurred
+                    /** @brief Print list of errors occurred
 
-        @sa check
-        */
-        void printErrors() const;
+                    @sa check
+                    */
+                    void printErrors() const;
 
-    protected:
-        void getByName(const String &name, bool space_delete, Param type, void *dst) const;
+                    protected:
+                    void getByName(const String& name, bool space_delete, Param type, void* dst) const;
+                    void getByIndex(int index, bool space_delete, Param type, void* dst) const;
 
-        void getByIndex(int index, bool space_delete, Param type, void *dst) const;
-
-        struct Impl;
-        Impl *impl;
-    };
+                    struct Impl;
+                    Impl* impl;
+            };
 
 //! @} core_utils
 
@@ -1041,70 +1093,77 @@ For the described keys:
 
 // Basic Node class for tree building
     template<class OBJECT>
-    class CV_EXPORTS Node {
-    public:
-        Node() {
-            m_pParent = 0;
-        }
+    class CV_EXPORTS Node
+            {
+                    public:
+                    Node()
+                    {
+                        m_pParent = 0;
+                    }
+                    Node(OBJECT& payload) : m_payload(payload)
+                    {
+                        m_pParent = 0;
+                    }
+                    ~Node()
+                    {
+                        removeChilds();
+                        if (m_pParent) {
+                            int idx = m_pParent->findChild(this);
+                            if (idx >= 0)
+                                m_pParent->m_childs.erase(m_pParent->m_childs.begin() + idx);
+                        }
+                    }
 
-        Node(OBJECT &payload) : m_payload(payload) {
-            m_pParent = 0;
-        }
+                    Node<OBJECT>* findChild(OBJECT& payload) const
+                    {
+                        for (size_t i = 0; i < this->m_childs.size(); i++) {
+                            if (this->m_childs[i]->m_payload == payload)
+                                return this->m_childs[i];
+                        }
+                        return NULL;
+                    }
 
-        ~Node() {
-            removeChilds();
-            if (m_pParent) {
-                int idx = m_pParent->findChild(this);
-                if (idx >= 0)
-                    m_pParent->m_childs.erase(m_pParent->m_childs.begin() + idx);
-            }
-        }
+                    int findChild(Node<OBJECT> *pNode) const
+                    {
+                        for (size_t i = 0; i < this->m_childs.size(); i++) {
+                            if (this->m_childs[i] == pNode)
+                                return (int) i;
+                        }
+                        return -1;
+                    }
 
-        Node<OBJECT> *findChild(OBJECT &payload) const {
-            for (size_t i = 0; i < this->m_childs.size(); i++) {
-                if (this->m_childs[i]->m_payload == payload)
-                    return this->m_childs[i];
-            }
-            return NULL;
-        }
+                    void addChild(Node<OBJECT> *pNode)
+                    {
+                        if (!pNode)
+                            return;
 
-        int findChild(Node<OBJECT> *pNode) const {
-            for (size_t i = 0; i < this->m_childs.size(); i++) {
-                if (this->m_childs[i] == pNode)
-                    return (int) i;
-            }
-            return -1;
-        }
+                        CV_Assert(pNode->m_pParent == 0);
+                        pNode->m_pParent = this;
+                        this->m_childs.push_back(pNode);
+                    }
 
-        void addChild(Node<OBJECT> *pNode) {
-            if (!pNode)
-                return;
+                    void removeChilds()
+                    {
+                        for (size_t i = 0; i < m_childs.size(); i++) {
+                            m_childs[i]->m_pParent = 0; // avoid excessive parent vector trimming
+                            delete m_childs[i];
+                        }
+                        m_childs.clear();
+                    }
 
-            CV_Assert(pNode->m_pParent == 0);
-            pNode->m_pParent = this;
-            this->m_childs.push_back(pNode);
-        }
+                    int getDepth()
+                    {
+                        int count = 0;
+                        Node *pParent = m_pParent;
+                        while (pParent) count++, pParent = pParent->m_pParent;
+                        return count;
+                    }
 
-        void removeChilds() {
-            for (size_t i = 0; i < m_childs.size(); i++) {
-                m_childs[i]->m_pParent = 0; // avoid excessive parent vector trimming
-                delete m_childs[i];
-            }
-            m_childs.clear();
-        }
-
-        int getDepth() {
-            int count = 0;
-            Node *pParent = m_pParent;
-            while (pParent) count++, pParent = pParent->m_pParent;
-            return count;
-        }
-
-    public:
-        OBJECT m_payload;
-        Node<OBJECT> *m_pParent;
-        std::vector<Node<OBJECT> *> m_childs;
-    };
+                    public:
+                    OBJECT                     m_payload;
+                    Node<OBJECT>*              m_pParent;
+                    std::vector<Node<OBJECT>*> m_childs;
+            };
 
 
     namespace samples {
@@ -1140,9 +1199,11 @@ Search directories:
 @return Returns path (absolute or relative to the current directory) or empty string if file is not found
 */
         CV_EXPORTS_W cv::String
+
         findFile(const cv::String &relative_path, bool required = true, bool silentMode = false);
 
         CV_EXPORTS_W cv::String
+
         findFileOrKeep(const cv::String &relative_path, bool silentMode = false);
 
         inline cv::String findFileOrKeep(const cv::String &relative_path, bool silentMode) {

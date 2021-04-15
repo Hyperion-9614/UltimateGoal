@@ -3,8 +3,6 @@
 //
 package org.opencv.imgproc;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat4;
 import org.opencv.core.MatOfFloat6;
@@ -14,14 +12,21 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.utils.Converters;
 
+import java.util.List;
+
 // C++: class Subdiv2D
 
 public class Subdiv2D {
 
     protected final long nativeObj;
-    protected Subdiv2D(long addr) { nativeObj = addr; }
 
-    public long getNativeObjAddr() { return nativeObj; }
+    protected Subdiv2D(long addr) {
+        nativeObj = addr;
+    }
+
+    public long getNativeObjAddr() {
+        return nativeObj;
+    }
 
     // internal usage only
     public static Subdiv2D __fromPtr__(long addr) { return new Subdiv2D(addr); }
@@ -44,6 +49,19 @@ public class Subdiv2D {
 
 
     //
+    // C++:   cv::Subdiv2D::Subdiv2D()
+    //
+
+    /**
+     * creates an empty Subdiv2D object.
+     * To create a new empty Delaunay subdivision you need to use the #initDelaunay function.
+     */
+    public Subdiv2D() {
+        nativeObj = Subdiv2D_0();
+    }
+
+
+    //
     // C++:   cv::Subdiv2D::Subdiv2D(Rect rect)
     //
 
@@ -57,112 +75,40 @@ public class Subdiv2D {
      *     error is raised.
      */
     public Subdiv2D(Rect rect) {
-        nativeObj = Subdiv2D_0(rect.x, rect.y, rect.width, rect.height);
+        nativeObj = Subdiv2D_1(rect.x, rect.y, rect.width, rect.height);
     }
 
 
     //
+    // C++:  void cv::Subdiv2D::initDelaunay(Rect rect)
+    //
+
     // C++:   cv::Subdiv2D::Subdiv2D()
-    //
-
-    /**
-     * creates an empty Subdiv2D object.
-     *     To create a new empty Delaunay subdivision you need to use the #initDelaunay function.
-     */
-    public Subdiv2D() {
-        nativeObj = Subdiv2D_1();
-    }
+    private static native long Subdiv2D_0();
 
 
     //
-    // C++:  Point2f cv::Subdiv2D::getVertex(int vertex, int* firstEdge = 0)
+    // C++:  int cv::Subdiv2D::insert(Point2f pt)
     //
 
-    /**
-     * Returns vertex location from vertex ID.
-     *
-     *     @param vertex vertex ID.
-     *     @param firstEdge Optional. The first edge ID which is connected to the vertex.
-     *     @return vertex (x,y)
-     */
-    public Point getVertex(int vertex, int[] firstEdge) {
-        double[] firstEdge_out = new double[1];
-        Point retVal = new Point(getVertex_0(nativeObj, vertex, firstEdge_out));
-        if(firstEdge!=null) firstEdge[0] = (int)firstEdge_out[0];
-        return retVal;
-    }
-
-    /**
-     * Returns vertex location from vertex ID.
-     *
-     *     @param vertex vertex ID.
-     *     @return vertex (x,y)
-     */
-    public Point getVertex(int vertex) {
-        return new Point(getVertex_1(nativeObj, vertex));
-    }
+    // C++:   cv::Subdiv2D::Subdiv2D(Rect rect)
+    private static native long Subdiv2D_1(int rect_x, int rect_y, int rect_width, int rect_height);
 
 
     //
-    // C++:  int cv::Subdiv2D::edgeDst(int edge, Point2f* dstpt = 0)
+    // C++:  void cv::Subdiv2D::insert(vector_Point2f ptvec)
     //
 
-    /**
-     * Returns the edge destination.
-     *
-     *     @param edge Subdivision edge ID.
-     *     @param dstpt Output vertex location.
-     *
-     *     @return vertex ID.
-     */
-    public int edgeDst(int edge, Point dstpt) {
-        double[] dstpt_out = new double[2];
-        int retVal = edgeDst_0(nativeObj, edge, dstpt_out);
-        if(dstpt!=null){ dstpt.x = dstpt_out[0]; dstpt.y = dstpt_out[1]; } 
-        return retVal;
-    }
-
-    /**
-     * Returns the edge destination.
-     *
-     *     @param edge Subdivision edge ID.
-     *
-     *     @return vertex ID.
-     */
-    public int edgeDst(int edge) {
-        return edgeDst_1(nativeObj, edge);
-    }
+    // C++:  void cv::Subdiv2D::initDelaunay(Rect rect)
+    private static native void initDelaunay_0(long nativeObj, int rect_x, int rect_y, int rect_width, int rect_height);
 
 
     //
-    // C++:  int cv::Subdiv2D::edgeOrg(int edge, Point2f* orgpt = 0)
+    // C++:  int cv::Subdiv2D::locate(Point2f pt, int& edge, int& vertex)
     //
 
-    /**
-     * Returns the edge origin.
-     *
-     *     @param edge Subdivision edge ID.
-     *     @param orgpt Output vertex location.
-     *
-     *     @return vertex ID.
-     */
-    public int edgeOrg(int edge, Point orgpt) {
-        double[] orgpt_out = new double[2];
-        int retVal = edgeOrg_0(nativeObj, edge, orgpt_out);
-        if(orgpt!=null){ orgpt.x = orgpt_out[0]; orgpt.y = orgpt_out[1]; } 
-        return retVal;
-    }
-
-    /**
-     * Returns the edge origin.
-     *
-     *     @param edge Subdivision edge ID.
-     *
-     *     @return vertex ID.
-     */
-    public int edgeOrg(int edge) {
-        return edgeOrg_1(nativeObj, edge);
-    }
+    // C++:  void cv::Subdiv2D::insert(vector_Point2f ptvec)
+    private static native void insert_1(long nativeObj, long ptvec_mat_nativeObj);
 
 
     //
@@ -204,6 +150,47 @@ public class Subdiv2D {
     public int findNearest(Point pt) {
         return findNearest_1(nativeObj, pt.x, pt.y);
     }
+
+
+    //
+    // C++:  void cv::Subdiv2D::getEdgeList(vector_Vec4f& edgeList)
+    //
+
+    // C++:  int cv::Subdiv2D::findNearest(Point2f pt, Point2f* nearestPt = 0)
+    private static native int findNearest_0(long nativeObj, double pt_x, double pt_y, double[] nearestPt_out);
+
+
+    //
+    // C++:  void cv::Subdiv2D::getLeadingEdgeList(vector_int& leadingEdgeList)
+    //
+
+    private static native int findNearest_1(long nativeObj, double pt_x, double pt_y);
+
+
+    //
+    // C++:  void cv::Subdiv2D::getTriangleList(vector_Vec6f& triangleList)
+    //
+
+    // C++:  Point2f cv::Subdiv2D::getVertex(int vertex, int* firstEdge = 0)
+    private static native double[] getVertex_0(long nativeObj, int vertex, double[] firstEdge_out);
+
+
+    //
+    // C++:  void cv::Subdiv2D::getVoronoiFacetList(vector_int idx, vector_vector_Point2f& facetList, vector_Point2f& facetCenters)
+    //
+
+    private static native double[] getVertex_1(long nativeObj, int vertex);
+
+
+    //
+    // C++:  Point2f cv::Subdiv2D::getVertex(int vertex, int* firstEdge = 0)
+    //
+
+    // C++:  int cv::Subdiv2D::getEdge(int edge, int nextEdgeType)
+    private static native int getEdge_0(long nativeObj, int edge, int nextEdgeType);
+
+    // C++:  int cv::Subdiv2D::nextEdge(int edge)
+    private static native int nextEdge_0(long nativeObj, int edge);
 
 
     //
@@ -253,8 +240,104 @@ public class Subdiv2D {
 
 
     //
-    // C++:  int cv::Subdiv2D::insert(Point2f pt)
+    // C++:  int cv::Subdiv2D::nextEdge(int edge)
     //
+
+    /**
+     * Returns next edge around the edge origin.
+     *
+     * @param edge Subdivision edge ID.
+     * @return an integer which is next edge ID around the edge origin: eOnext on the
+     * picture above if e is the input edge).
+     */
+    public int nextEdge(int edge) {
+        return nextEdge_0(nativeObj, edge);
+    }
+
+
+    //
+    // C++:  int cv::Subdiv2D::rotateEdge(int edge, int rotate)
+    //
+
+    /**
+     * Returns another edge of the same quad-edge.
+     *
+     * @param edge   Subdivision edge ID.
+     * @param rotate Parameter specifying which of the edges of the same quad-edge as the input
+     *               one to return. The following values are possible:
+     *               <ul>
+     *                 <li>
+     *                      0 - the input edge ( e on the picture below if e is the input edge)
+     *                 </li>
+     *                 <li>
+     *                      1 - the rotated edge ( eRot )
+     *                 </li>
+     *                 <li>
+     *                      2 - the reversed edge (reversed e (in green))
+     *                 </li>
+     *                 <li>
+     *                      3 - the reversed rotated edge (reversed eRot (in green))
+     *                 </li>
+     *               </ul>
+     *               <p>
+     *                   @return one of the edges ID of the same quad-edge as the input edge.
+     */
+    public int rotateEdge(int edge, int rotate) {
+        return rotateEdge_0(nativeObj, edge, rotate);
+    }
+
+
+    //
+    // C++:  int cv::Subdiv2D::symEdge(int edge)
+    //
+
+    public int symEdge(int edge) {
+        return symEdge_0(nativeObj, edge);
+    }
+
+
+    //
+    // C++:  int cv::Subdiv2D::edgeOrg(int edge, Point2f* orgpt = 0)
+    //
+
+    // C++:  int cv::Subdiv2D::rotateEdge(int edge, int rotate)
+    private static native int rotateEdge_0(long nativeObj, int edge, int rotate);
+
+    // C++:  int cv::Subdiv2D::symEdge(int edge)
+    private static native int symEdge_0(long nativeObj, int edge);
+
+
+    //
+    // C++:  int cv::Subdiv2D::edgeDst(int edge, Point2f* dstpt = 0)
+    //
+
+    // C++:  int cv::Subdiv2D::edgeOrg(int edge, Point2f* orgpt = 0)
+    private static native int edgeOrg_0(long nativeObj, int edge, double[] orgpt_out);
+
+    private static native int edgeOrg_1(long nativeObj, int edge);
+
+
+    @Override
+    protected void finalize() throws Throwable {
+        delete(nativeObj);
+    }
+
+    // C++:  int cv::Subdiv2D::edgeDst(int edge, Point2f* dstpt = 0)
+    private static native int edgeDst_0(long nativeObj, int edge, double[] dstpt_out);
+
+    private static native int edgeDst_1(long nativeObj, int edge);
+
+    /**
+     * Creates a new empty Delaunay subdivision
+     *
+     * @param rect Rectangle that includes all of the 2D points that are to be added to the subdivision.
+     */
+    public void initDelaunay(Rect rect) {
+        initDelaunay_0(nativeObj, rect.x, rect.y, rect.width, rect.height);
+    }
+
+    // C++:  int cv::Subdiv2D::insert(Point2f pt)
+    private static native int insert_0(long nativeObj, double pt_x, double pt_y);
 
     /**
      * Insert a single point into a Delaunay triangulation.
@@ -271,10 +354,21 @@ public class Subdiv2D {
         return insert_0(nativeObj, pt.x, pt.y);
     }
 
-
-    //
     // C++:  int cv::Subdiv2D::locate(Point2f pt, int& edge, int& vertex)
-    //
+    private static native int locate_0(long nativeObj, double pt_x, double pt_y, double[] edge_out, double[] vertex_out);
+
+    /**
+     * Insert multiple points into a Delaunay triangulation.
+     *
+     * @param ptvec Points to insert.
+     *              <p>
+     *              The function inserts a vector of points into a subdivision and modifies the subdivision topology
+     *              appropriately.
+     */
+    public void insert(MatOfPoint2f ptvec) {
+        Mat ptvec_mat = ptvec;
+        insert_1(nativeObj, ptvec_mat.nativeObj);
+    }
 
     /**
      * Returns the location of a point within a Delaunay triangulation.
@@ -313,73 +407,22 @@ public class Subdiv2D {
         double[] edge_out = new double[1];
         double[] vertex_out = new double[1];
         int retVal = locate_0(nativeObj, pt.x, pt.y, edge_out, vertex_out);
-        if(edge!=null) edge[0] = (int)edge_out[0];
-        if(vertex!=null) vertex[0] = (int)vertex_out[0];
+        if (edge != null) edge[0] = (int) edge_out[0];
+        if (vertex != null) vertex[0] = (int) vertex_out[0];
         return retVal;
     }
 
-
-    //
-    // C++:  int cv::Subdiv2D::nextEdge(int edge)
-    //
-
-    /**
-     * Returns next edge around the edge origin.
-     *
-     *     @param edge Subdivision edge ID.
-     *
-     *     @return an integer which is next edge ID around the edge origin: eOnext on the
-     *     picture above if e is the input edge).
-     */
-    public int nextEdge(int edge) {
-        return nextEdge_0(nativeObj, edge);
-    }
-
-
-    //
-    // C++:  int cv::Subdiv2D::rotateEdge(int edge, int rotate)
-    //
-
-    /**
-     * Returns another edge of the same quad-edge.
-     *
-     *     @param edge Subdivision edge ID.
-     *     @param rotate Parameter specifying which of the edges of the same quad-edge as the input
-     *     one to return. The following values are possible:
-     * <ul>
-     *   <li>
-     *        0 - the input edge ( e on the picture below if e is the input edge)
-     *   </li>
-     *   <li>
-     *        1 - the rotated edge ( eRot )
-     *   </li>
-     *   <li>
-     *        2 - the reversed edge (reversed e (in green))
-     *   </li>
-     *   <li>
-     *        3 - the reversed rotated edge (reversed eRot (in green))
-     *   </li>
-     * </ul>
-     *
-     *     @return one of the edges ID of the same quad-edge as the input edge.
-     */
-    public int rotateEdge(int edge, int rotate) {
-        return rotateEdge_0(nativeObj, edge, rotate);
-    }
-
-
-    //
-    // C++:  int cv::Subdiv2D::symEdge(int edge)
-    //
-
-    public int symEdge(int edge) {
-        return symEdge_0(nativeObj, edge);
-    }
-
-
-    //
     // C++:  void cv::Subdiv2D::getEdgeList(vector_Vec4f& edgeList)
-    //
+    private static native void getEdgeList_0(long nativeObj, long edgeList_mat_nativeObj);
+
+    // C++:  void cv::Subdiv2D::getLeadingEdgeList(vector_int& leadingEdgeList)
+    private static native void getLeadingEdgeList_0(long nativeObj, long leadingEdgeList_mat_nativeObj);
+
+    // C++:  void cv::Subdiv2D::getTriangleList(vector_Vec6f& triangleList)
+    private static native void getTriangleList_0(long nativeObj, long triangleList_mat_nativeObj);
+
+    // C++:  void cv::Subdiv2D::getVoronoiFacetList(vector_int idx, vector_vector_Point2f& facetList, vector_Point2f& facetCenters)
+    private static native void getVoronoiFacetList_0(long nativeObj, long idx_mat_nativeObj, long facetList_mat_nativeObj, long facetCenters_mat_nativeObj);
 
     /**
      * Returns a list of all edges.
@@ -394,11 +437,6 @@ public class Subdiv2D {
         getEdgeList_0(nativeObj, edgeList_mat.nativeObj);
     }
 
-
-    //
-    // C++:  void cv::Subdiv2D::getLeadingEdgeList(vector_int& leadingEdgeList)
-    //
-
     /**
      * Returns a list of the leading edge ID connected to each triangle.
      *
@@ -410,11 +448,6 @@ public class Subdiv2D {
         Mat leadingEdgeList_mat = leadingEdgeList;
         getLeadingEdgeList_0(nativeObj, leadingEdgeList_mat.nativeObj);
     }
-
-
-    //
-    // C++:  void cv::Subdiv2D::getTriangleList(vector_Vec6f& triangleList)
-    //
 
     /**
      * Returns a list of all triangles.
@@ -428,11 +461,6 @@ public class Subdiv2D {
         Mat triangleList_mat = triangleList;
         getTriangleList_0(nativeObj, triangleList_mat.nativeObj);
     }
-
-
-    //
-    // C++:  void cv::Subdiv2D::getVoronoiFacetList(vector_int idx, vector_vector_Point2f& facetList, vector_Point2f& facetCenters)
-    //
 
     /**
      * Returns a list of all Voronoi facets.
@@ -450,103 +478,84 @@ public class Subdiv2D {
         facetList_mat.release();
     }
 
-
-    //
-    // C++:  void cv::Subdiv2D::initDelaunay(Rect rect)
-    //
+    /**
+     * Returns vertex location from vertex ID.
+     *
+     * @param vertex    vertex ID.
+     * @param firstEdge Optional. The first edge ID which is connected to the vertex.
+     * @return vertex (x,y)
+     */
+    public Point getVertex(int vertex, int[] firstEdge) {
+        double[] firstEdge_out = new double[1];
+        Point retVal = new Point(getVertex_0(nativeObj, vertex, firstEdge_out));
+        if (firstEdge != null) firstEdge[0] = (int) firstEdge_out[0];
+        return retVal;
+    }
 
     /**
-     * Creates a new empty Delaunay subdivision
+     * Returns vertex location from vertex ID.
      *
-     *     @param rect Rectangle that includes all of the 2D points that are to be added to the subdivision.
+     * @param vertex vertex ID.
+     * @return vertex (x,y)
      */
-    public void initDelaunay(Rect rect) {
-        initDelaunay_0(nativeObj, rect.x, rect.y, rect.width, rect.height);
+    public Point getVertex(int vertex) {
+        return new Point(getVertex_1(nativeObj, vertex));
     }
-
-
-    //
-    // C++:  void cv::Subdiv2D::insert(vector_Point2f ptvec)
-    //
 
     /**
-     * Insert multiple points into a Delaunay triangulation.
+     * Returns the edge origin.
      *
-     *     @param ptvec Points to insert.
-     *
-     *     The function inserts a vector of points into a subdivision and modifies the subdivision topology
-     *     appropriately.
+     * @param edge  Subdivision edge ID.
+     * @param orgpt Output vertex location.
+     * @return vertex ID.
      */
-    public void insert(MatOfPoint2f ptvec) {
-        Mat ptvec_mat = ptvec;
-        insert_1(nativeObj, ptvec_mat.nativeObj);
+    public int edgeOrg(int edge, Point orgpt) {
+        double[] orgpt_out = new double[2];
+        int retVal = edgeOrg_0(nativeObj, edge, orgpt_out);
+        if (orgpt != null) {
+            orgpt.x = orgpt_out[0];
+            orgpt.y = orgpt_out[1];
+        }
+        return retVal;
     }
 
-
-    @Override
-    protected void finalize() throws Throwable {
-        delete(nativeObj);
+    /**
+     * Returns the edge origin.
+     *
+     * @param edge Subdivision edge ID.
+     * @return vertex ID.
+     */
+    public int edgeOrg(int edge) {
+        return edgeOrg_1(nativeObj, edge);
     }
 
+    /**
+     * Returns the edge destination.
+     *
+     * @param edge  Subdivision edge ID.
+     * @param dstpt Output vertex location.
+     * @return vertex ID.
+     */
+    public int edgeDst(int edge, Point dstpt) {
+        double[] dstpt_out = new double[2];
+        int retVal = edgeDst_0(nativeObj, edge, dstpt_out);
+        if (dstpt != null) {
+            dstpt.x = dstpt_out[0];
+            dstpt.y = dstpt_out[1];
+        }
+        return retVal;
+    }
 
-
-    // C++:   cv::Subdiv2D::Subdiv2D(Rect rect)
-    private static native long Subdiv2D_0(int rect_x, int rect_y, int rect_width, int rect_height);
-
-    // C++:   cv::Subdiv2D::Subdiv2D()
-    private static native long Subdiv2D_1();
-
-    // C++:  Point2f cv::Subdiv2D::getVertex(int vertex, int* firstEdge = 0)
-    private static native double[] getVertex_0(long nativeObj, int vertex, double[] firstEdge_out);
-    private static native double[] getVertex_1(long nativeObj, int vertex);
-
-    // C++:  int cv::Subdiv2D::edgeDst(int edge, Point2f* dstpt = 0)
-    private static native int edgeDst_0(long nativeObj, int edge, double[] dstpt_out);
-    private static native int edgeDst_1(long nativeObj, int edge);
-
-    // C++:  int cv::Subdiv2D::edgeOrg(int edge, Point2f* orgpt = 0)
-    private static native int edgeOrg_0(long nativeObj, int edge, double[] orgpt_out);
-    private static native int edgeOrg_1(long nativeObj, int edge);
-
-    // C++:  int cv::Subdiv2D::findNearest(Point2f pt, Point2f* nearestPt = 0)
-    private static native int findNearest_0(long nativeObj, double pt_x, double pt_y, double[] nearestPt_out);
-    private static native int findNearest_1(long nativeObj, double pt_x, double pt_y);
-
-    // C++:  int cv::Subdiv2D::getEdge(int edge, int nextEdgeType)
-    private static native int getEdge_0(long nativeObj, int edge, int nextEdgeType);
-
-    // C++:  int cv::Subdiv2D::insert(Point2f pt)
-    private static native int insert_0(long nativeObj, double pt_x, double pt_y);
-
-    // C++:  int cv::Subdiv2D::locate(Point2f pt, int& edge, int& vertex)
-    private static native int locate_0(long nativeObj, double pt_x, double pt_y, double[] edge_out, double[] vertex_out);
-
-    // C++:  int cv::Subdiv2D::nextEdge(int edge)
-    private static native int nextEdge_0(long nativeObj, int edge);
-
-    // C++:  int cv::Subdiv2D::rotateEdge(int edge, int rotate)
-    private static native int rotateEdge_0(long nativeObj, int edge, int rotate);
-
-    // C++:  int cv::Subdiv2D::symEdge(int edge)
-    private static native int symEdge_0(long nativeObj, int edge);
-
-    // C++:  void cv::Subdiv2D::getEdgeList(vector_Vec4f& edgeList)
-    private static native void getEdgeList_0(long nativeObj, long edgeList_mat_nativeObj);
-
-    // C++:  void cv::Subdiv2D::getLeadingEdgeList(vector_int& leadingEdgeList)
-    private static native void getLeadingEdgeList_0(long nativeObj, long leadingEdgeList_mat_nativeObj);
-
-    // C++:  void cv::Subdiv2D::getTriangleList(vector_Vec6f& triangleList)
-    private static native void getTriangleList_0(long nativeObj, long triangleList_mat_nativeObj);
-
-    // C++:  void cv::Subdiv2D::getVoronoiFacetList(vector_int idx, vector_vector_Point2f& facetList, vector_Point2f& facetCenters)
-    private static native void getVoronoiFacetList_0(long nativeObj, long idx_mat_nativeObj, long facetList_mat_nativeObj, long facetCenters_mat_nativeObj);
-
-    // C++:  void cv::Subdiv2D::initDelaunay(Rect rect)
-    private static native void initDelaunay_0(long nativeObj, int rect_x, int rect_y, int rect_width, int rect_height);
-
-    // C++:  void cv::Subdiv2D::insert(vector_Point2f ptvec)
-    private static native void insert_1(long nativeObj, long ptvec_mat_nativeObj);
+    /**
+     * Returns the edge destination.
+     *
+     *     @param edge Subdivision edge ID.
+     *
+     *     @return vertex ID.
+     */
+    public int edgeDst(int edge) {
+        return edgeDst_1(nativeObj, edge);
+    }
 
     // native support for java finalize()
     private static native void delete(long nativeObj);

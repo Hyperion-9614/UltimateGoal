@@ -16,24 +16,36 @@
 
 namespace cv {
 
-    class GAPI_EXPORTS MediaFrame{
-            public:
-            enum class Access { R, W };
-            class IAdapter;
-            class View;
-            using AdapterPtr = std::unique_ptr<IAdapter>;
+class GAPI_EXPORTS MediaFrame{
+        public:
+        enum class Access { R, W };
+        class IAdapter;
+        class View;
+        using AdapterPtr = std::unique_ptr<IAdapter>;
 
-            MediaFrame();
-            explicit MediaFrame(AdapterPtr &&);
-            template<class T, class... Args> static cv::MediaFrame Create(Args&&...);
+        MediaFrame();
+        explicit MediaFrame(AdapterPtr &&);
+        template<class T, class... Args> static cv::MediaFrame Create(Args&&...);
 
-            View access(Access) const;
-            cv::GFrameDesc desc() const;
+        View access(Access) const;
+        cv::GFrameDesc desc() const;
 
-            private:
-            struct Priv;
-            std::shared_ptr<Priv> m;
-    };
+        // Cast underlying MediaFrame adapter to the particular adapter type,
+        // return nullptr if underlying type is different
+        template<typename T> T* get() const
+        {
+            static_assert(std::is_base_of<IAdapter, T>::value,
+                          "T is not derived from cv::MediaFrame::IAdapter!");
+            auto *adapter = getAdapter();
+            GAPI_Assert(adapter != nullptr);
+            return dynamic_cast<T *>(adapter);
+        }
+
+        private:
+        struct Priv;
+        std::shared_ptr<Priv> m;
+        IAdapter* getAdapter() const;
+};
 
     template<class T, class... Args>
     inline cv::MediaFrame cv::MediaFrame::Create(Args &&... args) {
@@ -61,6 +73,9 @@ namespace cv {
 
     View(View
     &&) = default;
+
+    View &operator=(const View &) = delete;
+
     ~
 
     View();

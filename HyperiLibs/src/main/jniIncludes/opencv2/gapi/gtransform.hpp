@@ -22,7 +22,7 @@ namespace cv {
 
     struct GAPI_EXPORTS GTransform
             {
-                    // NEED TO FIX: consider another simplified
+                    // FIXME: consider another simplified
                     // class instead of GComputation
                     using F = std::function<GComputation()>;
 
@@ -70,7 +70,7 @@ class GTransformImpl<K, std::function < R(Args...)>>
 public cv::detail::TransformTag
 {
 public:
-// NEED TO FIX: currently there is no check that transformations' signatures are unique
+// FIXME: currently there is no check that transformations' signatures are unique
 // and won't be any intersection in graph compilation stage
 using API = K;
 

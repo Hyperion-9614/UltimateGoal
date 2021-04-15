@@ -3,23 +3,24 @@
 //
 package org.opencv.ml;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.opencv.core.Mat;
 import org.opencv.core.TermCriteria;
-import org.opencv.ml.EM;
-import org.opencv.ml.StatModel;
 import org.opencv.utils.Converters;
 
+import java.util.List;
+
 // C++: class EM
+
 /**
  * The class implements the Expectation Maximization algorithm.
- *
+ * <p>
  * SEE: REF: ml_intro_em
  */
 public class EM extends StatModel {
 
-    protected EM(long addr) { super(addr); }
+    protected EM(long addr) {
+        super(addr);
+    }
 
     // internal usage only
     public static EM __fromPtr__(long addr) { return new EM(addr); }
@@ -33,7 +34,7 @@ public class EM extends StatModel {
             START_AUTO_STEP = 0;
 
 
-    // C++: enum Types
+    // C++: enum Types (cv.ml.EM.Types)
     public static final int
             COV_MAT_SPHERICAL = 0,
             COV_MAT_DIAGONAL = 1,
@@ -42,38 +43,7 @@ public class EM extends StatModel {
 
 
     //
-    // C++:  Mat cv::ml::EM::getMeans()
-    //
-
-    /**
-     * Returns the cluster centers (means of the Gaussian mixture)
-     *
-     *     Returns matrix with the number of rows equal to the number of mixtures and number of columns
-     *     equal to the space dimensionality.
-     * @return automatically generated
-     */
-    public Mat getMeans() {
-        return new Mat(getMeans_0(nativeObj));
-    }
-
-
-    //
-    // C++:  Mat cv::ml::EM::getWeights()
-    //
-
-    /**
-     * Returns weights of the mixtures
-     *
-     *     Returns vector with the number of elements equal to the number of mixtures.
-     * @return automatically generated
-     */
-    public Mat getWeights() {
-        return new Mat(getWeights_0(nativeObj));
-    }
-
-
-    //
-    // C++: static Ptr_EM cv::ml::EM::create()
+    // C++:  int cv::ml::EM::getClustersNumber()
     //
 
     /**
@@ -88,7 +58,7 @@ public class EM extends StatModel {
 
 
     //
-    // C++: static Ptr_EM cv::ml::EM::load(String filepath, String nodeName = String())
+    // C++:  void cv::ml::EM::setClustersNumber(int val)
     //
 
     /**
@@ -106,9 +76,14 @@ public class EM extends StatModel {
         return EM.__fromPtr__(load_0(filepath, nodeName));
     }
 
+
+    //
+    // C++:  int cv::ml::EM::getCovarianceMatrixType()
+    //
+
     /**
      * Loads and creates a serialized EM from a file
-     *
+     * <p>
      * Use EM::save to serialize and store an EM to disk.
      * Load the EM from this file again, by calling this function with the path to the file.
      * Optionally specify the node for the file containing the classifier
@@ -122,16 +97,73 @@ public class EM extends StatModel {
 
 
     //
+    // C++:  void cv::ml::EM::setCovarianceMatrixType(int val)
+    //
+
+    // C++:  int cv::ml::EM::getClustersNumber()
+    private static native int getClustersNumber_0(long nativeObj);
+
+
+    //
     // C++:  TermCriteria cv::ml::EM::getTermCriteria()
     //
 
+    // C++:  void cv::ml::EM::setClustersNumber(int val)
+    private static native void setClustersNumber_0(long nativeObj, int val);
+
+
+    //
+    // C++:  void cv::ml::EM::setTermCriteria(TermCriteria val)
+    //
+
+    // C++:  int cv::ml::EM::getCovarianceMatrixType()
+    private static native int getCovarianceMatrixType_0(long nativeObj);
+
+
+    //
+    // C++:  Mat cv::ml::EM::getWeights()
+    //
+
     /**
-     * SEE: setTermCriteria
+     * Returns weights of the mixtures
+     * <p>
+     * Returns vector with the number of elements equal to the number of mixtures.
+     *
      * @return automatically generated
      */
-    public TermCriteria getTermCriteria() {
-        return new TermCriteria(getTermCriteria_0(nativeObj));
+    public Mat getWeights() {
+        return new Mat(getWeights_0(nativeObj));
     }
+
+
+    //
+    // C++:  Mat cv::ml::EM::getMeans()
+    //
+
+    // C++:  void cv::ml::EM::setCovarianceMatrixType(int val)
+    private static native void setCovarianceMatrixType_0(long nativeObj, int val);
+
+
+    //
+    // C++:  void cv::ml::EM::getCovs(vector_Mat& covs)
+    //
+
+    // C++:  TermCriteria cv::ml::EM::getTermCriteria()
+    private static native double[] getTermCriteria_0(long nativeObj);
+
+
+    //
+    // C++:  float cv::ml::EM::predict(Mat samples, Mat& results = Mat(), int flags = 0)
+    //
+
+    // C++:  void cv::ml::EM::setTermCriteria(TermCriteria val)
+    private static native void setTermCriteria_0(long nativeObj, int val_type, int val_maxCount, double val_epsilon);
+
+    // C++:  Mat cv::ml::EM::getWeights()
+    private static native long getWeights_0(long nativeObj);
+
+    // C++:  void cv::ml::EM::getCovs(vector_Mat& covs)
+    private static native void getCovs_0(long nativeObj, long covs_mat_nativeObj);
 
 
     //
@@ -155,6 +187,21 @@ public class EM extends StatModel {
     public double[] predict2(Mat sample, Mat probs) {
         return predict2_0(nativeObj, sample.nativeObj, probs.nativeObj);
     }
+
+
+    //
+    // C++:  bool cv::ml::EM::trainEM(Mat samples, Mat& logLikelihoods = Mat(), Mat& labels = Mat(), Mat& probs = Mat())
+    //
+
+    // C++:  float cv::ml::EM::predict(Mat samples, Mat& results = Mat(), int flags = 0)
+    private static native float predict_0(long nativeObj, long samples_nativeObj, long results_nativeObj, int flags);
+
+    private static native float predict_1(long nativeObj, long samples_nativeObj, long results_nativeObj);
+
+    private static native float predict_2(long nativeObj, long samples_nativeObj);
+
+    // C++:  bool cv::ml::EM::trainEM(Mat samples, Mat& logLikelihoods = Mat(), Mat& labels = Mat(), Mat& probs = Mat())
+    private static native boolean trainEM_0(long nativeObj, long samples_nativeObj, long logLikelihoods_nativeObj, long labels_nativeObj, long probs_nativeObj);
 
 
     //
@@ -346,141 +393,6 @@ public class EM extends StatModel {
 
 
     //
-    // C++:  bool cv::ml::EM::trainEM(Mat samples, Mat& logLikelihoods = Mat(), Mat& labels = Mat(), Mat& probs = Mat())
-    //
-
-    /**
-     * Estimate the Gaussian mixture parameters from a samples set.
-     *
-     *     This variation starts with Expectation step. Initial values of the model parameters will be
-     *     estimated by the k-means algorithm.
-     *
-     *     Unlike many of the ML models, %EM is an unsupervised learning algorithm and it does not take
-     *     responses (class labels or function values) as input. Instead, it computes the *Maximum
-     *     Likelihood Estimate* of the Gaussian mixture parameters from an input sample set, stores all the
-     *     parameters inside the structure: \(p_{i,k}\) in probs, \(a_k\) in means , \(S_k\) in
-     *     covs[k], \(\pi_k\) in weights , and optionally computes the output "class label" for each
-     *     sample: \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most
-     *     probable mixture component for each sample).
-     *
-     *     The trained model can be used further for prediction, just like any other classifier. The
-     *     trained model is similar to the NormalBayesClassifier.
-     *
-     *     @param samples Samples from which the Gaussian mixture model will be estimated. It should be a
-     *         one-channel matrix, each row of which is a sample. If the matrix does not have CV_64F type
-     *         it will be converted to the inner matrix of such type for the further computing.
-     *     @param logLikelihoods The optional output matrix that contains a likelihood logarithm value for
-     *         each sample. It has \(nsamples \times 1\) size and CV_64FC1 type.
-     *     @param labels The optional output "class label" for each sample:
-     *         \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most probable
-     *         mixture component for each sample). It has \(nsamples \times 1\) size and CV_32SC1 type.
-     *     @param probs The optional output matrix that contains posterior probabilities of each Gaussian
-     *         mixture component given the each sample. It has \(nsamples \times nclusters\) size and
-     *         CV_64FC1 type.
-     * @return automatically generated
-     */
-    public boolean trainEM(Mat samples, Mat logLikelihoods, Mat labels, Mat probs) {
-        return trainEM_0(nativeObj, samples.nativeObj, logLikelihoods.nativeObj, labels.nativeObj, probs.nativeObj);
-    }
-
-    /**
-     * Estimate the Gaussian mixture parameters from a samples set.
-     *
-     *     This variation starts with Expectation step. Initial values of the model parameters will be
-     *     estimated by the k-means algorithm.
-     *
-     *     Unlike many of the ML models, %EM is an unsupervised learning algorithm and it does not take
-     *     responses (class labels or function values) as input. Instead, it computes the *Maximum
-     *     Likelihood Estimate* of the Gaussian mixture parameters from an input sample set, stores all the
-     *     parameters inside the structure: \(p_{i,k}\) in probs, \(a_k\) in means , \(S_k\) in
-     *     covs[k], \(\pi_k\) in weights , and optionally computes the output "class label" for each
-     *     sample: \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most
-     *     probable mixture component for each sample).
-     *
-     *     The trained model can be used further for prediction, just like any other classifier. The
-     *     trained model is similar to the NormalBayesClassifier.
-     *
-     *     @param samples Samples from which the Gaussian mixture model will be estimated. It should be a
-     *         one-channel matrix, each row of which is a sample. If the matrix does not have CV_64F type
-     *         it will be converted to the inner matrix of such type for the further computing.
-     *     @param logLikelihoods The optional output matrix that contains a likelihood logarithm value for
-     *         each sample. It has \(nsamples \times 1\) size and CV_64FC1 type.
-     *     @param labels The optional output "class label" for each sample:
-     *         \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most probable
-     *         mixture component for each sample). It has \(nsamples \times 1\) size and CV_32SC1 type.
-     *         mixture component given the each sample. It has \(nsamples \times nclusters\) size and
-     *         CV_64FC1 type.
-     * @return automatically generated
-     */
-    public boolean trainEM(Mat samples, Mat logLikelihoods, Mat labels) {
-        return trainEM_1(nativeObj, samples.nativeObj, logLikelihoods.nativeObj, labels.nativeObj);
-    }
-
-    /**
-     * Estimate the Gaussian mixture parameters from a samples set.
-     *
-     *     This variation starts with Expectation step. Initial values of the model parameters will be
-     *     estimated by the k-means algorithm.
-     *
-     *     Unlike many of the ML models, %EM is an unsupervised learning algorithm and it does not take
-     *     responses (class labels or function values) as input. Instead, it computes the *Maximum
-     *     Likelihood Estimate* of the Gaussian mixture parameters from an input sample set, stores all the
-     *     parameters inside the structure: \(p_{i,k}\) in probs, \(a_k\) in means , \(S_k\) in
-     *     covs[k], \(\pi_k\) in weights , and optionally computes the output "class label" for each
-     *     sample: \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most
-     *     probable mixture component for each sample).
-     *
-     *     The trained model can be used further for prediction, just like any other classifier. The
-     *     trained model is similar to the NormalBayesClassifier.
-     *
-     *     @param samples Samples from which the Gaussian mixture model will be estimated. It should be a
-     *         one-channel matrix, each row of which is a sample. If the matrix does not have CV_64F type
-     *         it will be converted to the inner matrix of such type for the further computing.
-     *     @param logLikelihoods The optional output matrix that contains a likelihood logarithm value for
-     *         each sample. It has \(nsamples \times 1\) size and CV_64FC1 type.
-     *         \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most probable
-     *         mixture component for each sample). It has \(nsamples \times 1\) size and CV_32SC1 type.
-     *         mixture component given the each sample. It has \(nsamples \times nclusters\) size and
-     *         CV_64FC1 type.
-     * @return automatically generated
-     */
-    public boolean trainEM(Mat samples, Mat logLikelihoods) {
-        return trainEM_2(nativeObj, samples.nativeObj, logLikelihoods.nativeObj);
-    }
-
-    /**
-     * Estimate the Gaussian mixture parameters from a samples set.
-     *
-     *     This variation starts with Expectation step. Initial values of the model parameters will be
-     *     estimated by the k-means algorithm.
-     *
-     *     Unlike many of the ML models, %EM is an unsupervised learning algorithm and it does not take
-     *     responses (class labels or function values) as input. Instead, it computes the *Maximum
-     *     Likelihood Estimate* of the Gaussian mixture parameters from an input sample set, stores all the
-     *     parameters inside the structure: \(p_{i,k}\) in probs, \(a_k\) in means , \(S_k\) in
-     *     covs[k], \(\pi_k\) in weights , and optionally computes the output "class label" for each
-     *     sample: \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most
-     *     probable mixture component for each sample).
-     *
-     *     The trained model can be used further for prediction, just like any other classifier. The
-     *     trained model is similar to the NormalBayesClassifier.
-     *
-     *     @param samples Samples from which the Gaussian mixture model will be estimated. It should be a
-     *         one-channel matrix, each row of which is a sample. If the matrix does not have CV_64F type
-     *         it will be converted to the inner matrix of such type for the further computing.
-     *         each sample. It has \(nsamples \times 1\) size and CV_64FC1 type.
-     *         \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most probable
-     *         mixture component for each sample). It has \(nsamples \times 1\) size and CV_32SC1 type.
-     *         mixture component given the each sample. It has \(nsamples \times nclusters\) size and
-     *         CV_64FC1 type.
-     * @return automatically generated
-     */
-    public boolean trainEM(Mat samples) {
-        return trainEM_3(nativeObj, samples.nativeObj);
-    }
-
-
-    //
     // C++:  bool cv::ml::EM::trainM(Mat samples, Mat probs0, Mat& logLikelihoods = Mat(), Mat& labels = Mat(), Mat& probs = Mat())
     //
 
@@ -576,28 +488,134 @@ public class EM extends StatModel {
 
 
     //
-    // C++:  float cv::ml::EM::predict(Mat samples, Mat& results = Mat(), int flags = 0)
+    // C++: static Ptr_EM cv::ml::EM::create()
     //
+
+    private static native boolean trainEM_1(long nativeObj, long samples_nativeObj, long logLikelihoods_nativeObj, long labels_nativeObj);
+
+
+    //
+    // C++: static Ptr_EM cv::ml::EM::load(String filepath, String nodeName = String())
+    //
+
+    private static native boolean trainEM_2(long nativeObj, long samples_nativeObj, long logLikelihoods_nativeObj);
+
+    private static native boolean trainEM_3(long nativeObj, long samples_nativeObj);
+
+    // C++: static Ptr_EM cv::ml::EM::create()
+    private static native long create_0();
+
+    // C++: static Ptr_EM cv::ml::EM::load(String filepath, String nodeName = String())
+    private static native long load_0(String filepath, String nodeName);
+
+    private static native long load_1(String filepath);
+
+    /**
+     * SEE: setClustersNumber
+     *
+     * @return automatically generated
+     */
+    public int getClustersNumber() {
+        return getClustersNumber_0(nativeObj);
+    }
+
+    /**
+     * getClustersNumber SEE: getClustersNumber
+     *
+     * @param val automatically generated
+     */
+    public void setClustersNumber(int val) {
+        setClustersNumber_0(nativeObj, val);
+    }
+
+    /**
+     * SEE: setCovarianceMatrixType
+     *
+     * @return automatically generated
+     */
+    public int getCovarianceMatrixType() {
+        return getCovarianceMatrixType_0(nativeObj);
+    }
+
+    /**
+     * getCovarianceMatrixType SEE: getCovarianceMatrixType
+     *
+     * @param val automatically generated
+     */
+    public void setCovarianceMatrixType(int val) {
+        setCovarianceMatrixType_0(nativeObj, val);
+    }
+
+    /**
+     * SEE: setTermCriteria
+     *
+     * @return automatically generated
+     */
+    public TermCriteria getTermCriteria() {
+        return new TermCriteria(getTermCriteria_0(nativeObj));
+    }
+
+    // C++:  Mat cv::ml::EM::getMeans()
+    private static native long getMeans_0(long nativeObj);
+
+    /**
+     * getTermCriteria SEE: getTermCriteria
+     *
+     * @param val automatically generated
+     */
+    public void setTermCriteria(TermCriteria val) {
+        setTermCriteria_0(nativeObj, val.type, val.maxCount, val.epsilon);
+    }
+
+    /**
+     * Returns the cluster centers (means of the Gaussian mixture)
+     * <p>
+     * Returns matrix with the number of rows equal to the number of mixtures and number of columns
+     * equal to the space dimensionality.
+     *
+     * @return automatically generated
+     */
+    public Mat getMeans() {
+        return new Mat(getMeans_0(nativeObj));
+    }
+
+    /**
+     * Returns covariation matrices
+     * <p>
+     * Returns vector of covariation matrices. Number of matrices is the number of gaussian mixtures,
+     * each matrix is a square floating-point matrix NxN, where N is the space dimensionality.
+     *
+     * @param covs automatically generated
+     */
+    public void getCovs(List<Mat> covs) {
+        Mat covs_mat = new Mat();
+        getCovs_0(nativeObj, covs_mat.nativeObj);
+        Converters.Mat_to_vector_Mat(covs_mat, covs);
+        covs_mat.release();
+    }
 
     /**
      * Returns posterior probabilities for the provided samples
      *
-     *     @param samples The input samples, floating-point matrix
-     *     @param results The optional output \( nSamples \times nClusters\) matrix of results. It contains
-     *     posterior probabilities for each sample from the input
-     *     @param flags This parameter will be ignored
+     * @param samples The input samples, floating-point matrix
+     * @param results The optional output \( nSamples \times nClusters\) matrix of results. It contains
+     *                posterior probabilities for each sample from the input
+     * @param flags   This parameter will be ignored
      * @return automatically generated
      */
     public float predict(Mat samples, Mat results, int flags) {
         return predict_0(nativeObj, samples.nativeObj, results.nativeObj, flags);
     }
 
+    // C++:  Vec2d cv::ml::EM::predict2(Mat sample, Mat& probs)
+    private static native double[] predict2_0(long nativeObj, long sample_nativeObj, long probs_nativeObj);
+
     /**
      * Returns posterior probabilities for the provided samples
      *
-     *     @param samples The input samples, floating-point matrix
-     *     @param results The optional output \( nSamples \times nClusters\) matrix of results. It contains
-     *     posterior probabilities for each sample from the input
+     * @param samples The input samples, floating-point matrix
+     * @param results The optional output \( nSamples \times nClusters\) matrix of results. It contains
+     *                posterior probabilities for each sample from the input
      * @return automatically generated
      */
     public float predict(Mat samples, Mat results) {
@@ -615,159 +633,161 @@ public class EM extends StatModel {
         return predict_2(nativeObj, samples.nativeObj);
     }
 
-
-    //
-    // C++:  int cv::ml::EM::getClustersNumber()
-    //
-
     /**
-     * SEE: setClustersNumber
-     * @return automatically generated
-     */
-    public int getClustersNumber() {
-        return getClustersNumber_0(nativeObj);
-    }
-
-
-    //
-    // C++:  int cv::ml::EM::getCovarianceMatrixType()
-    //
-
-    /**
-     * SEE: setCovarianceMatrixType
-     * @return automatically generated
-     */
-    public int getCovarianceMatrixType() {
-        return getCovarianceMatrixType_0(nativeObj);
-    }
-
-
-    //
-    // C++:  void cv::ml::EM::getCovs(vector_Mat& covs)
-    //
-
-    /**
-     * Returns covariation matrices
+     * Estimate the Gaussian mixture parameters from a samples set.
+     * <p>
+     * This variation starts with Expectation step. Initial values of the model parameters will be
+     * estimated by the k-means algorithm.
+     * <p>
+     * Unlike many of the ML models, %EM is an unsupervised learning algorithm and it does not take
+     * responses (class labels or function values) as input. Instead, it computes the *Maximum
+     * Likelihood Estimate* of the Gaussian mixture parameters from an input sample set, stores all the
+     * parameters inside the structure: \(p_{i,k}\) in probs, \(a_k\) in means , \(S_k\) in
+     * covs[k], \(\pi_k\) in weights , and optionally computes the output "class label" for each
+     * sample: \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most
+     * probable mixture component for each sample).
+     * <p>
+     * The trained model can be used further for prediction, just like any other classifier. The
+     * trained model is similar to the NormalBayesClassifier.
      *
-     *     Returns vector of covariation matrices. Number of matrices is the number of gaussian mixtures,
-     *     each matrix is a square floating-point matrix NxN, where N is the space dimensionality.
-     * @param covs automatically generated
+     * @param samples        Samples from which the Gaussian mixture model will be estimated. It should be a
+     *                       one-channel matrix, each row of which is a sample. If the matrix does not have CV_64F type
+     *                       it will be converted to the inner matrix of such type for the further computing.
+     * @param logLikelihoods The optional output matrix that contains a likelihood logarithm value for
+     *                       each sample. It has \(nsamples \times 1\) size and CV_64FC1 type.
+     * @param labels         The optional output "class label" for each sample:
+     *                       \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most probable
+     *                       mixture component for each sample). It has \(nsamples \times 1\) size and CV_32SC1 type.
+     * @param probs          The optional output matrix that contains posterior probabilities of each Gaussian
+     *                       mixture component given the each sample. It has \(nsamples \times nclusters\) size and
+     *                       CV_64FC1 type.
+     * @return automatically generated
      */
-    public void getCovs(List<Mat> covs) {
-        Mat covs_mat = new Mat();
-        getCovs_0(nativeObj, covs_mat.nativeObj);
-        Converters.Mat_to_vector_Mat(covs_mat, covs);
-        covs_mat.release();
+    public boolean trainEM(Mat samples, Mat logLikelihoods, Mat labels, Mat probs) {
+        return trainEM_0(nativeObj, samples.nativeObj, logLikelihoods.nativeObj, labels.nativeObj, probs.nativeObj);
     }
-
-
-    //
-    // C++:  void cv::ml::EM::setClustersNumber(int val)
-    //
 
     /**
-     *  getClustersNumber SEE: getClustersNumber
-     * @param val automatically generated
+     * Estimate the Gaussian mixture parameters from a samples set.
+     * <p>
+     * This variation starts with Expectation step. Initial values of the model parameters will be
+     * estimated by the k-means algorithm.
+     * <p>
+     * Unlike many of the ML models, %EM is an unsupervised learning algorithm and it does not take
+     * responses (class labels or function values) as input. Instead, it computes the *Maximum
+     * Likelihood Estimate* of the Gaussian mixture parameters from an input sample set, stores all the
+     * parameters inside the structure: \(p_{i,k}\) in probs, \(a_k\) in means , \(S_k\) in
+     * covs[k], \(\pi_k\) in weights , and optionally computes the output "class label" for each
+     * sample: \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most
+     * probable mixture component for each sample).
+     * <p>
+     * The trained model can be used further for prediction, just like any other classifier. The
+     * trained model is similar to the NormalBayesClassifier.
+     *
+     * @param samples        Samples from which the Gaussian mixture model will be estimated. It should be a
+     *                       one-channel matrix, each row of which is a sample. If the matrix does not have CV_64F type
+     *                       it will be converted to the inner matrix of such type for the further computing.
+     * @param logLikelihoods The optional output matrix that contains a likelihood logarithm value for
+     *                       each sample. It has \(nsamples \times 1\) size and CV_64FC1 type.
+     * @param labels         The optional output "class label" for each sample:
+     *                       \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most probable
+     *                       mixture component for each sample). It has \(nsamples \times 1\) size and CV_32SC1 type.
+     *                       mixture component given the each sample. It has \(nsamples \times nclusters\) size and
+     *                       CV_64FC1 type.
+     * @return automatically generated
      */
-    public void setClustersNumber(int val) {
-        setClustersNumber_0(nativeObj, val);
+    public boolean trainEM(Mat samples, Mat logLikelihoods, Mat labels) {
+        return trainEM_1(nativeObj, samples.nativeObj, logLikelihoods.nativeObj, labels.nativeObj);
     }
 
+    // C++:  bool cv::ml::EM::trainE(Mat samples, Mat means0, Mat covs0 = Mat(), Mat weights0 = Mat(), Mat& logLikelihoods = Mat(), Mat& labels = Mat(), Mat& probs = Mat())
+    private static native boolean trainE_0(long nativeObj, long samples_nativeObj, long means0_nativeObj, long covs0_nativeObj, long weights0_nativeObj, long logLikelihoods_nativeObj, long labels_nativeObj, long probs_nativeObj);
+    private static native boolean trainE_1(long nativeObj, long samples_nativeObj, long means0_nativeObj, long covs0_nativeObj, long weights0_nativeObj, long logLikelihoods_nativeObj, long labels_nativeObj);
 
-    //
-    // C++:  void cv::ml::EM::setCovarianceMatrixType(int val)
-    //
+    private static native boolean trainE_2(long nativeObj, long samples_nativeObj, long means0_nativeObj, long covs0_nativeObj, long weights0_nativeObj, long logLikelihoods_nativeObj);
+
+    private static native boolean trainE_3(long nativeObj, long samples_nativeObj, long means0_nativeObj, long covs0_nativeObj, long weights0_nativeObj);
+
+    private static native boolean trainE_4(long nativeObj, long samples_nativeObj, long means0_nativeObj, long covs0_nativeObj);
+
+    private static native boolean trainE_5(long nativeObj, long samples_nativeObj, long means0_nativeObj);
+
+    // C++:  bool cv::ml::EM::trainM(Mat samples, Mat probs0, Mat& logLikelihoods = Mat(), Mat& labels = Mat(), Mat& probs = Mat())
+    private static native boolean trainM_0(long nativeObj, long samples_nativeObj, long probs0_nativeObj, long logLikelihoods_nativeObj, long labels_nativeObj, long probs_nativeObj);
+
+    private static native boolean trainM_1(long nativeObj, long samples_nativeObj, long probs0_nativeObj, long logLikelihoods_nativeObj, long labels_nativeObj);
+
+    private static native boolean trainM_2(long nativeObj, long samples_nativeObj, long probs0_nativeObj, long logLikelihoods_nativeObj);
+
+    private static native boolean trainM_3(long nativeObj, long samples_nativeObj, long probs0_nativeObj);
 
     /**
-     *  getCovarianceMatrixType SEE: getCovarianceMatrixType
-     * @param val automatically generated
+     * Estimate the Gaussian mixture parameters from a samples set.
+     * <p>
+     * This variation starts with Expectation step. Initial values of the model parameters will be
+     * estimated by the k-means algorithm.
+     * <p>
+     * Unlike many of the ML models, %EM is an unsupervised learning algorithm and it does not take
+     * responses (class labels or function values) as input. Instead, it computes the *Maximum
+     * Likelihood Estimate* of the Gaussian mixture parameters from an input sample set, stores all the
+     * parameters inside the structure: \(p_{i,k}\) in probs, \(a_k\) in means , \(S_k\) in
+     * covs[k], \(\pi_k\) in weights , and optionally computes the output "class label" for each
+     * sample: \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most
+     * probable mixture component for each sample).
+     * <p>
+     * The trained model can be used further for prediction, just like any other classifier. The
+     * trained model is similar to the NormalBayesClassifier.
+     *
+     * @param samples        Samples from which the Gaussian mixture model will be estimated. It should be a
+     *                       one-channel matrix, each row of which is a sample. If the matrix does not have CV_64F type
+     *                       it will be converted to the inner matrix of such type for the further computing.
+     * @param logLikelihoods The optional output matrix that contains a likelihood logarithm value for
+     *                       each sample. It has \(nsamples \times 1\) size and CV_64FC1 type.
+     *                       \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most probable
+     *                       mixture component for each sample). It has \(nsamples \times 1\) size and CV_32SC1 type.
+     *                       mixture component given the each sample. It has \(nsamples \times nclusters\) size and
+     *                       CV_64FC1 type.
+     * @return automatically generated
      */
-    public void setCovarianceMatrixType(int val) {
-        setCovarianceMatrixType_0(nativeObj, val);
+    public boolean trainEM(Mat samples, Mat logLikelihoods) {
+        return trainEM_2(nativeObj, samples.nativeObj, logLikelihoods.nativeObj);
     }
-
-
-    //
-    // C++:  void cv::ml::EM::setTermCriteria(TermCriteria val)
-    //
 
     /**
-     *  getTermCriteria SEE: getTermCriteria
-     * @param val automatically generated
+     * Estimate the Gaussian mixture parameters from a samples set.
+     * <p>
+     * This variation starts with Expectation step. Initial values of the model parameters will be
+     * estimated by the k-means algorithm.
+     * <p>
+     * Unlike many of the ML models, %EM is an unsupervised learning algorithm and it does not take
+     * responses (class labels or function values) as input. Instead, it computes the *Maximum
+     * Likelihood Estimate* of the Gaussian mixture parameters from an input sample set, stores all the
+     * parameters inside the structure: \(p_{i,k}\) in probs, \(a_k\) in means , \(S_k\) in
+     * covs[k], \(\pi_k\) in weights , and optionally computes the output "class label" for each
+     * sample: \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most
+     * probable mixture component for each sample).
+     * <p>
+     * The trained model can be used further for prediction, just like any other classifier. The
+     * trained model is similar to the NormalBayesClassifier.
+     *
+     * @param samples Samples from which the Gaussian mixture model will be estimated. It should be a
+     *                one-channel matrix, each row of which is a sample. If the matrix does not have CV_64F type
+     *                it will be converted to the inner matrix of such type for the further computing.
+     *                each sample. It has \(nsamples \times 1\) size and CV_64FC1 type.
+     *                \(\texttt{labels}_i=\texttt{arg max}_k(p_{i,k}), i=1..N\) (indices of the most probable
+     *                mixture component for each sample). It has \(nsamples \times 1\) size and CV_32SC1 type.
+     *                mixture component given the each sample. It has \(nsamples \times nclusters\) size and
+     *                CV_64FC1 type.
+     * @return automatically generated
      */
-    public void setTermCriteria(TermCriteria val) {
-        setTermCriteria_0(nativeObj, val.type, val.maxCount, val.epsilon);
+    public boolean trainEM(Mat samples) {
+        return trainEM_3(nativeObj, samples.nativeObj);
     }
-
 
     @Override
     protected void finalize() throws Throwable {
         delete(nativeObj);
     }
-
-
-
-    // C++:  Mat cv::ml::EM::getMeans()
-    private static native long getMeans_0(long nativeObj);
-
-    // C++:  Mat cv::ml::EM::getWeights()
-    private static native long getWeights_0(long nativeObj);
-
-    // C++: static Ptr_EM cv::ml::EM::create()
-    private static native long create_0();
-
-    // C++: static Ptr_EM cv::ml::EM::load(String filepath, String nodeName = String())
-    private static native long load_0(String filepath, String nodeName);
-    private static native long load_1(String filepath);
-
-    // C++:  TermCriteria cv::ml::EM::getTermCriteria()
-    private static native double[] getTermCriteria_0(long nativeObj);
-
-    // C++:  Vec2d cv::ml::EM::predict2(Mat sample, Mat& probs)
-    private static native double[] predict2_0(long nativeObj, long sample_nativeObj, long probs_nativeObj);
-
-    // C++:  bool cv::ml::EM::trainE(Mat samples, Mat means0, Mat covs0 = Mat(), Mat weights0 = Mat(), Mat& logLikelihoods = Mat(), Mat& labels = Mat(), Mat& probs = Mat())
-    private static native boolean trainE_0(long nativeObj, long samples_nativeObj, long means0_nativeObj, long covs0_nativeObj, long weights0_nativeObj, long logLikelihoods_nativeObj, long labels_nativeObj, long probs_nativeObj);
-    private static native boolean trainE_1(long nativeObj, long samples_nativeObj, long means0_nativeObj, long covs0_nativeObj, long weights0_nativeObj, long logLikelihoods_nativeObj, long labels_nativeObj);
-    private static native boolean trainE_2(long nativeObj, long samples_nativeObj, long means0_nativeObj, long covs0_nativeObj, long weights0_nativeObj, long logLikelihoods_nativeObj);
-    private static native boolean trainE_3(long nativeObj, long samples_nativeObj, long means0_nativeObj, long covs0_nativeObj, long weights0_nativeObj);
-    private static native boolean trainE_4(long nativeObj, long samples_nativeObj, long means0_nativeObj, long covs0_nativeObj);
-    private static native boolean trainE_5(long nativeObj, long samples_nativeObj, long means0_nativeObj);
-
-    // C++:  bool cv::ml::EM::trainEM(Mat samples, Mat& logLikelihoods = Mat(), Mat& labels = Mat(), Mat& probs = Mat())
-    private static native boolean trainEM_0(long nativeObj, long samples_nativeObj, long logLikelihoods_nativeObj, long labels_nativeObj, long probs_nativeObj);
-    private static native boolean trainEM_1(long nativeObj, long samples_nativeObj, long logLikelihoods_nativeObj, long labels_nativeObj);
-    private static native boolean trainEM_2(long nativeObj, long samples_nativeObj, long logLikelihoods_nativeObj);
-    private static native boolean trainEM_3(long nativeObj, long samples_nativeObj);
-
-    // C++:  bool cv::ml::EM::trainM(Mat samples, Mat probs0, Mat& logLikelihoods = Mat(), Mat& labels = Mat(), Mat& probs = Mat())
-    private static native boolean trainM_0(long nativeObj, long samples_nativeObj, long probs0_nativeObj, long logLikelihoods_nativeObj, long labels_nativeObj, long probs_nativeObj);
-    private static native boolean trainM_1(long nativeObj, long samples_nativeObj, long probs0_nativeObj, long logLikelihoods_nativeObj, long labels_nativeObj);
-    private static native boolean trainM_2(long nativeObj, long samples_nativeObj, long probs0_nativeObj, long logLikelihoods_nativeObj);
-    private static native boolean trainM_3(long nativeObj, long samples_nativeObj, long probs0_nativeObj);
-
-    // C++:  float cv::ml::EM::predict(Mat samples, Mat& results = Mat(), int flags = 0)
-    private static native float predict_0(long nativeObj, long samples_nativeObj, long results_nativeObj, int flags);
-    private static native float predict_1(long nativeObj, long samples_nativeObj, long results_nativeObj);
-    private static native float predict_2(long nativeObj, long samples_nativeObj);
-
-    // C++:  int cv::ml::EM::getClustersNumber()
-    private static native int getClustersNumber_0(long nativeObj);
-
-    // C++:  int cv::ml::EM::getCovarianceMatrixType()
-    private static native int getCovarianceMatrixType_0(long nativeObj);
-
-    // C++:  void cv::ml::EM::getCovs(vector_Mat& covs)
-    private static native void getCovs_0(long nativeObj, long covs_mat_nativeObj);
-
-    // C++:  void cv::ml::EM::setClustersNumber(int val)
-    private static native void setClustersNumber_0(long nativeObj, int val);
-
-    // C++:  void cv::ml::EM::setCovarianceMatrixType(int val)
-    private static native void setCovarianceMatrixType_0(long nativeObj, int val);
-
-    // C++:  void cv::ml::EM::setTermCriteria(TermCriteria val)
-    private static native void setTermCriteria_0(long nativeObj, int val_type, int val_maxCount, double val_epsilon);
 
     // native support for java finalize()
     private static native void delete(long nativeObj);

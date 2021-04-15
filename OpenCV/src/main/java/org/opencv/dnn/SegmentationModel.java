@@ -4,8 +4,6 @@
 package org.opencv.dnn;
 
 import org.opencv.core.Mat;
-import org.opencv.dnn.Model;
-import org.opencv.dnn.Net;
 
 // C++: class SegmentationModel
 /**
@@ -23,19 +21,6 @@ public class SegmentationModel extends Model {
     public static SegmentationModel __fromPtr__(long addr) { return new SegmentationModel(addr); }
 
     //
-    // C++:   cv::dnn::SegmentationModel::SegmentationModel(Net network)
-    //
-
-    /**
-     * Create model from deep learning network.
-     * @param network Net object.
-     */
-    public SegmentationModel(Net network) {
-        super(SegmentationModel_0(network.nativeObj));
-    }
-
-
-    //
     // C++:   cv::dnn::SegmentationModel::SegmentationModel(String model, String config = "")
     //
 
@@ -46,16 +31,31 @@ public class SegmentationModel extends Model {
      * @param config Text file contains network configuration.
      */
     public SegmentationModel(String model, String config) {
-        super(SegmentationModel_1(model, config));
+        super(SegmentationModel_0(model, config));
     }
 
     /**
      * Create segmentation model from network represented in one of the supported formats.
      * An order of {@code model} and {@code config} arguments does not matter.
+     *
      * @param model Binary file contains trained weights.
      */
     public SegmentationModel(String model) {
-        super(SegmentationModel_2(model));
+        super(SegmentationModel_1(model));
+    }
+
+
+    //
+    // C++:   cv::dnn::SegmentationModel::SegmentationModel(Net network)
+    //
+
+    /**
+     * Create model from deep learning network.
+     *
+     * @param network Net object.
+     */
+    public SegmentationModel(Net network) {
+        super(SegmentationModel_2(network.nativeObj));
     }
 
 
@@ -79,13 +79,13 @@ public class SegmentationModel extends Model {
     }
 
 
+    // C++:   cv::dnn::SegmentationModel::SegmentationModel(String model, String config = "")
+    private static native long SegmentationModel_0(String model, String config);
+
+    private static native long SegmentationModel_1(String model);
 
     // C++:   cv::dnn::SegmentationModel::SegmentationModel(Net network)
-    private static native long SegmentationModel_0(long network_nativeObj);
-
-    // C++:   cv::dnn::SegmentationModel::SegmentationModel(String model, String config = "")
-    private static native long SegmentationModel_1(String model, String config);
-    private static native long SegmentationModel_2(String model);
+    private static native long SegmentationModel_2(long network_nativeObj);
 
     // C++:  void cv::dnn::SegmentationModel::segment(Mat frame, Mat& mask)
     private static native void segment_0(long nativeObj, long frame_nativeObj, long mask_nativeObj);

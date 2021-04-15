@@ -3,40 +3,18 @@
 //
 package org.opencv.imgcodecs;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfInt;
 import org.opencv.utils.Converters;
 
+import java.util.List;
+
 // C++: class Imgcodecs
 
 public class Imgcodecs {
 
-    // C++: enum ImwriteFlags
-    public static final int
-            IMWRITE_JPEG_QUALITY = 1,
-            IMWRITE_JPEG_PROGRESSIVE = 2,
-            IMWRITE_JPEG_OPTIMIZE = 3,
-            IMWRITE_JPEG_RST_INTERVAL = 4,
-            IMWRITE_JPEG_LUMA_QUALITY = 5,
-            IMWRITE_JPEG_CHROMA_QUALITY = 6,
-            IMWRITE_PNG_COMPRESSION = 16,
-            IMWRITE_PNG_STRATEGY = 17,
-            IMWRITE_PNG_BILEVEL = 18,
-            IMWRITE_PXM_BINARY = 32,
-            IMWRITE_EXR_TYPE = (3 << 4) + 0,
-            IMWRITE_WEBP_QUALITY = 64,
-            IMWRITE_PAM_TUPLETYPE = 128,
-            IMWRITE_TIFF_RESUNIT = 256,
-            IMWRITE_TIFF_XDPI = 257,
-            IMWRITE_TIFF_YDPI = 258,
-            IMWRITE_TIFF_COMPRESSION = 259,
-            IMWRITE_JPEG2000_COMPRESSION_X1000 = 272;
-
-
-    // C++: enum ImreadModes
+    // C++: enum ImreadModes (cv.ImreadModes)
     public static final int
             IMREAD_UNCHANGED = -1,
             IMREAD_GRAYSCALE = 0,
@@ -53,7 +31,50 @@ public class Imgcodecs {
             IMREAD_IGNORE_ORIENTATION = 128;
 
 
-    // C++: enum ImwritePAMFlags
+    // C++: enum ImwriteEXRCompressionFlags (cv.ImwriteEXRCompressionFlags)
+    public static final int
+            IMWRITE_EXR_COMPRESSION_NO = 0,
+            IMWRITE_EXR_COMPRESSION_RLE = 1,
+            IMWRITE_EXR_COMPRESSION_ZIPS = 2,
+            IMWRITE_EXR_COMPRESSION_ZIP = 3,
+            IMWRITE_EXR_COMPRESSION_PIZ = 4,
+            IMWRITE_EXR_COMPRESSION_PXR24 = 5,
+            IMWRITE_EXR_COMPRESSION_B44 = 6,
+            IMWRITE_EXR_COMPRESSION_B44A = 7,
+            IMWRITE_EXR_COMPRESSION_DWAA = 8,
+            IMWRITE_EXR_COMPRESSION_DWAB = 9;
+
+
+    // C++: enum ImwriteEXRTypeFlags (cv.ImwriteEXRTypeFlags)
+    public static final int
+            IMWRITE_EXR_TYPE_HALF = 1,
+            IMWRITE_EXR_TYPE_FLOAT = 2;
+
+
+    // C++: enum ImwriteFlags (cv.ImwriteFlags)
+    public static final int
+            IMWRITE_JPEG_QUALITY = 1,
+            IMWRITE_JPEG_PROGRESSIVE = 2,
+            IMWRITE_JPEG_OPTIMIZE = 3,
+            IMWRITE_JPEG_RST_INTERVAL = 4,
+            IMWRITE_JPEG_LUMA_QUALITY = 5,
+            IMWRITE_JPEG_CHROMA_QUALITY = 6,
+            IMWRITE_PNG_COMPRESSION = 16,
+            IMWRITE_PNG_STRATEGY = 17,
+            IMWRITE_PNG_BILEVEL = 18,
+            IMWRITE_PXM_BINARY = 32,
+            IMWRITE_EXR_TYPE = (3 << 4) + 0,
+            IMWRITE_EXR_COMPRESSION = (3 << 4) + 1,
+            IMWRITE_WEBP_QUALITY = 64,
+            IMWRITE_PAM_TUPLETYPE = 128,
+            IMWRITE_TIFF_RESUNIT = 256,
+            IMWRITE_TIFF_XDPI = 257,
+            IMWRITE_TIFF_YDPI = 258,
+            IMWRITE_TIFF_COMPRESSION = 259,
+            IMWRITE_JPEG2000_COMPRESSION_X1000 = 272;
+
+
+    // C++: enum ImwritePAMFlags (cv.ImwritePAMFlags)
     public static final int
             IMWRITE_PAM_FORMAT_NULL = 0,
             IMWRITE_PAM_FORMAT_BLACKANDWHITE = 1,
@@ -63,41 +84,13 @@ public class Imgcodecs {
             IMWRITE_PAM_FORMAT_RGB_ALPHA = 5;
 
 
-    // C++: enum ImwriteEXRTypeFlags
-    public static final int
-            IMWRITE_EXR_TYPE_HALF = 1,
-            IMWRITE_EXR_TYPE_FLOAT = 2;
-
-
-    // C++: enum ImwritePNGFlags
+    // C++: enum ImwritePNGFlags (cv.ImwritePNGFlags)
     public static final int
             IMWRITE_PNG_STRATEGY_DEFAULT = 0,
             IMWRITE_PNG_STRATEGY_FILTERED = 1,
             IMWRITE_PNG_STRATEGY_HUFFMAN_ONLY = 2,
             IMWRITE_PNG_STRATEGY_RLE = 3,
             IMWRITE_PNG_STRATEGY_FIXED = 4;
-
-
-    //
-    // C++:  Mat cv::imdecode(Mat buf, int flags)
-    //
-
-    /**
-     * Reads an image from a buffer in memory.
-     *
-     * The function imdecode reads an image from the specified buffer in the memory. If the buffer is too short or
-     * contains invalid data, the function returns an empty matrix ( Mat::data==NULL ).
-     *
-     * See cv::imread for the list of supported formats and flags description.
-     *
-     * <b>Note:</b> In the case of color images, the decoded images will have the channels stored in <b>B G R</b> order.
-     * @param buf Input array or vector of bytes.
-     * @param flags The same flags as in cv::imread, see cv::ImreadModes.
-     * @return automatically generated
-     */
-    public static Mat imdecode(Mat buf, int flags) {
-        return new Mat(imdecode_0(buf.nativeObj, flags));
-    }
 
 
     //
@@ -311,75 +304,6 @@ public class Imgcodecs {
 
 
     //
-    // C++:  bool cv::haveImageReader(String filename)
-    //
-
-    /**
-     * Returns true if the specified image can be decoded by OpenCV
-     *
-     * @param filename File name of the image
-     * @return automatically generated
-     */
-    public static boolean haveImageReader(String filename) {
-        return haveImageReader_0(filename);
-    }
-
-
-    //
-    // C++:  bool cv::haveImageWriter(String filename)
-    //
-
-    /**
-     * Returns true if an image with the specified filename can be encoded by OpenCV
-     *
-     *  @param filename File name of the image
-     * @return automatically generated
-     */
-    public static boolean haveImageWriter(String filename) {
-        return haveImageWriter_0(filename);
-    }
-
-
-    //
-    // C++:  bool cv::imencode(String ext, Mat img, vector_uchar& buf, vector_int params = std::vector<int>())
-    //
-
-    /**
-     * Encodes an image into a memory buffer.
-     *
-     * The function imencode compresses the image and stores it in the memory buffer that is resized to fit the
-     * result. See cv::imwrite for the list of supported formats and flags description.
-     *
-     * @param ext File extension that defines the output format.
-     * @param img Image to be written.
-     * @param buf Output buffer resized to fit the compressed image.
-     * @param params Format-specific parameters. See cv::imwrite and cv::ImwriteFlags.
-     * @return automatically generated
-     */
-    public static boolean imencode(String ext, Mat img, MatOfByte buf, MatOfInt params) {
-        Mat buf_mat = buf;
-        Mat params_mat = params;
-        return imencode_0(ext, img.nativeObj, buf_mat.nativeObj, params_mat.nativeObj);
-    }
-
-    /**
-     * Encodes an image into a memory buffer.
-     *
-     * The function imencode compresses the image and stores it in the memory buffer that is resized to fit the
-     * result. See cv::imwrite for the list of supported formats and flags description.
-     *
-     * @param ext File extension that defines the output format.
-     * @param img Image to be written.
-     * @param buf Output buffer resized to fit the compressed image.
-     * @return automatically generated
-     */
-    public static boolean imencode(String ext, Mat img, MatOfByte buf) {
-        Mat buf_mat = buf;
-        return imencode_1(ext, img.nativeObj, buf_mat.nativeObj);
-    }
-
-
-    //
     // C++:  bool cv::imreadmulti(String filename, vector_Mat& mats, int flags = IMREAD_ANYCOLOR)
     //
 
@@ -510,31 +434,146 @@ public class Imgcodecs {
     }
 
 
+    //
+    // C++:  bool cv::imwritemulti(String filename, vector_Mat img, vector_int params = std::vector<int>())
+    //
 
+    public static boolean imwritemulti(String filename, List<Mat> img, MatOfInt params) {
+        Mat img_mat = Converters.vector_Mat_to_Mat(img);
+        Mat params_mat = params;
+        return imwritemulti_0(filename, img_mat.nativeObj, params_mat.nativeObj);
+    }
+
+    public static boolean imwritemulti(String filename, List<Mat> img) {
+        Mat img_mat = Converters.vector_Mat_to_Mat(img);
+        return imwritemulti_1(filename, img_mat.nativeObj);
+    }
+
+
+    //
+    // C++:  Mat cv::imdecode(Mat buf, int flags)
+    //
+
+    /**
+     * Reads an image from a buffer in memory.
+     * <p>
+     * The function imdecode reads an image from the specified buffer in the memory. If the buffer is too short or
+     * contains invalid data, the function returns an empty matrix ( Mat::data==NULL ).
+     * <p>
+     * See cv::imread for the list of supported formats and flags description.
+     *
+     * <b>Note:</b> In the case of color images, the decoded images will have the channels stored in <b>B G R</b> order.
+     *
+     * @param buf   Input array or vector of bytes.
+     * @param flags The same flags as in cv::imread, see cv::ImreadModes.
+     * @return automatically generated
+     */
+    public static Mat imdecode(Mat buf, int flags) {
+        return new Mat(imdecode_0(buf.nativeObj, flags));
+    }
+
+
+    //
+    // C++:  bool cv::imencode(String ext, Mat img, vector_uchar& buf, vector_int params = std::vector<int>())
+    //
+
+    /**
+     * Encodes an image into a memory buffer.
+     * <p>
+     * The function imencode compresses the image and stores it in the memory buffer that is resized to fit the
+     * result. See cv::imwrite for the list of supported formats and flags description.
+     *
+     * @param ext    File extension that defines the output format.
+     * @param img    Image to be written.
+     * @param buf    Output buffer resized to fit the compressed image.
+     * @param params Format-specific parameters. See cv::imwrite and cv::ImwriteFlags.
+     * @return automatically generated
+     */
+    public static boolean imencode(String ext, Mat img, MatOfByte buf, MatOfInt params) {
+        Mat buf_mat = buf;
+        Mat params_mat = params;
+        return imencode_0(ext, img.nativeObj, buf_mat.nativeObj, params_mat.nativeObj);
+    }
+
+    /**
+     * Encodes an image into a memory buffer.
+     * <p>
+     * The function imencode compresses the image and stores it in the memory buffer that is resized to fit the
+     * result. See cv::imwrite for the list of supported formats and flags description.
+     *
+     * @param ext File extension that defines the output format.
+     * @param img Image to be written.
+     * @param buf Output buffer resized to fit the compressed image.
+     * @return automatically generated
+     */
+    public static boolean imencode(String ext, Mat img, MatOfByte buf) {
+        Mat buf_mat = buf;
+        return imencode_1(ext, img.nativeObj, buf_mat.nativeObj);
+    }
+
+
+    //
+    // C++:  bool cv::haveImageReader(String filename)
+    //
+
+    /**
+     * Returns true if the specified image can be decoded by OpenCV
+     *
+     * @param filename File name of the image
+     * @return automatically generated
+     */
+    public static boolean haveImageReader(String filename) {
+        return haveImageReader_0(filename);
+    }
+
+
+    //
+    // C++:  bool cv::haveImageWriter(String filename)
+    //
+
+    /**
+     * Returns true if an image with the specified filename can be encoded by OpenCV
+     *
+     * @param filename File name of the image
+     * @return automatically generated
+     */
+    public static boolean haveImageWriter(String filename) {
+        return haveImageWriter_0(filename);
+    }
+
+
+    // C++:  Mat cv::imread(String filename, int flags = IMREAD_COLOR)
+    private static native long imread_0(String filename, int flags);
+
+    private static native long imread_1(String filename);
+
+    // C++:  bool cv::imreadmulti(String filename, vector_Mat& mats, int flags = IMREAD_ANYCOLOR)
+    private static native boolean imreadmulti_0(String filename, long mats_mat_nativeObj, int flags);
+
+    private static native boolean imreadmulti_1(String filename, long mats_mat_nativeObj);
+
+    // C++:  bool cv::imwrite(String filename, Mat img, vector_int params = std::vector<int>())
+    private static native boolean imwrite_0(String filename, long img_nativeObj, long params_mat_nativeObj);
+
+    private static native boolean imwrite_1(String filename, long img_nativeObj);
+
+    // C++:  bool cv::imwritemulti(String filename, vector_Mat img, vector_int params = std::vector<int>())
+    private static native boolean imwritemulti_0(String filename, long img_mat_nativeObj, long params_mat_nativeObj);
+
+    private static native boolean imwritemulti_1(String filename, long img_mat_nativeObj);
 
     // C++:  Mat cv::imdecode(Mat buf, int flags)
     private static native long imdecode_0(long buf_nativeObj, int flags);
 
-    // C++:  Mat cv::imread(String filename, int flags = IMREAD_COLOR)
-    private static native long imread_0(String filename, int flags);
-    private static native long imread_1(String filename);
+    // C++:  bool cv::imencode(String ext, Mat img, vector_uchar& buf, vector_int params = std::vector<int>())
+    private static native boolean imencode_0(String ext, long img_nativeObj, long buf_mat_nativeObj, long params_mat_nativeObj);
+
+    private static native boolean imencode_1(String ext, long img_nativeObj, long buf_mat_nativeObj);
 
     // C++:  bool cv::haveImageReader(String filename)
     private static native boolean haveImageReader_0(String filename);
 
     // C++:  bool cv::haveImageWriter(String filename)
     private static native boolean haveImageWriter_0(String filename);
-
-    // C++:  bool cv::imencode(String ext, Mat img, vector_uchar& buf, vector_int params = std::vector<int>())
-    private static native boolean imencode_0(String ext, long img_nativeObj, long buf_mat_nativeObj, long params_mat_nativeObj);
-    private static native boolean imencode_1(String ext, long img_nativeObj, long buf_mat_nativeObj);
-
-    // C++:  bool cv::imreadmulti(String filename, vector_Mat& mats, int flags = IMREAD_ANYCOLOR)
-    private static native boolean imreadmulti_0(String filename, long mats_mat_nativeObj, int flags);
-    private static native boolean imreadmulti_1(String filename, long mats_mat_nativeObj);
-
-    // C++:  bool cv::imwrite(String filename, Mat img, vector_int params = std::vector<int>())
-    private static native boolean imwrite_0(String filename, long img_nativeObj, long params_mat_nativeObj);
-    private static native boolean imwrite_1(String filename, long img_nativeObj);
 
 }

@@ -6,7 +6,7 @@
 #define OPENCV_HAL_INTRIN_AVX512_HPP
 
 #if defined(_MSC_VER) && (_MSC_VER < 1920/*MSVS2019*/)
-                                                                                                                        # pragma warning(disable:4146)  // unary minus operator applied to unsigned type, result still unsigned
+# pragma warning(disable:4146)  // unary minus operator applied to unsigned type, result still unsigned
 # pragma warning(disable:4309)  // 'argument': truncation of constant value
 # pragma warning(disable:4310)  // cast truncates constant value
 #endif
@@ -1875,7 +1875,6 @@ inline v_int32x16 v_ceil(const v_float64x8& a)
         return v_int32x16(
                 _mm512_castsi256_si512(_mm512_cvtpd_epi32(_mm512_roundscale_pd(a.val, 2))));
     }
-
 #endif
 
 /** To float **/

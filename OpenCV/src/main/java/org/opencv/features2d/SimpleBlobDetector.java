@@ -3,9 +3,6 @@
 //
 package org.opencv.features2d;
 
-import org.opencv.features2d.Feature2D;
-import org.opencv.features2d.SimpleBlobDetector;
-
 // C++: class SimpleBlobDetector
 /**
  * Class for extracting blobs from an image. :
@@ -53,17 +50,25 @@ import org.opencv.features2d.SimpleBlobDetector;
  */
 public class SimpleBlobDetector extends Feature2D {
 
-    protected SimpleBlobDetector(long addr) { super(addr); }
+    protected SimpleBlobDetector(long addr) {
+        super(addr);
+    }
 
     // internal usage only
-    public static SimpleBlobDetector __fromPtr__(long addr) { return new SimpleBlobDetector(addr); }
+    public static SimpleBlobDetector __fromPtr__(long addr) {
+        return new SimpleBlobDetector(addr);
+    }
 
     //
     // C++: static Ptr_SimpleBlobDetector cv::SimpleBlobDetector::create(SimpleBlobDetector_Params parameters = SimpleBlobDetector::Params())
     //
 
+    public static SimpleBlobDetector create(SimpleBlobDetector_Params parameters) {
+        return SimpleBlobDetector.__fromPtr__(create_0(parameters.nativeObj));
+    }
+
     public static SimpleBlobDetector create() {
-        return SimpleBlobDetector.__fromPtr__(create_0());
+        return SimpleBlobDetector.__fromPtr__(create_1());
     }
 
 
@@ -82,9 +87,10 @@ public class SimpleBlobDetector extends Feature2D {
     }
 
 
-
     // C++: static Ptr_SimpleBlobDetector cv::SimpleBlobDetector::create(SimpleBlobDetector_Params parameters = SimpleBlobDetector::Params())
-    private static native long create_0();
+    private static native long create_0(long parameters_nativeObj);
+
+    private static native long create_1();
 
     // C++:  String cv::SimpleBlobDetector::getDefaultName()
     private static native String getDefaultName_0(long nativeObj);

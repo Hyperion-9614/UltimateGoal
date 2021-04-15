@@ -84,12 +84,10 @@
 #include "opencv2/core/cvdef.h"
 
 #ifndef SKIP_INCLUDES
-
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
-
 #endif // SKIP_INCLUDES
 
 #if defined _WIN32

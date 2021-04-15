@@ -366,7 +366,8 @@ namespace cvflann {
             } else if (centers_init_ == FLANN_CENTERS_KMEANSPP) {
                 chooseCenters = &KMeansIndex::chooseCentersKMeanspp;
             } else {
-                throw FLANNException("Unknown algorithm for choosing initial centers.");
+                FLANN_THROW(cv::Error::StsBadArg,
+                            "Unknown algorithm for choosing initial centers.");
             }
             cb_index_ = 0.4f;
 
@@ -445,7 +446,7 @@ namespace cvflann {
         CV_OVERRIDE
         {
             if (branching_ < 2) {
-                throw FLANNException("Branching factor must be at least 2");
+                FLANN_THROW(cv::Error::StsError, "Branching factor must be at least 2");
             }
 
             free_indices();
@@ -567,7 +568,7 @@ namespace cvflann {
         int getClusterCenters(Matrix<CentersType> &centers) {
             int numClusters = centers.rows;
             if (numClusters < 1) {
-                throw FLANNException("Number of clusters must be at least 1");
+                FLANN_THROW(cv::Error::StsBadArg, "Number of clusters must be at least 1");
             }
 
             DistanceType variance;
@@ -1493,7 +1494,7 @@ namespace cvflann {
          *     indices = indices of the points belonging to the current node
          *     branching = the branching factor to use in the clustering
          *
-         * NEED TO FIX: for 1-sized clusters don't store a cluster center (it's the same as the single cluster point)
+         * TODO: for 1-sized clusters don't store a cluster center (it's the same as the single cluster point)
          */
         void computeClustering(KMeansNodePtr node, int *indices, int indices_length, int branching,
                                int level) {

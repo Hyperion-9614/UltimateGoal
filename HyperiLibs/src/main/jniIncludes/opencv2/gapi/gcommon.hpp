@@ -23,7 +23,7 @@
 
 namespace cv {
 
-    class GMat; // NEED TO FIX: forward declaration for GOpaqueTraits
+    class GMat; // FIXME: forward declaration for GOpaqueTraits
 
     namespace detail {
         // This is a trait-like structure to mark backend-specific compile arguments
@@ -48,6 +48,7 @@ namespace cv {
             CV_UINT64,     // uint64_t user G-API data
             CV_STRING,     // std::string user G-API data
             CV_POINT,      // cv::Point user G-API data
+            CV_POINT2F,    // cv::Point2f user G-API data
             CV_SIZE,       // cv::Size user G-API data
             CV_RECT,       // cv::Rect user G-API data
             CV_SCALAR,     // cv::Scalar user G-API data
@@ -99,6 +100,10 @@ namespace cv {
             static constexpr const OpaqueKind kind = OpaqueKind::CV_POINT;
         };
         template<>
+        struct GOpaqueTraits<cv::Point2f> {
+            static constexpr const OpaqueKind kind = OpaqueKind::CV_POINT2F;
+        };
+        template<>
         struct GOpaqueTraits<cv::Mat> {
             static constexpr const OpaqueKind kind = OpaqueKind::CV_MAT;
         };
@@ -114,10 +119,10 @@ namespace cv {
         struct GOpaqueTraits<cv::gapi::wip::draw::Prim> {
             static constexpr const OpaqueKind kind = OpaqueKind::CV_DRAW_PRIM;
         };
-        using GOpaqueTraitsArrayTypes = std::tuple<int, double, float, uint64_t, bool, std::string, cv::Size, cv::Scalar, cv::Point,
+        using GOpaqueTraitsArrayTypes = std::tuple<int, double, float, uint64_t, bool, std::string, cv::Size, cv::Scalar, cv::Point, cv::Point2f,
                 cv::Mat, cv::Rect, cv::gapi::wip::draw::Prim>;
         // GOpaque is not supporting cv::Mat and cv::Scalar since there are GScalar and GMat types
-        using GOpaqueTraitsOpaqueTypes = std::tuple<int, double, float, uint64_t, bool, std::string, cv::Size, cv::Point, cv::Rect,
+        using GOpaqueTraitsOpaqueTypes = std::tuple<int, double, float, uint64_t, bool, std::string, cv::Size, cv::Point, cv::Point2f, cv::Rect,
                 cv::gapi::wip::draw::Prim>;
     } // namespace detail
 
@@ -125,8 +130,8 @@ namespace cv {
 // modules. Keeping it here wouldn't expose public details (e.g., API-level)
 // to components which are internal and operate on a lower-level entities
 // (e.g., compiler, backends).
-// NEED TO FIX: merge with ArgKind?
-// NEED TO FIX: replace with variant[format desc]?
+// FIXME: merge with ArgKind?
+// FIXME: replace with variant[format desc]?
     enum class GShape : int {
         GMAT,
         GSCALAR,
@@ -154,7 +159,7 @@ namespace cv {
 
 // CompileArg is an unified interface over backend-specific compilation
 // information
-// NEED TO FIX: Move to a separate file?
+// FIXME: Move to a separate file?
 /** \addtogroup gapi_compile_args
  * @{
  *
@@ -197,11 +202,13 @@ namespace cv {
 
         std::string tag;
 
-        // NEED TO FIX: use decay in GArg/other trait-based wrapper before leg is shot!
+        // FIXME: use decay in GArg/other trait-based wrapper before leg is shot!
         template<typename T, typename std::enable_if<!detail::is_compile_arg<T>::value, int>::type = 0>
         explicit GCompileArg(T &&t)
                 : tag(detail::CompileArgTag<typename std::decay<T>::type>::tag()),
-                  serializeF(&cv::gapi::s11n::detail::wrap_serialize<T>::serialize), arg(t) {
+                  serializeF(cv::gapi::s11n::detail::has_S11N_spec<T>::value ?
+                             &cv::gapi::s11n::detail::wrap_serialize<T>::serialize :
+                             nullptr), arg(t) {
         }
 
         template<typename T>
@@ -215,7 +222,9 @@ namespace cv {
         }
 
         void serialize(cv::gapi::s11n::IOStream &os) const {
-            serializeF(os, *this);
+            if (serializeF) {
+                serializeF(os, *this);
+            }
         }
 
     private:
@@ -234,11 +243,11 @@ namespace cv {
         return GCompileArgs{GCompileArg(args)...};
     }
 
+    namespace gapi {
 /**
  * @brief Retrieves particular compilation argument by its type from
  *        cv::GCompileArgs
  */
-    namespace gapi {
         template<typename T>
         inline cv::util::optional<T> getCompileArg(const cv::GCompileArgs &args) {
             for (auto &compile_arg : args) {
@@ -254,8 +263,8 @@ namespace cv {
                 template<typename T>
                 struct wrap_serialize {
                     static void serialize(IOStream &os, const GCompileArg &arg) {
-                        using decayed_type = typename std::decay<T>::type;
-                        S11N<decayed_type>::serialize(os, arg.get<decayed_type>());
+                        using DT = typename std::decay<T>::type;
+                        S11N<DT>::serialize(os, arg.get<DT>());
                     }
                 };
             } // namespace detail

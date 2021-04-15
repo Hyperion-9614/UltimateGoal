@@ -3,13 +3,8 @@
 //
 package org.opencv.features2d;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat;
-import org.opencv.features2d.AffineFeature;
-import org.opencv.features2d.Feature2D;
-import org.opencv.utils.Converters;
 
 // C++: class AffineFeature
 /**
@@ -79,26 +74,6 @@ public class AffineFeature extends Feature2D {
 
 
     //
-    // C++:  String cv::AffineFeature::getDefaultName()
-    //
-
-    public String getDefaultName() {
-        return getDefaultName_0(nativeObj);
-    }
-
-
-    //
-    // C++:  void cv::AffineFeature::getViewParams(vector_float tilts, vector_float rolls)
-    //
-
-    public void getViewParams(MatOfFloat tilts, MatOfFloat rolls) {
-        Mat tilts_mat = tilts;
-        Mat rolls_mat = rolls;
-        getViewParams_0(nativeObj, tilts_mat.nativeObj, rolls_mat.nativeObj);
-    }
-
-
-    //
     // C++:  void cv::AffineFeature::setViewParams(vector_float tilts, vector_float rolls)
     //
 
@@ -109,28 +84,51 @@ public class AffineFeature extends Feature2D {
     }
 
 
+    //
+    // C++:  void cv::AffineFeature::getViewParams(vector_float tilts, vector_float rolls)
+    //
+
+    // C++:  void cv::AffineFeature::getViewParams(vector_float tilts, vector_float rolls)
+    private static native void getViewParams_0(long nativeObj, long tilts_mat_nativeObj, long rolls_mat_nativeObj);
+
+
+    //
+    // C++:  String cv::AffineFeature::getDefaultName()
+    //
+
+    // C++:  String cv::AffineFeature::getDefaultName()
+    private static native String getDefaultName_0(long nativeObj);
+
+
     @Override
     protected void finalize() throws Throwable {
         delete(nativeObj);
     }
 
 
-
     // C++: static Ptr_AffineFeature cv::AffineFeature::create(Ptr_Feature2D backend, int maxTilt = 5, int minTilt = 0, float tiltStep = 1.4142135623730951f, float rotateStepBase = 72)
     private static native long create_0(long backend_nativeObj, int maxTilt, int minTilt, float tiltStep, float rotateStepBase);
+
     private static native long create_1(long backend_nativeObj, int maxTilt, int minTilt, float tiltStep);
+
     private static native long create_2(long backend_nativeObj, int maxTilt, int minTilt);
+
     private static native long create_3(long backend_nativeObj, int maxTilt);
+
     private static native long create_4(long backend_nativeObj);
-
-    // C++:  String cv::AffineFeature::getDefaultName()
-    private static native String getDefaultName_0(long nativeObj);
-
-    // C++:  void cv::AffineFeature::getViewParams(vector_float tilts, vector_float rolls)
-    private static native void getViewParams_0(long nativeObj, long tilts_mat_nativeObj, long rolls_mat_nativeObj);
 
     // C++:  void cv::AffineFeature::setViewParams(vector_float tilts, vector_float rolls)
     private static native void setViewParams_0(long nativeObj, long tilts_mat_nativeObj, long rolls_mat_nativeObj);
+
+    public void getViewParams(MatOfFloat tilts, MatOfFloat rolls) {
+        Mat tilts_mat = tilts;
+        Mat rolls_mat = rolls;
+        getViewParams_0(nativeObj, tilts_mat.nativeObj, rolls_mat.nativeObj);
+    }
+
+    public String getDefaultName() {
+        return getDefaultName_0(nativeObj);
+    }
 
     // native support for java finalize()
     private static native void delete(long nativeObj);

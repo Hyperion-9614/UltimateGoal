@@ -18,7 +18,7 @@ public class MatOfRotatedRect extends Mat {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //NEED TO FIX: do we need release() here?
+        //FIXME: do we need release() here?
     }
 
     public static MatOfRotatedRect fromNativeAddr(long addr) {
@@ -29,7 +29,7 @@ public class MatOfRotatedRect extends Mat {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //NEED TO FIX: do we need release() here?
+        //FIXME: do we need release() here?
     }
 
     public MatOfRotatedRect(RotatedRect...a) {
@@ -56,7 +56,7 @@ public class MatOfRotatedRect extends Mat {
             buff[_channels*i+3] = (float) r.size.height;
             buff[_channels*i+4] = (float) r.angle;
         }
-        put(0, 0, buff); //NEED TO DO: check ret val!
+        put(0, 0, buff); //TODO: check ret val!
     }
 
     public RotatedRect[] toArray() {
@@ -66,7 +66,7 @@ public class MatOfRotatedRect extends Mat {
             return a;
         float[] buff = new float[_channels];
         for(int i=0; i<num; i++) {
-            get(i, 0, buff); //NEED TO DO: check ret val!
+            get(i, 0, buff); //TODO: check ret val!
             a[i] = new RotatedRect(new Point(buff[0], buff[1]), new Size(buff[2], buff[3]), buff[4]);
         }
         return a;

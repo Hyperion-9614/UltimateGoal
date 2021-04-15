@@ -78,12 +78,12 @@ namespace cvflann {
         IndexHeader header = load_header(fin);
         if (header.data_type != Datatype<ElementType>::type()) {
             fclose(fin);
-            throw FLANNException(
-                    "Datatype of saved index is different than of the one to be created.");
+            FLANN_THROW(cv::Error::StsError,
+                        "Datatype of saved index is different than of the one to be created.");
         }
         if ((size_t(header.rows) != dataset.rows) || (size_t(header.cols) != dataset.cols)) {
             fclose(fin);
-            throw FLANNException("The index saved belongs to a different dataset");
+            FLANN_THROW(cv::Error::StsError, "The index saved belongs to a different dataset");
         }
 
         IndexParams params;
@@ -137,7 +137,7 @@ namespace cvflann {
         void save(cv::String filename) {
             FILE *fout = fopen(filename.c_str(), "wb");
             if (fout == NULL) {
-                throw FLANNException("Cannot open file");
+                FLANN_THROW(cv::Error::StsError, "Cannot open file");
             }
             save_header(fout, *nnIndex_);
             saveIndex(fout);

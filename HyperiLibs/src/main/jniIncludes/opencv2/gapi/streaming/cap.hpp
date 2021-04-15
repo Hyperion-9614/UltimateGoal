@@ -21,9 +21,11 @@
  * Note for developers: please don't put videoio dependency in G-API
  * because of this file.
  */
+#include <chrono>
 
 #include <opencv2/videoio.hpp>
 #include <opencv2/gapi/garg.hpp>
+#include <opencv2/gapi/streaming/meta.hpp>
 
 namespace cv {
     namespace gapi {
@@ -48,13 +50,14 @@ namespace cv {
 
                 explicit GCaptureSource(const std::string &path) : cap(path) { prep(); }
 
-                // NEED TO FIX: Add more constructor overloads to make it
+                // TODO: Add more constructor overloads to make it
                 // fully compatible with VideoCapture's interface.
 
             protected:
                 cv::VideoCapture cap;
                 cv::Mat first;
                 bool first_pulled = false;
+                int64_t counter = 0;
 
                 void prep() {
                     // Prepare first frame to report its meta to engine
@@ -76,18 +79,23 @@ namespace cv {
                         GAPI_Assert(!first.empty());
                         first_pulled = true;
                         data = first; // no need to clone here since it was cloned already
-                        return true;
-                    }
+                    } else {
+                        if (!cap.isOpened()) return false;
 
-                    if (!cap.isOpened()) return false;
-
-                    cv::Mat frame;
-                    if (!cap.read(frame)) {
-                        // end-of-stream happened
-                        return false;
+                        cv::Mat frame;
+                        if (!cap.read(frame)) {
+                            // end-of-stream happened
+                            return false;
+                        }
+                        // Same reason to clone as in prep()
+                        data = frame.clone();
                     }
-                    // Same reason to clone as in prep()
-                    data = frame.clone();
+                    // Tag data with seq_id/ts
+                    const auto now = std::chrono::system_clock::now();
+                    const auto dur = std::chrono::duration_cast<std::chrono::microseconds>
+                            (now.time_since_epoch());
+                    data.meta[cv::gapi::streaming::meta_tag::timestamp] = int64_t{dur.count()};
+                    data.meta[cv::gapi::streaming::meta_tag::seq_id] = int64_t{counter++};
                     return true;
                 }
 
@@ -96,6 +104,13 @@ namespace cv {
                     return cv::GMetaArg{cv::descr_of(first)};
                 }
             };
+
+// NB: Overload for using from python
+            GAPI_EXPORTS_W cv::Ptr<IStreamSource>
+
+            inline make_capture_src(const std::string &path) {
+                return make_src<GCaptureSource>(path);
+            }
 
         } // namespace wip
     } // namespace gapi

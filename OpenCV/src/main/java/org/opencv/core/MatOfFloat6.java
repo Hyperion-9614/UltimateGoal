@@ -16,7 +16,7 @@ public class MatOfFloat6 extends Mat {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //NEED TO FIX: do we need release() here?
+        //FIXME: do we need release() here?
     }
 
     public static MatOfFloat6 fromNativeAddr(long addr) {
@@ -27,7 +27,7 @@ public class MatOfFloat6 extends Mat {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //NEED TO FIX: do we need release() here?
+        //FIXME: do we need release() here?
     }
 
     public MatOfFloat6(float...a) {
@@ -45,7 +45,7 @@ public class MatOfFloat6 extends Mat {
             return;
         int num = a.length / _channels;
         alloc(num);
-        put(0, 0, a); //NEED TO DO: check ret val!
+        put(0, 0, a); //TODO: check ret val!
     }
 
     public float[] toArray() {
@@ -55,7 +55,7 @@ public class MatOfFloat6 extends Mat {
         float[] a = new float[num * _channels];
         if(num == 0)
             return a;
-        get(0, 0, a); //NEED TO DO: check ret val!
+        get(0, 0, a); //TODO: check ret val!
         return a;
     }
 

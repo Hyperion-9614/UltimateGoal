@@ -16,7 +16,7 @@
 namespace cv {
     namespace gapi {
         namespace compound {
-            // NEED TO FIX User does not need to know about this function
+            // FIXME User does not need to know about this function
             // Needs that user may define compound kernels(as cpu kernels)
             GAPI_EXPORTS cv::gapi::GBackend
 

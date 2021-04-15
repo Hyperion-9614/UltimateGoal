@@ -368,23 +368,14 @@ inline void v_store_interleave(_Tp* ptr, const _Tpvec& a, const _Tpvec& b,   \
 { vec_st_interleave(a.val, b.val, c.val, d.val, ptr); }
 
 OPENCV_HAL_IMPL_VSX_INTERLEAVE(uchar, v_uint8x16)
-
 OPENCV_HAL_IMPL_VSX_INTERLEAVE(schar, v_int8x16)
-
 OPENCV_HAL_IMPL_VSX_INTERLEAVE(ushort, v_uint16x8)
-
 OPENCV_HAL_IMPL_VSX_INTERLEAVE(short, v_int16x8)
-
 OPENCV_HAL_IMPL_VSX_INTERLEAVE(uint, v_uint32x4)
-
 OPENCV_HAL_IMPL_VSX_INTERLEAVE(int, v_int32x4)
-
 OPENCV_HAL_IMPL_VSX_INTERLEAVE(float, v_float32x4)
-
 OPENCV_HAL_IMPL_VSX_INTERLEAVE(double, v_float64x2)
-
 OPENCV_HAL_IMPL_VSX_INTERLEAVE(int64, v_int64x2)
-
 OPENCV_HAL_IMPL_VSX_INTERLEAVE(uint64, v_uint64x2)
 
 /* Expand */
@@ -470,25 +461,21 @@ inline void v_rshr_##pack##_store(_Tp* ptr, const _Tpwvec& a)                   
 
 OPENCV_HAL_IMPL_VSX_PACK(v_uint8x16, uchar, v_uint16x8, unsigned short, unsigned short,
                          vec_sr, vec_packs, vec_adds, pack)
-
 OPENCV_HAL_IMPL_VSX_PACK(v_int8x16, schar, v_int16x8, unsigned short, short,
                          vec_sra, vec_packs, vec_adds, pack)
 
 OPENCV_HAL_IMPL_VSX_PACK(v_uint16x8, ushort, v_uint32x4, unsigned int, unsigned int,
                          vec_sr, vec_packs, vec_add, pack)
-
 OPENCV_HAL_IMPL_VSX_PACK(v_int16x8, short, v_int32x4, unsigned int, int,
                          vec_sra, vec_packs, vec_add, pack)
 
 OPENCV_HAL_IMPL_VSX_PACK(v_uint32x4, uint, v_uint64x2, unsigned long long, unsigned long long,
                          vec_sr, vec_pack, vec_add, pack)
-
 OPENCV_HAL_IMPL_VSX_PACK(v_int32x4, int, v_int64x2, unsigned long long, long long,
                          vec_sra, vec_pack, vec_add, pack)
 
 OPENCV_HAL_IMPL_VSX_PACK(v_uint8x16, uchar, v_int16x8, unsigned short, short,
                          vec_sra, vec_packsu, vec_adds, pack_u)
-
 OPENCV_HAL_IMPL_VSX_PACK(v_uint16x8, ushort, v_int32x4, unsigned int, int,
                          vec_sra, vec_packsu, vec_add, pack_u)
 // Following variant is not implemented on other platforms:
@@ -555,55 +542,31 @@ inline _Tpvec& operator bin_op##= (_Tpvec& a, const _Tpvec& b)   \
 { a.val = intrin(a.val, b.val); return a; }
 
 OPENCV_HAL_IMPL_VSX_BIN_OP(+, v_uint8x16, vec_adds)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(-, v_uint8x16, vec_subs)
 
 OPENCV_HAL_IMPL_VSX_BIN_OP(+, v_int8x16, vec_adds)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(-, v_int8x16, vec_subs)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(+, v_uint16x8, vec_adds)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(-, v_uint16x8, vec_subs)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(+, v_int16x8, vec_adds)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(-, v_int16x8, vec_subs)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(+, v_uint32x4, vec_add)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(-, v_uint32x4, vec_sub)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(*, v_uint32x4, vec_mul)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(+, v_int32x4, vec_add)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(-, v_int32x4, vec_sub)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(*, v_int32x4, vec_mul)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(+, v_float32x4, vec_add)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(-, v_float32x4, vec_sub)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(*, v_float32x4, vec_mul)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(/, v_float32x4, vec_div)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(+, v_float64x2, vec_add)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(-, v_float64x2, vec_sub)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(*, v_float64x2, vec_mul)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(/, v_float64x2, vec_div)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(+, v_uint64x2, vec_add)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(-, v_uint64x2, vec_sub)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(+, v_int64x2, vec_add)
-
 OPENCV_HAL_IMPL_VSX_BIN_OP(-, v_int64x2, vec_sub)
 
 // saturating multiply
@@ -618,11 +581,9 @@ OPENCV_HAL_IMPL_VSX_BIN_OP(-, v_int64x2, vec_sub)
     { a = a * b; return a; }
 
 OPENCV_HAL_IMPL_VSX_MUL_SAT(v_int8x16, v_int16x8)
-
 OPENCV_HAL_IMPL_VSX_MUL_SAT(v_uint8x16, v_uint16x8)
 
 OPENCV_HAL_IMPL_VSX_MUL_SAT(v_int16x8, v_int32x4)
-
 OPENCV_HAL_IMPL_VSX_MUL_SAT(v_uint16x8, v_uint32x4)
 
 template<typename Tvec, typename Twvec>
@@ -653,9 +614,7 @@ inline _Tpvec func(const _Tpvec& a, const _Tpvec& b)  \
 { return _Tpvec(intrin(a.val, b.val)); }
 
 OPENCV_HAL_IMPL_VSX_BIN_FUNC(v_add_wrap, vec_add)
-
 OPENCV_HAL_IMPL_VSX_BIN_FUNC(v_sub_wrap, vec_sub)
-
 OPENCV_HAL_IMPL_VSX_BIN_FUNC(v_mul_wrap, vec_mul)
 
 /** Bitwise shifts **/
@@ -670,19 +629,13 @@ template<int imm> inline _Tpvec v_shr(const _Tpvec& a)       \
 { return _Tpvec(shr(a.val, splfunc(imm))); }
 
 OPENCV_HAL_IMPL_VSX_SHIFT_OP(v_uint8x16, vec_sr, vec_uchar16_sp)
-
 OPENCV_HAL_IMPL_VSX_SHIFT_OP(v_uint16x8, vec_sr, vec_ushort8_sp)
-
 OPENCV_HAL_IMPL_VSX_SHIFT_OP(v_uint32x4, vec_sr, vec_uint4_sp)
-
 OPENCV_HAL_IMPL_VSX_SHIFT_OP(v_uint64x2, vec_sr, vec_udword2_sp)
 // algebraic right shift
 OPENCV_HAL_IMPL_VSX_SHIFT_OP(v_int8x16, vec_sra, vec_uchar16_sp)
-
 OPENCV_HAL_IMPL_VSX_SHIFT_OP(v_int16x8, vec_sra, vec_ushort8_sp)
-
 OPENCV_HAL_IMPL_VSX_SHIFT_OP(v_int32x4, vec_sra, vec_uint4_sp)
-
 OPENCV_HAL_IMPL_VSX_SHIFT_OP(v_int64x2, vec_sra, vec_udword2_sp)
 
 /** Bitwise logic **/
@@ -694,23 +647,14 @@ inline _Tpvec operator ~ (const _Tpvec& a)      \
 { return _Tpvec(vec_not(a.val)); }
 
 OPENCV_HAL_IMPL_VSX_LOGIC_OP(v_uint8x16)
-
 OPENCV_HAL_IMPL_VSX_LOGIC_OP(v_int8x16)
-
 OPENCV_HAL_IMPL_VSX_LOGIC_OP(v_uint16x8)
-
 OPENCV_HAL_IMPL_VSX_LOGIC_OP(v_int16x8)
-
 OPENCV_HAL_IMPL_VSX_LOGIC_OP(v_uint32x4)
-
 OPENCV_HAL_IMPL_VSX_LOGIC_OP(v_int32x4)
-
 OPENCV_HAL_IMPL_VSX_LOGIC_OP(v_uint64x2)
-
 OPENCV_HAL_IMPL_VSX_LOGIC_OP(v_int64x2)
-
 OPENCV_HAL_IMPL_VSX_LOGIC_OP(v_float32x4)
-
 OPENCV_HAL_IMPL_VSX_LOGIC_OP(v_float64x2)
 
 /** Bitwise select **/
@@ -719,19 +663,12 @@ inline _Tpvec v_select(const _Tpvec& mask, const _Tpvec& a, const _Tpvec& b) \
 { return _Tpvec(vec_sel(b.val, a.val, cast(mask.val))); }
 
 OPENCV_HAL_IMPL_VSX_SELECT(v_uint8x16, vec_bchar16_c)
-
 OPENCV_HAL_IMPL_VSX_SELECT(v_int8x16, vec_bchar16_c)
-
 OPENCV_HAL_IMPL_VSX_SELECT(v_uint16x8, vec_bshort8_c)
-
 OPENCV_HAL_IMPL_VSX_SELECT(v_int16x8, vec_bshort8_c)
-
 OPENCV_HAL_IMPL_VSX_SELECT(v_uint32x4, vec_bint4_c)
-
 OPENCV_HAL_IMPL_VSX_SELECT(v_int32x4, vec_bint4_c)
-
 OPENCV_HAL_IMPL_VSX_SELECT(v_float32x4, vec_bint4_c)
-
 OPENCV_HAL_IMPL_VSX_SELECT(v_float64x2, vec_bdword2_c)
 
 /** Comparison **/
@@ -796,21 +733,16 @@ OPENCV_IMPL_VSX_ROTATE(_Tpvec, right, vec_sro, cast)
 OPENCV_IMPL_VSX_ROTATE_LR(v_uint8x16, vec_uchar16)
 
 OPENCV_IMPL_VSX_ROTATE_LR(v_int8x16, vec_char16)
-
 OPENCV_IMPL_VSX_ROTATE_LR(v_uint16x8, vec_ushort8)
 
 OPENCV_IMPL_VSX_ROTATE_LR(v_int16x8, vec_short8)
-
 OPENCV_IMPL_VSX_ROTATE_LR(v_uint32x4, vec_uint4)
 
 OPENCV_IMPL_VSX_ROTATE_LR(v_int32x4, vec_int4)
-
 OPENCV_IMPL_VSX_ROTATE_LR(v_float32x4, vec_float4)
-
 OPENCV_IMPL_VSX_ROTATE_LR(v_uint64x2, vec_udword2)
 
 OPENCV_IMPL_VSX_ROTATE_LR(v_int64x2, vec_dword2)
-
 OPENCV_IMPL_VSX_ROTATE_LR(v_float64x2, vec_double2)
 
 template<int imm, typename _Tpvec>
@@ -851,9 +783,7 @@ OPENCV_IMPL_VSX_ROTATE_64_2RG(_Tpvec, left,  b, a)  \
 OPENCV_IMPL_VSX_ROTATE_64_2RG(_Tpvec, right, a, b)
 
 OPENCV_IMPL_VSX_ROTATE_64_2RG_LR(v_float64x2)
-
 OPENCV_IMPL_VSX_ROTATE_64_2RG_LR(v_uint64x2)
-
 OPENCV_IMPL_VSX_ROTATE_64_2RG_LR(v_int64x2)
 
 /* Reverse */
@@ -940,23 +870,14 @@ inline scalartype v_reduce_##suffix(const _Tpvec& a)                            
     const _Tpvec2 rs = func(a.val, vec_sld(a.val, a.val, 8));                      \
     return vec_extract(func(rs, vec_sld(rs, rs, 4)), 0);                           \
 }
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_4(v_uint32x4, vec_uint4, uint, sum, vec_add)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_4(v_uint32x4, vec_uint4, uint, max, vec_max)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_4(v_uint32x4, vec_uint4, uint, min, vec_min)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_4(v_int32x4, vec_int4, int, sum, vec_add)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_4(v_int32x4, vec_int4, int, max, vec_max)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_4(v_int32x4, vec_int4, int, min, vec_min)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_4(v_float32x4, vec_float4, float, sum, vec_add)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_4(v_float32x4, vec_float4, float, max, vec_max)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_4(v_float32x4, vec_float4, float, min, vec_min)
 
 inline uint64 v_reduce_sum(const v_uint64x2 &a) {
@@ -978,13 +899,9 @@ inline scalartype v_reduce_##suffix(const _Tpvec& a)                            
     rs = func(rs, vec_sld(rs, rs, 4));                                             \
     return vec_extract(func(rs, vec_sld(rs, rs, 2)), 0);                           \
 }
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_8(v_uint16x8, vec_ushort8, ushort, max, vec_max)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_8(v_uint16x8, vec_ushort8, ushort, min, vec_min)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_8(v_int16x8, vec_short8, short, max, vec_max)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_8(v_int16x8, vec_short8, short, min, vec_min)
 
 #define OPENCV_HAL_IMPL_VSX_REDUCE_OP_16(_Tpvec, _Tpvec2, scalartype, suffix, func) \
@@ -995,13 +912,9 @@ inline scalartype v_reduce_##suffix(const _Tpvec& a)                            
     rs = func(rs, vec_sld(rs, rs, 2));                                             \
     return vec_extract(func(rs, vec_sld(rs, rs, 1)), 0);                           \
 }
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_16(v_uint8x16, vec_uchar16, uchar, max, vec_max)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_16(v_uint8x16, vec_uchar16, uchar, min, vec_min)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_16(v_int8x16, vec_char16, schar, max, vec_max)
-
 OPENCV_HAL_IMPL_VSX_REDUCE_OP_16(v_int8x16, vec_char16, schar, min, vec_min)
 
 inline v_float32x4 v_reduce_sum4(const v_float32x4 &a, const v_float32x4 &b,
@@ -1184,14 +1097,13 @@ inline _Tpvec v_muladd(const _Tpvec& a, const _Tpvec& b, const _Tpvec& c)   \
 { return _Tpvec(vec_madd(a.val, b.val, c.val)); }
 
 OPENCV_HAL_IMPL_VSX_MULADD(v_float32x4)
-
 OPENCV_HAL_IMPL_VSX_MULADD(v_float64x2)
 
 inline v_int32x4 v_muladd(const v_int32x4 &a, const v_int32x4 &b, const v_int32x4 &c) {
     return a * b + c;
 }
 
-// NEED TO FIX: exp, log, sin, cos
+// TODO: exp, log, sin, cos
 
 /** Absolute values **/
 inline v_uint8x16 v_abs(const v_int8x16 &x) { return v_uint8x16(vec_uchar16_c(vec_abs(x.val))); }
@@ -1574,7 +1486,7 @@ inline v_float32x4 v_load_expand(const float16_t *ptr) {
 }
 
 inline void v_pack_store(float16_t *ptr, const v_float32x4 &v) {
-// NEED TO FIX: Is there any builtin op or intrinsic that cover "xvcvsphp"?
+// fixme: Is there any builtin op or intrinsic that cover "xvcvsphp"?
 #if CV_VSX3 && !defined(CV_COMPILER_VSX_BROKEN_ASM)
     vec_ushort8 vf16;
     __asm__ __volatile__ ("xvcvsphp %x0,%x1" : "=wa" (vf16) : "wa" (v.val));
@@ -1794,11 +1706,8 @@ inline void v_transpose4x4(const _Tpvec& a0, const _Tpvec& a1,                  
     b2.val  = vec_mergeh(a02, a13);                                              \
     b3.val  = vec_mergel(a02, a13);                                              \
 }
-
 OPENCV_HAL_IMPL_VSX_TRANSPOSE4x4(v_uint32x4, vec_uint4)
-
 OPENCV_HAL_IMPL_VSX_TRANSPOSE4x4(v_int32x4, vec_int4)
-
 OPENCV_HAL_IMPL_VSX_TRANSPOSE4x4(v_float32x4, vec_float4)
 
 template<int i, typename Tvec>

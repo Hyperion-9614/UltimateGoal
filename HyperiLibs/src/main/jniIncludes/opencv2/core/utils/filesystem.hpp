@@ -78,7 +78,7 @@ namespace cv {
             CV_EXPORTS bool createDirectories(const cv::String &path);
 
 #ifdef __OPENCV_BUILD
-            // NEED TO FIX
+            // TODO
             //CV_EXPORTS cv::String getTempDirectory();
 
             /**

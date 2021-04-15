@@ -3,12 +3,9 @@
 //
 package org.opencv.objdetect;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfRect;
-import org.opencv.utils.Converters;
 
 // C++: class Objdetect
 
@@ -22,7 +19,7 @@ public class Objdetect {
             CASCADE_DO_ROUGH_SEARCH = 8;
 
 
-    // C++: enum ObjectStatus
+    // C++: enum ObjectStatus (cv.DetectionBasedTracker.ObjectStatus)
     public static final int
             DetectionBasedTracker_DETECTED_NOT_SHOWN_YET = 0,
             DetectionBasedTracker_DETECTED = 1,

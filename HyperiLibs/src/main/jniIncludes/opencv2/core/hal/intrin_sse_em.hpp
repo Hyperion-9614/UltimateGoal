@@ -25,7 +25,7 @@ namespace cv {
 
 ///////////////////////////// XOP /////////////////////////////
 
-// [NEED TO FIX] define CV_XOP
+// [todo] define CV_XOP
 #if 1 // CV_XOP
     inline __m128i
 

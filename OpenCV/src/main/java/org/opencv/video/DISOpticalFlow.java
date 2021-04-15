@@ -3,9 +3,6 @@
 //
 package org.opencv.video;
 
-import org.opencv.video.DISOpticalFlow;
-import org.opencv.video.DenseOpticalFlow;
-
 // C++: class DISOpticalFlow
 /**
  * DIS optical flow algorithm.
@@ -35,106 +32,6 @@ public class DISOpticalFlow extends DenseOpticalFlow {
 
 
     //
-    // C++: static Ptr_DISOpticalFlow cv::DISOpticalFlow::create(int preset = DISOpticalFlow::PRESET_FAST)
-    //
-
-    /**
-     * Creates an instance of DISOpticalFlow
-     *
-     *     @param preset one of PRESET_ULTRAFAST, PRESET_FAST and PRESET_MEDIUM
-     * @return automatically generated
-     */
-    public static DISOpticalFlow create(int preset) {
-        return DISOpticalFlow.__fromPtr__(create_0(preset));
-    }
-
-    /**
-     * Creates an instance of DISOpticalFlow
-     *
-     * @return automatically generated
-     */
-    public static DISOpticalFlow create() {
-        return DISOpticalFlow.__fromPtr__(create_1());
-    }
-
-
-    //
-    // C++:  bool cv::DISOpticalFlow::getUseMeanNormalization()
-    //
-
-    /**
-     * Whether to use mean-normalization of patches when computing patch distance. It is turned on
-     *         by default as it typically provides a noticeable quality boost because of increased robustness to
-     *         illumination variations. Turn it off if you are certain that your sequence doesn't contain any changes
-     *         in illumination.
-     * SEE: setUseMeanNormalization
-     * @return automatically generated
-     */
-    public boolean getUseMeanNormalization() {
-        return getUseMeanNormalization_0(nativeObj);
-    }
-
-
-    //
-    // C++:  bool cv::DISOpticalFlow::getUseSpatialPropagation()
-    //
-
-    /**
-     * Whether to use spatial propagation of good optical flow vectors. This option is turned on by
-     *         default, as it tends to work better on average and can sometimes help recover from major errors
-     *         introduced by the coarse-to-fine scheme employed by the DIS optical flow algorithm. Turning this
-     *         option off can make the output flow field a bit smoother, however.
-     * SEE: setUseSpatialPropagation
-     * @return automatically generated
-     */
-    public boolean getUseSpatialPropagation() {
-        return getUseSpatialPropagation_0(nativeObj);
-    }
-
-
-    //
-    // C++:  float cv::DISOpticalFlow::getVariationalRefinementAlpha()
-    //
-
-    /**
-     * Weight of the smoothness term
-     * SEE: setVariationalRefinementAlpha
-     * @return automatically generated
-     */
-    public float getVariationalRefinementAlpha() {
-        return getVariationalRefinementAlpha_0(nativeObj);
-    }
-
-
-    //
-    // C++:  float cv::DISOpticalFlow::getVariationalRefinementDelta()
-    //
-
-    /**
-     * Weight of the color constancy term
-     * SEE: setVariationalRefinementDelta
-     * @return automatically generated
-     */
-    public float getVariationalRefinementDelta() {
-        return getVariationalRefinementDelta_0(nativeObj);
-    }
-
-
-    //
-    // C++:  float cv::DISOpticalFlow::getVariationalRefinementGamma()
-    //
-
-    /**
-     * Weight of the gradient constancy term
-     * SEE: setVariationalRefinementGamma
-     * @return automatically generated
-     */
-    public float getVariationalRefinementGamma() {
-        return getVariationalRefinementGamma_0(nativeObj);
-    }
-
-
-    //
     // C++:  int cv::DISOpticalFlow::getFinestScale()
     //
 
@@ -150,17 +47,17 @@ public class DISOpticalFlow extends DenseOpticalFlow {
 
 
     //
-    // C++:  int cv::DISOpticalFlow::getGradientDescentIterations()
+    // C++:  void cv::DISOpticalFlow::setFinestScale(int val)
     //
 
     /**
-     * Maximum number of gradient descent iterations in the patch inverse search stage. Higher values
-     *         may improve quality in some cases.
-     * SEE: setGradientDescentIterations
+     * Creates an instance of DISOpticalFlow
+     *
+     * @param preset one of PRESET_ULTRAFAST, PRESET_FAST and PRESET_MEDIUM
      * @return automatically generated
      */
-    public int getGradientDescentIterations() {
-        return getGradientDescentIterations_0(nativeObj);
+    public static DISOpticalFlow create(int preset) {
+        return DISOpticalFlow.__fromPtr__(create_0(preset));
     }
 
 
@@ -180,18 +77,57 @@ public class DISOpticalFlow extends DenseOpticalFlow {
 
 
     //
+    // C++:  void cv::DISOpticalFlow::setPatchSize(int val)
+    //
+
+    /**
+     * Creates an instance of DISOpticalFlow
+     *
+     * @return automatically generated
+     */
+    public static DISOpticalFlow create() {
+        return DISOpticalFlow.__fromPtr__(create_1());
+    }
+
+
+    //
     // C++:  int cv::DISOpticalFlow::getPatchStride()
     //
 
     /**
      * Stride between neighbor patches. Must be less than patch size. Lower values correspond
-     *         to higher flow quality.
+     * to higher flow quality.
      * SEE: setPatchStride
+     *
      * @return automatically generated
      */
     public int getPatchStride() {
         return getPatchStride_0(nativeObj);
     }
+
+
+    //
+    // C++:  void cv::DISOpticalFlow::setPatchStride(int val)
+    //
+
+    // C++:  void cv::DISOpticalFlow::setFinestScale(int val)
+    private static native void setFinestScale_0(long nativeObj, int val);
+
+
+    //
+    // C++:  int cv::DISOpticalFlow::getGradientDescentIterations()
+    //
+
+    // C++:  void cv::DISOpticalFlow::setPatchSize(int val)
+    private static native void setPatchSize_0(long nativeObj, int val);
+
+
+    //
+    // C++:  void cv::DISOpticalFlow::setGradientDescentIterations(int val)
+    //
+
+    // C++:  void cv::DISOpticalFlow::setPatchStride(int val)
+    private static native void setPatchStride_0(long nativeObj, int val);
 
 
     //
@@ -211,81 +147,19 @@ public class DISOpticalFlow extends DenseOpticalFlow {
 
 
     //
-    // C++:  void cv::DISOpticalFlow::setFinestScale(int val)
+    // C++:  void cv::DISOpticalFlow::setVariationalRefinementIterations(int val)
     //
 
-    /**
-     *  getFinestScale SEE: getFinestScale
-     * @param val automatically generated
-     */
-    public void setFinestScale(int val) {
-        setFinestScale_0(nativeObj, val);
-    }
+    // C++:  int cv::DISOpticalFlow::getGradientDescentIterations()
+    private static native int getGradientDescentIterations_0(long nativeObj);
 
 
     //
+    // C++:  float cv::DISOpticalFlow::getVariationalRefinementAlpha()
+    //
+
     // C++:  void cv::DISOpticalFlow::setGradientDescentIterations(int val)
-    //
-
-    /**
-     *  getGradientDescentIterations SEE: getGradientDescentIterations
-     * @param val automatically generated
-     */
-    public void setGradientDescentIterations(int val) {
-        setGradientDescentIterations_0(nativeObj, val);
-    }
-
-
-    //
-    // C++:  void cv::DISOpticalFlow::setPatchSize(int val)
-    //
-
-    /**
-     *  getPatchSize SEE: getPatchSize
-     * @param val automatically generated
-     */
-    public void setPatchSize(int val) {
-        setPatchSize_0(nativeObj, val);
-    }
-
-
-    //
-    // C++:  void cv::DISOpticalFlow::setPatchStride(int val)
-    //
-
-    /**
-     *  getPatchStride SEE: getPatchStride
-     * @param val automatically generated
-     */
-    public void setPatchStride(int val) {
-        setPatchStride_0(nativeObj, val);
-    }
-
-
-    //
-    // C++:  void cv::DISOpticalFlow::setUseMeanNormalization(bool val)
-    //
-
-    /**
-     *  getUseMeanNormalization SEE: getUseMeanNormalization
-     * @param val automatically generated
-     */
-    public void setUseMeanNormalization(boolean val) {
-        setUseMeanNormalization_0(nativeObj, val);
-    }
-
-
-    //
-    // C++:  void cv::DISOpticalFlow::setUseSpatialPropagation(bool val)
-    //
-
-    /**
-     *  getUseSpatialPropagation SEE: getUseSpatialPropagation
-     * @param val automatically generated
-     */
-    public void setUseSpatialPropagation(boolean val) {
-        setUseSpatialPropagation_0(nativeObj, val);
-    }
+    private static native void setGradientDescentIterations_0(long nativeObj, int val);
 
 
     //
@@ -293,7 +167,8 @@ public class DISOpticalFlow extends DenseOpticalFlow {
     //
 
     /**
-     *  getVariationalRefinementAlpha SEE: getVariationalRefinementAlpha
+     * getVariationalRefinementAlpha SEE: getVariationalRefinementAlpha
+     *
      * @param val automatically generated
      */
     public void setVariationalRefinementAlpha(float val) {
@@ -302,11 +177,20 @@ public class DISOpticalFlow extends DenseOpticalFlow {
 
 
     //
+    // C++:  float cv::DISOpticalFlow::getVariationalRefinementDelta()
+    //
+
+    // C++:  void cv::DISOpticalFlow::setVariationalRefinementIterations(int val)
+    private static native void setVariationalRefinementIterations_0(long nativeObj, int val);
+
+
+    //
     // C++:  void cv::DISOpticalFlow::setVariationalRefinementDelta(float val)
     //
 
     /**
-     *  getVariationalRefinementDelta SEE: getVariationalRefinementDelta
+     * getVariationalRefinementDelta SEE: getVariationalRefinementDelta
+     *
      * @param val automatically generated
      */
     public void setVariationalRefinementDelta(float val) {
@@ -315,11 +199,20 @@ public class DISOpticalFlow extends DenseOpticalFlow {
 
 
     //
+    // C++:  float cv::DISOpticalFlow::getVariationalRefinementGamma()
+    //
+
+    // C++:  float cv::DISOpticalFlow::getVariationalRefinementAlpha()
+    private static native float getVariationalRefinementAlpha_0(long nativeObj);
+
+
+    //
     // C++:  void cv::DISOpticalFlow::setVariationalRefinementGamma(float val)
     //
 
     /**
-     *  getVariationalRefinementGamma SEE: getVariationalRefinementGamma
+     * getVariationalRefinementGamma SEE: getVariationalRefinementGamma
+     *
      * @param val automatically generated
      */
     public void setVariationalRefinementGamma(float val) {
@@ -328,16 +221,46 @@ public class DISOpticalFlow extends DenseOpticalFlow {
 
 
     //
-    // C++:  void cv::DISOpticalFlow::setVariationalRefinementIterations(int val)
+    // C++:  bool cv::DISOpticalFlow::getUseMeanNormalization()
     //
 
-    /**
-     *  getGradientDescentIterations SEE: getGradientDescentIterations
-     * @param val automatically generated
-     */
-    public void setVariationalRefinementIterations(int val) {
-        setVariationalRefinementIterations_0(nativeObj, val);
-    }
+    // C++:  float cv::DISOpticalFlow::getVariationalRefinementDelta()
+    private static native float getVariationalRefinementDelta_0(long nativeObj);
+
+
+    //
+    // C++:  void cv::DISOpticalFlow::setUseMeanNormalization(bool val)
+    //
+
+    // C++:  float cv::DISOpticalFlow::getVariationalRefinementGamma()
+    private static native float getVariationalRefinementGamma_0(long nativeObj);
+
+
+    //
+    // C++:  bool cv::DISOpticalFlow::getUseSpatialPropagation()
+    //
+
+    // C++:  bool cv::DISOpticalFlow::getUseMeanNormalization()
+    private static native boolean getUseMeanNormalization_0(long nativeObj);
+
+
+    //
+    // C++:  void cv::DISOpticalFlow::setUseSpatialPropagation(bool val)
+    //
+
+    // C++:  void cv::DISOpticalFlow::setUseMeanNormalization(bool val)
+    private static native void setUseMeanNormalization_0(long nativeObj, boolean val);
+
+
+    //
+    // C++: static Ptr_DISOpticalFlow cv::DISOpticalFlow::create(int preset = DISOpticalFlow::PRESET_FAST)
+    //
+
+    // C++:  bool cv::DISOpticalFlow::getUseSpatialPropagation()
+    private static native boolean getUseSpatialPropagation_0(long nativeObj);
+
+    // C++:  void cv::DISOpticalFlow::setUseSpatialPropagation(bool val)
+    private static native void setUseSpatialPropagation_0(long nativeObj, boolean val);
 
 
     @Override
@@ -346,70 +269,161 @@ public class DISOpticalFlow extends DenseOpticalFlow {
     }
 
 
-
-    // C++: static Ptr_DISOpticalFlow cv::DISOpticalFlow::create(int preset = DISOpticalFlow::PRESET_FAST)
-    private static native long create_0(int preset);
-    private static native long create_1();
-
-    // C++:  bool cv::DISOpticalFlow::getUseMeanNormalization()
-    private static native boolean getUseMeanNormalization_0(long nativeObj);
-
-    // C++:  bool cv::DISOpticalFlow::getUseSpatialPropagation()
-    private static native boolean getUseSpatialPropagation_0(long nativeObj);
-
-    // C++:  float cv::DISOpticalFlow::getVariationalRefinementAlpha()
-    private static native float getVariationalRefinementAlpha_0(long nativeObj);
-
-    // C++:  float cv::DISOpticalFlow::getVariationalRefinementDelta()
-    private static native float getVariationalRefinementDelta_0(long nativeObj);
-
-    // C++:  float cv::DISOpticalFlow::getVariationalRefinementGamma()
-    private static native float getVariationalRefinementGamma_0(long nativeObj);
-
     // C++:  int cv::DISOpticalFlow::getFinestScale()
     private static native int getFinestScale_0(long nativeObj);
 
-    // C++:  int cv::DISOpticalFlow::getGradientDescentIterations()
-    private static native int getGradientDescentIterations_0(long nativeObj);
+    // C++: static Ptr_DISOpticalFlow cv::DISOpticalFlow::create(int preset = DISOpticalFlow::PRESET_FAST)
+    private static native long create_0(int preset);
 
     // C++:  int cv::DISOpticalFlow::getPatchSize()
     private static native int getPatchSize_0(long nativeObj);
 
+    private static native long create_1();
+
     // C++:  int cv::DISOpticalFlow::getPatchStride()
     private static native int getPatchStride_0(long nativeObj);
+
+    /**
+     * getFinestScale SEE: getFinestScale
+     *
+     * @param val automatically generated
+     */
+    public void setFinestScale(int val) {
+        setFinestScale_0(nativeObj, val);
+    }
+
+    /**
+     * getPatchSize SEE: getPatchSize
+     *
+     * @param val automatically generated
+     */
+    public void setPatchSize(int val) {
+        setPatchSize_0(nativeObj, val);
+    }
+
+    /**
+     * getPatchStride SEE: getPatchStride
+     *
+     * @param val automatically generated
+     */
+    public void setPatchStride(int val) {
+        setPatchStride_0(nativeObj, val);
+    }
 
     // C++:  int cv::DISOpticalFlow::getVariationalRefinementIterations()
     private static native int getVariationalRefinementIterations_0(long nativeObj);
 
-    // C++:  void cv::DISOpticalFlow::setFinestScale(int val)
-    private static native void setFinestScale_0(long nativeObj, int val);
+    /**
+     * Maximum number of gradient descent iterations in the patch inverse search stage. Higher values
+     * may improve quality in some cases.
+     * SEE: setGradientDescentIterations
+     *
+     * @return automatically generated
+     */
+    public int getGradientDescentIterations() {
+        return getGradientDescentIterations_0(nativeObj);
+    }
 
-    // C++:  void cv::DISOpticalFlow::setGradientDescentIterations(int val)
-    private static native void setGradientDescentIterations_0(long nativeObj, int val);
-
-    // C++:  void cv::DISOpticalFlow::setPatchSize(int val)
-    private static native void setPatchSize_0(long nativeObj, int val);
-
-    // C++:  void cv::DISOpticalFlow::setPatchStride(int val)
-    private static native void setPatchStride_0(long nativeObj, int val);
-
-    // C++:  void cv::DISOpticalFlow::setUseMeanNormalization(bool val)
-    private static native void setUseMeanNormalization_0(long nativeObj, boolean val);
-
-    // C++:  void cv::DISOpticalFlow::setUseSpatialPropagation(bool val)
-    private static native void setUseSpatialPropagation_0(long nativeObj, boolean val);
+    /**
+     * getGradientDescentIterations SEE: getGradientDescentIterations
+     *
+     * @param val automatically generated
+     */
+    public void setGradientDescentIterations(int val) {
+        setGradientDescentIterations_0(nativeObj, val);
+    }
 
     // C++:  void cv::DISOpticalFlow::setVariationalRefinementAlpha(float val)
     private static native void setVariationalRefinementAlpha_0(long nativeObj, float val);
 
+    /**
+     * getGradientDescentIterations SEE: getGradientDescentIterations
+     *
+     * @param val automatically generated
+     */
+    public void setVariationalRefinementIterations(int val) {
+        setVariationalRefinementIterations_0(nativeObj, val);
+    }
+
     // C++:  void cv::DISOpticalFlow::setVariationalRefinementDelta(float val)
     private static native void setVariationalRefinementDelta_0(long nativeObj, float val);
+
+    /**
+     * Weight of the smoothness term
+     * SEE: setVariationalRefinementAlpha
+     *
+     * @return automatically generated
+     */
+    public float getVariationalRefinementAlpha() {
+        return getVariationalRefinementAlpha_0(nativeObj);
+    }
 
     // C++:  void cv::DISOpticalFlow::setVariationalRefinementGamma(float val)
     private static native void setVariationalRefinementGamma_0(long nativeObj, float val);
 
-    // C++:  void cv::DISOpticalFlow::setVariationalRefinementIterations(int val)
-    private static native void setVariationalRefinementIterations_0(long nativeObj, int val);
+    /**
+     * Weight of the color constancy term
+     * SEE: setVariationalRefinementDelta
+     *
+     * @return automatically generated
+     */
+    public float getVariationalRefinementDelta() {
+        return getVariationalRefinementDelta_0(nativeObj);
+    }
+
+    /**
+     * Weight of the gradient constancy term
+     * SEE: setVariationalRefinementGamma
+     *
+     * @return automatically generated
+     */
+    public float getVariationalRefinementGamma() {
+        return getVariationalRefinementGamma_0(nativeObj);
+    }
+
+    /**
+     * Whether to use mean-normalization of patches when computing patch distance. It is turned on
+     * by default as it typically provides a noticeable quality boost because of increased robustness to
+     * illumination variations. Turn it off if you are certain that your sequence doesn't contain any changes
+     * in illumination.
+     * SEE: setUseMeanNormalization
+     *
+     * @return automatically generated
+     */
+    public boolean getUseMeanNormalization() {
+        return getUseMeanNormalization_0(nativeObj);
+    }
+
+    /**
+     * getUseMeanNormalization SEE: getUseMeanNormalization
+     *
+     * @param val automatically generated
+     */
+    public void setUseMeanNormalization(boolean val) {
+        setUseMeanNormalization_0(nativeObj, val);
+    }
+
+    /**
+     * Whether to use spatial propagation of good optical flow vectors. This option is turned on by
+     * default, as it tends to work better on average and can sometimes help recover from major errors
+     * introduced by the coarse-to-fine scheme employed by the DIS optical flow algorithm. Turning this
+     * option off can make the output flow field a bit smoother, however.
+     * SEE: setUseSpatialPropagation
+     *
+     * @return automatically generated
+     */
+    public boolean getUseSpatialPropagation() {
+        return getUseSpatialPropagation_0(nativeObj);
+    }
+
+    /**
+     * getUseSpatialPropagation SEE: getUseSpatialPropagation
+     *
+     * @param val automatically generated
+     */
+    public void setUseSpatialPropagation(boolean val) {
+        setUseSpatialPropagation_0(nativeObj, val);
+    }
 
     // native support for java finalize()
     private static native void delete(long nativeObj);

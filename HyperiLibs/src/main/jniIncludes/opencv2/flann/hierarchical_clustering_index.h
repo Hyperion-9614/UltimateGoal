@@ -383,7 +383,7 @@ namespace cvflann {
             } else if (centers_init_ == FLANN_CENTERS_GROUPWISE) {
                 chooseCenters = &HierarchicalClusteringIndex::GroupWiseCenterChooser;
             } else {
-                throw FLANNException("Unknown algorithm for choosing initial centers.");
+                FLANN_THROW(cv::Error::StsError, "Unknown algorithm for choosing initial centers.");
             }
 
             root = new NodePtr[trees_];
@@ -455,7 +455,7 @@ namespace cvflann {
         CV_OVERRIDE
         {
             if (branching_ < 2) {
-                throw FLANNException("Branching factor must be at least 2");
+                FLANN_THROW(cv::Error::StsError, "Branching factor must be at least 2");
             }
 
             free_indices();
@@ -686,7 +686,7 @@ namespace cvflann {
          *     indices = indices of the points belonging to the current node
          *     branching = the branching factor to use in the clustering
          *
-         * NEED TO FIX: for 1-sized clusters don't store a cluster center (it's the same as the single cluster point)
+         * TODO: for 1-sized clusters don't store a cluster center (it's the same as the single cluster point)
          */
         void computeClustering(NodePtr node, int *dsindices, int indices_length, int branching,
                                int level) {

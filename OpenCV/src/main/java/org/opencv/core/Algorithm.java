@@ -29,33 +29,6 @@ public class Algorithm {
     public static Algorithm __fromPtr__(long addr) { return new Algorithm(addr); }
 
     //
-    // C++:  String cv::Algorithm::getDefaultName()
-    //
-
-    /**
-     * Returns the algorithm string identifier.
-     * This string is used as top level xml/yml node tag when the object is saved to a file or string.
-     * @return automatically generated
-     */
-    public String getDefaultName() {
-        return getDefaultName_0(nativeObj);
-    }
-
-
-    //
-    // C++:  bool cv::Algorithm::empty()
-    //
-
-    /**
-     * Returns true if the Algorithm is empty (e.g. in the very beginning or after unsuccessful read
-     * @return automatically generated
-     */
-    public boolean empty() {
-        return empty_0(nativeObj);
-    }
-
-
-    //
     // C++:  void cv::Algorithm::clear()
     //
 
@@ -68,10 +41,25 @@ public class Algorithm {
 
 
     //
+    // C++:  void cv::Algorithm::write(Ptr_FileStorage fs, String name = String())
+    //
+
+    // Unknown type 'Ptr_FileStorage' (I), skipping the function
+
+
+    //
     // C++:  void cv::Algorithm::read(FileNode fn)
     //
 
     // Unknown type 'FileNode' (I), skipping the function
+
+
+    //
+    // C++:  bool cv::Algorithm::empty()
+    //
+
+    // C++:  bool cv::Algorithm::empty()
+    private static native boolean empty_0(long nativeObj);
 
 
     //
@@ -81,6 +69,7 @@ public class Algorithm {
     /**
      * Saves the algorithm to a file.
      * In order to make this method work, the derived class must implement Algorithm::write(FileStorage&amp; fs).
+     *
      * @param filename automatically generated
      */
     public void save(String filename) {
@@ -89,10 +78,11 @@ public class Algorithm {
 
 
     //
-    // C++:  void cv::Algorithm::write(Ptr_FileStorage fs, String name = String())
+    // C++:  String cv::Algorithm::getDefaultName()
     //
 
-    // Unknown type 'Ptr_FileStorage' (I), skipping the function
+    // C++:  String cv::Algorithm::getDefaultName()
+    private static native String getDefaultName_0(long nativeObj);
 
 
     @Override
@@ -101,18 +91,30 @@ public class Algorithm {
     }
 
 
-
-    // C++:  String cv::Algorithm::getDefaultName()
-    private static native String getDefaultName_0(long nativeObj);
-
-    // C++:  bool cv::Algorithm::empty()
-    private static native boolean empty_0(long nativeObj);
-
     // C++:  void cv::Algorithm::clear()
     private static native void clear_0(long nativeObj);
 
+    /**
+     * Returns true if the Algorithm is empty (e.g. in the very beginning or after unsuccessful read
+     *
+     * @return automatically generated
+     */
+    public boolean empty() {
+        return empty_0(nativeObj);
+    }
+
     // C++:  void cv::Algorithm::save(String filename)
     private static native void save_0(long nativeObj, String filename);
+
+    /**
+     * Returns the algorithm string identifier.
+     * This string is used as top level xml/yml node tag when the object is saved to a file or string.
+     *
+     * @return automatically generated
+     */
+    public String getDefaultName() {
+        return getDefaultName_0(nativeObj);
+    }
 
     // native support for java finalize()
     private static native void delete(long nativeObj);

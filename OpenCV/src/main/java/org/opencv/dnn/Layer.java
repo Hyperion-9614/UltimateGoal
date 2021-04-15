@@ -3,16 +3,18 @@
 //
 package org.opencv.dnn;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.opencv.core.Algorithm;
 import org.opencv.core.Mat;
 import org.opencv.utils.Converters;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // C++: class Layer
+
 /**
  * This interface class allows to build new Layers - are building blocks of networks.
- *
+ * <p>
  * Each class, derived from Layer, must implement allocate() methods to declare own outputs and forward() to compute outputs.
  * Also before using the new layer into networks you must register your layer by using one of REF: dnnLayerFactory "LayerFactory" macros.
  */
@@ -22,21 +24,6 @@ public class Layer extends Algorithm {
 
     // internal usage only
     public static Layer __fromPtr__(long addr) { return new Layer(addr); }
-
-    //
-    // C++:  int cv::dnn::Layer::outputNameToIndex(String outputName)
-    //
-
-    /**
-     * Returns index of output blob in output array.
-     * SEE: inputNameToIndex()
-     * @param outputName automatically generated
-     * @return automatically generated
-     */
-    public int outputNameToIndex(String outputName) {
-        return outputNameToIndex_0(nativeObj, outputName);
-    }
-
 
     //
     // C++:  void cv::dnn::Layer::finalize(vector_Mat inputs, vector_Mat& outputs)
@@ -81,6 +68,14 @@ public class Layer extends Algorithm {
         Converters.Mat_to_vector_Mat(internals_mat, internals);
         internals_mat.release();
     }
+
+
+    //
+    // C++:  int cv::dnn::Layer::outputNameToIndex(String outputName)
+    //
+
+    // C++:  int cv::dnn::Layer::outputNameToIndex(String outputName)
+    private static native int outputNameToIndex_0(long nativeObj, String outputName);
 
 
     //
@@ -138,15 +133,22 @@ public class Layer extends Algorithm {
     }
 
 
-
-    // C++:  int cv::dnn::Layer::outputNameToIndex(String outputName)
-    private static native int outputNameToIndex_0(long nativeObj, String outputName);
-
     // C++:  void cv::dnn::Layer::finalize(vector_Mat inputs, vector_Mat& outputs)
     private static native void finalize_0(long nativeObj, long inputs_mat_nativeObj, long outputs_mat_nativeObj);
 
     // C++:  void cv::dnn::Layer::run(vector_Mat inputs, vector_Mat& outputs, vector_Mat& internals)
     private static native void run_0(long nativeObj, long inputs_mat_nativeObj, long outputs_mat_nativeObj, long internals_mat_nativeObj);
+
+    /**
+     * Returns index of output blob in output array.
+     * SEE: inputNameToIndex()
+     *
+     * @param outputName automatically generated
+     * @return automatically generated
+     */
+    public int outputNameToIndex(String outputName) {
+        return outputNameToIndex_0(nativeObj, outputName);
+    }
 
     // C++: vector_Mat Layer::blobs
     private static native long get_blobs_0(long nativeObj);

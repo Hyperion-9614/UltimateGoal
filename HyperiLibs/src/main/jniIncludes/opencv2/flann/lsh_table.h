@@ -41,7 +41,7 @@
 #include <iostream>
 #include <iomanip>
 #include <limits.h>
-// NEED TO FIX as soon as we use C++0x, use the code in USE_UNORDERED_MAP
+// TODO as soon as we use C++0x, use the code in USE_UNORDERED_MAP
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
 #  define USE_UNORDERED_MAP 1
 #else
@@ -50,11 +50,8 @@
 #if USE_UNORDERED_MAP
 #include <unordered_map>
 #else
-
 #include <map>
-
 #endif
-
 #include <math.h>
 #include <stddef.h>
 
@@ -481,7 +478,7 @@ namespace cvflann {
             stats.bucket_size_min_ = stats.bucket_sizes_.front();
             stats.bucket_size_max_ = stats.bucket_sizes_.back();
 
-            // NEED TO FIX compute mean and std
+            // TODO compute mean and std
             /*float mean, stddev;
                stats.bucket_size_mean_ = mean;
                stats.bucket_size_std_dev = stddev;*/

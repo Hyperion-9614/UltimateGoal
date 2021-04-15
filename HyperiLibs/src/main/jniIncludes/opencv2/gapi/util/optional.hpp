@@ -20,7 +20,7 @@ namespace cv {
             }
         };
 
-        // NEED TO FIX: nullopt_t
+        // TODO: nullopt_t
 
         // Interface ///////////////////////////////////////////////////////////////
         template<typename T>
@@ -33,22 +33,22 @@ namespace cv {
 
             optional(const optional &) = default;
 
-            explicit optional(T &&value) noexcept;
+            explicit optional(T &&) noexcept;
 
-            explicit optional(const T &value) noexcept;
+            explicit optional(const T &) noexcept;
 
             optional(optional &&) noexcept;
-            // NEED TO FIX: optional(nullopt_t) noexcept;
-            // NEED TO FIX: optional(const optional<U> &)
-            // NEED TO FIX: optional(optional<U> &&)
-            // NEED TO FIX: optional(Args&&...)
-            // NEED TO FIX: optional(initializer_list<U>)
-            // NEED TO FIX: optional(U&& value);
+            // TODO: optional(nullopt_t) noexcept;
+            // TODO: optional(const optional<U> &)
+            // TODO: optional(optional<U> &&)
+            // TODO: optional(Args&&...)
+            // TODO: optional(initializer_list<U>)
+            // TODO: optional(U&& value);
 
             // Assignment
-            optional &operator=(const optional &rhs) = default;
+            optional &operator=(const optional &) = default;
 
-            optional &operator=(optional &&rhs);
+            optional &operator=(optional &&);
 
             // Observers
             T *operator->();
@@ -58,7 +58,7 @@ namespace cv {
             T &operator*();
 
             const T &operator*() const;
-            // NEED TO FIX: && versions
+            // TODO: && versions
 
             operator bool() const noexcept;
 
@@ -67,7 +67,7 @@ namespace cv {
             T &value();
 
             const T &value() const;
-            // NEED TO FIX: && versions
+            // TODO: && versions
 
             template<class U>
             T value_or(U &&default_value) const;
@@ -75,9 +75,9 @@ namespace cv {
             void swap(optional &other) noexcept;
 
             void reset() noexcept;
-            // NEED TO FIX: emplace
+            // TODO: emplace
 
-            // NEED TO FIX: operator==, !=, <, <=, >, >=
+            // TODO: operator==, !=, <, <=, >, >=
 
         private:
             struct nothing {
@@ -88,12 +88,12 @@ namespace cv {
         template<class T>
         optional<typename std::decay<T>::type> make_optional(T &&value);
 
-        // NEED TO FIX: Args... and initializer_list versions
+        // TODO: Args... and initializer_list versions
 
         // Implementation //////////////////////////////////////////////////////////
         template<class T>
         optional<T>::optional(T &&v) noexcept
-                : m_holder(v) {
+                : m_holder(std::move(v)) {
         }
 
         template<class T>

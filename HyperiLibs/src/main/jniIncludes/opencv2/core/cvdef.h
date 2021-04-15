@@ -45,6 +45,8 @@
 #ifndef OPENCV_CORE_CVDEF_H
 #define OPENCV_CORE_CVDEF_H
 
+#include "opencv2/core/version.hpp"
+
 //! @addtogroup core_utils
 //! @{
 
@@ -90,7 +92,7 @@ namespace cv { namespace debug_build_guard { } using namespace debug_build_guard
 // keep current value (through OpenCV port file)
 #elif defined __GNUC__ || (defined (__cpluscplus) && (__cpluscplus >= 201103))
 #define CV_Func __func__
-#elif defined __clang__ && (__clang_minor__ * 100 + __clang_major >= 305)
+#elif defined __clang__ && (__clang_minor__ * 100 + __clang_major__ >= 305)
 #define CV_Func __func__
 #elif defined(__STDC_VERSION__) && (__STDC_VERSION >= 199901)
 #define CV_Func __func__
@@ -180,9 +182,7 @@ namespace cv {
 #undef Complex
 
 #if defined __cplusplus
-
 #include <limits>
-
 #else
 #include <limits.h>
 #endif
@@ -387,7 +387,9 @@ typedef union Cv64suf {
 }
         Cv64suf;
 
+#ifndef OPENCV_ABI_COMPATIBILITY
 #define OPENCV_ABI_COMPATIBILITY 400
+#endif
 
 #ifdef __OPENCV_BUILD
 #  define DISABLE_OPENCV_3_COMPATIBILITY
@@ -656,7 +658,7 @@ __CV_ENUM_FLAGS_BITWISE_XOR_EQ   (EnumType, EnumType)                           
 #ifdef CV_XADD
 // allow to use user-defined macro
 #elif defined __GNUC__ || defined __clang__
-#  if defined __clang__ && __clang_major__ >= 3 && !defined __ANDROID__ && !defined __EMSCRIPTEN__ && !defined(__CUDACC__) && !defined __INTEL_COMPILER
+#  if defined __clang__ && __clang_major__ >= 3 && !defined __ANDROID__ && !defined __EMSCRIPTEN__ && !defined(__CUDACC__)  && !defined __INTEL_COMPILER
 #    ifdef __ATOMIC_ACQ_REL
 #      define CV_XADD(addr, delta) __c11_atomic_fetch_add((_Atomic(int)*)(addr), delta, __ATOMIC_ACQ_REL)
 #    else
@@ -734,9 +736,7 @@ CV_INLINE CV_XADD(int* addr, int delta) { int tmp = *addr; *addr += delta; retur
 #define CV_CXX_MOVE_SEMANTICS 1
 #define CV_CXX_MOVE(x) std::move(x)
 #define CV_CXX_STD_ARRAY 1
-
 #include <array>
-
 #ifndef CV_OVERRIDE
 #  define CV_OVERRIDE override
 #endif
@@ -778,18 +778,16 @@ typedef signed __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 }
 #elif defined(_MSC_VER) || __cplusplus >= 201103L
-
 #include <cstdint>
-
 namespace cv {
-    using std::int8_t;
-    using std::uint8_t;
-    using std::int16_t;
-    using std::uint16_t;
-    using std::int32_t;
-    using std::uint32_t;
-    using std::int64_t;
-    using std::uint64_t;
+using std::int8_t;
+using std::uint8_t;
+using std::int16_t;
+using std::uint16_t;
+using std::int32_t;
+using std::uint32_t;
+using std::int64_t;
+using std::uint64_t;
 }
 #else
 #include <stdint.h>
@@ -809,112 +807,111 @@ typedef ::uint64_t uint64_t;
 #endif
 
 #ifdef __cplusplus
-namespace cv {
+namespace cv
+{
 
-    class float16_t {
-    public:
+class float16_t
+{
+public:
 #if CV_FP16_TYPE
 
-        float16_t() : h(0) {}
-
-        explicit float16_t(float x) { h = (__fp16) x; }
-
-        operator float() const { return (float) h; }
-
-        static float16_t fromBits(ushort w) {
-            Cv16suf u;
-            u.u = w;
-            float16_t result;
-            result.h = u.h;
-            return result;
-        }
-
-        static float16_t zero() {
-            float16_t result;
-            result.h = (__fp16) 0;
-            return result;
-        }
-
-        ushort bits() const {
-            Cv16suf u;
-            u.h = h;
-            return u.u;
-        }
-
-    protected:
-        __fp16 h;
+    float16_t() : h(0) {}
+    explicit float16_t(float x) { h = (__fp16)x; }
+    operator float() const { return (float)h; }
+    static float16_t fromBits(ushort w)
+    {
+        Cv16suf u;
+        u.u = w;
+        float16_t result;
+        result.h = u.h;
+        return result;
+    }
+    static float16_t zero()
+    {
+        float16_t result;
+        result.h = (__fp16)0;
+        return result;
+    }
+    ushort bits() const
+    {
+        Cv16suf u;
+        u.h = h;
+        return u.u;
+    }
+protected:
+    __fp16 h;
 
 #else
-        float16_t() : w(0) {}
-        explicit float16_t(float x)
+    float16_t() : w(0) {}
+    explicit float16_t(float x)
+    {
+#if CV_FP16
+        __m128 v = _mm_load_ss(&x);
+        w = (ushort)_mm_cvtsi128_si32(_mm_cvtps_ph(v, 0));
+#else
+        Cv32suf in;
+        in.f = x;
+        unsigned sign = in.u & 0x80000000;
+        in.u ^= sign;
+
+        if( in.u >= 0x47800000 )
+            w = (ushort)(in.u > 0x7f800000 ? 0x7e00 : 0x7c00);
+        else
         {
-#if CV_AVX2
-            __m128 v = _mm_load_ss(&x);
-            w = (ushort)_mm_cvtsi128_si32(_mm_cvtps_ph(v, 0));
-#else
-            Cv32suf in;
-            in.f = x;
-            unsigned sign = in.u & 0x80000000;
-            in.u ^= sign;
-
-            if( in.u >= 0x47800000 )
-                w = (ushort)(in.u > 0x7f800000 ? 0x7e00 : 0x7c00);
+            if (in.u < 0x38800000)
+            {
+                in.f += 0.5f;
+                w = (ushort)(in.u - 0x3f000000);
+            }
             else
             {
-                if (in.u < 0x38800000)
-                {
-                    in.f += 0.5f;
-                    w = (ushort)(in.u - 0x3f000000);
-                }
-                else
-                {
-                    unsigned t = in.u + 0xc8000fff;
-                    w = (ushort)((t + ((in.u >> 13) & 1)) >> 13);
-                }
+                unsigned t = in.u + 0xc8000fff;
+                w = (ushort)((t + ((in.u >> 13) & 1)) >> 13);
             }
-
-            w = (ushort)(w | (sign >> 16));
-#endif
         }
 
-        operator float() const
-        {
-#if CV_AVX2
-            float f;
-            _mm_store_ss(&f, _mm_cvtph_ps(_mm_cvtsi32_si128(w)));
-            return f;
+        w = (ushort)(w | (sign >> 16));
+#endif
+    }
+
+    operator float() const
+    {
+#if CV_FP16
+        float f;
+        _mm_store_ss(&f, _mm_cvtph_ps(_mm_cvtsi32_si128(w)));
+        return f;
 #else
-            Cv32suf out;
+        Cv32suf out;
 
-            unsigned t = ((w & 0x7fff) << 13) + 0x38000000;
-            unsigned sign = (w & 0x8000) << 16;
-            unsigned e = w & 0x7c00;
+        unsigned t = ((w & 0x7fff) << 13) + 0x38000000;
+        unsigned sign = (w & 0x8000) << 16;
+        unsigned e = w & 0x7c00;
 
-            out.u = t + (1 << 23);
-            out.u = (e >= 0x7c00 ? t + 0x38000000 :
-                     e == 0 ? (static_cast<void>(out.f -= 6.103515625e-05f), out.u) : t) | sign;
-            return out.f;
+        out.u = t + (1 << 23);
+        out.u = (e >= 0x7c00 ? t + 0x38000000 :
+                 e == 0 ? (static_cast<void>(out.f -= 6.103515625e-05f), out.u) : t) | sign;
+        return out.f;
 #endif
-        }
+    }
 
-        static float16_t fromBits(ushort b)
-        {
-            float16_t result;
-            result.w = b;
-            return result;
-        }
-        static float16_t zero()
-        {
-            float16_t result;
-            result.w = (ushort)0;
-            return result;
-        }
-        ushort bits() const { return w; }
-    protected:
-        ushort w;
+    static float16_t fromBits(ushort b)
+    {
+        float16_t result;
+        result.w = b;
+        return result;
+    }
+    static float16_t zero()
+    {
+        float16_t result;
+        result.w = (ushort)0;
+        return result;
+    }
+    ushort bits() const { return w; }
+protected:
+    ushort w;
 
 #endif
-    };
+};
 
 }
 #endif

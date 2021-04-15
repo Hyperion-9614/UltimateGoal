@@ -22,7 +22,7 @@
 
 namespace cv {
     namespace detail {
-        // NEED TO FIX: These traits and enum and possible numerous switch(kind)
+        // FIXME: These traits and enum and possible numerous switch(kind)
         // block may be replaced with a special Handler<T> object or with
         // a double dispatch
         enum class ArgKind : int {
@@ -128,8 +128,8 @@ namespace cv {
         };
 
         // Resolve a Host type back to its associated G-Type.
-        // NEED TO FIX: Probably it can be avoided
-        // NEED TO FIX: GMatP is not present here.
+        // FIXME: Probably it can be avoided
+        // FIXME: GMatP is not present here.
         // (Actually these traits is used only to check
         // if associated G-type has custom wrap functions
         // and GMat behavior is correct for GMatP)
@@ -165,8 +165,8 @@ namespace cv {
     struct GTypeOf<cv::MediaFrame> {
         using type = cv::GFrame;
     };
-    // NEED TO FIX: This is not quite correct since IStreamSource may produce not only Mat but also Scalar
-    // and vector data. NEED TO FIX: Extend the type dispatching on these types too.
+    // FIXME: This is not quite correct since IStreamSource may produce not only Mat but also Scalar
+    // and vector data. TODO: Extend the type dispatching on these types too.
     template<>
     struct GTypeOf<cv::gapi::wip::IStreamSource::Ptr> {
         using type = cv::GMat;
@@ -236,6 +236,31 @@ namespace cv {
 
     template<typename T> using wrap_gapi_helper = WrapValue<typename std::decay<T>::type>;
     template<typename T> using wrap_host_helper = WrapValue<typename std::decay<g_type_of_t<T> >::type>;
+
+// Union type for various user-defined type constructors (GArray<T>,
+// GOpaque<T>, etc)
+//
+// TODO: Replace construct-only API with a more generic one (probably
+//    with bits of introspection)
+//
+// Not required for non-user-defined types (GMat, GScalar, etc)
+    using HostCtor = util::variant
+            <util::monostate, detail::ConstructVec, detail::ConstructOpaque
+            >;
+
+    template<typename T>
+    struct GObtainCtor {
+        static HostCtor get() { return HostCtor{}; }
+    };
+
+    template<typename T>
+    struct GObtainCtor<GArray < T> > {
+    static HostCtor get() { return HostCtor{ConstructVec{&GArray<T>::VCtor}}; };
+};
+template<typename T>
+struct GObtainCtor<GOpaque < T> > {
+static HostCtor get() { return HostCtor{ConstructOpaque{&GOpaque<T>::Ctor}}; };
+};
 } // namespace detail
 } // namespace cv
 

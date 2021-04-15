@@ -25,6 +25,16 @@ namespace cv {
                 int y = 0;
             };
 
+            class Point2f {
+            public:
+                Point2f() = default;
+
+                Point2f(float _x, float _y) : x(_x), y(_y) {};
+
+                float x = 0.f;
+                float y = 0.f;
+            };
+
             class Rect {
             public:
                 Rect() = default;

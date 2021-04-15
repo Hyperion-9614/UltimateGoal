@@ -41,12 +41,11 @@
 
 #ifndef OPENCV_DNN_DNN_ALL_LAYERS_HPP
 #define OPENCV_DNN_DNN_ALL_LAYERS_HPP
-
 #include <opencv2/dnn.hpp>
 
 namespace cv {
-    namespace dnn {
-        CV__DNN_INLINE_NS_BEGIN
+namespace dnn {
+    CV__DNN_INLINE_NS_BEGIN
 //! @addtogroup dnn
 //! @{
 
@@ -72,12 +71,12 @@ namespace cv {
   - Dropout (since it does nothing on forward pass -))
 */
 
-        class CV_EXPORTS BlankLayer
-        : public Layer {
-        public:
+    class CV_EXPORTS BlankLayer
+    : public Layer {
+    public:
 
-        static Ptr <Layer> create(const LayerParams &params);
-    };
+    static Ptr <Layer> create(const LayerParams &params);
+};
 
     /**
      * Constant layer produces the same data blob at an every forward pass.
@@ -281,10 +280,6 @@ public:
 int type;
 std::vector <size_t> kernel_size, strides;
 std::vector <size_t> pads_begin, pads_end;
-CV_DEPRECATED_EXTERNAL Size
-kernel, stride,
-pad;
-CV_DEPRECATED_EXTERNAL int pad_l, pad_t, pad_r, pad_b;
 bool globalPooling; //!< Flag is true if at least one of the axes is global pooled.
 std::vector<bool> isGlobalPooling;
 bool computeMaxIdx;
@@ -427,6 +422,7 @@ public:
  * Inner vector has slice ranges for the first number of input dimensions.
  */
 std::vector <std::vector<Range>> sliceRanges;
+std::vector <std::vector<int>> sliceSteps;
 int axis;
 int num_split;
 
@@ -616,6 +612,17 @@ public:
 float power, scale, shift;
 
 static Ptr <PowerLayer> create(const LayerParams &params);
+
+};
+
+class CV_EXPORTS ExpLayer
+
+: public ActivationLayer
+{
+public:
+float base, scale, shift;
+
+static Ptr <ExpLayer> create(const LayerParams &params);
 
 };
 

@@ -17,7 +17,7 @@ public class MatOfRect2d extends Mat {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //NEED TO FIX: do we need release() here?
+        //FIXME: do we need release() here?
     }
 
     public static MatOfRect2d fromNativeAddr(long addr) {
@@ -28,7 +28,7 @@ public class MatOfRect2d extends Mat {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //NEED TO FIX: do we need release() here?
+        //FIXME: do we need release() here?
     }
 
     public MatOfRect2d(Rect2d...a) {
@@ -49,12 +49,12 @@ public class MatOfRect2d extends Mat {
         double[] buff = new double[num * _channels];
         for(int i=0; i<num; i++) {
             Rect2d r = a[i];
-            buff[_channels * i + 0] = r.x;
-            buff[_channels * i + 1] = r.y;
-            buff[_channels * i + 2] = r.width;
-            buff[_channels * i + 3] = r.height;
+            buff[_channels * i + 0] = (double) r.x;
+            buff[_channels * i + 1] = (double) r.y;
+            buff[_channels * i + 2] = (double) r.width;
+            buff[_channels * i + 3] = (double) r.height;
         }
-        put(0, 0, buff); //NEED TO DO: check ret val!
+        put(0, 0, buff); //TODO: check ret val!
     }
 
 
@@ -64,7 +64,7 @@ public class MatOfRect2d extends Mat {
         if (num == 0)
             return a;
         double[] buff = new double[num * _channels];
-        get(0, 0, buff); //NEED TO DO: check ret val!
+        get(0, 0, buff); //TODO: check ret val!
         for (int i = 0; i < num; i++)
             a[i] = new Rect2d(buff[i * _channels], buff[i * _channels + 1], buff[i * _channels + 2], buff[i * _channels + 3]);
         return a;

@@ -16,7 +16,7 @@ public class MatOfPoint extends Mat {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //NEED TO FIX: do we need release() here?
+        //FIXME: do we need release() here?
     }
 
     public static MatOfPoint fromNativeAddr(long addr) {
@@ -27,7 +27,7 @@ public class MatOfPoint extends Mat {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //NEED TO FIX: do we need release() here?
+        //FIXME: do we need release() here?
     }
 
     public MatOfPoint(Point...a) {
@@ -51,7 +51,7 @@ public class MatOfPoint extends Mat {
             buff[_channels*i+0] = (int) p.x;
             buff[_channels*i+1] = (int) p.y;
         }
-        put(0, 0, buff); //NEED TO DO: check ret val!
+        put(0, 0, buff); //TODO: check ret val!
     }
 
     public Point[] toArray() {
@@ -60,7 +60,7 @@ public class MatOfPoint extends Mat {
         if (num == 0)
             return ap;
         int[] buff = new int[num * _channels];
-        get(0, 0, buff); //NEED TO DO: check ret val!
+        get(0, 0, buff); //TODO: check ret val!
         for (int i = 0; i < num; i++)
             ap[i] = new Point(buff[i * _channels], buff[i * _channels + 1]);
         return ap;

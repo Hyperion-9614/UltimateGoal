@@ -46,13 +46,8 @@ import android.hardware.usb.UsbManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -61,6 +56,11 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.preference.PreferenceManager;
 
 import com.google.blocks.ftcrobotcontroller.ProgrammingWebHandlers;
 import com.google.blocks.ftcrobotcontroller.runtime.BlocksOpMode;
@@ -124,6 +124,7 @@ import org.firstinspires.ftc.robotserver.internal.programmingmode.ProgrammingMod
 import org.firstinspires.inspection.RcInspectionActivity;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -163,25 +164,34 @@ public class FtcRobotControllerActivity extends Activity
   protected LinearLayout entireScreenLayout;
 
   protected FtcRobotControllerService controllerService;
-  protected NetworkType networkType;
+    protected NetworkType networkType;
 
-  protected FtcEventLoop eventLoop;
-  protected Queue<UsbDevice> receivedUsbAttachmentNotifications;
+    protected FtcEventLoop eventLoop;
+    protected Queue<UsbDevice> receivedUsbAttachmentNotifications;
 
-  protected WifiMuteStateMachine wifiMuteStateMachine;
-  protected MotionDetection motionDetection;
+    protected WifiMuteStateMachine wifiMuteStateMachine;
+    protected MotionDetection motionDetection;
 
-  private static boolean permissionsValidated = false;
+    private static boolean permissionsValidated = false;
 
-  private WifiDirectChannelChanger wifiDirectChannelChanger;
+    @Override
+    protected void onNewIntent(Intent intent) {
+      super.onNewIntent(intent);
 
-  protected class RobotRestarter implements Restarter {
+      if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(intent.getAction())) {
+        UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+        assert usbDevice != null;
+        RobotLog.vv(TAG, "ACTION_USB_DEVICE_ATTACHED: %s", usbDevice.getDeviceName());
 
-    public void requestRestart() {
-      requestRobotRestart();
+        // paranoia
+        // We might get attachment notifications before the event loop is set up, so
+        // we hold on to them and pass them along only when we're good and ready.
+        if (receivedUsbAttachmentNotifications != null) { // *total* paranoia
+          receivedUsbAttachmentNotifications.add(usbDevice);
+          passReceivedUsbAttachmentsToEventLoop();
+        }
+      }
     }
-
-  }
 
   protected boolean serviceShouldUnbind = false;
   protected ServiceConnection connection = new ServiceConnection() {
@@ -198,24 +208,68 @@ public class FtcRobotControllerActivity extends Activity
     }
   };
 
-  @Override
-  protected void onNewIntent(Intent intent) {
-    super.onNewIntent(intent);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+      int id = item.getItemId();
 
-    if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(intent.getAction())) {
-      UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-      RobotLog.vv(TAG, "ACTION_USB_DEVICE_ATTACHED: %s", usbDevice.getDeviceName());
-
-      if (usbDevice != null) {  // paranoia
-        // We might get attachment notifications before the event loop is set up, so
-        // we hold on to them and pass them along only when we're good and ready.
-        if (receivedUsbAttachmentNotifications != null) { // *total* paranoia
-          receivedUsbAttachmentNotifications.add(usbDevice);
-          passReceivedUsbAttachmentsToEventLoop();
+      if (id == R.id.action_program_and_manage) {
+        if (isRobotRunning()) {
+          Intent programmingModeIntent = new Intent(AppUtil.getDefContext(), ProgramAndManageActivity.class);
+          RobotControllerWebInfo webInfo = Objects.requireNonNull(programmingModeManager.getWebServer()).getConnectionInformation();
+          programmingModeIntent.putExtra(LaunchActivityConstantsList.RC_WEB_INFO, webInfo.toJson());
+          startActivity(programmingModeIntent);
+        } else {
+          AppUtil.getInstance().showToast(UILocation.ONLY_LOCAL, context.getString(R.string.toastWifiUpBeforeProgrammingMode));
         }
+      } else if (id == R.id.action_inspection_mode) {
+        Intent inspectionModeIntent = new Intent(AppUtil.getDefContext(), RcInspectionActivity.class);
+        startActivity(inspectionModeIntent);
+        return true;
+      } else if (id == R.id.action_restart_robot) {
+        dimmer.handleDimTimer();
+        AppUtil.getInstance().showToast(UILocation.BOTH, context.getString(R.string.toastRestartingRobot));
+        requestRobotRestart();
+        return true;
+      } else if (id == R.id.action_configure_robot) {
+        @SuppressWarnings("rawtypes") EditParameters parameters = new EditParameters();
+        Intent intentConfigure = new Intent(AppUtil.getDefContext(), FtcLoadFileActivity.class);
+        parameters.putIntent(intentConfigure);
+        startActivityForResult(intentConfigure, RequestCode.CONFIGURE_ROBOT_CONTROLLER.ordinal());
+      } else if (id == R.id.action_settings) {
+        // historical: this once erroneously used FTC_CONFIGURE_REQUEST_CODE_ROBOT_CONTROLLER
+        Intent settingsIntent = new Intent(AppUtil.getDefContext(), FtcRobotControllerSettingsActivity.class);
+        startActivityForResult(settingsIntent, RequestCode.SETTINGS_ROBOT_CONTROLLER.ordinal());
+        return true;
+      } else if (id == R.id.action_about) {
+        Intent intent = new Intent(AppUtil.getDefContext(), FtcAboutActivity.class);
+        startActivity(intent);
+        return true;
+      } else if (id == R.id.action_exit_app) {
+
+        //Clear backstack and everything to prevent edge case where VM might be
+        //restarted (after it was exited) if more than one activity was on the
+        //backstack for some reason.
+        finishAffinity();
+
+        //For lollipop and up, we can clear ourselves from the recents list too
+        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.AppTask> tasks = manager.getAppTasks();
+
+        for (ActivityManager.AppTask task : tasks) {
+          task.finishAndRemoveTask();
+        }
+
+        // Allow the user to use the Control Hub operating system's UI, instead of relaunching the app
+        AppAliveNotifier.getInstance().disableAppWatchdogUntilNextAppStart();
+
+        //Finally, nuke the VM from orbit
+        AppUtil.getInstance().exitApplication();
+
+        return true;
       }
+
+      return super.onOptionsItemSelected(item);
     }
-  }
 
   protected void passReceivedUsbAttachmentsToEventLoop() {
     if (this.eventLoop != null) {
@@ -525,72 +579,23 @@ public class FtcRobotControllerActivity extends Activity
     return robotState == RobotState.RUNNING;
   }
 
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    int id = item.getItemId();
+    private void checkPreferredChannel() {
+      // For P2P network, check to see what preferred channel is.
+      if (networkType == NetworkType.WIFIDIRECT) {
+        int prefChannel = preferencesHelper.readInt(getString(com.qualcomm.ftccommon.R.string.pref_wifip2p_channel), -1);
+        if (prefChannel == -1) {
+          prefChannel = 0;
+          RobotLog.vv(TAG, "pref_wifip2p_channel: No preferred channel defined. Will use a default value of %d", prefChannel);
+        } else {
+          RobotLog.vv(TAG, "pref_wifip2p_channel: Found existing preferred channel (%d).", prefChannel);
+        }
 
-    if (id == R.id.action_program_and_manage) {
-      if (isRobotRunning()) {
-        Intent programmingModeIntent = new Intent(AppUtil.getDefContext(), ProgramAndManageActivity.class);
-        RobotControllerWebInfo webInfo = programmingModeManager.getWebServer().getConnectionInformation();
-        programmingModeIntent.putExtra(LaunchActivityConstantsList.RC_WEB_INFO, webInfo.toJson());
-        startActivity(programmingModeIntent);
-      } else {
-        AppUtil.getInstance().showToast(UILocation.ONLY_LOCAL, context.getString(R.string.toastWifiUpBeforeProgrammingMode));
+        // attempt to set the preferred channel.
+        RobotLog.vv(TAG, "pref_wifip2p_channel: attempting to set preferred channel...");
+        WifiDirectChannelChanger wifiDirectChannelChanger = new WifiDirectChannelChanger();
+        wifiDirectChannelChanger.changeToChannel(prefChannel);
       }
-    } else if (id == R.id.action_inspection_mode) {
-      Intent inspectionModeIntent = new Intent(AppUtil.getDefContext(), RcInspectionActivity.class);
-      startActivity(inspectionModeIntent);
-      return true;
-    } else if (id == R.id.action_restart_robot) {
-      dimmer.handleDimTimer();
-      AppUtil.getInstance().showToast(UILocation.BOTH, context.getString(R.string.toastRestartingRobot));
-      requestRobotRestart();
-      return true;
     }
-    else if (id == R.id.action_configure_robot) {
-      EditParameters parameters = new EditParameters();
-      Intent intentConfigure = new Intent(AppUtil.getDefContext(), FtcLoadFileActivity.class);
-      parameters.putIntent(intentConfigure);
-      startActivityForResult(intentConfigure, RequestCode.CONFIGURE_ROBOT_CONTROLLER.ordinal());
-    }
-    else if (id == R.id.action_settings) {
-	  // historical: this once erroneously used FTC_CONFIGURE_REQUEST_CODE_ROBOT_CONTROLLER
-      Intent settingsIntent = new Intent(AppUtil.getDefContext(), FtcRobotControllerSettingsActivity.class);
-      startActivityForResult(settingsIntent, RequestCode.SETTINGS_ROBOT_CONTROLLER.ordinal());
-      return true;
-    }
-    else if (id == R.id.action_about) {
-      Intent intent = new Intent(AppUtil.getDefContext(), FtcAboutActivity.class);
-      startActivity(intent);
-      return true;
-    }
-    else if (id == R.id.action_exit_app) {
-
-      //Clear backstack and everything to prevent edge case where VM might be
-      //restarted (after it was exited) if more than one activity was on the
-      //backstack for some reason.
-      finishAffinity();
-
-      //For lollipop and up, we can clear ourselves from the recents list too
-      ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-      List<ActivityManager.AppTask> tasks = manager.getAppTasks();
-
-      for (ActivityManager.AppTask task : tasks) {
-        task.finishAndRemoveTask();
-      }
-
-      // Allow the user to use the Control Hub operating system's UI, instead of relaunching the app
-      AppAliveNotifier.getInstance().disableAppWatchdogUntilNextAppStart();
-
-      //Finally, nuke the VM from orbit
-      AppUtil.getInstance().exitApplication();
-
-      return true;
-    }
-
-   return super.onOptionsItemSelected(item);
-  }
 
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
@@ -715,23 +720,13 @@ public class FtcRobotControllerActivity extends Activity
     AppUtil.getInstance().showToast(UILocation.BOTH, AppUtil.getDefContext().getString(resid));
   }
 
-  private void checkPreferredChannel() {
-    // For P2P network, check to see what preferred channel is.
-    if (networkType ==  NetworkType.WIFIDIRECT) {
-      int prefChannel = preferencesHelper.readInt(getString(com.qualcomm.ftccommon.R.string.pref_wifip2p_channel), -1);
-      if (prefChannel == -1) {
-        prefChannel = 0;
-        RobotLog.vv(TAG, "pref_wifip2p_channel: No preferred channel defined. Will use a default value of %d", prefChannel);
-      } else {
-        RobotLog.vv(TAG, "pref_wifip2p_channel: Found existing preferred channel (%d).", prefChannel);
+    protected class RobotRestarter implements Restarter {
+
+      public void requestRestart() {
+        requestRobotRestart();
       }
 
-      // attempt to set the preferred channel.
-      RobotLog.vv(TAG, "pref_wifip2p_channel: attempting to set preferred channel...");
-      wifiDirectChannelChanger = new WifiDirectChannelChanger();
-      wifiDirectChannelChanger.changeToChannel(prefChannel);
     }
-  }
 
   protected void hittingMenuButtonBrightensScreen() {
     ActionBar actionBar = getActionBar();

@@ -18,57 +18,57 @@
 
 namespace cv {
 
-    namespace detail {
-        // NEED TO FIX: How to prevent coolhackers from extending it by their own types?
-        // NEED TO FIX: ...Should we care?
-        template<typename T>
-        struct ProtoToParam;
-        template<>
-        struct ProtoToParam<cv::GMat> {
-            using type = cv::Mat;
-        };
-        template<>
-        struct ProtoToParam<cv::GScalar> {
-            using type = cv::Scalar;
-        };
-        template<typename U>
-        struct ProtoToParam<cv::GArray<U> > {
-            using type = std::vector<U>;
-        };
-        template<>
-        struct ProtoToParam<cv::GArray<cv::GMat>> {
-            using type = std::vector<cv::Mat>;
-        };
-        template<typename U>
-        struct ProtoToParam<cv::GOpaque<U> > {
-            using type = U;
-        };
-        template<typename T> using ProtoToParamT = typename ProtoToParam<T>::type;
+namespace detail {
+    // FIXME: How to prevent coolhackers from extending it by their own types?
+    // FIXME: ...Should we care?
+    template<typename T>
+    struct ProtoToParam;
+    template<>
+    struct ProtoToParam<cv::GMat> {
+        using type = cv::Mat;
+    };
+    template<>
+    struct ProtoToParam<cv::GScalar> {
+        using type = cv::Scalar;
+    };
+    template<typename U>
+    struct ProtoToParam<cv::GArray<U> > {
+        using type = std::vector<U>;
+    };
+    template<>
+    struct ProtoToParam<cv::GArray<cv::GMat>> {
+        using type = std::vector<cv::Mat>;
+    };
+    template<typename U>
+    struct ProtoToParam<cv::GOpaque<U> > {
+        using type = U;
+    };
+    template<typename T> using ProtoToParamT = typename ProtoToParam<T>::type;
 
-        template<typename T>
-        struct ProtoToMeta;
-        template<>
-        struct ProtoToMeta<cv::GMat> {
-            using type = cv::GMatDesc;
-        };
-        template<>
-        struct ProtoToMeta<cv::GScalar> {
-            using type = cv::GScalarDesc;
-        };
-        template<typename U>
-        struct ProtoToMeta<cv::GArray<U> > {
-            using type = cv::GArrayDesc;
-        };
-        template<typename U>
-        struct ProtoToMeta<cv::GOpaque<U> > {
-            using type = cv::GOpaqueDesc;
-        };
-        template<typename T> using ProtoToMetaT = typename ProtoToMeta<T>::type;
+    template<typename T>
+    struct ProtoToMeta;
+    template<>
+    struct ProtoToMeta<cv::GMat> {
+        using type = cv::GMatDesc;
+    };
+    template<>
+    struct ProtoToMeta<cv::GScalar> {
+        using type = cv::GScalarDesc;
+    };
+    template<typename U>
+    struct ProtoToMeta<cv::GArray<U> > {
+        using type = cv::GArrayDesc;
+    };
+    template<typename U>
+    struct ProtoToMeta<cv::GOpaque<U> > {
+        using type = cv::GOpaqueDesc;
+    };
+    template<typename T> using ProtoToMetaT = typename ProtoToMeta<T>::type;
 
-        //workaround for MSVC 19.0 bug
-        template<typename T>
-        auto make_default() -> decltype(T{}) { return {}; }
-    }; // detail
+    //workaround for MSVC 19.0 bug
+    template<typename T>
+    auto make_default() -> decltype(T{}) { return {}; }
+}; // detail
 
 /**
  * @brief This class is a typed wrapper over a regular GComputation.
@@ -180,7 +180,7 @@ namespace cv {
         }
     };
 
-// Multiple (fixed) return value implementation. NEED TO FIX: How to avoid copy-paste?
+// Multiple (fixed) return value implementation. FIXME: How to avoid copy-paste?
     template<typename... R, typename... Args>
     class GComputationT<std::tuple<R...>(Args...)> {
     public:

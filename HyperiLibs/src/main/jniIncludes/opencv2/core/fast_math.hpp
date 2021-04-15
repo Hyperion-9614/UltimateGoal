@@ -55,14 +55,14 @@
 \****************************************************************************************/
 
 #ifdef __cplusplus
-
 #  include <cmath>
-
 #else
 #  ifdef __BORLANDC__
 #    include <fastmath.h>
 #  else
+
 #    include <math.h>
+
 #  endif
 #endif
 
@@ -78,6 +78,9 @@
 #if defined __PPC64__ && defined __GNUC__ && defined _ARCH_PWR8 \
       && !defined(OPENCV_SKIP_INCLUDE_ALTIVEC_H)
 #include <altivec.h>
+#undef vector
+#undef bool
+#undef pixel
 #endif
 
 #if defined(CV_INLINE_ROUND_FLT)
@@ -213,7 +216,7 @@ cvRound(double value) {
     }
     return t;
 #elif defined CV_ICC || defined __GNUC__
-    return (int) (lrint(value));
+    return (int)(lrint(value));
 #else
     /* it's ok if round does not comply with IEEE754 standard;
        the tests should allow +/-1 difference when the tested functions use round */
@@ -290,7 +293,7 @@ CV_INLINE int cvIsInf(double value) {
     Cv64suf ieee754;
     ieee754.f = value;
     return (ieee754.u & 0x7fffffff00000000) ==
-           0x7ff0000000000000;
+                        0x7ff0000000000000;
 #else
     Cv64suf ieee754;
     ieee754.f = value;
@@ -302,12 +305,13 @@ CV_INLINE int cvIsInf(double value) {
 #ifdef __cplusplus
 
 /** @overload */
-CV_INLINE int cvRound(float value) {
+CV_INLINE int cvRound(float value)
+{
 #if defined CV_INLINE_ROUND_FLT
     CV_INLINE_ROUND_FLT(value);
 #elif ((defined _MSC_VER && defined _M_X64) || (defined __GNUC__ && defined __x86_64__ \
     && defined __SSE2__ && !defined __APPLE__) || CV_SSE2) \
- && !defined(__CUDACC__)
+    && !defined(__CUDACC__)
     __m128 t = _mm_set_ss( value );
     return _mm_cvtss_si32(t);
 #elif defined _MSC_VER && defined _M_IX86
@@ -319,7 +323,7 @@ CV_INLINE int cvRound(float value) {
     }
     return t;
 #elif defined CV_ICC || defined __GNUC__
-    return (int) (lrintf(value));
+    return (int)(lrintf(value));
 #else
     /* it's ok if round does not comply with IEEE754 standard;
      the tests should allow +/-1 difference when the tested functions use round */
@@ -328,48 +332,54 @@ CV_INLINE int cvRound(float value) {
 }
 
 /** @overload */
-CV_INLINE int cvRound(int value) {
+CV_INLINE int cvRound( int value )
+{
     return value;
 }
 
 /** @overload */
-CV_INLINE int cvFloor(float value) {
+CV_INLINE int cvFloor( float value )
+{
 #if (defined CV__FASTMATH_ENABLE_GCC_MATH_BUILTINS || defined CV__FASTMATH_ENABLE_CLANG_MATH_BUILTINS) \
- && (\
+    && ( \
         defined(__PPC64__) \
-)
+    )
     return __builtin_floorf(value);
 #else
-    int i = (int) value;
+    int i = (int)value;
     return i - (i > value);
 #endif
 }
 
 /** @overload */
-CV_INLINE int cvFloor(int value) {
+CV_INLINE int cvFloor( int value )
+{
     return value;
 }
 
 /** @overload */
-CV_INLINE int cvCeil(float value) {
+CV_INLINE int cvCeil( float value )
+{
 #if (defined CV__FASTMATH_ENABLE_GCC_MATH_BUILTINS || defined CV__FASTMATH_ENABLE_CLANG_MATH_BUILTINS) \
- && (\
+    && ( \
         defined(__PPC64__) \
-)
+    )
     return __builtin_ceilf(value);
 #else
-    int i = (int) value;
+    int i = (int)value;
     return i + (i < value);
 #endif
 }
 
 /** @overload */
-CV_INLINE int cvCeil(int value) {
+CV_INLINE int cvCeil( int value )
+{
     return value;
 }
 
 /** @overload */
-CV_INLINE int cvIsNaN(float value) {
+CV_INLINE int cvIsNaN( float value )
+{
 #if defined CV_INLINE_ISNAN_FLT
     CV_INLINE_ISNAN_FLT(value);
 #else
@@ -380,7 +390,8 @@ CV_INLINE int cvIsNaN(float value) {
 }
 
 /** @overload */
-CV_INLINE int cvIsInf(float value) {
+CV_INLINE int cvIsInf( float value )
+{
 #if defined CV_INLINE_ISINF_FLT
     CV_INLINE_ISINF_FLT(value);
 #else

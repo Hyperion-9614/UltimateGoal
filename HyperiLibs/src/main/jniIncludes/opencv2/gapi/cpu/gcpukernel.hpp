@@ -21,7 +21,7 @@
 #include <opencv2/gapi/util/compiler_hints.hpp> //suppress_unused_warning
 #include <opencv2/gapi/util/util.hpp>
 
-// NEED TO FIX: namespace scheme for backends?
+// FIXME: namespace scheme for backends?
 namespace cv {
 
     namespace gimpl {
@@ -85,7 +85,7 @@ namespace cv {
     } // namespace gapi
 
 // Represents arguments which are passed to a wrapped CPU function
-// NEED TO FIX: put into detail?
+// FIXME: put into detail?
     class GAPI_EXPORTS GCPUContext
             {
                     public:
@@ -95,15 +95,16 @@ namespace cv {
 
                     // Syntax sugar
                     const cv::Mat&   inMat(int input);
-                    cv::Mat&         outMatR(int output); // NEED TO FIX: Avoid cv::Mat m = ctx.outMatR()
+                    cv::Mat&         outMatR(int output); // FIXME: Avoid cv::Mat m = ctx.outMatR()
 
                     const cv::Scalar& inVal(int input);
-                    cv::Scalar& outValR(int output); // NEED TO FIX: Avoid cv::Scalar s = ctx.outValR()
-                    template<typename T> std::vector<T>& outVecR(int output) // NEED TO FIX: the same issue
+                    cv::Scalar& outValR(int output); // FIXME: Avoid cv::Scalar s = ctx.outValR()
+                    cv::MediaFrame& outFrame(int output);
+                    template<typename T> std::vector<T>& outVecR(int output) // FIXME: the same issue
                     {
                         return outVecRef(output).wref<T>();
                     }
-                    template<typename T> T& outOpaqueR(int output) // NEED TO FIX: the same issue
+                    template<typename T> T& outOpaqueR(int output) // FIXME: the same issue
                     {
                         return outOpaqueRef(output).wref<T>();
                     }
@@ -120,7 +121,7 @@ namespace cv {
                     std::vector<GArg> m_args;
                     GArg m_state;
 
-                    //NEED TO FIX: avoid conversion of arguments from internal representation to OpenCV one on each call
+                    //FIXME: avoid conversion of arguments from internal representation to OpenCV one on each call
                     //to OCV kernel. (This can be achieved by a two single time conversions in GCPUExecutable::run,
                     //once on enter for input and output arguments, and once before return for output arguments only
                     std::unordered_map<std::size_t, GRunArgP> m_results;
@@ -147,7 +148,7 @@ namespace cv {
                     bool m_isStateful = false;
             };
 
-// NEED TO FIX: This is an ugly ad-hoc implementation. NEED TO FIX: refactor
+// FIXME: This is an ugly ad-hoc implementation. TODO: refactor
 
     namespace detail {
         template<class T>
@@ -190,216 +191,242 @@ namespace cv {
             }
         };
 
-//NEED TO FIX(dm): GArray<Mat>/GArray<GMat> conversion should be done more gracefully in the system
+//FIXME(dm): GArray<Mat>/GArray<GMat> conversion should be done more gracefully in the system
         template<>
         struct get_in<cv::GArray<cv::GMat> > : public get_in<cv::GArray<cv::Mat> > {
         };
 
-//NEED TO FIX(dm): GArray<Scalar>/GArray<GScalar> conversion should be done more gracefully in the system
+//FIXME(dm): GArray<Scalar>/GArray<GScalar> conversion should be done more gracefully in the system
         template<>
         struct get_in<cv::GArray<cv::GScalar> > : public get_in<cv::GArray<cv::Scalar> > {
         };
 
-//NEED TO FIX(dm): GOpaque<Mat>/GOpaque<GMat> conversion should be done more gracefully in the system
-        template<>
-        struct get_in<cv::GOpaque<cv::GMat> > : public get_in<cv::GOpaque<cv::Mat> > {
-        };
+// FIXME(dm): GArray<vector<U>>/GArray<GArray<U>> conversion should be done more gracefully in the system
+        template<typename U> struct get_in<cv::GArray<cv::GArray<U>>> : public get_in<cv::GArray<
+                std::vector < U>> > {
+    };
 
-//NEED TO FIX(dm): GOpaque<Scalar>/GOpaque<GScalar> conversion should be done more gracefully in the system
-        template<>
-        struct get_in<cv::GOpaque<cv::GScalar> > : public get_in<cv::GOpaque<cv::Mat> > {
-        };
+//FIXME(dm): GOpaque<Mat>/GOpaque<GMat> conversion should be done more gracefully in the system
+    template<>
+    struct get_in<cv::GOpaque<cv::GMat> > : public get_in<cv::GOpaque<cv::Mat> > {
+    };
 
-        template<class T>
-        struct get_in {
-            static T get(GCPUContext &ctx, int idx) { return ctx.inArg<T>(idx); }
-        };
+//FIXME(dm): GOpaque<Scalar>/GOpaque<GScalar> conversion should be done more gracefully in the system
+    template<>
+    struct get_in<cv::GOpaque<cv::GScalar> > : public get_in<cv::GOpaque<cv::Mat> > {
+    };
 
-        struct tracked_cv_mat {
-            tracked_cv_mat(cv::Mat &m) : r{m}, original_data{m.data} {}
+    template<class T>
+    struct get_in {
+        static T get(GCPUContext &ctx, int idx) { return ctx.inArg<T>(idx); }
+    };
 
-            cv::Mat r;
-            uchar *original_data;
+    struct tracked_cv_mat {
+        tracked_cv_mat(cv::Mat &m) : r{m}, original_data{m.data} {}
 
-            operator cv::Mat &() { return r; }
+        cv::Mat r;
+        uchar *original_data;
 
-            void validate() const {
-                if (r.data != original_data) {
-                    util::throw_error
-                            (std::logic_error
-                                     ("OpenCV kernel output parameter was reallocated. \n"
-                                      "Incorrect meta data was provided ?"));
-                }
+        operator cv::Mat &() { return r; }
+
+        void validate() const {
+            if (r.data != original_data) {
+                util::throw_error
+                        (std::logic_error
+                                 ("OpenCV kernel output parameter was reallocated. \n"
+                                  "Incorrect meta data was provided ?"));
             }
-        };
-
-        template<typename... Outputs>
-        void postprocess(Outputs &... outs) {
-            struct {
-                void operator()(tracked_cv_mat *bm) { bm->validate(); }
-
-                void operator()(...) {}
-
-            } validate;
-            //dummy array to unfold parameter pack
-            int dummy[] = {0, (validate(&outs), 0)...};
-            cv::util::suppress_unused_warning(dummy);
-        }
-
-        template<class T>
-        struct get_out;
-
-        template<>
-        struct get_out<cv::GMat> {
-            static tracked_cv_mat get(GCPUContext &ctx, int idx) {
-                auto &r = ctx.outMatR(idx);
-                return {r};
-            }
-        };
-
-        template<>
-        struct get_out<cv::GMatP> {
-            static tracked_cv_mat get(GCPUContext &ctx, int idx) {
-                return get_out<cv::GMat>::get(ctx, idx);
-            }
-        };
-
-        template<>
-        struct get_out<cv::GScalar> {
-            static cv::Scalar &get(GCPUContext &ctx, int idx) {
-                return ctx.outValR(idx);
-            }
-        };
-
-        template<typename U>
-        struct get_out<cv::GArray<U>> {
-            static std::vector <U> &get(GCPUContext &ctx, int idx) {
-                return ctx.outVecR<U>(idx);
-            }
-        };
-
-//NEED TO FIX(dm): GArray<Mat>/GArray<GMat> conversion should be done more gracefully in the system
-        template<>
-        struct get_out<cv::GArray<cv::GMat> > : public get_out<cv::GArray<cv::Mat> > {
-        };
-
-        template<typename U>
-        struct get_out<cv::GOpaque<U>> {
-            static U &get(GCPUContext &ctx, int idx) {
-                return ctx.outOpaqueR<U>(idx);
-            }
-        };
-
-        template<typename, typename>
-        struct OCVSetupHelper;
-
-        template<typename Impl, typename... Ins>
-        struct OCVSetupHelper<Impl, std::tuple < Ins...>> {
-        // Using 'auto' return type and 'decltype' specifier in both 'setup_impl' versions
-        // to check existence of required 'Impl::setup' functions.
-        // While 'decltype' specifier accepts expression we pass expression with 'comma-operator'
-        // where first operand of comma-operator is call attempt to desired 'Impl::setup' and
-        // the second operand is 'void()' expression.
-        //
-        // SFINAE for 'Impl::setup' which accepts compile arguments.
-        template<int... IIs>
-        static auto setup_impl(const GMetaArgs &metaArgs, const GArgs &args,
-                               GArg &state, const GCompileArgs &compileArgs,
-                               detail::Seq<IIs...>) ->
-        decltype(Impl::setup(detail::get_in_meta<Ins>(metaArgs, args, IIs)...,
-                             std::declval<typename std::add_lvalue_reference<
-                                     std::shared_ptr < typename Impl::State>
-                             >::type
-                             > (),
-                             compileArgs)
-                , void()) {
-            // NEED TO FIX: unique_ptr <-> shared_ptr conversion ?
-            // To check: Conversion is possible only if the state which should be passed to
-            // 'setup' user callback isn't required to have previous value
-            std::shared_ptr<typename Impl::State> stPtr;
-            Impl::setup(detail::get_in_meta<Ins>(metaArgs, args, IIs)..., stPtr, compileArgs);
-            state = GArg(stPtr);
-        }
-
-        // SFINAE for 'Impl::setup' which doesn't accept compile arguments.
-        template<int... IIs>
-        static auto setup_impl(const GMetaArgs &metaArgs, const GArgs &args,
-                               GArg &state, const GCompileArgs &/* compileArgs */,
-                               detail::Seq<IIs...>) ->
-        decltype(Impl::setup(detail::get_in_meta<Ins>(metaArgs, args, IIs)...,
-                             std::declval<typename std::add_lvalue_reference<
-                                     std::shared_ptr < typename Impl::State>
-                             >::type
-                             > ()
-        )
-                , void()) {
-            // The same comment as in 'setup' above.
-            std::shared_ptr<typename Impl::State> stPtr;
-            Impl::setup(detail::get_in_meta<Ins>(metaArgs, args, IIs)..., stPtr);
-            state = GArg(stPtr);
-        }
-
-        static void setup(const GMetaArgs &metaArgs, const GArgs &args,
-                          GArg &state, const GCompileArgs &compileArgs) {
-            setup_impl(metaArgs, args, state, compileArgs,
-                       typename detail::MkSeq<sizeof...(Ins)>::type());
         }
     };
+
+    template<typename... Outputs>
+    void postprocess(Outputs &... outs) {
+        struct {
+            void operator()(tracked_cv_mat *bm) { bm->validate(); }
+
+            void operator()(...) {}
+
+        } validate;
+        //dummy array to unfold parameter pack
+        int dummy[] = {0, (validate(&outs), 0)...};
+        cv::util::suppress_unused_warning(dummy);
+    }
+
+    template<class T>
+    struct get_out;
+
+    template<>
+    struct get_out<cv::GMat> {
+        static tracked_cv_mat get(GCPUContext &ctx, int idx) {
+            auto &r = ctx.outMatR(idx);
+            return {r};
+        }
+    };
+
+    template<>
+    struct get_out<cv::GMatP> {
+        static tracked_cv_mat get(GCPUContext &ctx, int idx) {
+            return get_out<cv::GMat>::get(ctx, idx);
+        }
+    };
+
+    template<>
+    struct get_out<cv::GScalar> {
+        static cv::Scalar &get(GCPUContext &ctx, int idx) {
+            return ctx.outValR(idx);
+        }
+    };
+
+    template<>
+    struct get_out<cv::GFrame> {
+        static cv::MediaFrame &get(GCPUContext &ctx, int idx) {
+            return ctx.outFrame(idx);
+        }
+    };
+
+    template<typename U>
+    struct get_out<cv::GArray<U>> {
+        static std::vector <U> &get(GCPUContext &ctx, int idx) {
+            return ctx.outVecR<U>(idx);
+        }
+    };
+
+//FIXME(dm): GArray<Mat>/GArray<GMat> conversion should be done more gracefully in the system
+    template<>
+    struct get_out<cv::GArray<cv::GMat> > : public get_out<cv::GArray<cv::Mat> > {
+    };
+
+// FIXME(dm): GArray<vector<U>>/GArray<GArray<U>> conversion should be done more gracefully in the system
+    template<typename U> struct get_out<cv::GArray<cv::GArray<U>>> : public get_out<cv::GArray<
+            std::vector < U>> > {
+};
+
+template<typename U>
+struct get_out<cv::GOpaque<U>> {
+    static U &get(GCPUContext &ctx, int idx) {
+        return ctx.outOpaqueR<U>(idx);
+    }
+};
+
+template<typename, typename>
+struct OCVSetupHelper;
+
+template<typename Impl, typename... Ins>
+struct OCVSetupHelper<Impl, std::tuple < Ins...>>
+{
+// Using 'auto' return type and 'decltype' specifier in both 'setup_impl' versions
+// to check existence of required 'Impl::setup' functions.
+// While 'decltype' specifier accepts expression we pass expression with 'comma-operator'
+// where first operand of comma-operator is call attempt to desired 'Impl::setup' and
+// the second operand is 'void()' expression.
+//
+// SFINAE for 'Impl::setup' which accepts compile arguments.
+template<int... IIs>
+static auto setup_impl(const GMetaArgs &metaArgs, const GArgs &args,
+                       GArg &state, const GCompileArgs &compileArgs,
+                       detail::Seq<IIs...>) ->
+decltype(Impl::setup(detail::get_in_meta<Ins>(metaArgs, args, IIs)...,
+                     std::declval<typename std::add_lvalue_reference<
+                             std::shared_ptr < typename Impl::State>
+                     >::type
+                     > (),
+                     compileArgs)
+        , void()) {
+    // TODO: unique_ptr <-> shared_ptr conversion ?
+    // To check: Conversion is possible only if the state which should be passed to
+    // 'setup' user callback isn't required to have previous value
+    std::shared_ptr<typename Impl::State> stPtr;
+    Impl::setup(detail::get_in_meta<Ins>(metaArgs, args, IIs)..., stPtr, compileArgs);
+    state = GArg(stPtr);
+}
+
+// SFINAE for 'Impl::setup' which doesn't accept compile arguments.
+template<int... IIs>
+static auto setup_impl(const GMetaArgs &metaArgs, const GArgs &args,
+                       GArg &state, const GCompileArgs &/* compileArgs */,
+                       detail::Seq<IIs...>) ->
+decltype(Impl::setup(detail::get_in_meta<Ins>(metaArgs, args, IIs)...,
+                     std::declval<typename std::add_lvalue_reference<
+                             std::shared_ptr < typename Impl::State>
+                     >::type
+                     > ()
+)
+        , void()) {
+    // The same comment as in 'setup' above.
+    std::shared_ptr<typename Impl::State> stPtr;
+    Impl::setup(detail::get_in_meta<Ins>(metaArgs, args, IIs)..., stPtr);
+    state = GArg(stPtr);
+}
+
+static void setup(const GMetaArgs &metaArgs, const GArgs &args,
+                  GArg &state, const GCompileArgs &compileArgs) {
+    setup_impl(metaArgs, args, state, compileArgs,
+               typename detail::MkSeq<sizeof...(Ins)>::type());
+}
+
+};
 
 // OCVCallHelper is a helper class to call stateless OCV kernels and OCV kernel functors.
-    template<typename, typename, typename>
-    struct OCVCallHelper;
+template<typename, typename, typename>
+struct OCVCallHelper;
 
-// NEED TO FIX: probably can be simplified with std::apply or analogue.
-    template<typename Impl, typename... Ins, typename... Outs>
-    struct OCVCallHelper<Impl, std::tuple < Ins...>, std::tuple<Outs...>> {
-    template<typename... Inputs>
-    struct call_and_postprocess {
-        template<typename... Outputs>
-        static void call(Inputs &&... ins, Outputs &&... outs) {
-            //not using a std::forward on outs is deliberate in order to
-            //cause compilation error, by trying to bind rvalue references to lvalue references
-            Impl::run(std::forward<Inputs>(ins)..., outs...);
-            postprocess(outs...);
-        }
+// FIXME: probably can be simplified with std::apply or analogue.
+template<typename Impl, typename... Ins, typename... Outs>
+struct OCVCallHelper<Impl, std::tuple < Ins...>, std::tuple<Outs...>>
+{
+template<typename... Inputs>
+struct call_and_postprocess {
+    template<typename... Outputs>
+    static void call(Inputs &&... ins, Outputs &&... outs) {
+        //not using a std::forward on outs is deliberate in order to
+        //cause compilation error, by trying to bind rvalue references to lvalue references
+        Impl::run(std::forward<Inputs>(ins)..., outs...);
+        postprocess(outs...);
+    }
 
-        template<typename... Outputs>
-        static void call(Impl &impl, Inputs &&... ins, Outputs &&... outs) {
-            impl(std::forward<Inputs>(ins)..., outs...);
-        }
+    template<typename... Outputs>
+    static void call(Impl &impl, Inputs &&... ins, Outputs &&... outs) {
+        impl(std::forward<Inputs>(ins)..., outs...);
+    }
     };
 
-    template<int... IIs, int... OIs>
-    static void call_impl(GCPUContext & ctx, detail::Seq<IIs...>, detail::Seq<OIs...>) {
-        //Make sure that OpenCV kernels do not reallocate memory for output parameters
-        //by comparing it's state (data ptr) before and after the call.
-        //This is done by converting each output Mat into tracked_cv_mat object, and binding
-        //them to parameters of ad-hoc function
-        call_and_postprocess<decltype(get_in<Ins>::get(ctx, IIs))...>
-        ::call(get_in<Ins>::get(ctx, IIs)..., get_out<Outs>::get(ctx, OIs)...);
-    }
+template<int... IIs, int... OIs>
+static void call_impl(GCPUContext &ctx, detail::Seq<IIs...>, detail::Seq<OIs...>) {
+    //Make sure that OpenCV kernels do not reallocate memory for output parameters
+    //by comparing it's state (data ptr) before and after the call.
+    //This is done by converting each output Mat into tracked_cv_mat object, and binding
+    //them to parameters of ad-hoc function
+    call_and_postprocess<decltype(get_in<Ins>::get(ctx, IIs))...>
+    ::call(get_in<Ins>::get(ctx, IIs)..., get_out<Outs>::get(ctx, OIs)...);
+}
 
-    template<int... IIs, int... OIs>
-    static void call_impl(cv::GCPUContext & ctx, Impl & impl,
-                          detail::Seq<IIs...>, detail::Seq<OIs...>) {
-        call_and_postprocess<decltype(get_in<Ins>::get(ctx, IIs))...>
-        ::call(impl, get_in<Ins>::get(ctx, IIs)..., get_out<Outs>::get(ctx, OIs)...);
-    }
+template<int... IIs, int... OIs>
+static void call_impl(cv::GCPUContext & ctx, Impl & impl,
+                      detail::Seq < IIs...
+>, detail::Seq<OIs...>)
+{
+call_and_postprocess<decltype(get_in<Ins>::get(ctx, IIs))...>
+::call(impl, get_in<Ins>::get(ctx, IIs)
+...,
+get_out<Outs>::get(ctx, OIs
+)...);
+}
 
-    static void call(GCPUContext & ctx) {
-        call_impl(ctx,
-                  typename detail::MkSeq<sizeof...(Ins)>::type(),
-                  typename detail::MkSeq<sizeof...(Outs)>::type());
-    }
+static void call(GCPUContext &ctx) {
+    call_impl(ctx,
+              typename detail::MkSeq<sizeof...(Ins)>::type(),
+              typename detail::MkSeq<sizeof...(Outs)>::type());
+}
 
-    // NB: Same as call but calling the object
-    // This necessary for kernel implementations that have a state
-    // and are represented as an object
-    static void callFunctor(cv::GCPUContext & ctx, Impl & impl) {
-        call_impl(ctx, impl,
-                  typename detail::MkSeq<sizeof...(Ins)>::type(),
-                  typename detail::MkSeq<sizeof...(Outs)>::type());
-    }
+// NB: Same as call but calling the object
+// This necessary for kernel implementations that have a state
+// and are represented as an object
+static void callFunctor(cv::GCPUContext & ctx, Impl & impl) {
+    call_impl(ctx, impl,
+              typename detail::MkSeq<sizeof...(Ins)>::type(),
+              typename detail::MkSeq<sizeof...(Outs)>::type());
+}
+
 };
 
 // OCVStCallHelper is a helper class to call stateful OCV kernels.
@@ -408,7 +435,7 @@ struct OCVStCallHelper;
 
 template<typename Impl, typename... Ins, typename... Outs>
 struct OCVStCallHelper<Impl, std::tuple < Ins...>, std::tuple<Outs...>> :
-OCVCallHelper <Impl, std::tuple<Ins...>, std::tuple<Outs...>>
+OCVCallHelper<Impl, std::tuple < Ins...>, std::tuple<Outs...>>
 {
 template<typename... Inputs>
 struct call_and_postprocess {
@@ -438,7 +465,7 @@ static void call(GCPUContext &ctx) {
 
 template<class Impl, class K>
 class GCPUKernelImpl : public cv::detail::KernelTag {
-    using CallHelper = detail::OCVCallHelper<Impl, typename K::InArgs, typename K::OutArgs>;
+    using CallHelper = cv::detail::OCVCallHelper<Impl, typename K::InArgs, typename K::OutArgs>;
 
 public:
     using API = K;
@@ -467,7 +494,7 @@ public:
 
 #define GAPI_OCV_KERNEL(Name, API) struct Name: public cv::GCPUKernelImpl<Name, API>
 
-// NEED TO FIX: Reuse Anatoliy's logic for support of types with commas in macro.
+// TODO: Reuse Anatoliy's logic for support of types with commas in macro.
 //       Retrieve the common part from Anatoliy's logic to the separate place.
 #define GAPI_OCV_KERNEL_ST(Name, API, State)                   \
     struct Name: public cv::GCPUStKernelImpl<Name, API, State> \
@@ -493,7 +520,7 @@ private:
 //! @cond IGNORED
 template<typename K, typename Callable>
 gapi::cpu::GOCVFunctor gapi::cpu::ocv_kernel(Callable &c) {
-    using P = detail::OCVCallHelper<Callable, typename K::InArgs, typename K::OutArgs>;
+    using P = cv::detail::OCVCallHelper<Callable, typename K::InArgs, typename K::OutArgs>;
     return GOCVFunctor{K::id(), &K::getOutMeta,
                        std::bind(&P::callFunctor, std::placeholders::_1, std::ref(c))
     };
@@ -501,7 +528,7 @@ gapi::cpu::GOCVFunctor gapi::cpu::ocv_kernel(Callable &c) {
 
 template<typename K, typename Callable>
 gapi::cpu::GOCVFunctor gapi::cpu::ocv_kernel(const Callable &c) {
-    using P = detail::OCVCallHelper<Callable, typename K::InArgs, typename K::OutArgs>;
+    using P = cv::detail::OCVCallHelper<Callable, typename K::InArgs, typename K::OutArgs>;
     return GOCVFunctor{K::id(), &K::getOutMeta, std::bind(&P::callFunctor, std::placeholders::_1, c)
     };
 }

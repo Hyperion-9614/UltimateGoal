@@ -81,7 +81,7 @@ namespace cvflann {
                     nnIndex = new LshIndex<Distance>(dataset, params, distance);
                     break;
                 default:
-                    throw FLANNException("Unknown index type");
+                    FLANN_THROW(cv::Error::StsBadArg, "Unknown index type");
             }
 
             return nnIndex;
@@ -110,7 +110,7 @@ namespace cvflann {
                     nnIndex = new LshIndex<Distance>(dataset, params, distance);
                     break;
                 default:
-                    throw FLANNException("Unknown index type");
+                    FLANN_THROW(cv::Error::StsBadArg, "Unknown index type");
             }
 
             return nnIndex;
@@ -139,7 +139,7 @@ namespace cvflann {
                     nnIndex = new LshIndex<Distance>(dataset, params, distance);
                     break;
                 default:
-                    throw FLANNException("Unknown index type");
+                    FLANN_THROW(cv::Error::StsBadArg, "Unknown index type");
             }
 
             return nnIndex;

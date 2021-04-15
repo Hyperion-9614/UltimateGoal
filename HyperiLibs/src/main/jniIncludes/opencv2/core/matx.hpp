@@ -64,47 +64,13 @@ namespace cv {
 
 //! @cond IGNORED
 // FIXIT Remove this (especially CV_EXPORTS modifier)
-    struct CV_EXPORTS Matx_AddOp {
-        Matx_AddOp() {}
-
-        Matx_AddOp(const Matx_AddOp &) {}
-    };
-
-    struct CV_EXPORTS Matx_SubOp {
-        Matx_SubOp() {}
-
-        Matx_SubOp(const Matx_SubOp &) {}
-    };
-
-    struct CV_EXPORTS Matx_ScaleOp {
-        Matx_ScaleOp() {}
-
-        Matx_ScaleOp(const Matx_ScaleOp &) {}
-    };
-
-    struct CV_EXPORTS Matx_MulOp {
-        Matx_MulOp() {}
-
-        Matx_MulOp(const Matx_MulOp &) {}
-    };
-
-    struct CV_EXPORTS Matx_DivOp {
-        Matx_DivOp() {}
-
-        Matx_DivOp(const Matx_DivOp &) {}
-    };
-
-    struct CV_EXPORTS Matx_MatMulOp {
-        Matx_MatMulOp() {}
-
-        Matx_MatMulOp(const Matx_MatMulOp &) {}
-    };
-
-    struct CV_EXPORTS Matx_TOp {
-        Matx_TOp() {}
-
-        Matx_TOp(const Matx_TOp &) {}
-    };
+    struct CV_EXPORTS Matx_AddOp{Matx_AddOp() {} Matx_AddOp(const Matx_AddOp&) {}};
+    struct CV_EXPORTS Matx_SubOp{Matx_SubOp() {} Matx_SubOp(const Matx_SubOp&) {}};
+    struct CV_EXPORTS Matx_ScaleOp{Matx_ScaleOp() {} Matx_ScaleOp(const Matx_ScaleOp&) {}};
+    struct CV_EXPORTS Matx_MulOp{Matx_MulOp() {} Matx_MulOp(const Matx_MulOp&) {}};
+    struct CV_EXPORTS Matx_DivOp{Matx_DivOp() {} Matx_DivOp(const Matx_DivOp&) {}};
+    struct CV_EXPORTS Matx_MatMulOp{Matx_MatMulOp() {} Matx_MatMulOp(const Matx_MatMulOp&) {}};
+    struct CV_EXPORTS Matx_TOp{Matx_TOp() {} Matx_TOp(const Matx_TOp&) {}};
 //! @endcond
 
 /** @brief Template class for small matrices whose type and size are known at compilation time
@@ -176,7 +142,7 @@ In case if C++11 features are available, std::initializer_list can be also used 
              _Tp v12, _Tp v13, _Tp v14, _Tp v15); //!< 1x16, 4x4 or 16x1 matrix
         explicit Matx(const _Tp *vals); //!< initialize from a plain array
 
-        Matx(std::initializer_list<_Tp>); //!< initialize from an initializer list
+        Matx(std::initializer_list <_Tp>); //!< initialize from an initializer list
 
         static Matx all(_Tp alpha);
 
@@ -238,7 +204,7 @@ In case if C++11 features are available, std::initializer_list can be also used 
         template<int l>
         Matx<_Tp, n, l> solve(const Matx<_Tp, m, l> &rhs, int flags = DECOMP_LU) const;
 
-        Vec<_Tp, n> solve(const Vec<_Tp, m> &rhs, int method) const;
+        Vec <_Tp, n> solve(const Vec <_Tp, m> &rhs, int method) const;
 
         //! multiply two matrices element-wise
         Matx<_Tp, m, n> mul(const Matx<_Tp, m, n> &a) const;
@@ -448,7 +414,7 @@ The Vec class is commonly used to describe pixel types of multi-channel arrays. 
             _Tp v11, _Tp v12, _Tp v13); //!< 14-element vector constructor
         explicit Vec(const _Tp *values);
 
-        Vec(std::initializer_list<_Tp>);
+        Vec(std::initializer_list <_Tp>);
 
         Vec(const Vec<_Tp, cn> &v);
 
@@ -481,9 +447,7 @@ The Vec class is commonly used to describe pixel types of multi-channel arrays. 
         _Tp &operator()(int i);
 
 #ifdef CV_CXX11
-
-        Vec<_Tp, cn> &operator=(const Vec<_Tp, cn> &rhs) = default;
-
+        Vec<_Tp, cn>& operator=(const Vec<_Tp, cn>& rhs) = default;
 #endif
 
         Vec(const Matx<_Tp, cn, 1> &a, const Matx<_Tp, cn, 1> &b, Matx_AddOp);
@@ -847,7 +811,7 @@ The Vec class is commonly used to describe pixel types of multi-channel arrays. 
 
     template<typename _Tp, int m, int n>
     inline
-    Matx<_Tp, m, n>::Matx(std::initializer_list<_Tp> list) {
+    Matx<_Tp, m, n>::Matx(std::initializer_list <_Tp> list) {
         CV_DbgAssert(list.size() == channels);
         int i = 0;
         for (const auto &elem : list) {
@@ -1220,7 +1184,7 @@ The Vec class is commonly used to describe pixel types of multi-channel arrays. 
 
     template<typename _Tp, int cn>
     inline
-    Vec<_Tp, cn>::Vec(std::initializer_list<_Tp> list)
+    Vec<_Tp, cn>::Vec(std::initializer_list <_Tp> list)
             : Matx<_Tp, cn, 1>(list) {}
 
     template<typename _Tp, int cn>

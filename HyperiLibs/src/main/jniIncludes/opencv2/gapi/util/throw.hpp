@@ -11,10 +11,8 @@
 #include <utility>  // std::forward
 
 #if !defined(__EXCEPTIONS)
-
 #include <stdlib.h>
 #include <stdio.h>
-
 #endif
 
 namespace cv {

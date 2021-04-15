@@ -125,7 +125,7 @@ namespace cv {
 
     template<>
     inline uchar saturate_cast<uchar>(int v) {
-        return (uchar) ((unsigned) v <= UCHAR_MAX ? v : v > 0 ? UCHAR_MAX : 0);
+        return (uchar)((unsigned) v <= UCHAR_MAX ? v : v > 0 ? UCHAR_MAX : 0);
     }
 
     template<>
@@ -150,7 +150,7 @@ namespace cv {
 
     template<>
     inline uchar saturate_cast<uchar>(int64 v) {
-        return (uchar) ((uint64) v <= (uint64) UCHAR_MAX ? v : v > 0 ? UCHAR_MAX : 0);
+        return (uchar)((uint64) v <= (uint64) UCHAR_MAX ? v : v > 0 ? UCHAR_MAX : 0);
     }
 
     template<>
@@ -166,8 +166,8 @@ namespace cv {
 
     template<>
     inline schar saturate_cast<schar>(int v) {
-        return (schar) ((unsigned) (v - SCHAR_MIN) <= (unsigned) UCHAR_MAX ? v : v > 0 ? SCHAR_MAX
-                                                                                       : SCHAR_MIN);
+        return (schar)((unsigned) (v - SCHAR_MIN) <= (unsigned) UCHAR_MAX ? v : v > 0 ? SCHAR_MAX
+                                                                                      : SCHAR_MIN);
     }
 
     template<>
@@ -192,9 +192,8 @@ namespace cv {
 
     template<>
     inline schar saturate_cast<schar>(int64 v) {
-        return (schar) ((uint64) ((int64) v - SCHAR_MIN) <= (uint64) UCHAR_MAX ? v : v > 0
-                                                                                     ? SCHAR_MAX
-                                                                                     : SCHAR_MIN);
+        return (schar)((uint64)((int64) v - SCHAR_MIN) <= (uint64) UCHAR_MAX ? v : v > 0 ? SCHAR_MAX
+                                                                                         : SCHAR_MIN);
     }
 
     template<>
@@ -208,7 +207,7 @@ namespace cv {
 
     template<>
     inline ushort saturate_cast<ushort>(int v) {
-        return (ushort) ((unsigned) v <= (unsigned) USHRT_MAX ? v : v > 0 ? USHRT_MAX : 0);
+        return (ushort)((unsigned) v <= (unsigned) USHRT_MAX ? v : v > 0 ? USHRT_MAX : 0);
     }
 
     template<>
@@ -230,7 +229,7 @@ namespace cv {
 
     template<>
     inline ushort saturate_cast<ushort>(int64 v) {
-        return (ushort) ((uint64) v <= (uint64) USHRT_MAX ? v : v > 0 ? USHRT_MAX : 0);
+        return (ushort)((uint64) v <= (uint64) USHRT_MAX ? v : v > 0 ? USHRT_MAX : 0);
     }
 
     template<>
@@ -266,8 +265,8 @@ namespace cv {
 
     template<>
     inline short saturate_cast<short>(int64 v) {
-        return (short) ((uint64) ((int64) v - SHRT_MIN) <= (uint64) USHRT_MAX ? v : v > 0 ? SHRT_MAX
-                                                                                          : SHRT_MIN);
+        return (short) ((uint64)((int64) v - SHRT_MIN) <= (uint64) USHRT_MAX ? v : v > 0 ? SHRT_MAX
+                                                                                         : SHRT_MIN);
     }
 
     template<>
@@ -278,7 +277,7 @@ namespace cv {
 
     template<>
     inline int saturate_cast<int>(int64 v) {
-        return (int) ((uint64) (v - INT_MIN) <= (uint64) UINT_MAX ? v : v > 0 ? INT_MAX : INT_MIN);
+        return (int) ((uint64)(v - INT_MIN) <= (uint64) UINT_MAX ? v : v > 0 ? INT_MAX : INT_MIN);
     }
 
     template<>

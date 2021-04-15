@@ -14,7 +14,7 @@ namespace cv {
 
 /** Types **/
 #if CV__SIMD_FORWARD == 1024
-    // [NEED TO FIX] 1024
+    // [todo] 1024
 #error "1024-long ops not implemented yet"
 #elif CV__SIMD_FORWARD == 512
     // 512

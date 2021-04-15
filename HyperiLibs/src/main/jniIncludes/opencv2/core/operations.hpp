@@ -80,7 +80,7 @@ namespace cv {
         struct Matx_FastInvOp<_Tp, m, m> {
             bool operator()(const Matx <_Tp, m, m> &a, Matx <_Tp, m, m> &b, int method) const {
                 if (method == DECOMP_LU || method == DECOMP_CHOLESKY) {
-                    Matx<_Tp, m, m> temp = a;
+                    Matx <_Tp, m, m> temp = a;
 
                     // assume that b is all 0's on input => make it a unity matrix
                     for (int i = 0; i < m; i++)
@@ -147,7 +147,7 @@ namespace cv {
             bool operator()(const Matx <_Tp, m, m> &a, const Matx <_Tp, m, n> &b,
                             Matx <_Tp, m, n> &x, int method) const {
                 if (method == DECOMP_LU || method == DECOMP_CHOLESKY) {
-                    Matx<_Tp, m, m> temp = a;
+                    Matx <_Tp, m, m> temp = a;
                     x = b;
                     if (method == DECOMP_CHOLESKY)
                         return Cholesky(temp.val, m * sizeof(_Tp), m, x.val, n * sizeof(_Tp), n);
@@ -201,7 +201,7 @@ namespace cv {
     template<typename _Tp, int m, int n>
     inline
     Matx <_Tp, m, n> Matx<_Tp, m, n>::randu(_Tp a, _Tp b) {
-        Matx<_Tp, m, n> M;
+        Matx <_Tp, m, n> M;
         cv::randu(M, Scalar(a), Scalar(b));
         return M;
     }
@@ -209,7 +209,7 @@ namespace cv {
     template<typename _Tp, int m, int n>
     inline
     Matx <_Tp, m, n> Matx<_Tp, m, n>::randn(_Tp a, _Tp b) {
-        Matx<_Tp, m, n> M;
+        Matx <_Tp, m, n> M;
         cv::randn(M, Scalar(a), Scalar(b));
         return M;
     }
@@ -217,7 +217,7 @@ namespace cv {
     template<typename _Tp, int m, int n>
     inline
     Matx <_Tp, n, m> Matx<_Tp, m, n>::inv(int method, bool *p_is_ok /*= NULL*/) const {
-        Matx<_Tp, n, m> b;
+        Matx <_Tp, n, m> b;
         bool ok = cv::internal::Matx_FastInvOp<_Tp, m, n>()(*this, b, method);
         if (p_is_ok) *p_is_ok = ok;
         return ok ? b : Matx<_Tp, n, m>::zeros();
@@ -227,7 +227,7 @@ namespace cv {
     template<int l>
     inline
     Matx <_Tp, n, l> Matx<_Tp, m, n>::solve(const Matx <_Tp, m, l> &rhs, int method) const {
-        Matx<_Tp, n, l> x;
+        Matx <_Tp, n, l> x;
         bool ok = cv::internal::Matx_FastSolveOp<_Tp, m, n, l>()(*this, rhs, x, method);
         return ok ? x : Matx<_Tp, n, l>::zeros();
     }
@@ -377,8 +377,8 @@ namespace cv {
         CV_StaticAssert(nm == MIN(m, n), "Invalid size of output vector.");
         Mat _a(a, false), _u(u, false), _w(w, false), _vt(vt, false);
         SVD::compute(_a, _w, _u, _vt);
-        CV_Assert(_w.data == (uchar *) &w.val[0] && _u.data == (uchar *) &u.val[0] &&
-                  _vt.data == (uchar *) &vt.val[0]);
+        CV_Assert(_w.data == (uchar * ) & w.val[0] && _u.data == (uchar * ) & u.val[0] &&
+                  _vt.data == (uchar * ) & vt.val[0]);
     }
 
     template<typename _Tp, int m, int n, int nm>
@@ -387,7 +387,7 @@ namespace cv {
         CV_StaticAssert(nm == MIN(m, n), "Invalid size of output vector.");
         Mat _a(a, false), _w(w, false);
         SVD::compute(_a, _w);
-        CV_Assert(_w.data == (uchar *) &w.val[0]);
+        CV_Assert(_w.data == (uchar * ) & w.val[0]);
     }
 
     template<typename _Tp, int m, int n, int nm, int nb>
@@ -398,7 +398,7 @@ namespace cv {
         CV_StaticAssert(nm == MIN(m, n), "Invalid size of output vector.");
         Mat _u(u, false), _w(w, false), _vt(vt, false), _rhs(rhs, false), _dst(dst, false);
         SVD::backSubst(_w, _u, _vt, _rhs, _dst);
-        CV_Assert(_dst.data == (uchar *) &dst.val[0]);
+        CV_Assert(_dst.data == (uchar * ) & dst.val[0]);
     }
 
 
@@ -409,11 +409,20 @@ namespace cv {
 
     inline RNG::RNG(uint64 _state) { state = _state ? _state : 0xffffffff; }
 
-    inline RNG::operator uchar() { return (uchar) next(); }
+    inline RNG::operator uchar() {
+        return (uchar)
+        next();
+    }
 
-    inline RNG::operator schar() { return (schar) next(); }
+    inline RNG::operator schar() {
+        return (schar)
+        next();
+    }
 
-    inline RNG::operator ushort() { return (ushort) next(); }
+    inline RNG::operator ushort() {
+        return (ushort)
+        next();
+    }
 
     inline RNG::operator short() { return (short) next(); }
 
@@ -441,7 +450,8 @@ namespace cv {
     inline bool RNG::operator==(const RNG &other) const { return state == other.state; }
 
     inline unsigned RNG::next() {
-        state = (uint64) (unsigned) state * /*CV_RNG_COEFF*/ 4164903690U + (unsigned) (state >> 32);
+        state = (uint64)(unsigned)
+        state * /*CV_RNG_COEFF*/ 4164903690U + (unsigned) (state >> 32);
         return (unsigned) state;
     }
 
@@ -470,7 +480,9 @@ message in the Exception constructor.
 |`uint64` -> `uintmax_t`, `int64` -> `intmax_t`|`%ju`, `%jd`|
 |`size_t`|`%zu`|
  */
-    CV_EXPORTS String format(const char *fmt, ...) CV_FORMAT_PRINTF(1, 2);
+    CV_EXPORTS String
+
+    format(const char *fmt, ...) CV_FORMAT_PRINTF(1, 2);
 
 ///////////////////////////////// Formatted output of cv::Mat /////////////////////////////////
 
@@ -501,46 +513,21 @@ message in the Exception constructor.
 
     template<typename _Tp>
     static inline
-    int print(const std::vector<Point_ < _Tp>
+    int print(const std::vector <Point_<_Tp>> &vec, FILE *stream = stdout) {
+        return print(Formatter::get()->format(Mat(vec)), stream);
+    }
 
-    >& vec,
-    FILE *stream = stdout
-    ) {
-    return
+    template<typename _Tp>
+    static inline
+    int print(const std::vector <Point3_<_Tp>> &vec, FILE *stream = stdout) {
+        return print(Formatter::get()->format(Mat(vec)), stream);
+    }
 
-    print (Formatter::get()
-
-    ->
-
-    format(Mat(vec)), stream
-
-    );
-}
-
-template<typename _Tp>
-static inline
-int print(const std::vector<Point3_ < _Tp>
-
->& vec,
-FILE *stream = stdout
-)
-{
-return
-
-print (Formatter::get()
-
-->
-
-format(Mat(vec)), stream
-
-);
-}
-
-template<typename _Tp, int m, int n>
-static inline
-int print(const Matx <_Tp, m, n> &matx, FILE *stream = stdout) {
-    return print(Formatter::get()->format(cv::Mat(matx)), stream);
-}
+    template<typename _Tp, int m, int n>
+    static inline
+    int print(const Matx <_Tp, m, n> &matx, FILE *stream = stdout) {
+        return print(Formatter::get()->format(cv::Mat(matx)), stream);
+    }
 
 //! @endcond
 
@@ -563,86 +550,86 @@ predicate returns true when the elements are certainly in the same class, and re
 may or may not be in the same class.
 @ingroup core_cluster
 */
-template<typename _Tp, class _EqPredicate>
-int
-partition(const std::vector<_Tp> &_vec, std::vector<int> &labels,
-          _EqPredicate predicate = _EqPredicate()) {
-    int i, j, N = (int) _vec.size();
-    const _Tp *vec = &_vec[0];
+    template<typename _Tp, class _EqPredicate>
+    int
+    partition(const std::vector <_Tp> &_vec, std::vector<int> &labels,
+              _EqPredicate predicate = _EqPredicate()) {
+        int i, j, N = (int) _vec.size();
+        const _Tp *vec = &_vec[0];
 
-    const int PARENT = 0;
-    const int RANK = 1;
+        const int PARENT = 0;
+        const int RANK = 1;
 
-    std::vector<int> _nodes(N * 2);
-    int (*nodes)[2] = (int (*)[2]) &_nodes[0];
+        std::vector<int> _nodes(N * 2);
+        int (*nodes)[2] = (int (*)[2]) &_nodes[0];
 
-    // The first O(N) pass: create N single-vertex trees
-    for (i = 0; i < N; i++) {
-        nodes[i][PARENT] = -1;
-        nodes[i][RANK] = 0;
-    }
+        // The first O(N) pass: create N single-vertex trees
+        for (i = 0; i < N; i++) {
+            nodes[i][PARENT] = -1;
+            nodes[i][RANK] = 0;
+        }
 
-    // The main O(N^2) pass: merge connected components
-    for (i = 0; i < N; i++) {
-        int root = i;
+        // The main O(N^2) pass: merge connected components
+        for (i = 0; i < N; i++) {
+            int root = i;
 
-        // find root
-        while (nodes[root][PARENT] >= 0)
-            root = nodes[root][PARENT];
+            // find root
+            while (nodes[root][PARENT] >= 0)
+                root = nodes[root][PARENT];
 
-        for (j = 0; j < N; j++) {
-            if (i == j || !predicate(vec[i], vec[j]))
-                continue;
-            int root2 = j;
+            for (j = 0; j < N; j++) {
+                if (i == j || !predicate(vec[i], vec[j]))
+                    continue;
+                int root2 = j;
 
-            while (nodes[root2][PARENT] >= 0)
-                root2 = nodes[root2][PARENT];
+                while (nodes[root2][PARENT] >= 0)
+                    root2 = nodes[root2][PARENT];
 
-            if (root2 != root) {
-                // unite both trees
-                int rank = nodes[root][RANK], rank2 = nodes[root2][RANK];
-                if (rank > rank2)
-                    nodes[root2][PARENT] = root;
-                else {
-                    nodes[root][PARENT] = root2;
-                    nodes[root2][RANK] += rank == rank2;
-                    root = root2;
-                }
-                CV_Assert(nodes[root][PARENT] < 0);
+                if (root2 != root) {
+                    // unite both trees
+                    int rank = nodes[root][RANK], rank2 = nodes[root2][RANK];
+                    if (rank > rank2)
+                        nodes[root2][PARENT] = root;
+                    else {
+                        nodes[root][PARENT] = root2;
+                        nodes[root2][RANK] += rank == rank2;
+                        root = root2;
+                    }
+                    CV_Assert(nodes[root][PARENT] < 0);
 
-                int k = j, parent;
+                    int k = j, parent;
 
-                // compress the path from node2 to root
-                while ((parent = nodes[k][PARENT]) >= 0) {
-                    nodes[k][PARENT] = root;
-                    k = parent;
-                }
+                    // compress the path from node2 to root
+                    while ((parent = nodes[k][PARENT]) >= 0) {
+                        nodes[k][PARENT] = root;
+                        k = parent;
+                    }
 
-                // compress the path from node to root
-                k = i;
-                while ((parent = nodes[k][PARENT]) >= 0) {
-                    nodes[k][PARENT] = root;
-                    k = parent;
+                    // compress the path from node to root
+                    k = i;
+                    while ((parent = nodes[k][PARENT]) >= 0) {
+                        nodes[k][PARENT] = root;
+                        k = parent;
+                    }
                 }
             }
         }
-    }
 
-    // Final O(N) pass: enumerate classes
-    labels.resize(N);
-    int nclasses = 0;
+        // Final O(N) pass: enumerate classes
+        labels.resize(N);
+        int nclasses = 0;
 
-    for (i = 0; i < N; i++) {
-        int root = i;
-        while (nodes[root][PARENT] >= 0)
-            root = nodes[root][PARENT];
-        // re-use the rank as the class label
-        if (nodes[root][RANK] >= 0)
-            nodes[root][RANK] = ~nclasses++;
-        labels[i] = ~nodes[root][RANK];
-    }
+        for (i = 0; i < N; i++) {
+            int root = i;
+            while (nodes[root][PARENT] >= 0)
+                root = nodes[root][PARENT];
+            // re-use the rank as the class label
+            if (nodes[root][RANK] >= 0)
+                nodes[root][RANK] = ~nclasses++;
+            labels[i] = ~nodes[root][RANK];
+        }
 
-    return nclasses;
+        return nclasses;
 }
 
 } // cv

@@ -3,9 +3,6 @@
 //
 package org.opencv.ml;
 
-import org.opencv.ml.Boost;
-import org.opencv.ml.DTrees;
-
 // C++: class Boost
 /**
  * Boosted tree classifier derived from DTrees
@@ -17,14 +14,69 @@ public class Boost extends DTrees {
     protected Boost(long addr) { super(addr); }
 
     // internal usage only
-    public static Boost __fromPtr__(long addr) { return new Boost(addr); }
+    public static Boost __fromPtr__(long addr) {
+        return new Boost(addr);
+    }
 
-    // C++: enum Types
+    // C++: enum Types (cv.ml.Boost.Types)
     public static final int
             DISCRETE = 0,
             REAL = 1,
             LOGIT = 2,
             GENTLE = 3;
+
+
+    //
+    // C++:  int cv::ml::Boost::getBoostType()
+    //
+
+    // C++:  void cv::ml::Boost::setBoostType(int val)
+    private static native void setBoostType_0(long nativeObj, int val);
+
+
+    //
+    // C++:  void cv::ml::Boost::setBoostType(int val)
+    //
+
+    // C++:  double cv::ml::Boost::getWeightTrimRate()
+    private static native double getWeightTrimRate_0(long nativeObj);
+
+
+    //
+    // C++:  int cv::ml::Boost::getWeakCount()
+    //
+
+    // C++: static Ptr_Boost cv::ml::Boost::create()
+    private static native long create_0();
+
+
+    //
+    // C++:  void cv::ml::Boost::setWeakCount(int val)
+    //
+
+    // C++: static Ptr_Boost cv::ml::Boost::load(String filepath, String nodeName = String())
+    private static native long load_0(String filepath, String nodeName);
+
+
+    //
+    // C++:  double cv::ml::Boost::getWeightTrimRate()
+    //
+
+    private static native long load_1(String filepath);
+
+
+    //
+    // C++:  void cv::ml::Boost::setWeightTrimRate(double val)
+    //
+
+    /**
+     * SEE: setBoostType
+     *
+     * @return automatically generated
+     */
+    public int getBoostType() {
+        return getBoostType_0(nativeObj);
+    }
 
 
     //
@@ -34,6 +86,7 @@ public class Boost extends DTrees {
     /**
      * Creates the empty model.
      * Use StatModel::train to train the model, Algorithm::load&lt;Boost&gt;(filename) to load the pre-trained model.
+     *
      * @return automatically generated
      */
     public static Boost create() {
@@ -75,115 +128,68 @@ public class Boost extends DTrees {
     }
 
 
-    //
-    // C++:  double cv::ml::Boost::getWeightTrimRate()
-    //
-
-    /**
-     * SEE: setWeightTrimRate
-     * @return automatically generated
-     */
-    public double getWeightTrimRate() {
-        return getWeightTrimRate_0(nativeObj);
-    }
-
-
-    //
-    // C++:  int cv::ml::Boost::getBoostType()
-    //
-
-    /**
-     * SEE: setBoostType
-     * @return automatically generated
-     */
-    public int getBoostType() {
-        return getBoostType_0(nativeObj);
-    }
-
-
-    //
-    // C++:  int cv::ml::Boost::getWeakCount()
-    //
-
-    /**
-     * SEE: setWeakCount
-     * @return automatically generated
-     */
-    public int getWeakCount() {
-        return getWeakCount_0(nativeObj);
-    }
-
-
-    //
-    // C++:  void cv::ml::Boost::setBoostType(int val)
-    //
-
-    /**
-     *  getBoostType SEE: getBoostType
-     * @param val automatically generated
-     */
-    public void setBoostType(int val) {
-        setBoostType_0(nativeObj, val);
-    }
-
-
-    //
-    // C++:  void cv::ml::Boost::setWeakCount(int val)
-    //
-
-    /**
-     *  getWeakCount SEE: getWeakCount
-     * @param val automatically generated
-     */
-    public void setWeakCount(int val) {
-        setWeakCount_0(nativeObj, val);
-    }
-
-
-    //
-    // C++:  void cv::ml::Boost::setWeightTrimRate(double val)
-    //
-
-    /**
-     *  getWeightTrimRate SEE: getWeightTrimRate
-     * @param val automatically generated
-     */
-    public void setWeightTrimRate(double val) {
-        setWeightTrimRate_0(nativeObj, val);
-    }
-
-
     @Override
     protected void finalize() throws Throwable {
         delete(nativeObj);
     }
 
 
-
-    // C++: static Ptr_Boost cv::ml::Boost::create()
-    private static native long create_0();
-
-    // C++: static Ptr_Boost cv::ml::Boost::load(String filepath, String nodeName = String())
-    private static native long load_0(String filepath, String nodeName);
-    private static native long load_1(String filepath);
-
-    // C++:  double cv::ml::Boost::getWeightTrimRate()
-    private static native double getWeightTrimRate_0(long nativeObj);
-
     // C++:  int cv::ml::Boost::getBoostType()
     private static native int getBoostType_0(long nativeObj);
+
+    /**
+     * getBoostType SEE: getBoostType
+     *
+     * @param val automatically generated
+     */
+    public void setBoostType(int val) {
+        setBoostType_0(nativeObj, val);
+    }
 
     // C++:  int cv::ml::Boost::getWeakCount()
     private static native int getWeakCount_0(long nativeObj);
 
-    // C++:  void cv::ml::Boost::setBoostType(int val)
-    private static native void setBoostType_0(long nativeObj, int val);
-
     // C++:  void cv::ml::Boost::setWeakCount(int val)
     private static native void setWeakCount_0(long nativeObj, int val);
 
+    /**
+     * SEE: setWeakCount
+     *
+     * @return automatically generated
+     */
+    public int getWeakCount() {
+        return getWeakCount_0(nativeObj);
+    }
+
     // C++:  void cv::ml::Boost::setWeightTrimRate(double val)
     private static native void setWeightTrimRate_0(long nativeObj, double val);
+
+    /**
+     * getWeakCount SEE: getWeakCount
+     *
+     * @param val automatically generated
+     */
+    public void setWeakCount(int val) {
+        setWeakCount_0(nativeObj, val);
+    }
+
+    /**
+     * SEE: setWeightTrimRate
+     *
+     * @return automatically generated
+     */
+    public double getWeightTrimRate() {
+        return getWeightTrimRate_0(nativeObj);
+    }
+
+    /**
+     * getWeightTrimRate SEE: getWeightTrimRate
+     *
+     * @param val automatically generated
+     */
+    public void setWeightTrimRate(double val) {
+        setWeightTrimRate_0(nativeObj, val);
+    }
 
     // native support for java finalize()
     private static native void delete(long nativeObj);

@@ -818,7 +818,7 @@ cvPtr3D(const CvArr *arr, int idx0, int idx1, int idx2,
 means that the requested element is created if it does not exist already.
 @param precalc_hashval Optional input parameter for sparse matrices. If the pointer is not NULL,
 the function does not recalculate the node hash value, but takes it from the specified location.
-It is useful for speeding up pair-wise operations (NEED TO FIX: provide an example)
+It is useful for speeding up pair-wise operations (TODO: provide an example)
 */
 CVAPI(uchar
 *)

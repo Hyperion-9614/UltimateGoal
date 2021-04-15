@@ -58,68 +58,60 @@
 namespace cv {
 
     template<typename _Tp>
-    class DataType<std::complex<_Tp> > {
+    class DataType<std::complex < _Tp>
+
+    > {
     public:
-        typedef std::complex<_Tp> value_type;
-        typedef value_type work_type;
-        typedef _Tp channel_type;
+    typedef std::complex <_Tp> value_type;
+    typedef value_type work_type;
+    typedef _Tp channel_type;
 
-        enum {
-            generic_type = 0,
-            depth = DataType<channel_type>::depth,
-            channels = 2,
-            fmt = DataType<channel_type>::fmt + ((channels - 1) << 8),
-            type = CV_MAKETYPE(depth, channels)
-        };
-
-        typedef Vec <channel_type, channels> vec_type;
+    enum {
+        generic_type = 0,
+        depth = DataType<channel_type>::depth,
+        channels = 2,
+        fmt = DataType<channel_type>::fmt + ((channels - 1) << 8),
+        type = CV_MAKETYPE(depth, channels)
     };
 
-    static inline
-    std::ostream &operator<<(std::ostream &out, Ptr <Formatted> fmtd) {
-        fmtd->reset();
-        for (const char *str = fmtd->next(); str; str = fmtd->next())
-            out << str;
-        return out;
-    }
+    typedef Vec <channel_type, channels> vec_type;
+};
 
-    static inline
-    std::ostream &operator<<(std::ostream &out, const Mat &mtx) {
-        return out << Formatter::get()->format(mtx);
-    }
+static inline
+std::ostream &operator<<(std::ostream &out, Ptr <Formatted> fmtd) {
+    fmtd->reset();
+    for (const char *str = fmtd->next(); str; str = fmtd->next())
+        out << str;
+    return out;
+}
 
-    static inline
-    std::ostream &operator<<(std::ostream &out, const UMat &m) {
-        return out << m.getMat(ACCESS_READ);
-    }
+static inline
+std::ostream &operator<<(std::ostream &out, const Mat &mtx) {
+    return out << Formatter::get()->format(mtx);
+}
 
-    template<typename _Tp>
-    static inline
-    std::ostream &operator<<(std::ostream &out, const Complex <_Tp> &c) {
-        return out << "(" << c.re << "," << c.im << ")";
-    }
+static inline
+std::ostream &operator<<(std::ostream &out, const UMat &m) {
+    return out << m.getMat(ACCESS_READ);
+}
 
-    template<typename _Tp>
-    static inline
-    std::ostream &operator<<(std::ostream &out, const std::vector<Point_ < _Tp>
+template<typename _Tp>
+static inline
+std::ostream &operator<<(std::ostream &out, const Complex <_Tp> &c) {
+    return out << "(" << c.re << "," << c.im << ")";
+}
 
-    >& vec) {
-    return out << Formatter::get()->
-
-    format (Mat(vec));
+template<typename _Tp>
+static inline
+std::ostream &operator<<(std::ostream &out, const std::vector <Point_<_Tp>> &vec) {
+    return out << Formatter::get()->format(Mat(vec));
 }
 
 
 template<typename _Tp>
 static inline
-std::ostream &operator<<(std::ostream &out, const std::vector<Point3_ < _Tp>
-
->& vec)
-{
-return out << Formatter::get()->
-
-format (Mat(vec));
-
+std::ostream &operator<<(std::ostream &out, const std::vector <Point3_<_Tp>> &vec) {
+    return out << Formatter::get()->format(Mat(vec));
 }
 
 

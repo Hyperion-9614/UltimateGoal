@@ -1,9 +1,5 @@
 package org.opencv.android;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.List;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.ImageFormat;
@@ -28,6 +24,10 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * This class is an implementation of the Bridge View between OpenCV and Java Camera.
  * This class relays on the functionality available in base class and only implements
@@ -43,17 +43,17 @@ public class JavaCamera2View extends CameraBridgeViewBase {
 
     private static final String LOGTAG = "JavaCamera2View";
 
-    private ImageReader mImageReader;
-    private int mPreviewFormat = ImageFormat.YUV_420_888;
+    protected ImageReader mImageReader;
+    protected int mPreviewFormat = ImageFormat.YUV_420_888;
 
-    private CameraDevice mCameraDevice;
-    private CameraCaptureSession mCaptureSession;
-    private CaptureRequest.Builder mPreviewRequestBuilder;
-    private String mCameraID;
-    private android.util.Size mPreviewSize = new android.util.Size(-1, -1);
+    protected CameraDevice mCameraDevice;
+    protected CameraCaptureSession mCaptureSession;
+    protected CaptureRequest.Builder mPreviewRequestBuilder;
+    protected String mCameraID;
+    protected android.util.Size mPreviewSize = new android.util.Size(-1, -1);
 
     private HandlerThread mBackgroundThread;
-    private Handler mBackgroundHandler;
+    protected Handler mBackgroundHandler;
 
     public JavaCamera2View(Context context, int cameraId) {
         super(context, cameraId);
@@ -89,7 +89,7 @@ public class JavaCamera2View extends CameraBridgeViewBase {
         Log.i(LOGTAG, "initializeCamera");
         CameraManager manager = (CameraManager) getContext().getSystemService(Context.CAMERA_SERVICE);
         try {
-            String camList[] = manager.getCameraIdList();
+            String[] camList = manager.getCameraIdList();
             if (camList.length == 0) {
                 Log.e(LOGTAG, "Error: camera isn't detected.");
                 return false;
@@ -440,8 +440,8 @@ public class JavaCamera2View extends CameraBridgeViewBase {
             mGray.release();
         }
 
-        private Image mImage;
-        private Mat mRgba;
+        private final Image mImage;
+        private final Mat mRgba;
         private Mat mGray;
-    };
+    }
 }

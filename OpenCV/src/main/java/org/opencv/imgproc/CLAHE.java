@@ -19,24 +19,6 @@ public class CLAHE extends Algorithm {
     public static CLAHE __fromPtr__(long addr) { return new CLAHE(addr); }
 
     //
-    // C++:  Size cv::CLAHE::getTilesGridSize()
-    //
-
-    public Size getTilesGridSize() {
-        return new Size(getTilesGridSize_0(nativeObj));
-    }
-
-
-    //
-    // C++:  double cv::CLAHE::getClipLimit()
-    //
-
-    public double getClipLimit() {
-        return getClipLimit_0(nativeObj);
-    }
-
-
-    //
     // C++:  void cv::CLAHE::apply(Mat src, Mat& dst)
     //
 
@@ -52,26 +34,25 @@ public class CLAHE extends Algorithm {
 
 
     //
-    // C++:  void cv::CLAHE::collectGarbage()
-    //
-
-    public void collectGarbage() {
-        collectGarbage_0(nativeObj);
-    }
-
-
-    //
     // C++:  void cv::CLAHE::setClipLimit(double clipLimit)
     //
 
     /**
      * Sets threshold for contrast limiting.
      *
-     *     @param clipLimit threshold value.
+     * @param clipLimit threshold value.
      */
     public void setClipLimit(double clipLimit) {
         setClipLimit_0(nativeObj, clipLimit);
     }
+
+
+    //
+    // C++:  double cv::CLAHE::getClipLimit()
+    //
+
+    // C++:  double cv::CLAHE::getClipLimit()
+    private static native double getClipLimit_0(long nativeObj);
 
 
     //
@@ -80,13 +61,29 @@ public class CLAHE extends Algorithm {
 
     /**
      * Sets size of grid for histogram equalization. Input image will be divided into
-     *     equally sized rectangular tiles.
+     * equally sized rectangular tiles.
      *
-     *     @param tileGridSize defines the number of tiles in row and column.
+     * @param tileGridSize defines the number of tiles in row and column.
      */
     public void setTilesGridSize(Size tileGridSize) {
         setTilesGridSize_0(nativeObj, tileGridSize.width, tileGridSize.height);
     }
+
+
+    //
+    // C++:  Size cv::CLAHE::getTilesGridSize()
+    //
+
+    // C++:  Size cv::CLAHE::getTilesGridSize()
+    private static native double[] getTilesGridSize_0(long nativeObj);
+
+
+    //
+    // C++:  void cv::CLAHE::collectGarbage()
+    //
+
+    // C++:  void cv::CLAHE::collectGarbage()
+    private static native void collectGarbage_0(long nativeObj);
 
 
     @Override
@@ -95,24 +92,26 @@ public class CLAHE extends Algorithm {
     }
 
 
-
-    // C++:  Size cv::CLAHE::getTilesGridSize()
-    private static native double[] getTilesGridSize_0(long nativeObj);
-
-    // C++:  double cv::CLAHE::getClipLimit()
-    private static native double getClipLimit_0(long nativeObj);
-
     // C++:  void cv::CLAHE::apply(Mat src, Mat& dst)
     private static native void apply_0(long nativeObj, long src_nativeObj, long dst_nativeObj);
-
-    // C++:  void cv::CLAHE::collectGarbage()
-    private static native void collectGarbage_0(long nativeObj);
 
     // C++:  void cv::CLAHE::setClipLimit(double clipLimit)
     private static native void setClipLimit_0(long nativeObj, double clipLimit);
 
+    public double getClipLimit() {
+        return getClipLimit_0(nativeObj);
+    }
+
     // C++:  void cv::CLAHE::setTilesGridSize(Size tileGridSize)
     private static native void setTilesGridSize_0(long nativeObj, double tileGridSize_width, double tileGridSize_height);
+
+    public Size getTilesGridSize() {
+        return new Size(getTilesGridSize_0(nativeObj));
+    }
+
+    public void collectGarbage() {
+        collectGarbage_0(nativeObj);
+    }
 
     // native support for java finalize()
     private static native void delete(long nativeObj);

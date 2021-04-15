@@ -3,16 +3,15 @@
 //
 package org.opencv.features2d;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfRect;
-import org.opencv.features2d.Feature2D;
-import org.opencv.features2d.MSER;
 import org.opencv.utils.Converters;
 
+import java.util.List;
+
 // C++: class MSER
+
 /**
  * Maximally stable extremal region extractor
  *
@@ -35,8 +34,7 @@ import org.opencv.utils.Converters;
  * <ul>
  *   <li>
  *  the color image algorithm is taken from: CITE: forssen2007maximally ; it should be much slower
- * than grey image method ( 3~4 times ); the chi_table.h file is taken directly from paper's source
- * code which is distributed under GPL.
+ * than grey image method ( 3~4 times )
  *   </li>
  * </ul>
  *
@@ -194,51 +192,6 @@ public class MSER extends Feature2D {
 
 
     //
-    // C++:  String cv::MSER::getDefaultName()
-    //
-
-    public String getDefaultName() {
-        return getDefaultName_0(nativeObj);
-    }
-
-
-    //
-    // C++:  bool cv::MSER::getPass2Only()
-    //
-
-    public boolean getPass2Only() {
-        return getPass2Only_0(nativeObj);
-    }
-
-
-    //
-    // C++:  int cv::MSER::getDelta()
-    //
-
-    public int getDelta() {
-        return getDelta_0(nativeObj);
-    }
-
-
-    //
-    // C++:  int cv::MSER::getMaxArea()
-    //
-
-    public int getMaxArea() {
-        return getMaxArea_0(nativeObj);
-    }
-
-
-    //
-    // C++:  int cv::MSER::getMinArea()
-    //
-
-    public int getMinArea() {
-        return getMinArea_0(nativeObj);
-    }
-
-
-    //
     // C++:  void cv::MSER::detectRegions(Mat image, vector_vector_Point& msers, vector_Rect& bboxes)
     //
 
@@ -268,6 +221,30 @@ public class MSER extends Feature2D {
 
 
     //
+    // C++:  int cv::MSER::getDelta()
+    //
+
+    // C++:  void cv::MSER::detectRegions(Mat image, vector_vector_Point& msers, vector_Rect& bboxes)
+    private static native void detectRegions_0(long nativeObj, long image_nativeObj, long msers_mat_nativeObj, long bboxes_mat_nativeObj);
+
+
+    //
+    // C++:  void cv::MSER::setMinArea(int minArea)
+    //
+
+    // C++:  void cv::MSER::setDelta(int delta)
+    private static native void setDelta_0(long nativeObj, int delta);
+
+
+    //
+    // C++:  int cv::MSER::getMinArea()
+    //
+
+    // C++:  void cv::MSER::setMinArea(int minArea)
+    private static native void setMinArea_0(long nativeObj, int minArea);
+
+
+    //
     // C++:  void cv::MSER::setMaxArea(int maxArea)
     //
 
@@ -277,12 +254,11 @@ public class MSER extends Feature2D {
 
 
     //
-    // C++:  void cv::MSER::setMinArea(int minArea)
+    // C++:  int cv::MSER::getMaxArea()
     //
 
-    public void setMinArea(int minArea) {
-        setMinArea_0(nativeObj, minArea);
-    }
+    // C++:  int cv::MSER::getMaxArea()
+    private static native int getMaxArea_0(long nativeObj);
 
 
     //
@@ -294,54 +270,84 @@ public class MSER extends Feature2D {
     }
 
 
+    //
+    // C++:  bool cv::MSER::getPass2Only()
+    //
+
+    // C++:  bool cv::MSER::getPass2Only()
+    private static native boolean getPass2Only_0(long nativeObj);
+
+
+    //
+    // C++:  String cv::MSER::getDefaultName()
+    //
+
+    // C++:  String cv::MSER::getDefaultName()
+    private static native String getDefaultName_0(long nativeObj);
+
+
     @Override
     protected void finalize() throws Throwable {
         delete(nativeObj);
     }
 
 
-
     // C++: static Ptr_MSER cv::MSER::create(int _delta = 5, int _min_area = 60, int _max_area = 14400, double _max_variation = 0.25, double _min_diversity = .2, int _max_evolution = 200, double _area_threshold = 1.01, double _min_margin = 0.003, int _edge_blur_size = 5)
     private static native long create_0(int _delta, int _min_area, int _max_area, double _max_variation, double _min_diversity, int _max_evolution, double _area_threshold, double _min_margin, int _edge_blur_size);
+
     private static native long create_1(int _delta, int _min_area, int _max_area, double _max_variation, double _min_diversity, int _max_evolution, double _area_threshold, double _min_margin);
+
     private static native long create_2(int _delta, int _min_area, int _max_area, double _max_variation, double _min_diversity, int _max_evolution, double _area_threshold);
+
     private static native long create_3(int _delta, int _min_area, int _max_area, double _max_variation, double _min_diversity, int _max_evolution);
+
     private static native long create_4(int _delta, int _min_area, int _max_area, double _max_variation, double _min_diversity);
+
     private static native long create_5(int _delta, int _min_area, int _max_area, double _max_variation);
+
     private static native long create_6(int _delta, int _min_area, int _max_area);
+
     private static native long create_7(int _delta, int _min_area);
+
     private static native long create_8(int _delta);
+
     private static native long create_9();
 
-    // C++:  String cv::MSER::getDefaultName()
-    private static native String getDefaultName_0(long nativeObj);
+    public int getDelta() {
+        return getDelta_0(nativeObj);
+    }
 
-    // C++:  bool cv::MSER::getPass2Only()
-    private static native boolean getPass2Only_0(long nativeObj);
+    public int getMinArea() {
+        return getMinArea_0(nativeObj);
+    }
 
     // C++:  int cv::MSER::getDelta()
     private static native int getDelta_0(long nativeObj);
 
-    // C++:  int cv::MSER::getMaxArea()
-    private static native int getMaxArea_0(long nativeObj);
+    public void setMinArea(int minArea) {
+        setMinArea_0(nativeObj, minArea);
+    }
 
     // C++:  int cv::MSER::getMinArea()
     private static native int getMinArea_0(long nativeObj);
 
-    // C++:  void cv::MSER::detectRegions(Mat image, vector_vector_Point& msers, vector_Rect& bboxes)
-    private static native void detectRegions_0(long nativeObj, long image_nativeObj, long msers_mat_nativeObj, long bboxes_mat_nativeObj);
-
-    // C++:  void cv::MSER::setDelta(int delta)
-    private static native void setDelta_0(long nativeObj, int delta);
-
     // C++:  void cv::MSER::setMaxArea(int maxArea)
     private static native void setMaxArea_0(long nativeObj, int maxArea);
 
-    // C++:  void cv::MSER::setMinArea(int minArea)
-    private static native void setMinArea_0(long nativeObj, int minArea);
+    public int getMaxArea() {
+        return getMaxArea_0(nativeObj);
+    }
 
     // C++:  void cv::MSER::setPass2Only(bool f)
     private static native void setPass2Only_0(long nativeObj, boolean f);
+
+    public boolean getPass2Only() {
+        return getPass2Only_0(nativeObj);
+    }
+
+    public String getDefaultName() {
+        return getDefaultName_0(nativeObj);
+    }
 
     // native support for java finalize()
     private static native void delete(long nativeObj);

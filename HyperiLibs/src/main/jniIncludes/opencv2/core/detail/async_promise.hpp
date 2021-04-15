@@ -38,7 +38,7 @@ namespace cv {
                     */
                     void setValue(InputArray value);
 
-                    // NEED TO FIX "move" setters
+                    // TODO "move" setters
 
 #if CV__EXCEPTION_PTR
                     /** Stores exception.

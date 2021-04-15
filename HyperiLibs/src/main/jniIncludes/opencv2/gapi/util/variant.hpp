@@ -55,9 +55,9 @@ namespace cv {
             return true;
         }
 
-        template<typename... Ts> // NEED TO FIX: no references, arrays, and void
+        template<typename... Ts> // FIXME: no references, arrays, and void
         class variant {
-            // NEED TO FIX: Replace with std::aligned_union after gcc4.8 support is dropped
+            // FIXME: Replace with std::aligned_union after gcc4.8 support is dropped
             static constexpr const std::size_t S = cv::detail::max_of_t<sizeof(Ts)...>::value;
             static constexpr const std::size_t A = cv::detail::max_of_t<alignof(Ts)...>::value;
             using Memory = typename std::aligned_storage<S, A>::type[1];
@@ -76,7 +76,7 @@ namespace cv {
                 }
             };
 
-            //NEED TO FIX: unify with cctr_h and mctr_h
+            //FIXME: unify with cctr_h and mctr_h
             template<typename T>
             struct cnvrt_ctor_h {
                 static void help(Memory memory, void *from) {
@@ -99,7 +99,7 @@ namespace cv {
                 }
             };
 
-            //NEED TO FIX: unify with copy_h and move_h
+            //FIXME: unify with copy_h and move_h
             template<typename T>
             struct cnvrt_assign_h {
                 static void help(Memory to, void *from) {
@@ -223,7 +223,7 @@ namespace cv {
             >
             explicit variant(T &&t);
             // template<class T, class... Args> explicit variant(Args&&... args);
-            // NEED TO FIX: other constructors
+            // FIXME: other constructors
 
             // Destructor
             ~variant();
@@ -242,10 +242,10 @@ namespace cv {
 
             // Observers
             std::size_t index() const noexcept;
-            // NEED TO FIX: valueless_by_exception()
+            // FIXME: valueless_by_exception()
 
             // Modifiers
-            // NEED TO FIX: emplace()
+            // FIXME: emplace()
             void swap(variant &rhs) noexcept;
 
             // Non-C++17x!
@@ -269,7 +269,7 @@ namespace cv {
         template<typename T, typename... Types>
         bool holds_alternative(const util::variant<Types...> &v) noexcept;
 
-        // NEED TO FIX: T&&, const TT&& versions.
+        // FIXME: T&&, const TT&& versions.
 
         // Implementation //////////////////////////////////////////////////////////
         template<typename... Ts>
@@ -331,7 +331,7 @@ namespace cv {
         template<typename T, typename>
         variant<Ts...> &variant<Ts...>::operator=(T &&t) noexcept {
             using decayed_t = util::decay_t<T>;
-            // NEED TO FIX: No version with implicit type conversion available!
+            // FIXME: No version with implicit type conversion available!
             const constexpr std::size_t t_index =
                     util::type_list_index<decayed_t, Ts...>::value;
 
@@ -368,7 +368,7 @@ namespace cv {
         template<typename... Ts>
         template<typename T>
         constexpr std::size_t variant<Ts...>::index_of() {
-            return util::type_list_index<T, Ts...>::value; // NEED TO FIX: tests!
+            return util::type_list_index<T, Ts...>::value; // FIXME: tests!
         }
 
         template<typename T, typename... Types>

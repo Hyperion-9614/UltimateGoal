@@ -83,8 +83,8 @@ namespace cvflann {
         if (it != params.end()) {
             return it->second.cast<T>();
         } else {
-            throw FLANNException(cv::String("Missing parameter '") + name +
-                                 cv::String("' in the parameters given"));
+            FLANN_THROW(cv::Error::StsBadArg, cv::String("Missing parameter '") + name +
+                                              cv::String("' in the parameters given"));
         }
     }
 

@@ -15,7 +15,7 @@ typedef cl_bitfield cl_svm_mem_flags;
 typedef cl_uint     cl_kernel_exec_info;
 
 //
-// NEED TO FIX Add real values after OpenCL 2.0 release
+// TODO Add real values after OpenCL 2.0 release
 //
 
 #ifndef CL_DEVICE_SVM_CAPABILITIES

@@ -18,7 +18,7 @@
 #include <opencv2/gapi/gkernel.hpp>
 #include <opencv2/gapi/garg.hpp>
 
-// NEED TO FIX: namespace scheme for backends?
+// FIXME: namespace scheme for backends?
 namespace cv {
 
     namespace gimpl {
@@ -49,7 +49,7 @@ namespace cv {
 
 
 // Represents arguments which are passed to a wrapped OCL function
-// NEED TO FIX: put into detail?
+// FIXME: put into detail?
     class GAPI_EXPORTS GOCLContext
             {
                     public:
@@ -59,15 +59,15 @@ namespace cv {
 
                     // Syntax sugar
                     const cv::UMat&  inMat(int input);
-                    cv::UMat&  outMatR(int output); // NEED TO FIX: Avoid cv::Mat m = ctx.outMatR()
+                    cv::UMat&  outMatR(int output); // FIXME: Avoid cv::Mat m = ctx.outMatR()
 
                     const cv::Scalar& inVal(int input);
-                    cv::Scalar& outValR(int output); // NEED TO FIX: Avoid cv::Scalar s = ctx.outValR()
-                    template<typename T> std::vector<T>& outVecR(int output) // NEED TO FIX: the same issue
+                    cv::Scalar& outValR(int output); // FIXME: Avoid cv::Scalar s = ctx.outValR()
+                    template<typename T> std::vector<T>& outVecR(int output) // FIXME: the same issue
                     {
                         return outVecRef(output).wref<T>();
                     }
-                    template<typename T> T& outOpaqueR(int output) // NEED TO FIX: the same issue
+                    template<typename T> T& outOpaqueR(int output) // FIXME: the same issue
                     {
                         return outOpaqueRef(output).wref<T>();
                     }
@@ -98,7 +98,7 @@ namespace cv {
                     F m_f;
             };
 
-// NEED TO FIX: This is an ugly ad-hoc implementation. NEED TO FIX: refactor
+// FIXME: This is an ugly ad-hoc implementation. TODO: refactor
 
     namespace detail {
         template<class T>
@@ -133,11 +133,11 @@ namespace cv {
         };
 
         struct tracked_cv_umat {
-            //NEED TO FIX Think if T - API could reallocate UMat to a proper size - how do we handle this ?
+            //TODO Think if T - API could reallocate UMat to a proper size - how do we handle this ?
             //tracked_cv_umat(cv::UMat& m) : r{(m)}, original_data{m.getMat(ACCESS_RW).data} {}
             tracked_cv_umat(cv::UMat &m) : r(m), original_data{nullptr} {}
 
-            cv::UMat &r; // NEED TO FIX: It was a value (not a reference) before.
+            cv::UMat &r; // FIXME: It was a value (not a reference) before.
             // Actually OCL backend should allocate its internal data!
             uchar *original_data;
 
@@ -199,7 +199,7 @@ namespace cv {
         template<typename, typename, typename>
         struct OCLCallHelper;
 
-// NEED TO FIX: probably can be simplified with std::apply or analogue.
+// FIXME: probably can be simplified with std::apply or analogue.
         template<typename Impl, typename... Ins, typename... Outs>
         struct OCLCallHelper<Impl, std::tuple < Ins...>, std::tuple<Outs...> > {
         template<typename... Inputs>
@@ -216,7 +216,7 @@ namespace cv {
 
         template<int... IIs, int... OIs>
         static void call_impl(GOCLContext & ctx, detail::Seq<IIs...>, detail::Seq<OIs...>) {
-            //NEED TO FIX: Make sure that OpenCV kernels do not reallocate memory for output parameters
+            //TODO: Make sure that OpenCV kernels do not reallocate memory for output parameters
             //by comparing it's state (data ptr) before and after the call.
             //Convert own::Scalar to cv::Scalar before call kernel and run kernel
             //convert cv::Scalar to own::Scalar after call kernel and write back results

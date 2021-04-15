@@ -13,7 +13,7 @@
 
 namespace cv {
 
-    using std::nullptr_t;
+using std::nullptr_t;
 
 //! @addtogroup core_basic
 //! @{
@@ -43,13 +43,14 @@ namespace cv {
         private:
             template<typename T>
             static CV_CONSTEXPR std::true_type
+
             check(typename std::is_same<typename std::decay<decltype(std::declval<T>().operator()(
                     std::declval<Args>()...))>::type, Ret>::type *);
 
-            template<typename>
-            static CV_CONSTEXPR std::false_type check(...);
+            template<typename> static CV_CONSTEXPR std::false_type
+            check(...);
 
-            typedef decltype(check<C>(0)) type;
+            typedef decltype(check < C > (0)) type;
 
         public:
 #if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1900/*MSVS 2015*/)
@@ -80,9 +81,13 @@ namespace cv {
         using std::shared_ptr<T>::shared_ptr;  // GCC 5.x can't handle this
 #else
 
-        inline Ptr() CV_NOEXCEPT: std::shared_ptr<T>() {}
+        inline Ptr()
 
-        inline Ptr(nullptr_t) CV_NOEXCEPT: std::shared_ptr<T>(nullptr) {}
+        CV_NOEXCEPT : std::shared_ptr<T>() {}
+
+        inline Ptr(nullptr_t)
+
+        CV_NOEXCEPT : std::shared_ptr<T>(nullptr) {}
 
         template<typename Y, typename D>
         inline Ptr(Y *p, D d) : std::shared_ptr<T>(p, d) {}
@@ -91,23 +96,36 @@ namespace cv {
         inline Ptr(nullptr_t, D d) : std::shared_ptr<T>(nullptr, d) {}
 
         template<typename Y>
-        inline Ptr(const Ptr<Y> &r, T *ptr) CV_NOEXCEPT : std::shared_ptr<T>(r, ptr) {}
+        inline Ptr(const Ptr<Y> &r, T *ptr)
 
-        inline Ptr(const Ptr<T> &o) CV_NOEXCEPT: std::shared_ptr<T>(o) {}
+        CV_NOEXCEPT : std::shared_ptr<T>(r, ptr) {}
 
-        inline Ptr(Ptr<T> &&o) CV_NOEXCEPT: std::shared_ptr<T>(std::move(o)) {}
+        inline Ptr(const Ptr<T> &o)
+
+        CV_NOEXCEPT : std::shared_ptr<T>(o) {}
+
+        inline Ptr(Ptr<T> &&o)
+
+        CV_NOEXCEPT : std::shared_ptr<T>(std::move(o)) {}
 
         template<typename Y>
-        inline Ptr(const Ptr<Y> &o) CV_NOEXCEPT : std::shared_ptr<T>(o) {}
+        inline Ptr(const Ptr<Y> &o)
+
+        CV_NOEXCEPT : std::shared_ptr<T>(o) {}
 
         template<typename Y>
-        inline Ptr(Ptr<Y> &&o) CV_NOEXCEPT : std::shared_ptr<T>(std::move(o)) {}
+        inline Ptr(Ptr<Y> &&o)
 
+        CV_NOEXCEPT : std::shared_ptr<T>(std::move(o)) {}
 #endif
 
-        inline Ptr(const std::shared_ptr<T> &o) CV_NOEXCEPT: std::shared_ptr<T>(o) {}
+        inline Ptr(const std::shared_ptr <T> &o)
 
-        inline Ptr(std::shared_ptr<T> &&o) CV_NOEXCEPT: std::shared_ptr<T>(std::move(o)) {}
+        CV_NOEXCEPT : std::shared_ptr<T>(o) {}
+
+        inline Ptr(std::shared_ptr <T> &&o)
+
+        CV_NOEXCEPT : std::shared_ptr<T>(std::move(o)) {}
 
         // Overload with custom DefaultDeleter: Ptr<IplImage>(...)
         template<typename Y>
@@ -136,7 +154,9 @@ namespace cv {
         template<class Y, class Deleter>
         void reset(Y *ptr, Deleter d) { std::shared_ptr<T>::reset(ptr, d); }
 
-        void reset() CV_NOEXCEPT { std::shared_ptr<T>::reset(); }
+        void reset()
+
+        CV_NOEXCEPT { std::shared_ptr<T>::reset(); }
 
         Ptr &operator=(const Ptr &o) {
             std::shared_ptr<T>::operator=(o);
@@ -149,10 +169,13 @@ namespace cv {
             return *this;
         }
 
-        T *operator->() const CV_NOEXCEPT { return std::shared_ptr<T>::get(); }
+        T *operator->() const
 
-        typename std::add_lvalue_reference<T>::type
-        operator*() const CV_NOEXCEPT { return *std::shared_ptr<T>::get(); }
+        CV_NOEXCEPT { return std::shared_ptr<T>::get(); }
+
+        typename std::add_lvalue_reference<T>::type operator*() const
+
+        CV_NOEXCEPT { return *std::shared_ptr<T>::get(); }
 
         // OpenCV 3.x methods (not a part of standard C++ library)
         inline void release() { std::shared_ptr<T>::reset(); }
@@ -163,15 +186,21 @@ namespace cv {
 
         template<typename Y>
         inline
-        Ptr<Y> staticCast() const CV_NOEXCEPT { return std::static_pointer_cast<Y>(*this); }
+        Ptr<Y> staticCast() const
+
+        CV_NOEXCEPT { return std::static_pointer_cast<Y>(*this); }
 
         template<typename Y>
         inline
-        Ptr<Y> constCast() const CV_NOEXCEPT { return std::const_pointer_cast<Y>(*this); }
+        Ptr<Y> constCast() const
+
+        CV_NOEXCEPT { return std::const_pointer_cast<Y>(*this); }
 
         template<typename Y>
         inline
-        Ptr<Y> dynamicCast() const CV_NOEXCEPT { return std::dynamic_pointer_cast<Y>(*this); }
+        Ptr<Y> dynamicCast() const
+
+        CV_NOEXCEPT { return std::dynamic_pointer_cast<Y>(*this); }
     };
 
     template<typename _Tp, typename ... A1>

@@ -18,15 +18,6 @@ public class Tonemap extends Algorithm {
     public static Tonemap __fromPtr__(long addr) { return new Tonemap(addr); }
 
     //
-    // C++:  float cv::Tonemap::getGamma()
-    //
-
-    public float getGamma() {
-        return getGamma_0(nativeObj);
-    }
-
-
-    //
     // C++:  void cv::Tonemap::process(Mat src, Mat& dst)
     //
 
@@ -39,6 +30,14 @@ public class Tonemap extends Algorithm {
     public void process(Mat src, Mat dst) {
         process_0(nativeObj, src.nativeObj, dst.nativeObj);
     }
+
+
+    //
+    // C++:  float cv::Tonemap::getGamma()
+    //
+
+    // C++:  void cv::Tonemap::process(Mat src, Mat& dst)
+    private static native void process_0(long nativeObj, long src_nativeObj, long dst_nativeObj);
 
 
     //
@@ -55,13 +54,12 @@ public class Tonemap extends Algorithm {
         delete(nativeObj);
     }
 
-
+    public float getGamma() {
+        return getGamma_0(nativeObj);
+    }
 
     // C++:  float cv::Tonemap::getGamma()
     private static native float getGamma_0(long nativeObj);
-
-    // C++:  void cv::Tonemap::process(Mat src, Mat& dst)
-    private static native void process_0(long nativeObj, long src_nativeObj, long dst_nativeObj);
 
     // C++:  void cv::Tonemap::setGamma(float gamma)
     private static native void setGamma_0(long nativeObj, float gamma);

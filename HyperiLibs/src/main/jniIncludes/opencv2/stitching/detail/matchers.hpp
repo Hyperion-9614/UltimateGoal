@@ -49,7 +49,7 @@
 #include "opencv2/opencv_modules.hpp"
 
 namespace cv {
-    namespace detail {
+namespace detail {
 
 //! @addtogroup stitching_match
 //! @{

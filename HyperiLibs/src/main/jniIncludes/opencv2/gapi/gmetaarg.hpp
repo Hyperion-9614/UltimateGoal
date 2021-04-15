@@ -21,8 +21,8 @@
 #include <opencv2/gapi/gframe.hpp>
 
 namespace cv {
-// NEED TO FIX: Rename to GMeta?
-// NEED TO FIX: user shouldn't deal with it - put to detail?
+// FIXME: Rename to GMeta?
+// FIXME: user shouldn't deal with it - put to detail?
 // GMetaArg is an union type over descriptions of G-types which can serve as
 // GComputation's in/output slots.
 //
@@ -45,7 +45,7 @@ namespace cv {
     namespace detail {
         // These traits are used by GComputation::compile()
 
-        // NEED TO FIX: is_constructible<T> doesn't work as variant doesn't do any SFINAE
+        // FIXME: is_constructible<T> doesn't work as variant doesn't do any SFINAE
         // in its current template constructor
 
         template<typename T>

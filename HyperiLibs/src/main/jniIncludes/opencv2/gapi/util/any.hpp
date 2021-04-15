@@ -16,7 +16,7 @@
 #include <opencv2/gapi/util/throw.hpp>
 
 #if defined(_MSC_VER)
-// disable MSVC warning on "multiple copy constructors specified"
+   // disable MSVC warning on "multiple copy constructors specified"
 #  pragma warning(disable: 4521)
 #endif
 

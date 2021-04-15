@@ -787,7 +787,7 @@ inline v_float64x2& operator bin_op##= (v_float64x2& a, const v_float64x2& b) \
                 MSA_TPV_REINTERPRET(v2f64, msa_mvnq_s32(MSA_TPV_REINTERPRET(v4i32, a.val))));
     }
 
-// NEED TO FIX: exp, log, sin, cos
+// TODO: exp, log, sin, cos
 
 #define OPENCV_HAL_IMPL_MSA_BIN_FUNC(_Tpvec, func, intrin) \
 inline _Tpvec func(const _Tpvec& a, const _Tpvec& b) \
@@ -2194,7 +2194,6 @@ inline void v_store_interleave( _Tp* ptr, const v_##_Tpvec& a, const v_##_Tpvec&
         for (int i = 0; i < 4; i++)
             ptr[i] = (float16_t) buf[i];
     }
-
 #endif
 
     inline void v_cleanup() {}

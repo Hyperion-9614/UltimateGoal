@@ -296,8 +296,9 @@ It is possible to alternate error processing by using redirectError().
 @param _line - line number in the source file where the error has occurred
 @see CV_Error, CV_Error_, CV_Assert, CV_DbgAssert
  */
-    CV_EXPORTS CV_NORETURN void
-    error(int _code, const String &_err, const char *_func, const char *_file, int _line);
+    CV_EXPORTS CV_NORETURN
+
+    void error(int _code, const String &_err, const char *_func, const char *_file, int _line);
 
 #ifdef CV_STATIC_ANALYSIS
 
@@ -346,7 +347,7 @@ configurations while CV_DbgAssert is only retained in the Debug configuration.
 #endif // CV_STATIC_ANALYSIS
 
 //! @cond IGNORED
-#if !defined(__OPENCV_BUILD)  // NEED TO FIX: backward compatibility only
+#if !defined(__OPENCV_BUILD)  // TODO: backward compatibility only
 #ifndef CV_ErrorNoReturn
 #define CV_ErrorNoReturn CV_Error
 #endif
@@ -381,15 +382,16 @@ configurations while CV_DbgAssert is only retained in the Debug configuration.
  * Hamming distance functor - counts the bit differences between two strings - useful for the Brief descriptor
  * bit count of A exclusive XOR'ed with B
  */
-    struct CV_EXPORTS Hamming {
-        static const NormTypes normType = NORM_HAMMING;
-        typedef unsigned char ValueType;
-        typedef int ResultType;
+    struct CV_EXPORTS Hamming
+            {
+                    static const NormTypes normType = NORM_HAMMING;
+                    typedef unsigned char ValueType;
+                    typedef int ResultType;
 
-        /** this will count the bits in a ^ b
-         */
-        ResultType operator()(const unsigned char *a, const unsigned char *b, int size) const;
-    };
+                    /** this will count the bits in a ^ b
+                     */
+                    ResultType operator()( const unsigned char* a, const unsigned char* b, int size ) const;
+            };
 
     typedef Hamming HammingLUT;
 
@@ -412,9 +414,10 @@ configurations while CV_DbgAssert is only retained in the Debug configuration.
         _AccTp s = 0;
         int i = 0;
 #if CV_ENABLE_UNROLLED
-        for (; i <= n - 4; i += 4) {
-            _AccTp v0 = a[i], v1 = a[i + 1], v2 = a[i + 2], v3 = a[i + 3];
-            s += v0 * v0 + v1 * v1 + v2 * v2 + v3 * v3;
+        for( ; i <= n - 4; i += 4 )
+        {
+            _AccTp v0 = a[i], v1 = a[i+1], v2 = a[i+2], v3 = a[i+3];
+            s += v0*v0 + v1*v1 + v2*v2 + v3*v3;
         }
 #endif
         for (; i < n; i++) {
@@ -430,9 +433,10 @@ configurations while CV_DbgAssert is only retained in the Debug configuration.
         _AccTp s = 0;
         int i = 0;
 #if CV_ENABLE_UNROLLED
-        for (; i <= n - 4; i += 4) {
-            s += (_AccTp) cv_abs(a[i]) + (_AccTp) cv_abs(a[i + 1]) +
-                 (_AccTp) cv_abs(a[i + 2]) + (_AccTp) cv_abs(a[i + 3]);
+        for(; i <= n - 4; i += 4 )
+        {
+            s += (_AccTp)cv_abs(a[i]) + (_AccTp)cv_abs(a[i+1]) +
+                (_AccTp)cv_abs(a[i+2]) + (_AccTp)cv_abs(a[i+3]);
         }
 #endif
         for (; i < n; i++)
@@ -455,10 +459,10 @@ configurations while CV_DbgAssert is only retained in the Debug configuration.
         _AccTp s = 0;
         int i = 0;
 #if CV_ENABLE_UNROLLED
-        for (; i <= n - 4; i += 4) {
-            _AccTp v0 = _AccTp(a[i] - b[i]), v1 = _AccTp(a[i + 1] - b[i + 1]), v2 = _AccTp(
-                    a[i + 2] - b[i + 2]), v3 = _AccTp(a[i + 3] - b[i + 3]);
-            s += v0 * v0 + v1 * v1 + v2 * v2 + v3 * v3;
+        for(; i <= n - 4; i += 4 )
+        {
+            _AccTp v0 = _AccTp(a[i] - b[i]), v1 = _AccTp(a[i+1] - b[i+1]), v2 = _AccTp(a[i+2] - b[i+2]), v3 = _AccTp(a[i+3] - b[i+3]);
+            s += v0*v0 + v1*v1 + v2*v2 + v3*v3;
         }
 #endif
         for (; i < n; i++) {
@@ -483,9 +487,9 @@ configurations while CV_DbgAssert is only retained in the Debug configuration.
         _AccTp s = 0;
         int i = 0;
 #if CV_ENABLE_UNROLLED
-        for (; i <= n - 4; i += 4) {
-            _AccTp v0 = _AccTp(a[i] - b[i]), v1 = _AccTp(a[i + 1] - b[i + 1]), v2 = _AccTp(
-                    a[i + 2] - b[i + 2]), v3 = _AccTp(a[i + 3] - b[i + 3]);
+        for(; i <= n - 4; i += 4 )
+        {
+            _AccTp v0 = _AccTp(a[i] - b[i]), v1 = _AccTp(a[i+1] - b[i+1]), v2 = _AccTp(a[i+2] - b[i+2]), v3 = _AccTp(a[i+3] - b[i+3]);
             s += std::abs(v0) + std::abs(v1) + std::abs(v2) + std::abs(v3);
         }
 #endif
@@ -532,6 +536,15 @@ configurations while CV_DbgAssert is only retained in the Debug configuration.
  */
     CV_EXPORTS_W float cubeRoot(float val);
 
+/** @overload
+
+cubeRoot with argument of `double` type calls `std::cbrt(double)`
+*/
+    static inline
+    double cubeRoot(double val) {
+        return std::cbrt(val);
+    }
+
 /** @brief Calculates the angle of a 2D vector in degrees.
 
  The function fastAtan2 calculates the full-range angle of an input 2D vector. The angle is measured
@@ -543,10 +556,13 @@ configurations while CV_DbgAssert is only retained in the Debug configuration.
 
 /** proxy for hal::LU */
     CV_EXPORTS int LU(float *A, size_t astep, int m, float *b, size_t bstep, int n);
+
 /** proxy for hal::LU */
     CV_EXPORTS int LU(double *A, size_t astep, int m, double *b, size_t bstep, int n);
+
 /** proxy for hal::Cholesky */
     CV_EXPORTS bool Cholesky(float *A, size_t astep, int m, float *b, size_t bstep, int n);
+
 /** proxy for hal::Cholesky */
     CV_EXPORTS bool Cholesky(double *A, size_t astep, int m, double *b, size_t bstep, int n);
 
@@ -656,13 +672,17 @@ configurations while CV_DbgAssert is only retained in the Debug configuration.
 
         CV_EXPORTS int getIppStatus();
 
-        CV_EXPORTS String getIppErrorLocation();
+        CV_EXPORTS String
+
+        getIppErrorLocation();
 
         CV_EXPORTS_W bool useIPP();
 
         CV_EXPORTS_W void setUseIPP(bool flag);
 
-        CV_EXPORTS_W String getIppVersion();
+        CV_EXPORTS_W String
+
+        getIppVersion();
 
 // IPP Not-Exact mode. This function may force use of IPP then both IPP and OpenCV provide proper results
 // but have internal accuracy differences which have too much direct or indirect impact on accuracy tests.

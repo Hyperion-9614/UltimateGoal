@@ -73,7 +73,7 @@ try \
 } \
 catch (const cv::Exception& e) \
 { \
-    CV_UNUSED(e); /* NEED TO FIX: Add some logging here */ \
+    CV_UNUSED(e); /* TODO: Add some logging here */ \
 }
 #endif
 

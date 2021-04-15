@@ -17,52 +17,52 @@
 
 namespace cv {
 
-    namespace {
-        static std::string bytesToStringRepr(size_t value) {
-            size_t b = value % 1024;
-            value /= 1024;
+namespace {
+    static std::string bytesToStringRepr(size_t value) {
+        size_t b = value % 1024;
+        value /= 1024;
 
-            size_t kb = value % 1024;
-            value /= 1024;
+        size_t kb = value % 1024;
+        value /= 1024;
 
-            size_t mb = value % 1024;
-            value /= 1024;
+        size_t mb = value % 1024;
+        value /= 1024;
 
-            size_t gb = value;
+        size_t gb = value;
 
-            std::ostringstream stream;
+        std::ostringstream stream;
 
-            if (gb > 0)
-                stream << gb << " GB ";
-            if (mb > 0)
-                stream << mb << " MB ";
-            if (kb > 0)
-                stream << kb << " KB ";
-            if (b > 0)
-                stream << b << " B";
+        if (gb > 0)
+            stream << gb << " GB ";
+        if (mb > 0)
+            stream << mb << " MB ";
+        if (kb > 0)
+            stream << kb << " KB ";
+        if (b > 0)
+            stream << b << " B";
 
-            std::string s = stream.str();
-            if (s[s.size() - 1] == ' ')
-                s = s.substr(0, s.size() - 1);
-            return s;
+        std::string s = stream.str();
+        if (s[s.size() - 1] == ' ')
+            s = s.substr(0, s.size() - 1);
+        return s;
+    }
+
+    static String getDeviceTypeString(const cv::ocl::Device &device) {
+        if (device.type() == cv::ocl::Device::TYPE_CPU) {
+            return "CPU";
         }
 
-        static String getDeviceTypeString(const cv::ocl::Device &device) {
-            if (device.type() == cv::ocl::Device::TYPE_CPU) {
-                return "CPU";
+        if (device.type() == cv::ocl::Device::TYPE_GPU) {
+            if (device.hostUnifiedMemory()) {
+                return "iGPU";
+            } else {
+                return "dGPU";
             }
-
-            if (device.type() == cv::ocl::Device::TYPE_GPU) {
-                if (device.hostUnifiedMemory()) {
-                    return "iGPU";
-                } else {
-                    return "dGPU";
-                }
-            }
-
-            return "unknown";
         }
-    } // namespace
+
+        return "unknown";
+    }
+} // namespace
 
     static void dumpOpenCLInformation() {
         using namespace cv::ocl;
@@ -204,7 +204,6 @@ namespace cv {
             DUMP_CONFIG_PROPERTY("cv_ocl", "not available");
         }
     }
-
 #undef DUMP_MESSAGE_STDOUT
 #undef DUMP_CONFIG_PROPERTY
 

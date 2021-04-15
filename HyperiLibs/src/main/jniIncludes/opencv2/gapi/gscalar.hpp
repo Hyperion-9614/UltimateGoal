@@ -49,19 +49,24 @@ namespace cv {
  * \addtogroup gapi_meta_args
  * @{
  */
-    struct GScalarDesc {
-        // NB.: right now it is empty
+    struct GAPI_EXPORTS_W_SIMPLE GScalarDesc
+            {
+                    // NB.: right now it is empty
 
-        inline bool operator==(const GScalarDesc &) const {
-            return true; // NB: implement this method if GScalar meta appears
-        }
+                    inline bool operator== (const GScalarDesc &) const
+                    {
+                        return true; // NB: implement this method if GScalar meta appears
+                    }
 
-        inline bool operator!=(const GScalarDesc &rhs) const {
-            return !(*this == rhs);
-        }
-    };
+                    inline bool operator!= (const GScalarDesc &rhs) const
+                    {
+                        return !(*this == rhs);
+                    }
+            };
 
-    static inline GScalarDesc empty_scalar_desc() { return GScalarDesc(); }
+    GAPI_EXPORTS_W inline GScalarDesc
+
+    empty_scalar_desc() { return GScalarDesc(); }
 
     GAPI_EXPORTS GScalarDesc
 

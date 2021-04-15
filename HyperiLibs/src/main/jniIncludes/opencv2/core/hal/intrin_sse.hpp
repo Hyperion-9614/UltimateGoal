@@ -1196,7 +1196,7 @@ inline _Tpuvec v_abs(const _Tpsvec& x) \
                                       _mm_castsi128_pd(_mm_srli_epi64(_mm_set1_epi32(-1), 1))));
     }
 
-// NEED TO FIX: exp, log, sin, cos
+// TODO: exp, log, sin, cos
 
 #define OPENCV_HAL_IMPL_SSE_BIN_FUNC(_Tpvec, func, intrin) \
 inline _Tpvec func(const _Tpvec& a, const _Tpvec& b) \

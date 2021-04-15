@@ -8,9 +8,7 @@
 #define OPENCV_GAPI_GASYNC_CONTEXT_HPP
 
 #if !defined(GAPI_STANDALONE)
-
 #  include <opencv2/core/cvdef.h>
-
 #else   // Without OpenCV
 #  include <opencv2/gapi/own/cvdefs.hpp>
 #endif // !defined(GAPI_STANDALONE)
@@ -18,8 +16,8 @@
 #include <opencv2/gapi/own/exports.hpp>
 
 namespace cv {
-    namespace gapi {
-        namespace wip {
+namespace gapi {
+    namespace wip {
 
 /**
  * @brief A class to group async requests to cancel them in a single shot.
@@ -27,36 +25,36 @@ namespace cv {
  * GAsyncContext is passed as an argument to async() and async_apply() functions
  */
 
-            class GAPI_EXPORTS GAsyncContext{
-                    std::atomic < bool > cancelation_requested = {false};
-                    public:
-                    /**
-                     * @brief Start cancellation process for an associated request.
-                     *
-                     * User still has to wait for each individual request (either via callback or according std::future object) to make sure it actually canceled.
-                     *
-                     * @return true if it was a first request to cancel the context
-                     */
-                    bool cancel();
+        class GAPI_EXPORTS GAsyncContext{
+                std::atomic < bool > cancelation_requested = {false};
+                public:
+                /**
+                 * @brief Start cancellation process for an associated request.
+                 *
+                 * User still has to wait for each individual request (either via callback or according std::future object) to make sure it actually canceled.
+                 *
+                 * @return true if it was a first request to cancel the context
+                 */
+                bool cancel();
 
-                    /**
-                    * @brief Returns true if cancellation was requested for this context.
-                    *
-                    * @return true if cancellation was requested for this context
-                    */
-                    bool isCanceled() const;
-            };
-
-            class GAPI_EXPORTS GAsyncCanceled
-
-            : public std::exception {
-            public:
-
-            virtual const char *what() const noexcept
-
-            CV_OVERRIDE;
+                /**
+                * @brief Returns true if cancellation was requested for this context.
+                *
+                * @return true if cancellation was requested for this context
+                */
+                bool isCanceled() const;
         };
-    } // namespace wip
+
+        class GAPI_EXPORTS GAsyncCanceled
+
+        : public std::exception {
+        public:
+
+        virtual const char *what() const noexcept
+
+        CV_OVERRIDE;
+    };
+} // namespace wip
 } // namespace gapi
 } // namespace cv
 

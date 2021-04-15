@@ -19,25 +19,25 @@
 
 namespace cv {
 
-    namespace detail {
-        // NEED TO FIX: move to algorithm, cover with separate tests
-        // NEED TO FIX: replace with O(1) version (both memory and compilation time)
-        template<typename...>
-        struct last_type;
+namespace detail {
+    // FIXME: move to algorithm, cover with separate tests
+    // FIXME: replace with O(1) version (both memory and compilation time)
+    template<typename...>
+    struct last_type;
 
-        template<typename T>
-        struct last_type<T> {
-            using type = T;
-        };
+    template<typename T>
+    struct last_type<T> {
+        using type = T;
+    };
 
-        template<typename T, typename... Ts>
-        struct last_type<T, Ts...> {
-            using type = typename last_type<Ts...>::type;
-        };
+    template<typename T, typename... Ts>
+    struct last_type<T, Ts...> {
+        using type = typename last_type<Ts...>::type;
+    };
 
-        template<typename... Ts>
-        using last_type_t = typename last_type<Ts...>::type;
-    }
+    template<typename... Ts>
+    using last_type_t = typename last_type<Ts...>::type;
+}
 
 // Forward-declare the serialization objects
     namespace gapi {
@@ -261,7 +261,8 @@ namespace cv {
                     void apply(GRunArgs &&ins, GRunArgsP &&outs, GCompileArgs &&args = {});       // Arg-to-arg overload
 
                     /// @private -- Exclude this function from OpenCV documentation
-                    GAPI_WRAP GRunArgs apply(GRunArgs &&ins, GCompileArgs &&args = {});
+                    GAPI_WRAP GRunArgs apply(const cv::detail::ExtractArgsCallback  &callback,
+                    GCompileArgs                    &&args = {});
 
                     /// @private -- Exclude this function from OpenCV documentation
                     void apply(const std::vector<cv::Mat>& ins,                                   // Compatibility overload
@@ -361,7 +362,7 @@ namespace cv {
                     GCompiled compile(GMetaArgs &&in_metas, GCompileArgs &&args = {});
 
                     // 2. Syntax sugar - variadic list of metas, no extra compile args
-                    // NEED TO FIX: SFINAE looks ugly in the generated documentation
+                    // FIXME: SFINAE looks ugly in the generated documentation
                     /**
                      * @overload
                      *
@@ -388,7 +389,7 @@ namespace cv {
                     //     GCompiled compile(const Ts&... metas, GCompileArgs &&args)
                     //
                     // But not all compilers can handle this (and seems they shouldn't be able to).
-                    // NEED TO FIX: SFINAE looks ugly in the generated documentation
+                    // FIXME: SFINAE looks ugly in the generated documentation
                     /**
                      * @overload
                      *
@@ -406,13 +407,13 @@ namespace cv {
                     && std::is_same<GCompileArgs, detail::last_type_t<Ts...> >::value,
                     GCompiled>::type
                     {
-                        //NEED TO FIX: wrapping meta_and_compile_args into a tuple to unwrap them inside a helper function is the overkill
+                        //FIXME: wrapping meta_and_compile_args into a tuple to unwrap them inside a helper function is the overkill
                         return compile(std::make_tuple(meta_and_compile_args...),
                                        typename detail::MkSeq<sizeof...(Ts) - 1>::type());
                     }
 
 
-                    // NEED TO FIX: Document properly in the Doxygen format
+                    // FIXME: Document properly in the Doxygen format
                     // Video-oriented pipeline compilation:
                     // 1. A generic version
                     /**
@@ -441,6 +442,10 @@ namespace cv {
                      */
                     GStreamingCompiled compileStreaming(GMetaArgs &&in_metas, GCompileArgs &&args = {});
 
+                    /// @private -- Exclude this function from OpenCV documentation
+                    GAPI_WRAP GStreamingCompiled compileStreaming(const cv::detail::ExtractMetaCallback &callback,
+                    GCompileArgs                   &&args = {});
+
                     /**
                      * @brief Compile the computation for streaming mode.
                      *
@@ -460,7 +465,7 @@ namespace cv {
                      *
                      * @sa @ref gapi_compile_args
                      */
-                    GStreamingCompiled compileStreaming(GCompileArgs &&args = {});
+                    GAPI_WRAP GStreamingCompiled compileStreaming(GCompileArgs &&args = {});
 
                     // 2. Direct metadata version
                     /**
@@ -499,7 +504,7 @@ namespace cv {
                     && std::is_same<GCompileArgs, detail::last_type_t<Ts...> >::value,
                     GStreamingCompiled>::type
                     {
-                        //NEED TO FIX: wrapping meta_and_compile_args into a tuple to unwrap them inside a helper function is the overkill
+                        //FIXME: wrapping meta_and_compile_args into a tuple to unwrap them inside a helper function is the overkill
                         return compileStreaming(std::make_tuple(meta_and_compile_args...),
                                                 typename detail::MkSeq<sizeof...(Ts) - 1>::type());
                     }
@@ -539,7 +544,7 @@ namespace cv {
 /** @} */
 
     namespace gapi {
-        // NEED TO FIX: all these standalone functions need to be added to some
+        // FIXME: all these standalone functions need to be added to some
         // common documentation section
         /**
          * @brief Define an tagged island (subgraph) within a computation.

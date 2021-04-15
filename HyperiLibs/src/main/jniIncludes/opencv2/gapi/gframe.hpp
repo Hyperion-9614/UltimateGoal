@@ -17,7 +17,7 @@
 #include <opencv2/gapi/gmat.hpp>
 #include <opencv2/gapi/own/assert.hpp>
 
-// NEED TO FIX GAPI_EXPORTS or so
+// TODO GAPI_EXPORTS or so
 namespace cv {
 // Forward declaration; GNode and GOrigin are an internal
 // (user-inaccessible) classes.
@@ -63,6 +63,12 @@ namespace cv {
     static inline GFrameDesc empty_gframe_desc() { return GFrameDesc{}; }
 
 /** @} */
+
+    class MediaFrame;
+
+    GAPI_EXPORTS GFrameDesc
+
+    descr_of(const MediaFrame &frame);
 
     GAPI_EXPORTS std::ostream
     &

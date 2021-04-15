@@ -498,7 +498,6 @@ have the same number of channels as images.
  */
 CV_WRAP virtual void process(InputArrayOfArrays src, std::vector <Mat> &dst,
                              InputArray times, InputArray response) = 0;
-
 };
 
 /** @brief This algorithm converts images to median threshold bitmaps (1 for pixels brighter than median

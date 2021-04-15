@@ -24,7 +24,7 @@ namespace cv {
 // Currently GCompiled assumes all GMats you used to pass data to G-API
 // are valid and not destroyed while you use a GCompiled object.
 //
-// NEED TO FIX: In future, there should be a way to name I/O objects and specify it
+// FIXME: In future, there should be a way to name I/O objects and specify it
 // to GCompiled externally (for example, when it is loaded on the target system).
 
 /**
@@ -205,7 +205,7 @@ namespace cv {
                      * metadata shapes must match the computation's protocol.
                      * @param args compilation arguments to use.
                      */
-                    // NEED TO FIX: Why it requires compile args?
+                    // FIXME: Why it requires compile args?
                     void reshape(const GMetaArgs& inMetas, const GCompileArgs& args);
 
                     /**

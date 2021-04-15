@@ -37,16 +37,19 @@ namespace cv {
  * \addtogroup gapi_meta_args
  * @{
  */
-    struct GArrayDesc {
-        // NEED TO FIX: Body
-        // NEED TO FIX: Also implement proper operator== then
-        bool operator==(const GArrayDesc &) const { return true; }
-    };
+    struct GAPI_EXPORTS_W_SIMPLE GArrayDesc
+            {
+                    // FIXME: Body
+                    // FIXME: Also implement proper operator== then
+                    bool operator== (const GArrayDesc&) const { return true; }
+            };
 
     template<typename U>
     GArrayDesc descr_of(const std::vector <U> &) { return {}; }
 
-    static inline GArrayDesc empty_array_desc() { return {}; }
+    GAPI_EXPORTS_W inline GArrayDesc
+
+    empty_array_desc() { return {}; }
 
 /** @} */
 
@@ -241,7 +244,7 @@ namespace cv {
         // Its methods are typed proxies to VectorRefT<T>.
         // VectorRef maintains "reference" semantics so two copies of VectoRef refer
         // to the same underlying object.
-        // NEED TO FIX: Put a good explanation on why cv::OutputArray doesn't fit this role
+        // FIXME: Put a good explanation on why cv::OutputArray doesn't fit this role
         class VectorRef {
             std::shared_ptr <BasicVectorRef> m_ref;
             cv::detail::OpaqueKind m_kind;
@@ -256,16 +259,16 @@ namespace cv {
             VectorRef() = default;
 
             template<typename T>
-            explicit VectorRef(const std::vector <T> &vec) :
-                    m_ref(new VectorRefT<T>(vec)), m_kind(GOpaqueTraits<T>::kind) {}
+            explicit VectorRef(const std::vector <T> &vec)
+                    : m_ref(new VectorRefT<T>(vec)), m_kind(GOpaqueTraits<T>::kind) {}
 
             template<typename T>
-            explicit VectorRef(std::vector <T> &vec)       :
-                    m_ref(new VectorRefT<T>(vec)), m_kind(GOpaqueTraits<T>::kind) {}
+            explicit VectorRef(std::vector <T> &vec)
+                    : m_ref(new VectorRefT<T>(vec)), m_kind(GOpaqueTraits<T>::kind) {}
 
             template<typename T>
-            explicit VectorRef(std::vector <T> &&vec)      :
-                    m_ref(new VectorRefT<T>(std::move(vec))), m_kind(GOpaqueTraits<T>::kind) {}
+            explicit VectorRef(std::vector <T> &&vec)
+                    : m_ref(new VectorRefT<T>(std::move(vec))), m_kind(GOpaqueTraits<T>::kind) {}
 
             cv::detail::OpaqueKind getKind() const {
                 return m_kind;
@@ -296,6 +299,14 @@ namespace cv {
                 return static_cast<VectorRefT<T> &>(*m_ref).rref();
             }
 
+            // Check if was created for/from std::vector<T>
+            template<typename T>
+            bool holds() const {
+                if (!m_ref) return false;
+                using U = typename std::decay<T>::type;
+                return dynamic_cast<VectorRefT<U> *>(m_ref.get()) != nullptr;
+            }
+
             void mov(VectorRef &v) {
                 m_ref->mov(*v.m_ref);
             }
@@ -312,7 +323,7 @@ namespace cv {
             const void *ptr() const { return m_ref->ptr(); }
         };
 
-        // Helper (NEED TO FIX: work-around?)
+        // Helper (FIXME: work-around?)
         // stripping G types to their host types
         // like cv::GArray<GMat> would still map to std::vector<cv::Mat>
         // but not to std::vector<cv::GMat>
@@ -332,11 +343,15 @@ namespace cv {
             using type = FLATTEN_NS::Scalar;
         };
         template<class T>
+        struct flatten_g<GArray<T>> {
+            using type = std::vector<T>;
+        };
+        template<class T>
         struct flatten_g {
             using type = T;
         };
 #undef FLATTEN_NS
-        // NEED TO FIX: the above mainly duplicates "ProtoToParam" thing from gtyped.hpp
+        // FIXME: the above mainly duplicates "ProtoToParam" thing from gtyped.hpp
         // but I decided not to include gtyped here - probably worth moving that stuff
         // to some common place? (DM)
     } // namespace detail
@@ -362,17 +377,20 @@ namespace cv {
         explicit GArray(detail::GArrayU &&ref) // GArrayU-based constructor
                 : m_ref(ref) { putDetails(); }     //   (used by GCall, not for users)
 
-        detail::GArrayU strip() const { return m_ref; }
-
-    private:
-        static void VCTor(detail::VectorRef &vref) {
-            vref.reset<HT>();
-            vref.storeKind<HT>();
+        /// @private
+        detail::GArrayU strip() const {
+            return m_ref;
         }
 
+        /// @private
+        static void VCtor(detail::VectorRef &vref) {
+            vref.reset<HT>();
+        }
+
+    private:
         void putDetails() {
-            m_ref.setConstructFcn(&VCTor);
-            m_ref.specifyType<HT>();  // NEED TO FIX: to unify those 2 to avoid excessive dynamic_cast
+            m_ref.setConstructFcn(&VCtor);
+            m_ref.specifyType<HT>();  // FIXME: to unify those 2 to avoid excessive dynamic_cast
             m_ref.storeKind<HT>();    //
         }
 

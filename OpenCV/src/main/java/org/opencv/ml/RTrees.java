@@ -5,8 +5,6 @@ package org.opencv.ml;
 
 import org.opencv.core.Mat;
 import org.opencv.core.TermCriteria;
-import org.opencv.ml.DTrees;
-import org.opencv.ml.RTrees;
 
 // C++: class RTrees
 /**
@@ -16,10 +14,62 @@ import org.opencv.ml.RTrees;
  */
 public class RTrees extends DTrees {
 
-    protected RTrees(long addr) { super(addr); }
+    protected RTrees(long addr) {
+        super(addr);
+    }
 
     // internal usage only
-    public static RTrees __fromPtr__(long addr) { return new RTrees(addr); }
+    public static RTrees __fromPtr__(long addr) {
+        return new RTrees(addr);
+    }
+
+    //
+    // C++:  bool cv::ml::RTrees::getCalculateVarImportance()
+    //
+
+    // C++:  void cv::ml::RTrees::setCalculateVarImportance(bool val)
+    private static native void setCalculateVarImportance_0(long nativeObj, boolean val);
+
+
+    //
+    // C++:  void cv::ml::RTrees::setCalculateVarImportance(bool val)
+    //
+
+    // C++:  TermCriteria cv::ml::RTrees::getTermCriteria()
+    private static native double[] getTermCriteria_0(long nativeObj);
+
+
+    //
+    // C++:  int cv::ml::RTrees::getActiveVarCount()
+    //
+
+    // C++:  Mat cv::ml::RTrees::getVarImportance()
+    private static native long getVarImportance_0(long nativeObj);
+
+
+    //
+    // C++:  void cv::ml::RTrees::setActiveVarCount(int val)
+    //
+
+    // C++:  void cv::ml::RTrees::getVotes(Mat samples, Mat& results, int flags)
+    private static native void getVotes_0(long nativeObj, long samples_nativeObj, long results_nativeObj, int flags);
+
+
+    //
+    // C++:  TermCriteria cv::ml::RTrees::getTermCriteria()
+    //
+
+    // C++:  double cv::ml::RTrees::getOOBError()
+    private static native double getOOBError_0(long nativeObj);
+
+
+    //
+    // C++:  void cv::ml::RTrees::setTermCriteria(TermCriteria val)
+    //
+
+    // C++: static Ptr_RTrees cv::ml::RTrees::create()
+    private static native long create_0();
+
 
     //
     // C++:  Mat cv::ml::RTrees::getVarImportance()
@@ -27,14 +77,30 @@ public class RTrees extends DTrees {
 
     /**
      * Returns the variable importance array.
-     *     The method returns the variable importance vector, computed at the training stage when
-     *     CalculateVarImportance is set to true. If this flag was set to false, the empty matrix is
-     *     returned.
+     * The method returns the variable importance vector, computed at the training stage when
+     * CalculateVarImportance is set to true. If this flag was set to false, the empty matrix is
+     * returned.
+     *
      * @return automatically generated
      */
     public Mat getVarImportance() {
         return new Mat(getVarImportance_0(nativeObj));
     }
+
+
+    //
+    // C++:  void cv::ml::RTrees::getVotes(Mat samples, Mat& results, int flags)
+    //
+
+    // C++: static Ptr_RTrees cv::ml::RTrees::load(String filepath, String nodeName = String())
+    private static native long load_0(String filepath, String nodeName);
+
+
+    //
+    // C++:  double cv::ml::RTrees::getOOBError()
+    //
+
+    private static native long load_1(String filepath);
 
 
     //
@@ -86,62 +152,77 @@ public class RTrees extends DTrees {
     }
 
 
-    //
-    // C++:  TermCriteria cv::ml::RTrees::getTermCriteria()
-    //
-
-    /**
-     * SEE: setTermCriteria
-     * @return automatically generated
-     */
-    public TermCriteria getTermCriteria() {
-        return new TermCriteria(getTermCriteria_0(nativeObj));
+    @Override
+    protected void finalize() throws Throwable {
+        delete(nativeObj);
     }
 
 
-    //
     // C++:  bool cv::ml::RTrees::getCalculateVarImportance()
-    //
+    private static native boolean getCalculateVarImportance_0(long nativeObj);
 
     /**
      * SEE: setCalculateVarImportance
+     *
      * @return automatically generated
      */
     public boolean getCalculateVarImportance() {
         return getCalculateVarImportance_0(nativeObj);
     }
 
+    // C++:  int cv::ml::RTrees::getActiveVarCount()
+    private static native int getActiveVarCount_0(long nativeObj);
 
-    //
-    // C++:  double cv::ml::RTrees::getOOBError()
-    //
+    // C++:  void cv::ml::RTrees::setActiveVarCount(int val)
+    private static native void setActiveVarCount_0(long nativeObj, int val);
 
     /**
-     * Returns the OOB error value, computed at the training stage when calcOOBError is set to true.
-     * If this flag was set to false, 0 is returned. The OOB error is also scaled by sample weighting.
-     * @return automatically generated
+     * getCalculateVarImportance SEE: getCalculateVarImportance
+     *
+     * @param val automatically generated
      */
-    public double getOOBError() {
-        return getOOBError_0(nativeObj);
+    public void setCalculateVarImportance(boolean val) {
+        setCalculateVarImportance_0(nativeObj, val);
     }
 
-
-    //
-    // C++:  int cv::ml::RTrees::getActiveVarCount()
-    //
+    // C++:  void cv::ml::RTrees::setTermCriteria(TermCriteria val)
+    private static native void setTermCriteria_0(long nativeObj, int val_type, int val_maxCount, double val_epsilon);
 
     /**
      * SEE: setActiveVarCount
+     *
      * @return automatically generated
      */
     public int getActiveVarCount() {
         return getActiveVarCount_0(nativeObj);
     }
 
+    /**
+     * getActiveVarCount SEE: getActiveVarCount
+     *
+     * @param val automatically generated
+     */
+    public void setActiveVarCount(int val) {
+        setActiveVarCount_0(nativeObj, val);
+    }
 
-    //
-    // C++:  void cv::ml::RTrees::getVotes(Mat samples, Mat& results, int flags)
-    //
+    /**
+     * SEE: setTermCriteria
+     *
+     * @return automatically generated
+     */
+    public TermCriteria getTermCriteria() {
+        return new TermCriteria(getTermCriteria_0(nativeObj));
+    }
+
+    /**
+     * getTermCriteria SEE: getTermCriteria
+     *
+     * @param val automatically generated
+     */
+    public void setTermCriteria(TermCriteria val) {
+        setTermCriteria_0(nativeObj, val.type, val.maxCount, val.epsilon);
+    }
 
     /**
      * Returns the result of each individual tree in the forest.
@@ -157,86 +238,15 @@ public class RTrees extends DTrees {
         getVotes_0(nativeObj, samples.nativeObj, results.nativeObj, flags);
     }
 
-
-    //
-    // C++:  void cv::ml::RTrees::setActiveVarCount(int val)
-    //
-
     /**
-     *  getActiveVarCount SEE: getActiveVarCount
-     * @param val automatically generated
+     * Returns the OOB error value, computed at the training stage when calcOOBError is set to true.
+     * If this flag was set to false, 0 is returned. The OOB error is also scaled by sample weighting.
+     *
+     * @return automatically generated
      */
-    public void setActiveVarCount(int val) {
-        setActiveVarCount_0(nativeObj, val);
+    public double getOOBError() {
+        return getOOBError_0(nativeObj);
     }
-
-
-    //
-    // C++:  void cv::ml::RTrees::setCalculateVarImportance(bool val)
-    //
-
-    /**
-     *  getCalculateVarImportance SEE: getCalculateVarImportance
-     * @param val automatically generated
-     */
-    public void setCalculateVarImportance(boolean val) {
-        setCalculateVarImportance_0(nativeObj, val);
-    }
-
-
-    //
-    // C++:  void cv::ml::RTrees::setTermCriteria(TermCriteria val)
-    //
-
-    /**
-     *  getTermCriteria SEE: getTermCriteria
-     * @param val automatically generated
-     */
-    public void setTermCriteria(TermCriteria val) {
-        setTermCriteria_0(nativeObj, val.type, val.maxCount, val.epsilon);
-    }
-
-
-    @Override
-    protected void finalize() throws Throwable {
-        delete(nativeObj);
-    }
-
-
-
-    // C++:  Mat cv::ml::RTrees::getVarImportance()
-    private static native long getVarImportance_0(long nativeObj);
-
-    // C++: static Ptr_RTrees cv::ml::RTrees::create()
-    private static native long create_0();
-
-    // C++: static Ptr_RTrees cv::ml::RTrees::load(String filepath, String nodeName = String())
-    private static native long load_0(String filepath, String nodeName);
-    private static native long load_1(String filepath);
-
-    // C++:  TermCriteria cv::ml::RTrees::getTermCriteria()
-    private static native double[] getTermCriteria_0(long nativeObj);
-
-    // C++:  bool cv::ml::RTrees::getCalculateVarImportance()
-    private static native boolean getCalculateVarImportance_0(long nativeObj);
-
-    // C++:  double cv::ml::RTrees::getOOBError()
-    private static native double getOOBError_0(long nativeObj);
-
-    // C++:  int cv::ml::RTrees::getActiveVarCount()
-    private static native int getActiveVarCount_0(long nativeObj);
-
-    // C++:  void cv::ml::RTrees::getVotes(Mat samples, Mat& results, int flags)
-    private static native void getVotes_0(long nativeObj, long samples_nativeObj, long results_nativeObj, int flags);
-
-    // C++:  void cv::ml::RTrees::setActiveVarCount(int val)
-    private static native void setActiveVarCount_0(long nativeObj, int val);
-
-    // C++:  void cv::ml::RTrees::setCalculateVarImportance(bool val)
-    private static native void setCalculateVarImportance_0(long nativeObj, boolean val);
-
-    // C++:  void cv::ml::RTrees::setTermCriteria(TermCriteria val)
-    private static native void setTermCriteria_0(long nativeObj, int val_type, int val_maxCount, double val_epsilon);
 
     // native support for java finalize()
     private static native void delete(long nativeObj);

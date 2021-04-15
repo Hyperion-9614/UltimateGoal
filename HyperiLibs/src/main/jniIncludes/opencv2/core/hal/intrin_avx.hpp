@@ -660,7 +660,7 @@ inline void v_zip(const v_float64x4& a0, const v_float64x4& a1, v_float64x4& b0,
     }
 
 // shuffle
-// NEED TO FIX: emulate 64bit
+// todo: emulate 64bit
 #define OPENCV_HAL_IMPL_AVX_SHUFFLE(_Tpvec, intrin)  \
     template<int m>                                  \
     inline _Tpvec v256_shuffle(const _Tpvec& a)      \
@@ -705,7 +705,7 @@ inline void v_zip(const v_float64x4& a0, const v_float64x4& a1, v_float64x4& b0,
     inline v_float64x4 v256_alignr_64(const v_float64x4 &a, const v_float64x4 &b) {
         return v_float64x4(_mm256_shuffle_pd(b.val, a.val, _MM_SHUFFLE(0, 0, 1, 1)));
     }
-// NEED TO FIX: emulate float32
+// todo: emulate float32
 
     template<typename _Tpvec>
     inline _Tpvec v256_swap_halves(const _Tpvec &a) { return v256_permute2x128<1>(a, a); }
@@ -1666,7 +1666,7 @@ inline void v_zip(const v_float64x4& a0, const v_float64x4& a1, v_float64x4& b0,
     inline v_float32x8 v_invsqrt(const v_float32x8 &x) {
         v_float32x8 half = x * v256_setall_f32(0.5);
         v_float32x8 t = v_float32x8(_mm256_rsqrt_ps(x.val));
-        // NEED TO FIX: _mm256_fnmsub_ps
+        // todo: _mm256_fnmsub_ps
         t *= v256_setall_f32(1.5) - ((t * t) * half);
         return t;
     }
@@ -3583,15 +3583,38 @@ inline void v_store_interleave( _Tp0* ptr, const _Tpvec0& a0, const _Tpvec0& b0,
 
     OPENCV_HAL_IMPL_AVX_LOADSTORE_INTERLEAVE(v_float64x4, double, f64, v_uint64x4, uint64, u64)
 
+//
 // FP16
+//
+
     inline v_float32x8 v256_load_expand(const float16_t *ptr) {
-        return v_float32x8(_mm256_cvtph_ps(_mm_loadu_si128((const __m128i *) ptr)));
+#if CV_FP16
+        return v_float32x8(_mm256_cvtph_ps(_mm_loadu_si128((const __m128i*)ptr)));
+#else
+        float CV_DECL_ALIGNED(32)
+        buf[8];
+        for (int i = 0; i < 8; i++)
+            buf[i] = (float) ptr[i];
+        return v256_load_aligned(buf);
+#endif
     }
 
     inline void v_pack_store(float16_t *ptr, const v_float32x8 &a) {
-        __m128i ah = _mm256_cvtps_ph(a.val, 0);
-        _mm_storeu_si128((__m128i *) ptr, ah);
+#if CV_FP16
+                                                                                                                                __m128i ah = _mm256_cvtps_ph(a.val, 0);
+    _mm_storeu_si128((__m128i*)ptr, ah);
+#else
+        float CV_DECL_ALIGNED(32)
+        buf[8];
+        v_store_aligned(buf, a);
+        for (int i = 0; i < 8; i++)
+            ptr[i] = float16_t(buf[i]);
+#endif
     }
+
+//
+// end of FP16
+//
 
     inline void v256_cleanup() { _mm256_zeroall(); }
 

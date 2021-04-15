@@ -146,21 +146,21 @@ namespace cv {
 
     class CV_EXPORTS_W Feature2D
 
-            : public virtual Algorithm {
-#endif
+    : public virtual Algorithm
+#endif {
     public:
-        virtual ~
+    virtual ~
 
-        Feature2D();
+    Feature2D();
 
-        /** @brief Detects keypoints in an image (first variant) or image set (second variant).
+    /** @brief Detects keypoints in an image (first variant) or image set (second variant).
 
-        @param image Image.
-        @param keypoints The detected keypoints. In the second variant of the method keypoints[i] is a set
-        of keypoints detected in images[i] .
-        @param mask Mask specifying where to look for keypoints (optional). It must be a 8-bit integer
-        matrix with non-zero values in the region of interest.
-         */
+    @param image Image.
+    @param keypoints The detected keypoints. In the second variant of the method keypoints[i] is a set
+    of keypoints detected in images[i] .
+    @param mask Mask specifying where to look for keypoints (optional). It must be a 8-bit integer
+    matrix with non-zero values in the region of interest.
+     */
     CV_WRAP virtual void detect(InputArray image,
                                 CV_OUT std::vector <KeyPoint> &keypoints,
                                 InputArray mask = noArray());
@@ -566,8 +566,7 @@ article](http://en.wikipedia.org/wiki/Maximally_stable_extremal_regions)).
 than union-find method; it actually get 1.5~2m/s on my centrino L7200 1.2GHz laptop.
 
 - the color image algorithm is taken from: @cite forssen2007maximally ; it should be much slower
-than grey image method ( 3~4 times ); the chi_table.h file is taken directly from paper's source
-code which is distributed under GPL.
+than grey image method ( 3~4 times )
 
 - (Python) A complete example showing the use of the %MSER detector can be found at samples/python/mser.py
 */

@@ -99,14 +99,12 @@ clCreateImage3D(cl_context p0, cl_mem_flags p1, const cl_image_format *p2, size_
 
 inline cl_kernel
 clCreateKernel(cl_program p0, const char *p1, cl_int *p2) { return clCreateKernel_pfn(p0, p1, p2); }
-
 #undef clCreateKernelsInProgram
 #define clCreateKernelsInProgram clCreateKernelsInProgram_fn
 
 inline cl_intclCreateKernelsInProgram(cl_program p0, cl_uint p1, cl_kernel *p2, cl_uint *p3) {
     return clCreateKernelsInProgram_pfn(p0, p1, p2, p3);
 }
-
 #undef clCreateProgramWithBinary
 #define clCreateProgramWithBinary clCreateProgramWithBinary_fn
 
@@ -115,7 +113,6 @@ clCreateProgramWithBinary(cl_context p0, cl_uint p1, const cl_device_id *p2, con
                           const unsigned char **p4, cl_int *p5, cl_int *p6) {
     return clCreateProgramWithBinary_pfn(p0, p1, p2, p3, p4, p5, p6);
 }
-
 #undef clCreateProgramWithBuiltInKernels
 #define clCreateProgramWithBuiltInKernels clCreateProgramWithBuiltInKernels_fn
 
@@ -124,27 +121,23 @@ clCreateProgramWithBuiltInKernels(cl_context p0, cl_uint p1, const cl_device_id 
                                   cl_int *p4) {
     return clCreateProgramWithBuiltInKernels_pfn(p0, p1, p2, p3, p4);
 }
-
 #undef clCreateProgramWithSource
 #define clCreateProgramWithSource clCreateProgramWithSource_fn
 
 inline cl_program
 clCreateProgramWithSource(cl_context p0, cl_uint p1, const char **p2, const size_t *p3,
                           cl_int *p4) { return clCreateProgramWithSource_pfn(p0, p1, p2, p3, p4); }
-
 #undef clCreateSampler
 #define clCreateSampler clCreateSampler_fn
 
 inline cl_sampler
 clCreateSampler(cl_context p0, cl_bool p1, cl_addressing_mode p2, cl_filter_mode p3,
                 cl_int *p4) { return clCreateSampler_pfn(p0, p1, p2, p3, p4); }
-
 #undef clCreateSubBuffer
 #define clCreateSubBuffer clCreateSubBuffer_fn
 
 inline cl_memclCreateSubBuffer(cl_mem p0, cl_mem_flags p1, cl_buffer_create_type p2, const void *p3,
                                cl_int *p4) { return clCreateSubBuffer_pfn(p0, p1, p2, p3, p4); }
-
 #undef clCreateSubDevices
 #define clCreateSubDevices clCreateSubDevices_fn
 
@@ -152,19 +145,15 @@ inline cl_intclCreateSubDevices(cl_device_id p0, const cl_device_partition_prope
                                 cl_device_id *p3, cl_uint *p4) {
     return clCreateSubDevices_pfn(p0, p1, p2, p3, p4);
 }
-
 #undef clCreateUserEvent
 #define clCreateUserEvent clCreateUserEvent_fn
 
 inline cl_event clCreateUserEvent(cl_context p0, cl_int *p1) {
     return clCreateUserEvent_pfn(p0, p1);
 }
-
 #undef clEnqueueBarrier
 #define clEnqueueBarrier clEnqueueBarrier_fn
-
 inline cl_int clEnqueueBarrier(cl_command_queue p0) { return clEnqueueBarrier_pfn(p0); }
-
 #undef clEnqueueBarrierWithWaitList
 #define clEnqueueBarrierWithWaitList clEnqueueBarrierWithWaitList_fn
 
@@ -172,7 +161,6 @@ inline cl_intclEnqueueBarrierWithWaitList(cl_command_queue p0, cl_uint p1, const
                                           cl_event *p3) {
     return clEnqueueBarrierWithWaitList_pfn(p0, p1, p2, p3);
 }
-
 #undef clEnqueueCopyBuffer
 #define clEnqueueCopyBuffer clEnqueueCopyBuffer_fn
 
@@ -181,7 +169,6 @@ clEnqueueCopyBuffer(cl_command_queue p0, cl_mem p1, cl_mem p2, size_t p3, size_t
                     cl_uint p6, const cl_event *p7, cl_event *p8) {
     return clEnqueueCopyBuffer_pfn(p0, p1, p2, p3, p4, p5, p6, p7, p8);
 }
-
 #undef clEnqueueCopyBufferRect
 #define clEnqueueCopyBufferRect clEnqueueCopyBufferRect_fn
 
@@ -191,7 +178,6 @@ inline cl_intclEnqueueCopyBufferRect(cl_command_queue p0, cl_mem p1, cl_mem p2, 
                                      cl_event *p12) {
     return clEnqueueCopyBufferRect_pfn(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
 }
-
 #undef clEnqueueCopyBufferToImage
 #define clEnqueueCopyBufferToImage clEnqueueCopyBufferToImage_fn
 
@@ -200,7 +186,6 @@ clEnqueueCopyBufferToImage(cl_command_queue p0, cl_mem p1, cl_mem p2, size_t p3,
                            const size_t *p5, cl_uint p6, const cl_event *p7, cl_event *p8) {
     return clEnqueueCopyBufferToImage_pfn(p0, p1, p2, p3, p4, p5, p6, p7, p8);
 }
-
 #undef clEnqueueCopyImage
 #define clEnqueueCopyImage clEnqueueCopyImage_fn
 
@@ -209,7 +194,6 @@ clEnqueueCopyImage(cl_command_queue p0, cl_mem p1, cl_mem p2, const size_t *p3, 
                    const size_t *p5, cl_uint p6, const cl_event *p7, cl_event *p8) {
     return clEnqueueCopyImage_pfn(p0, p1, p2, p3, p4, p5, p6, p7, p8);
 }
-
 #undef clEnqueueCopyImageToBuffer
 #define clEnqueueCopyImageToBuffer clEnqueueCopyImageToBuffer_fn
 
@@ -218,7 +202,6 @@ inline cl_intclEnqueueCopyImageToBuffer(cl_command_queue p0, cl_mem p1, cl_mem p
                                         cl_event *p8) {
     return clEnqueueCopyImageToBuffer_pfn(p0, p1, p2, p3, p4, p5, p6, p7, p8);
 }
-
 #undef clEnqueueFillBuffer
 #define clEnqueueFillBuffer clEnqueueFillBuffer_fn
 
@@ -227,7 +210,6 @@ clEnqueueFillBuffer(cl_command_queue p0, cl_mem p1, const void *p2, size_t p3, s
                     cl_uint p6, const cl_event *p7, cl_event *p8) {
     return clEnqueueFillBuffer_pfn(p0, p1, p2, p3, p4, p5, p6, p7, p8);
 }
-
 #undef clEnqueueFillImage
 #define clEnqueueFillImage clEnqueueFillImage_fn
 
@@ -235,7 +217,6 @@ inline cl_intclEnqueueFillImage(cl_command_queue p0, cl_mem p1, const void *p2, 
                                 const size_t *p4, cl_uint p5, const cl_event *p6, cl_event *p7) {
     return clEnqueueFillImage_pfn(p0, p1, p2, p3, p4, p5, p6, p7);
 }
-
 #undef clEnqueueMapBuffer
 #define clEnqueueMapBuffer clEnqueueMapBuffer_fn
 
@@ -244,7 +225,6 @@ clEnqueueMapBuffer(cl_command_queue p0, cl_mem p1, cl_bool p2, cl_map_flags p3, 
                    size_t p5, cl_uint p6, const cl_event *p7, cl_event *p8, cl_int *p9) {
     return clEnqueueMapBuffer_pfn(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9);
 }
-
 #undef clEnqueueMapImage
 #define clEnqueueMapImage clEnqueueMapImage_fn
 
@@ -254,14 +234,12 @@ clEnqueueMapImage(cl_command_queue p0, cl_mem p1, cl_bool p2, cl_map_flags p3, c
                   cl_event *p10, cl_int *p11) {
     return clEnqueueMapImage_pfn(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
 }
-
 #undef clEnqueueMarker
 #define clEnqueueMarker clEnqueueMarker_fn
 
 inline cl_int clEnqueueMarker(cl_command_queue p0, cl_event *p1) {
     return clEnqueueMarker_pfn(p0, p1);
 }
-
 #undef clEnqueueMarkerWithWaitList
 #define clEnqueueMarkerWithWaitList clEnqueueMarkerWithWaitList_fn
 
@@ -338,7 +316,6 @@ clEnqueueReadImage(cl_command_queue p0, cl_mem p1, cl_bool p2, const size_t *p3,
 
 inline cl_intclEnqueueTask(cl_command_queue p0, cl_kernel p1, cl_uint p2, const cl_event *p3,
                            cl_event *p4) { return clEnqueueTask_pfn(p0, p1, p2, p3, p4); }
-
 #undef clEnqueueUnmapMemObject
 #define clEnqueueUnmapMemObject clEnqueueUnmapMemObject_fn
 
@@ -347,14 +324,12 @@ clEnqueueUnmapMemObject(cl_command_queue p0, cl_mem p1, void *p2, cl_uint p3, co
                         cl_event *p5) {
     return clEnqueueUnmapMemObject_pfn(p0, p1, p2, p3, p4, p5);
 }
-
 #undef clEnqueueWaitForEvents
 #define clEnqueueWaitForEvents clEnqueueWaitForEvents_fn
 
 inline cl_intclEnqueueWaitForEvents(cl_command_queue p0, cl_uint p1, const cl_event *p2) {
     return clEnqueueWaitForEvents_pfn(p0, p1, p2);
 }
-
 #undef clEnqueueWriteBuffer
 #define clEnqueueWriteBuffer clEnqueueWriteBuffer_fn
 
@@ -362,7 +337,6 @@ inline cl_intclEnqueueWriteBuffer(cl_command_queue p0, cl_mem p1, cl_bool p2, si
                                   const void *p5, cl_uint p6, const cl_event *p7, cl_event *p8) {
     return clEnqueueWriteBuffer_pfn(p0, p1, p2, p3, p4, p5, p6, p7, p8);
 }
-
 #undef clEnqueueWriteBufferRect
 #define clEnqueueWriteBufferRect clEnqueueWriteBufferRect_fn
 
@@ -372,7 +346,6 @@ inline cl_intclEnqueueWriteBufferRect(cl_command_queue p0, cl_mem p1, cl_bool p2
                                       const cl_event *p12, cl_event *p13) {
     return clEnqueueWriteBufferRect_pfn(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13);
 }
-
 #undef clEnqueueWriteImage
 #define clEnqueueWriteImage clEnqueueWriteImage_fn
 
@@ -382,24 +355,18 @@ clEnqueueWriteImage(cl_command_queue p0, cl_mem p1, cl_bool p2, const size_t *p3
                     cl_event *p10) {
     return clEnqueueWriteImage_pfn(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
 }
-
 #undef clFinish
 #define clFinish clFinish_fn
-
 inline cl_int clFinish(cl_command_queue p0) { return clFinish_pfn(p0); }
-
 #undef clFlush
 #define clFlush clFlush_fn
-
 inline cl_int clFlush(cl_command_queue p0) { return clFlush_pfn(p0); }
-
 #undef clGetCommandQueueInfo
 #define clGetCommandQueueInfo clGetCommandQueueInfo_fn
 
 inline cl_int
 clGetCommandQueueInfo(cl_command_queue p0, cl_command_queue_info p1, size_t p2, void *p3,
                       size_t *p4) { return clGetCommandQueueInfo_pfn(p0, p1, p2, p3, p4); }
-
 #undef clGetContextInfo
 #define clGetContextInfo clGetContextInfo_fn
 
@@ -465,7 +432,6 @@ inline cl_intclGetImageInfo(cl_mem p0, cl_image_info p1, size_t p2, void *p3,
 inline cl_int
 clGetKernelArgInfo(cl_kernel p0, cl_uint p1, cl_kernel_arg_info p2, size_t p3, void *p4,
                    size_t *p5) { return clGetKernelArgInfo_pfn(p0, p1, p2, p3, p4, p5); }
-
 #undef clGetKernelInfo
 #define clGetKernelInfo clGetKernelInfo_fn
 
@@ -582,9 +548,7 @@ inline cl_int clReleaseProgram(cl_program p0) { return clReleaseProgram_pfn(p0);
 
 #undef clReleaseSampler
 #define clReleaseSampler clReleaseSampler_fn
-
 inline cl_int clReleaseSampler(cl_sampler p0) { return clReleaseSampler_pfn(p0); }
-
 #undef clRetainCommandQueue
 #define clRetainCommandQueue clRetainCommandQueue_fn
 

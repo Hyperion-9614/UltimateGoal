@@ -16,16 +16,17 @@ apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     externalNativeBuild {
         cmake {
             path file('../HyperiLibs/CMakeLists.txt')
+            version "3.10.2.4988404"
         }
     }
     defaultConfig {
         minSdkVersion 25
-        targetSdkVersion 29
-        ndkVersion "21.3.6528147"
+        targetSdkVersion 30
+        ndkVersion "23.0.7123448"
         multiDexEnabled true
         lintOptions {
             abortOnError false
@@ -37,5 +38,7 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
+    implementation project(':HyperiLibs')
+    implementation project(':OpenCV')
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
 }

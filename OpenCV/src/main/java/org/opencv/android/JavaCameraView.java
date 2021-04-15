@@ -1,7 +1,5 @@
 package org.opencv.android;
 
-import java.util.List;
-
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
@@ -18,6 +16,8 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.List;
+
 /**
  * This class is an implementation of the Bridge View between OpenCV and Java Camera.
  * This class relays on the functionality available in base class and only implements
@@ -32,7 +32,7 @@ public class JavaCameraView extends CameraBridgeViewBase implements PreviewCallb
     private static final int MAGIC_TEXTURE_ID = 10;
     private static final String TAG = "JavaCameraView";
 
-    private byte mBuffer[];
+    private byte[] mBuffer;
     private Mat[] mFrameChain;
     private int mChainIdx = 0;
     private Thread mThread;
@@ -299,8 +299,8 @@ public class JavaCameraView extends CameraBridgeViewBase implements PreviewCallb
 
     @Override
     public void onPreviewFrame(byte[] frame, Camera arg1) {
-//        if (BuildConfig.DEBUG)
-//            Log.d(TAG, "Preview Frame received. Frame size: " + frame.length);
+        if (BuildConfig.DEBUG)
+            Log.d(TAG, "Preview Frame received. Frame size: " + frame.length);
         synchronized (this) {
             mFrameChain[mChainIdx].put(0, 0, frame);
             mCameraFrameReady = true;
@@ -340,11 +340,11 @@ public class JavaCameraView extends CameraBridgeViewBase implements PreviewCallb
             mRgba.release();
         }
 
-        private Mat mYuvFrameData;
-        private Mat mRgba;
-        private int mWidth;
-        private int mHeight;
-    };
+        private final Mat mYuvFrameData;
+        private final Mat mRgba;
+        private final int mWidth;
+        private final int mHeight;
+    }
 
     private class CameraWorker implements Runnable {
 

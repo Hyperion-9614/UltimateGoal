@@ -43,7 +43,7 @@ Check usage example for details: samples/va_intel/va_intel_interop.cpp
         namespace ocl {
             using namespace cv::ocl;
 
-// NEED TO FIX static functions in the Context class
+// TODO static functions in the Context class
 /** @brief Creates OpenCL context from VA.
 @param display    - VADisplay for which CL interop should be established.
 @param tryInterop - try to set up for interoperability, if true; set up for use slow copy if false.

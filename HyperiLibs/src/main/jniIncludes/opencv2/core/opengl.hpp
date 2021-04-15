@@ -520,7 +520,7 @@ ogl::Arrays stores vertex data in ogl::Buffer objects.
         namespace ocl {
             using namespace cv::ocl;
 
-// NEED TO FIX static functions in the Context class
+// TODO static functions in the Context class
 /** @brief Creates OpenCL context from GL.
 @return Returns reference to OpenCL Context
  */

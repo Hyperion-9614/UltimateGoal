@@ -23,7 +23,7 @@
 
 namespace cv {
 
-// NEED TO FIX: user shouldn't deal with it - put to detail?
+// FIXME: user shouldn't deal with it - put to detail?
 // GProtoArg is an union type over G-types which can serve as
 // GComputation's in/output slots. In other words, GProtoArg
 // wraps any type which can serve as G-API exchange type.
@@ -60,7 +60,7 @@ namespace cv {
 
         GProtoArgs m_args;
 
-        // NEED TO FIX: Think about the addition operator
+        // TODO: Think about the addition operator
         /**
          * @brief This operator allows to complement the proto vectors at runtime.
          *
@@ -102,7 +102,7 @@ namespace cv {
 
     namespace detail {
         // Extract elements form tuple
-        // NEED TO FIX: Someday utilize a generic tuple_to_vec<> routine
+        // FIXME: Someday utilize a generic tuple_to_vec<> routine
         template<typename... Ts, int... Indexes>
         static GProtoOutputArgs getGOut_impl(const std::tuple<Ts...> &ts, detail::Seq<Indexes...>) {
             return GProtoOutputArgs{detail::packArgs(std::get<Indexes>(ts)...)};
@@ -111,14 +111,14 @@ namespace cv {
 
     template<typename... Ts>
     inline GProtoOutputArgs GOut(const std::tuple<Ts...> &ts) {
-        // NEED TO FIX: think of std::forward(ts)
+        // TODO: think of std::forward(ts)
         return detail::getGOut_impl(ts, typename detail::MkSeq<sizeof...(Ts)>::type());
     }
 
 // Takes rvalue as input arg
     template<typename... Ts>
     inline GProtoOutputArgs GOut(std::tuple<Ts...> &&ts) {
-        // NEED TO FIX: think of std::forward(ts)
+        // TODO: think of std::forward(ts)
         return detail::getGOut_impl(ts, typename detail::MkSeq<sizeof...(Ts)>::type());
     }
 

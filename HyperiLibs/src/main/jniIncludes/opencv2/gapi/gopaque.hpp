@@ -15,10 +15,14 @@
 #include <opencv2/gapi/own/exports.hpp>
 #include <opencv2/gapi/opencv_includes.hpp>
 
+#include <opencv2/gapi/util/any.hpp>
 #include <opencv2/gapi/util/variant.hpp>
 #include <opencv2/gapi/util/throw.hpp>
 #include <opencv2/gapi/util/type_traits.hpp>
 #include <opencv2/gapi/own/assert.hpp>
+
+#include <opencv2/gapi/gcommon.hpp>  // OpaqueKind
+#include <opencv2/gapi/garray.hpp>  // TypeHintBase
 
 namespace cv {
 // Forward declaration; GNode and GOrigin are an internal
@@ -34,16 +38,19 @@ namespace cv {
  * \addtogroup gapi_meta_args
  * @{
  */
-    struct GOpaqueDesc {
-        // NEED TO FIX: Body
-        // NEED TO FIX: Also implement proper operator== then
-        bool operator==(const GOpaqueDesc &) const { return true; }
-    };
+    struct GAPI_EXPORTS_W_SIMPLE GOpaqueDesc
+            {
+                    // FIXME: Body
+                    // FIXME: Also implement proper operator== then
+                    bool operator== (const GOpaqueDesc&) const { return true; }
+            };
 
     template<typename U>
     GOpaqueDesc descr_of(const U &) { return {}; }
 
-    static inline GOpaqueDesc empty_gopaque_desc() { return {}; }
+    GAPI_EXPORTS_W inline GOpaqueDesc
+
+    empty_gopaque_desc() { return {}; }
 
 /** @} */
 
@@ -59,7 +66,7 @@ namespace cv {
 
         using ConstructOpaque = std::function<void(OpaqueRef &)>;
 
-        // NEED TO FIX: garray.hpp already contains hint classes (for actual T type verification),
+        // FIXME: garray.hpp already contains hint classes (for actual T type verification),
         // need to think where it can be moved (currently opaque uses it from garray)
 
         // This class strips type information from GOpaque<T> and makes it usable
@@ -108,7 +115,7 @@ namespace cv {
 
         template<typename T>
         void GOpaqueU::storeKind() {
-            // NEED TO FIX: Add assert here on cv::Mat and cv::Scalar?
+            // FIXME: Add assert here on cv::Mat and cv::Scalar?
             setKind(cv::detail::GOpaqueTraits<T>::kind);
         };
 
@@ -125,6 +132,8 @@ namespace cv {
             virtual void mov(BasicOpaqueRef &ref) = 0;
 
             virtual const void *ptr() const = 0;
+
+            virtual void set(const cv::util::any &a) = 0;
         };
 
         template<typename T>
@@ -216,6 +225,10 @@ namespace cv {
             }
 
             virtual const void *ptr() const override { return &rref(); }
+
+            virtual void set(const cv::util::any &a) override {
+                wref() = util::any_cast<T>(a);
+            }
         };
 
         // This class strips type information from OpaqueRefT<> and makes it usable
@@ -240,7 +253,7 @@ namespace cv {
                     typename T,
                     typename = util::are_different_t <OpaqueRef, T>
             >
-            // NEED TO FIX: probably won't work with const object
+            // FIXME: probably won't work with const object
             explicit OpaqueRef(T &&obj) :
                     m_ref(new OpaqueRefT<util::decay_t < T>>
 
@@ -289,6 +302,12 @@ namespace cv {
 
             // May be used to uniquely identify this object internally
             const void *ptr() const { return m_ref->ptr(); }
+
+            // Introduced for in-graph meta handling
+            OpaqueRef &operator=(const cv::util::any &a) {
+                m_ref->set(a);
+                return *this;
+            }
         };
     } // namespace detail
 
@@ -299,27 +318,30 @@ namespace cv {
     template<typename T>
     class GOpaque {
     public:
-        GOpaque() { putDetails(); }              // Empty constructor
-        explicit GOpaque(detail::GOpaqueU &&ref) // GOpaqueU-based constructor
-                : m_ref(ref) { putDetails(); }       // (used by GCall, not for users)
-
-        detail::GOpaqueU strip() const { return m_ref; }
-
-    private:
         // Host type (or Flat type) - the type this GOpaque is actually
         // specified to.
         using HT = typename detail::flatten_g<util::decay_t < T>>::
         type;
 
-        static void CTor(detail::OpaqueRef &ref) {
-            ref.reset<HT>();
-            ref.storeKind<HT>();
+        GOpaque() { putDetails(); }              // Empty constructor
+        explicit GOpaque(detail::GOpaqueU &&ref) // GOpaqueU-based constructor
+                : m_ref(ref) { putDetails(); }       // (used by GCall, not for users)
+
+        /// @private
+        detail::GOpaqueU strip() const {
+            return m_ref;
         }
 
+        /// @private
+        static void Ctor(detail::OpaqueRef &ref) {
+            ref.reset<HT>();
+        }
+
+    private:
         void putDetails() {
-            m_ref.setConstructFcn(&CTor);
-            m_ref.specifyType<HT>(); // NEED TO FIX: to unify those 2 to avoid excessive dynamic_cast
-            m_ref.storeKind<HT>();   //
+            m_ref.setConstructFcn(&Ctor);
+            m_ref.specifyType<HT>();
+            m_ref.storeKind<HT>();
         }
 
         detail::GOpaqueU m_ref;

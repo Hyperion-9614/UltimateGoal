@@ -8,9 +8,7 @@
 #include "opencv2/core/cvdef.h"
 
 #ifndef SKIP_INCLUDES
-
 #   include <assert.h>
-
 #endif
 
 //! @addtogroup core_utils_vsx
@@ -129,12 +127,12 @@ VSX_FINLINE(rt) fnm(const rg& a, const rg& b)  \
 #if __GNUG__ < 8
 
     // Support for int4 -> dword2 expanding multiply was added in GCC 8.
-#ifdef vec_mule
-#undef vec_mule
-#endif
-#ifdef vec_mulo
-#undef vec_mulo
-#endif
+    #ifdef vec_mule
+        #undef vec_mule
+    #endif
+    #ifdef vec_mulo
+        #undef vec_mulo
+    #endif
 
     VSX_REDIRECT_2RG(vec_ushort8,  vec_uchar16,  vec_mule, __builtin_vec_mule)
     VSX_REDIRECT_2RG(vec_short8,  vec_char16,  vec_mule, __builtin_vec_mule)
@@ -168,10 +166,10 @@ VSX_FINLINE(rt) fnm(const rg& a, const rg& b)  \
         static const vec_uchar16 ev_od = {cperm};                            \
         return vec_perm((Tvec)vec_mule(a, b), (Tvec)vec_mulo(a, b), ev_od);  \
     }
-#define VSX_IMPL_MULH_P16 0, 16, 2, 18, 4, 20, 6, 22, 8, 24, 10, 26, 12, 28, 14, 30
+    #define VSX_IMPL_MULH_P16 0, 16, 2, 18, 4, 20, 6, 22, 8, 24, 10, 26, 12, 28, 14, 30
     VSX_IMPL_MULH(vec_char16,  VSX_IMPL_MULH_P16)
     VSX_IMPL_MULH(vec_uchar16, VSX_IMPL_MULH_P16)
-#define VSX_IMPL_MULH_P8 0, 1, 16, 17, 4, 5, 20, 21, 8, 9, 24, 25, 12, 13, 28, 29
+    #define VSX_IMPL_MULH_P8 0, 1, 16, 17, 4, 5, 20, 21, 8, 9, 24, 25, 12, 13, 28, 29
     VSX_IMPL_MULH(vec_short8,  VSX_IMPL_MULH_P8)
     VSX_IMPL_MULH(vec_ushort8, VSX_IMPL_MULH_P8)
     // vmuluwm can be used for unsigned or signed integers, that's what they said
@@ -319,7 +317,7 @@ VSX_IMPL_1RG(vec_udword2, vec_float4,  xvcvspuxds, vec_ctulo)
  * So we're not able to use inline asm and only use built-in functions that CLANG supports
  * and use __builtin_convertvector if clang missing any of vector conversions built-in functions
  *
- * NEED TO FIX: clang asm template bug is fixed, need to reconsider the current workarounds.
+ * todo: clang asm template bug is fixed, need to reconsider the current workarounds.
 */
 
 // convert vector helper
@@ -499,13 +497,15 @@ VSX_IMPL_CONV_EVEN_2_4(vec_uint4,  vec_double2, vec_ctu, vec_ctuo)
     VSX_FINLINE(rt) fnm(const rg& a, int only_truncate) \
     {                                                   \
         assert(only_truncate == 0);                     \
-        CV_UNUSED(only_truncate);                            \
+        CV_UNUSED(only_truncate);                       \
         return fn2(a);                                  \
     }
     VSX_IMPL_CONV_2VARIANT(vec_int4,   vec_float4,  vec_cts, vec_cts)
+    VSX_IMPL_CONV_2VARIANT(vec_uint4,  vec_float4,  vec_ctu, vec_ctu)
     VSX_IMPL_CONV_2VARIANT(vec_float4, vec_int4,    vec_ctf, vec_ctf)
+    VSX_IMPL_CONV_2VARIANT(vec_float4, vec_uint4,   vec_ctf, vec_ctf)
     // define vec_cts for converting double precision to signed doubleword
-    // which isn't combitable with xlc but its okay since Eigen only use it for gcc
+    // which isn't compatible with xlc but its okay since Eigen only uses it for gcc
     VSX_IMPL_CONV_2VARIANT(vec_dword2, vec_double2, vec_cts, vec_ctsl)
 #endif // Eigen
 
@@ -546,7 +546,7 @@ VSX_IMPL_OVERLOAD_Z2(vec_dword2,  vec_float4,  vec_ctsl)
 VSX_IMPL_OVERLOAD_Z2(vec_udword2, vec_double2, vec_ctul)
 VSX_IMPL_OVERLOAD_Z2(vec_udword2, vec_float4,  vec_ctul)
 
-// NEED TO FIX: implement conversions of odd-numbered elements in a dirty way
+// fixme: implement conversions of odd-numbered elements in a dirty way
 // since xlc doesn't support VSX registers operand in inline asm.
 #define VSX_IMPL_CONV_ODD_4_2(rt, rg, fnm, fn2) \
 VSX_FINLINE(rt) fnm(const rg& a) { return fn2(vec_sldw(a, a, 3)); }

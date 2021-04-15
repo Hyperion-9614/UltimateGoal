@@ -173,7 +173,7 @@ namespace cv {
                         }
                     } else {
                         auto *f = func_tbl[depth][0];
-                        // NEED TO FIX: better to refactor assign_row to use std::size_t by default
+                        // FIXME: better to refactor assign_row to use std::size_t by default
                         (*f)(static_cast<void *>(data), static_cast<int>(total()), s);
                     }
                     return *this;
@@ -243,10 +243,10 @@ namespace cv {
                 }
 
                 void create(const std::vector<int> &_dims, int _type) {
-                    // NEED TO FIX: make a proper reallocation-on-demands
+                    // FIXME: make a proper reallocation-on-demands
                     // WARNING: no tensor views, so no strides
                     Mat tmp{_dims, _type, nullptr};
-                    // NEED TO FIX: this accumulate duplicates a lot
+                    // FIXME: this accumulate duplicates a lot
                     const auto sz = std::accumulate(_dims.begin(), _dims.end(), 1,
                                                     std::multiplies<int>());
                     tmp.memory.reset(new uchar[CV_ELEM_SIZE(_type) * sz],

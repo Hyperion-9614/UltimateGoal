@@ -20,7 +20,7 @@
 
 #include <opencv2/gapi/fluid/gfluidbuffer.hpp>
 
-// NEED TO FIX: namespace scheme for backends?
+// FIXME: namespace scheme for backends?
 namespace cv {
 
     namespace gapi {
@@ -70,7 +70,7 @@ namespace cv {
                     // This function is a generic "getWindow" callback (extracts window-related data from kernel's input parameters)
                     using GW = std::function<int(const GMetaArgs&, const GArgs&)>;
 
-                    // NEED TO FIX: move implementations out of header file
+                    // FIXME: move implementations out of header file
                     GFluidKernel() {}
                     GFluidKernel(Kind k, int l, bool scratch, const F& f, const IS &is, const RS &rs, const B& b, const GW& win)
                     : m_kind(k)
@@ -93,7 +93,7 @@ namespace cv {
                     const GW   m_gw;
             };
 
-// NEED TO FIX!!!
+// FIXME!!!
 // This is the temporary and experimental API
 // which should be replaced by runtime roi-based scheduling
 /** \addtogroup gapi_compile_args
@@ -175,7 +175,7 @@ namespace cv {
 
         template<>
         struct fluid_get_in<cv::GScalar> {
-            // NEED TO FIX: change to return by reference when moved to own::Scalar
+            // FIXME: change to return by reference when moved to own::Scalar
             static const cv::Scalar get(const cv::GArgs &in_args, int idx) {
                 return in_args[idx].unsafe_get<cv::Scalar>();
             }
@@ -369,7 +369,7 @@ namespace cv {
             constexpr bool hasWindow = has_Window<Impl, const int>::value;
 
             // User must provide "init" callback if Window != 1
-            // NEED TO FIX: move to constexpr if when we enable C++17
+            // TODO: move to constexpr if when we enable C++17
             return get_border_helper<callCustomGetBorder<hasWindow, Impl>::value, Impl, Ins...>::help(
                     metas, in_args);
         }
@@ -392,7 +392,7 @@ public:
     using API = K;
 
     static GFluidKernel kernel() {
-        // NEED TO FIX: call() and getOutMeta() needs to be renamed so it is clear these
+        // FIXME: call() and getOutMeta() needs to be renamed so it is clear these
         // functions are internal wrappers, not user API
         return GFluidKernel(Impl::Kind, Impl::LPI,
                             UseScratch,

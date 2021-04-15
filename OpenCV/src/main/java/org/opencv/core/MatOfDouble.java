@@ -16,7 +16,7 @@ public class MatOfDouble extends Mat {
         super(addr);
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //NEED TO FIX: do we need release() here?
+        //FIXME: do we need release() here?
     }
 
     public static MatOfDouble fromNativeAddr(long addr) {
@@ -27,7 +27,7 @@ public class MatOfDouble extends Mat {
         super(m, Range.all());
         if( !empty() && checkVector(_channels, _depth) < 0 )
             throw new IllegalArgumentException("Incompatible Mat");
-        //NEED TO FIX: do we need release() here?
+        //FIXME: do we need release() here?
     }
 
     public MatOfDouble(double...a) {
@@ -45,7 +45,7 @@ public class MatOfDouble extends Mat {
             return;
         int num = a.length / _channels;
         alloc(num);
-        put(0, 0, a); //NEED TO DO: check ret val!
+        put(0, 0, a); //TODO: check ret val!
     }
 
     public double[] toArray() {
@@ -55,7 +55,7 @@ public class MatOfDouble extends Mat {
         double[] a = new double[num * _channels];
         if(num == 0)
             return a;
-        get(0, 0, a); //NEED TO DO: check ret val!
+        get(0, 0, a); //TODO: check ret val!
         return a;
     }
 

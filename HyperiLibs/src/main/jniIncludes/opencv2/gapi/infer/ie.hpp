@@ -8,9 +8,11 @@
 #define OPENCV_GAPI_INFER_IE_HPP
 
 #include <unordered_map>
+#include <unordered_set>
 #include <string>
 #include <array>
 #include <tuple> // tuple, tuple_size
+#include <map>
 
 #include <opencv2/gapi/opencv_includes.hpp>
 #include <opencv2/gapi/util/any.hpp>
@@ -21,7 +23,7 @@
 
 namespace cv {
     namespace gapi {
-// NEED TO FIX: introduce a new sub-namespace for NN?
+// FIXME: introduce a new sub-namespace for NN?
         namespace ie {
 
             GAPI_EXPORTS cv::gapi::GBackend
@@ -43,6 +45,8 @@ namespace cv {
                 IMAGE   //!< G-API traits an associated cv::Mat as an image so creates an "image" blob (NCHW/NHWC, etc)
             };
 
+            using IEConfig = std::map<std::string, std::string>;
+
             namespace detail {
                 struct ParamDesc {
                     std::string model_path;
@@ -61,11 +65,22 @@ namespace cv {
                     std::size_t num_in;  // How many inputs are defined in the operation
                     std::size_t num_out; // How many outputs are defined in the operation
 
+                    enum class Kind {
+                        Load, Import
+                    };
+                    Kind kind;
                     bool is_generic;
+                    IEConfig config;
+
+                    std::map <std::string, std::vector<std::size_t>> reshape_table;
+                    std::unordered_set <std::string> layer_names_to_reshape;
+
+                    // NB: Number of asyncrhonious infer requests
+                    size_t nireq;
                 };
             } // namespace detail
 
-// NEED TO FIX: this is probably a shared (reusable) thing
+// FIXME: this is probably a shared (reusable) thing
             template<typename Net>
             struct PortCfg {
                 using In = std::array
@@ -83,7 +98,15 @@ namespace cv {
                         : desc{model, weights, device, {}, {}, {},
                                std::tuple_size<typename Net::InArgs>::value  // num_in
                         , std::tuple_size<typename Net::OutArgs>::value // num_out
-                        , false} {
+                        , detail::ParamDesc::Kind::Load, false, {}, {}, {}, 1u} {
+                };
+
+                Params(const std::string &model,
+                       const std::string &device)
+                        : desc{model, {}, device, {}, {}, {},
+                               std::tuple_size<typename Net::InArgs>::value  // num_in
+                        , std::tuple_size<typename Net::OutArgs>::value // num_out
+                        , detail::ParamDesc::Kind::Import, false, {}, {}, {}, 1u} {
                 };
 
                 Params<Net> &cfgInputLayers(const typename PortCfg<Net>::In &ll) {
@@ -109,6 +132,56 @@ namespace cv {
                     return *this;
                 }
 
+                Params &pluginConfig(IEConfig &&cfg) {
+                    desc.config = std::move(cfg);
+                    return *this;
+                }
+
+                Params &pluginConfig(const IEConfig &cfg) {
+                    desc.config = cfg;
+                    return *this;
+                }
+
+                Params &cfgNumRequests(size_t nireq) {
+                    GAPI_Assert(nireq > 0 && "Number of infer requests must be greater than zero!");
+                    desc.nireq = nireq;
+                    return *this;
+                }
+
+                Params<Net> &
+                cfgInputReshape(std::map <std::string, std::vector<std::size_t>> &&reshape_table) {
+                    desc.reshape_table = std::move(reshape_table);
+                    return *this;
+                }
+
+                Params<Net> &cfgInputReshape(
+                        const std::map <std::string, std::vector<std::size_t>> &reshape_table) {
+                    desc.reshape_table = reshape_table;
+                    return *this;
+                }
+
+                Params<Net> &
+                cfgInputReshape(std::string &&layer_name, std::vector <size_t> &&layer_dims) {
+                    desc.reshape_table.emplace(layer_name, layer_dims);
+                    return *this;
+                }
+
+                Params<Net> &cfgInputReshape(const std::string &layer_name,
+                                             const std::vector <size_t> &layer_dims) {
+                    desc.reshape_table.emplace(layer_name, layer_dims);
+                    return *this;
+                }
+
+                Params<Net> &cfgInputReshape(std::unordered_set <std::string> &&layer_names) {
+                    desc.layer_names_to_reshape = std::move(layer_names);
+                    return *this;
+                }
+
+                Params<Net> &cfgInputReshape(const std::unordered_set <std::string> &layer_names) {
+                    desc.layer_names_to_reshape = layer_names;
+                    return *this;
+                }
+
                 // BEGIN(G-API's network parametrization API)
                 GBackend backend() const { return cv::gapi::ie::backend(); }
 
@@ -128,8 +201,39 @@ namespace cv {
                        const std::string &model,
                        const std::string &weights,
                        const std::string &device)
-                        : desc{model, weights, device, {}, {}, {}, 0u, 0u, true}, m_tag(tag) {
+                        : desc{model, weights, device, {}, {}, {}, 0u, 0u,
+                               detail::ParamDesc::Kind::Load, true, {}, {}, {}, 1u}, m_tag(tag) {
                 };
+
+                Params(const std::string &tag,
+                       const std::string &model,
+                       const std::string &device)
+                        : desc{model, {}, device, {}, {}, {}, 0u, 0u,
+                               detail::ParamDesc::Kind::Import, true, {}, {}, {}, 1u}, m_tag(tag) {
+                };
+
+                Params &pluginConfig(IEConfig &&cfg) {
+                    desc.config = std::move(cfg);
+                    return *this;
+                }
+
+                Params &pluginConfig(const IEConfig &cfg) {
+                    desc.config = cfg;
+                    return *this;
+                }
+
+                Params &constInput(const std::string &layer_name,
+                                   const cv::Mat &data,
+                                   TraitAs hint = TraitAs::TENSOR) {
+                    desc.const_inputs[layer_name] = {data, hint};
+                    return *this;
+                }
+
+                Params &cfgNumRequests(size_t nireq) {
+                    GAPI_Assert(nireq > 0 && "Number of infer requests must be greater than zero!");
+                    desc.nireq = nireq;
+                    return *this;
+                }
 
                 // BEGIN(G-API's network parametrization API)
                 GBackend backend() const { return cv::gapi::ie::backend(); }
@@ -148,4 +252,4 @@ namespace cv {
     } // namespace gapi
 } // namespace cv
 
-#endif // OPENCV_GAPI_INFER_HPP
+#endif // OPENCV_GAPI_INFER_IE_HPP

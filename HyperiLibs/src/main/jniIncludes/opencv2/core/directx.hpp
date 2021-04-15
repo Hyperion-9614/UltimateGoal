@@ -78,7 +78,7 @@ namespace cv {
 //
 //! @{
 
-// NEED TO FIX static functions in the Context class
+// TODO static functions in the Context class
 //! @brief Creates OpenCL context from D3D11 device
 //
 //! @param pD3D11Device - pointer to D3D11 device
