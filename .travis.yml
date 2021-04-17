@@ -3,21 +3,28 @@ language: android
 os:
   - linux
 
+dist: focal
+
 android:
   components:
+    - build-tools-30.0.3
     - build-tools-29.0.3
     - tools
     - platform-tools
     - extra-google-m2repository
     - extra-android-m2repository
     - android-29
+    - android-30
 
 install:
-  - echo y | sdkmanager "ndk-bundle"
-  - echo y | sdkmanager "ndk;22.1.7171670"
-  - echo y | sdkmanager "cmake;3.10.2.4988404"
+  - echo y | sdkmanager "ndk-bundle" --channel=3
+  - sudo apt-get install cmake-3.19.8
 
 before_install:
+  - sudo apt-get update
+  - sudo apt-get install apt-transport-https ca-certificates gnupg software-properties-common wget
+  - sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
+  - sudo apt-get update
   - chmod +x gradlew
   - mkdir -p .android && touch ~/.android/repositories.cfg
 

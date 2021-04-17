@@ -16,24 +16,34 @@ apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
 
 android {
-    compileSdkVersion 30
     externalNativeBuild {
         cmake {
             path "../HyperiLibs/CMakeLists.txt"
-            version "3.20.1"
+            version "3.19.8"
         }
     }
     defaultConfig {
+        compileSdkVersion 30
         minSdkVersion 25
         targetSdkVersion 30
-        ndkVersion "22.1.7171670"
+        buildToolsVersion "30.0.3"
+        ndkVersion "23.0.7196353"
         multiDexEnabled true
         lintOptions {
             abortOnError false
             disable 'InvalidPackage'
         }
     }
-
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {

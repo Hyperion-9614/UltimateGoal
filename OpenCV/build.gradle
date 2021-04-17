@@ -1,16 +1,17 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "29.0.3"
     externalNativeBuild {
         cmake {
-            version "3.20.1"
+            version "3.19.8"
         }
     }
     defaultConfig {
+        compileSdkVersion 29
         minSdkVersion 25
-        targetSdkVersion 30
+        targetSdkVersion 29
+        buildToolsVersion "30.0.3"
+        ndkVersion '23.0.7196353'
         multiDexEnabled true
         lintOptions {
             abortOnError false
@@ -19,7 +20,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
@@ -27,5 +28,4 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    ndkVersion '22.1.7171670'
 }
