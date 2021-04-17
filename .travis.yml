@@ -18,14 +18,16 @@ android:
 
 install:
   - echo y | sdkmanager "ndk-bundle" --channel=3
-  - sudo apt-get install cmake-3.19.8
 
 before_install:
-  - sudo apt-get install apt-transport-https ca-certificates gnupg software-properties-common wget
-  - wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
-  - sudo apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
-  - sudo apt-get update || echo "Some packages did not build"
-  - sudo apt-get install cmake-3.19.8
+  - pwd
+  - wget https://github.com/Kitware/CMake/releases/download/v3.19.8/cmake-3.19.8.tar.gz
+  - tar -zxvf cmake-3.19.8.tar.gz
+  - cd cmake-3.19.8
+  - ./bootstrap --parallel=4
+  - make -j4
+  - sudo make install
+#  - echo 'export PATH=`pwd`:$PATH' >> ~/.bashrc
   - chmod +x gradlew
   - mkdir -p .android && touch ~/.android/repositories.cfg
 
