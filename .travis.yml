@@ -20,14 +20,18 @@ install:
   - echo y | sdkmanager "ndk-bundle" --channel=3
 
 before_install:
-  - pwd
+  - cd ..
+  - sudo apt install build-essential
   - wget https://github.com/Kitware/CMake/releases/download/v3.19.8/cmake-3.19.8.tar.gz
   - tar -zxvf cmake-3.19.8.tar.gz
   - cd cmake-3.19.8
-  - ./bootstrap --parallel=4
-  - make -j4
+  - ./bootstrap --parallel=8
+  - make -j8
   - sudo make install
 #  - echo 'export PATH=`pwd`:$PATH' >> ~/.bashrc
+  - pwd
+  - cd ..
+  - cd UltimateGoal
   - chmod +x gradlew
   - mkdir -p .android && touch ~/.android/repositories.cfg
 
