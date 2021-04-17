@@ -23,6 +23,7 @@ before_install:
   - cd ..
   - sudo apt-get update || echo "Some packages could not be built properly"
   - sudo apt-get install build-essential
+  - sudo apt-get install g++
   - wget https://github.com/Kitware/CMake/releases/download/v3.19.8/cmake-3.19.8.tar.gz
   - tar -zxvf cmake-3.19.8.tar.gz
   - cd cmake-3.19.8
