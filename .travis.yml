@@ -18,22 +18,28 @@ android:
 
 install:
   - echo y | sdkmanager "ndk-bundle" --channel=3
+  - echo y | sdkmanager "build-tools;30.0.3" --channel=3
+  - echo y | sdkmanager "platforms;android-30" --channel=3
+  - echo y | sdkmanager "sources;android-30" --channel=3
 
 before_install:
   - cd ..
   - sudo apt-get update || echo "Some packages could not be built properly"
   - sudo apt-get install build-essential
-  - sudo apt-get install g++
+  - sudo apt-get install software-properties-common
+  - echo "" | sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update || echo "Some packages could not be built properly"
+  - sudo apt-get install gcc-9 g++-9
+  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
   - wget https://github.com/Kitware/CMake/releases/download/v3.19.8/cmake-3.19.8.tar.gz
   - tar -zxvf cmake-3.19.8.tar.gz
   - cd cmake-3.19.8
   - ./bootstrap --parallel=8
   - make -j8
   - sudo make install
-#  - echo 'export PATH=`pwd`:$PATH' >> ~/.bashrc
-  - pwd
+  - echo 'export PATH="/home/travis/build/Hyperion-9614/cmake-3.19.8:$PATH"' >> ~/.bashrc
   - cd ..
-  - cd UltimateGoal
+  - cd UltimateGoal/
   - chmod +x gradlew
   - mkdir -p .android && touch ~/.android/repositories.cfg
 
