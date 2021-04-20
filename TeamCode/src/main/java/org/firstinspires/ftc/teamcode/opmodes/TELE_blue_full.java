@@ -26,37 +26,31 @@ public class TELE_blue_full extends LinearOpMode {
     public void runOpMode() {
         gerald = new Gerald(this, "tele.blue.full");
         waitForStart();
-        executeLoop();
+        gerald.status = "Running OpMode " + gerald.opModeID.toString();
+        while (opModeIsActive() && !isStopRequested() && gerald.isRunning) {
+            executeLoop();
+        }
         gerald.end();
     }
 
     public void executeLoop() {
-        gerald.status = "Running OpMode " + gerald.opModeID.toString();
-        while (opModeIsActive() && !isStopRequested() && gerald.isRunning) {
-            /*
-             * GAMEPAD 1
-             * LEFT JOYSTICK : Translation in direction of joystick, relative to robot
-             * RIGHT JOYSTICK : Pivot in direction of joystick, relative to robot
-             */
-            Vector2D vel = new Vector2D(gamepad1.left_stick_x, -gamepad1.left_stick_y, true).rotated(-Math.PI / 2);
-            double rot = gamepad1.right_stick_x;
-            if (rot == 0) {
-                isHtStarted = false;
-            } else if (rot != 0 && !isHtStarted) {
-                preHtTheta = Motion.robot.theta;
-                isHtStarted = true;
-            }
-            if (isHtStarted) {
-                vel.rotate(preHtTheta - Motion.robot.theta);
-            }
-            Motion.setDrive(vel, rot);
-
-            /*
-             * GAMEPAD 1
-             * RIGHT BUMPER : Shooter toggle
-             */
-            Apndg.setShooter(gamepad1.right_bumper ? State.ON : State.OFF);
+        /*
+         * GAMEPAD 1
+         * LEFT JOYSTICK : Translation in direction of joystick, relative to robot
+         * RIGHT JOYSTICK : Pivot in direction of joystick, relative to robot
+         */
+        Vector2D vel = new Vector2D(gamepad1.left_stick_x, -gamepad1.left_stick_y, true).rotated(-Math.PI / 2);
+        double rot = gamepad1.right_stick_x;
+        if (rot == 0) {
+            isHtStarted = false;
+        } else if (rot != 0 && !isHtStarted) {
+            preHtTheta = Motion.robot.theta;
+            isHtStarted = true;
         }
+        if (isHtStarted) {
+            vel.rotate(preHtTheta - Motion.robot.theta);
+        }
+        Motion.setDrive(vel, rot);
     }
 
 }

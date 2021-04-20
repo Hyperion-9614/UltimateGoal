@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.core;
 
-import android.content.Context;
-import android.content.ContextWrapper;
-
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.IOUtils;
@@ -25,8 +22,8 @@ import java.io.File;
 
 public class Gerald {
 
-    public ExpansionHubEx controlHub;
-    public ExpansionHubEx expansionHub;
+    public ExpansionHubEx expansionHubL;
+    public ExpansionHubEx expansionHubR;
     public HardwareMap hwmp;
     public LinearOpMode ctx;
 
@@ -51,8 +48,8 @@ public class Gerald {
         initFiles();
 
         // Init expansion hubs
-        controlHub = hwmp.get(ExpansionHubEx.class, "Control Hub");
-//        expansionHub = hwmp.get(ExpansionHubEx.class, "Expansion Hub");
+        expansionHubL = hwmp.get(ExpansionHubEx.class, "Expansion Hub L");
+        expansionHubR = hwmp.get(ExpansionHubEx.class, "Expansion Hub R");
 
         // Init motion & appendages
         Motion.init(this);

@@ -69,10 +69,10 @@ public class Motion {
     // Init motion-related hardware
     public static void initHW() {
         // Drive motors
-        fLDrive = gerald.hwmp.get(DcMotorEx.class, "fLDrive");
-        fRDrive = gerald.hwmp.get(DcMotorEx.class, "fRDrive");
-        bLDrive = gerald.hwmp.get(DcMotorEx.class, "bLDrive");
-        bRDrive = gerald.hwmp.get(DcMotorEx.class, "bRDrive");
+        fLDrive = gerald.hwmp.get(DcMotorEx.class, "MLF");
+        fRDrive = gerald.hwmp.get(DcMotorEx.class, "MRF");
+        bLDrive = gerald.hwmp.get(DcMotorEx.class, "MLB");
+        bRDrive = gerald.hwmp.get(DcMotorEx.class, "MRB");
         drives = new DcMotorEx[]{ fLDrive, fRDrive, bLDrive, bRDrive };
 
         for (DcMotor drive : drives) {
@@ -80,9 +80,6 @@ public class Motion {
             drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
-
-        fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-        bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Odometry
         xLOdo = fRDrive;

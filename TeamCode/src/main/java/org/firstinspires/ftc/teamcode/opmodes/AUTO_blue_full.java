@@ -24,18 +24,20 @@ public class AUTO_blue_full extends LinearOpMode {
     public void runOpMode() {
         gerald = new Gerald(this, "auto.blue.full");
         waitForStart();
-        execute();
+        gerald.autoTime = new ElapsedTime();
+        gerald.status = "Running OpMode " + gerald.opModeID.toString();
+        try {
+            execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         gerald.end();
     }
 
     public void execute() {
-        try {
-            gerald.autoTime = new ElapsedTime();
-            gerald.status = "Running OpMode " + gerald.opModeID.toString();
-            Apndg.shoot(45, 3, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Motion.setDrive(1);
+        sleep(5000);
+        Motion.setDrive(0);
     }
 
 }

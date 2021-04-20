@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.core;
 
 import com.hyperion.common.Constants;
+import com.hyperion.common.ID;
 import com.hyperion.common.MathUtils;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -21,16 +22,13 @@ public class Apndg {
     public static DcMotorEx shooterR;
     public static Servo flap;
 
-    // Transfer
+    // Intake & Transfer
     public static Servo loader;
-    public static Servo hopper;
-
-    // Intake
-    public static DcMotor intakeL;
-    public static DcMotor intakeR;
+    public static DcMotor intake;
 
     // Wobble
-
+    public static DcMotorEx arm;
+    public static Servo claw;
 
     public static void init(Gerald gerald) {
         Apndg.gerald = gerald;
@@ -45,9 +43,9 @@ public class Apndg {
      */
     public static void initHW() {
         // Shooter
-        shooterL = Motion.fLDrive;
-        shooterR = Motion.fRDrive;
-        flap = gerald.hwmp.servo.get("flap");
+        shooterL = gerald.hwmp.get(DcMotorEx.class, "ShootL");
+        shooterR = gerald.hwmp.get(DcMotorEx.class, "ShootR");
+        flap = gerald.hwmp.servo.get("ShootLevel");
 
         shooterL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooterR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -56,21 +54,19 @@ public class Apndg {
 
         setShooterPIDF();
 
-        // Transfer
-        loader = gerald.hwmp.servo.get("loader");
-        hopper = gerald.hwmp.servo.get("elevator");
-
         // Intake
-//        intakeL = Motion.bLDrive;
-//        intakeR = Motion.bRDrive;
-//
-//        intakeL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        intakeR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        intakeL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        intakeR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intake = gerald.hwmp.dcMotor.get("Intake");
+        loader = gerald.hwmp.servo.get("shootServo");
+
+        intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Wobble
+        arm = gerald.hwmp.get(DcMotorEx.class, "WobbleClaw");
+        claw = gerald.hwmp.servo.get("blockArmL");
 
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     /**
@@ -81,17 +77,17 @@ public class Apndg {
         double kI = Constants.getDouble("pid.shooterL.kI");
         double kD = Constants.getDouble("pid.shooterL.kD");
         double kF = Constants.getDouble("pid.shooterL.kF");
-        shooterL.setVelocityPIDFCoefficients(kP, kI, kD, kF);
-        shooterR.setVelocityPIDFCoefficients(kP, kI, kD, kF);
+//        shooterL.setVelocityPIDFCoefficients(kP, kI, kD, kF);
+//        shooterR.setVelocityPIDFCoefficients(kP, kI, kD, kF);
     }
 
     /**
      * Sets positions of appendages to init state
      */
     public static void initPositions() {
-        setHopper(State.DOWN);
+        setFlap(0);
+        setClaw(State.CLOSED);
         setLoader(State.OUT);
-        setFlap(45);
     }
 
     /**
@@ -119,10 +115,13 @@ public class Apndg {
     /**
      * Sets the elevator to the given angle with the horizontal
      *
-     * @param  angleDeg  the angle with the horizontal to angle the shooter flap
+     * @param  angleDeg  the angle with the horizontal to
+     *                   angle the shooter flap (0 - 30 deg)
+     *
      */
     public static void setFlap(double angleDeg) {
         States.flapDeg = angleDeg;
+        flap.setPosition(0.19 + angleDeg / 30);
     }
 
     /**
@@ -143,23 +142,6 @@ public class Apndg {
     }
 
     /**
-     * Sets the elevator to the given state
-     *
-     * @param  state  DOWN | UP
-     */
-    public static void setHopper(State state) {
-        States.hopper = state;
-        switch (state) {
-            case DOWN:
-                hopper.setPosition(Constants.getDouble("apndg.hopper.down"));
-                break;
-            case UP:
-                hopper.setPosition(Constants.getDouble("apndg.hopper.up"));
-                break;
-        }
-    }
-
-    /**
      * Sets the intake to the given state
      *
      * @param  state  IN | OFF | OUT
@@ -169,16 +151,47 @@ public class Apndg {
         States.intake = state;
         switch (state) {
             case IN:
-                intakeL.setPower(-power);
-                intakeR.setPower(-power);
+                intake.setPower(-power);
                 break;
             case OFF:
-                intakeL.setPower(0);
-                intakeR.setPower(0);
+                intake.setPower(0);
                 break;
             case OUT:
-                intakeL.setPower(power);
-                intakeR.setPower(power);
+                intake.setPower(power);
+                break;
+        }
+    }
+
+    /**
+     * Sets the arm to the given state
+     *
+     * @param  state  init | horizon | endgame | autolift | pickup
+     */
+    public static void setArm(String state) {
+        States.arm = state;
+        arm.setTargetPosition(Constants.getInt(new ID("apndg.arm.states", state).toString()));
+        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm.setPower(Constants.getDouble("apndg.arm.power"));
+        long start = System.currentTimeMillis();
+        while (gerald.ctx.opModeIsActive() && !gerald.ctx.isStopRequested() && arm.isBusy()
+               && (System.currentTimeMillis() - start) <= Constants.getLong("apdng.arm.timeoutMS")){}
+        arm.setPower(0);
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    /**
+     * Sets the claw to the given state
+     *
+     * @param  state  OPEN | CLOSED
+     */
+    public static void setClaw(State state) {
+        States.claw = state;
+        switch (state) {
+            case OPEN:
+                claw.setPosition(Constants.getDouble("apndg.claw.open"));
+                break;
+            case CLOSED:
+                claw.setPosition(Constants.getDouble("apndg.claw.closed"));
                 break;
         }
     }
@@ -199,7 +212,7 @@ public class Apndg {
     /**
      * Loads and shoots a ring at a given angle
      *
-     * @param  angleDeg  the angle to shoot at (0 - 90 deg)
+     * @param  angleDeg  the angle to shoot at (0 - 30 deg)
      * @param  numTimes  number of times to load/shoot
      *                   input -1 if shooter should stay on indefinitely
      * @param  turnOff   should the shooter turn off after firing all rings
@@ -207,10 +220,8 @@ public class Apndg {
     public static void shoot(double angleDeg, int numTimes, boolean turnOff) {
         gerald.status = "Shooting at angle " + angleDeg + "\u00B0 " + numTimes + " times";
         setFlap(angleDeg);
-//        if (States.intake != State.OFF)
-//            setIntake(State.OFF);
-        if (States.hopper != State.UP)
-            setHopper(State.UP);
+        if (States.intake != State.OFF)
+            setIntake(State.OFF);
         if (States.shooter != State.ON)
             setShooter(State.ON);
         gerald.ctx.sleep(500);
@@ -225,7 +236,7 @@ public class Apndg {
     }
 
     public enum State {
-        ON, OFF, IN, OUT, DOWN, UP
+        ON, OFF, IN, OUT, OPEN, CLOSED
     }
 
     public static class States {
@@ -234,8 +245,9 @@ public class Apndg {
         public static double shooterLrpm;
         public static double flapDeg;
         public static State loader;
-        public static State hopper;
         public static State intake;
+        public static String arm;
+        public static State claw;
 
     }
 

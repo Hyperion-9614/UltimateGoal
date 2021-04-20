@@ -45,14 +45,14 @@ public class Metrics {
         data.add(new Entry("Current", Motion.robot));
         data.add(new Entry("Start", Motion.start));
         data.add(new Entry("Wheel Velocities (fL/fR/bL/bR)",
-                MathUtils.round(Motion.fLDrive.getPower(), 2) + " " +
-                MathUtils.round(Motion.fRDrive.getPower(), 2) + " " +
-                MathUtils.round(Motion.bLDrive.getPower(), 2) + " " +
-                MathUtils.round(Motion.bRDrive.getPower(), 2)));
-        data.add(new Entry("Odometry Counts (xL/xR/y)",
-                Motion.localizer.oldxlCounts + " " +
-                Motion.localizer.oldxrCounts + " " +
-                Motion.localizer.oldyCounts));
+                "fL: " + MathUtils.round(Motion.fLDrive.getPower(), 2)
+             + " fR: " + MathUtils.round(Motion.fRDrive.getPower(), 2)
+             + " bL: " + MathUtils.round(Motion.bLDrive.getPower(), 2)
+             + " bR: " + MathUtils.round(Motion.bRDrive.getPower(), 2)));
+        data.add(new Entry("Odometry Counts",
+                "xL: " + Motion.localizer.oldxlCounts
+             + " xR: " + Motion.localizer.oldxrCounts
+              + " y: " + Motion.localizer.oldyCounts));
         data.add(new Entry());
 
         data.add(new Entry("Appendages"));
@@ -61,7 +61,10 @@ public class Metrics {
                 + " RPM R: " + MathUtils.round(MathUtils.radToRPM(Apndg.shooterR.getVelocity(AngleUnit.RADIANS)), 2) + " RPM"));
         data.add(new Entry("Flap", MathUtils.round(Apndg.States.flapDeg, 2) + "\u00B0 - " + MathUtils.round(Apndg.flap.getPosition(), 2)));
         data.add(new Entry("Loader", Apndg.States.loader + " - " + MathUtils.round(Apndg.loader.getPosition(), 2)));
-        data.add(new Entry("Hopper", Apndg.States.hopper + " - " + MathUtils.round(Apndg.hopper.getPosition(), 2)));
+        data.add(new Entry("Intake", Apndg.States.intake + " - L: " + MathUtils.round(Apndg.shooterL.getPower(), 2)
+                                                           + " R: " + MathUtils.round(Apndg.shooterR.getPower(), 2)));
+        data.add(new Entry("Arm", Apndg.States.arm + " - " + Apndg.arm.getCurrentPosition()));
+        data.add(new Entry("Claw", Apndg.States.claw + " - " + MathUtils.round(Apndg.claw.getPosition(), 2)));
         data.add(new Entry());
 
         data.add(new Entry("Gamepad 1"));

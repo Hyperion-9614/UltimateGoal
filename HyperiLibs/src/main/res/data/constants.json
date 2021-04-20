@@ -1,24 +1,24 @@
 {
     "localization": {
-        "driveBase": 30.48,
-        "trackWidth": 39.37,
-        "odometryCyclesPerRevolution": 360,
+        "driveBase": 34.4,
+        "trackWidth": 37.35,
+        "odometryCyclesPerRevolution": 300,
         "fieldSideLength": 365.76,
-        "odometryWheelRadius": 1.5875,
+        "odometryWheelRadius": 2.54,
         "odometryPoses": {
             "xL": [
-                5.08,
-                19.05,
+                0,
+                17.2,
                 0
             ],
             "y": [
-                -5.08,
-                -19.05,
+                0,
+                -15.716,
                 90
             ],
             "xR": [
-                5.08,
-                -19.05,
+                0,
+                -17.2,
                 0
             ]
         }
@@ -52,16 +52,31 @@
         "localizationDelay": 10
     },
     "apndg": {
+        "shooter": {
+            "rpm": 2200
+        },
+        "intake": {
+            "power": 0.8
+        },
         "loader": {
             "in": 0.7,
             "out": 0.27
         },
-        "shooter": {"rpm": 6700},
-        "hopper": {
-            "up": 0.3,
-            "down": 0.6
+        "arm": {
+            "power": 0.8,
+            "timeoutMS": 3500,
+            "states": {
+                "init": 0,
+                "horizon": -80,
+                "endgame": -580,
+                "autolift": -1025,
+                "pickup": -1120
+            }
         },
-        "intake": {"power": 1}
+        "claw": {
+            "open": 0.9,
+            "closed": 0.34
+        }
     },
     "pid": {
         "x": {

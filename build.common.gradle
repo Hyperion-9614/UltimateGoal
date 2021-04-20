@@ -115,7 +115,7 @@ android {
         jni.srcDirs = []
         jniLibs.srcDir rootProject.file('libs')
     }
-    ndkVersion '23.0.7196353'
+    ndkVersion '21.1.6352462'
 }
 
 repositories {
