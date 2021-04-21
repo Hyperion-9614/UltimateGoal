@@ -73,19 +73,27 @@ public class Motion {
         fRDrive = gerald.hwmp.get(DcMotorEx.class, "MRF");
         bLDrive = gerald.hwmp.get(DcMotorEx.class, "MLB");
         bRDrive = gerald.hwmp.get(DcMotorEx.class, "MRB");
-        drives = new DcMotorEx[]{ fLDrive, fRDrive, bLDrive, bRDrive };
 
+        drives = new DcMotorEx[]{ fLDrive, fRDrive, bLDrive, bRDrive };
         for (DcMotor drive : drives) {
             drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
+        fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        bRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+
         // Odometry
-        xLOdo = fRDrive;
-        xROdo = fLDrive;
+        xLOdo = fLDrive;
+        xROdo = fRDrive;
         yOdo = bRDrive;
+
         odos = new DcMotorEx[]{ xLOdo, xROdo, yOdo };
+        for (DcMotor odo : odos) {
+            odo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            odo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
     }
 
     // Init motion control modules

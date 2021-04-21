@@ -43,7 +43,9 @@ public class Gerald {
         this.ctx = ctx;
         this.hwmp = ctx.hardwareMap;
         this.opModeID = new ID(opModeID);
-        this.filesDir = ctx.hardwareMap.appContext.getFilesDir(); // /data/user/0/com.qualcomm.ftcrobotcontroller/files
+        // Control Hub: /data/user/0/com.qualcomm.ftcrobotcontroller/files
+        // RC Phone: /data/data/com.qualcomm.ftcrobotcontroller/files
+        this.filesDir = ctx.hardwareMap.appContext.getFilesDir();
 
         initFiles();
 

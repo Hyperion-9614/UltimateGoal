@@ -24,7 +24,7 @@ public class Apndg {
 
     // Intake & Transfer
     public static Servo loader;
-    public static DcMotor intake;
+    public static DcMotorEx intake;
 
     // Wobble
     public static DcMotorEx arm;
@@ -55,7 +55,7 @@ public class Apndg {
         setShooterPIDF();
 
         // Intake
-        intake = gerald.hwmp.dcMotor.get("Intake");
+        intake = gerald.hwmp.get(DcMotorEx.class, "Intake");
         loader = gerald.hwmp.servo.get("shootServo");
 
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -85,9 +85,9 @@ public class Apndg {
      * Sets positions of appendages to init state
      */
     public static void initPositions() {
-        setFlap(0);
-        setClaw(State.CLOSED);
-        setLoader(State.OUT);
+//        setFlap(0);
+//        setClaw(State.CLOSED);
+//        setLoader(State.OUT);
     }
 
     /**

@@ -1,24 +1,24 @@
 {
     "localization": {
-        "driveBase": 34.4,
-        "trackWidth": 37.35,
+        "driveBase": 34,
+        "trackWidth": 37,
         "odometryCyclesPerRevolution": 300,
         "fieldSideLength": 365.76,
-        "odometryWheelRadius": 2.54,
+        "odometryWheelRadius": 2.69875,
         "odometryPoses": {
             "xL": [
                 0,
-                17.2,
+                17,
                 0
             ],
             "y": [
+                -17,
                 0,
-                -15.716,
                 90
             ],
             "xR": [
                 0,
-                -17.2,
+                -17,
                 0
             ]
         }

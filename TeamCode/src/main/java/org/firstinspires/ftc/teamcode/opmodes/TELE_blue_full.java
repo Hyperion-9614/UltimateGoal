@@ -22,6 +22,12 @@ public class TELE_blue_full extends LinearOpMode {
     private boolean isHtStarted;
     private double preHtTheta;
 
+    // Toggles, switches, & counters
+    private State intakeDir = State.IN;
+    private boolean t_right_bump;
+    private boolean t_left_bump;
+    private boolean wasIntakeRunning;
+
     @Override
     public void runOpMode() {
         gerald = new Gerald(this, "tele.blue.full");
@@ -40,7 +46,7 @@ public class TELE_blue_full extends LinearOpMode {
          * RIGHT JOYSTICK : Pivot in direction of joystick, relative to robot
          */
         Vector2D vel = new Vector2D(gamepad1.left_stick_x, -gamepad1.left_stick_y, true).rotated(-Math.PI / 2);
-        double rot = gamepad1.right_stick_x;
+        double rot = -gamepad1.right_stick_x;
         if (rot == 0) {
             isHtStarted = false;
         } else if (rot != 0 && !isHtStarted) {
@@ -51,6 +57,43 @@ public class TELE_blue_full extends LinearOpMode {
             vel.rotate(preHtTheta - Motion.robot.theta);
         }
         Motion.setDrive(vel, rot);
+
+        /*
+         * GAMEPAD 1
+         * RIGHT BUMPER (x1): Toggle intake ON/OFF
+         * LEFT BUMPER (x1): Switch intake direction
+         */
+        if (gamepad1.right_bumper && !t_right_bump) {
+            t_right_bump = true;
+            Apndg.setIntake((Apndg.States.intake != State.OFF) ? State.OFF : intakeDir);
+        } else if (!gamepad1.right_bumper && t_right_bump) {
+            t_right_bump = false;
+        }
+        if (gamepad1.left_bumper && !t_left_bump) {
+            t_left_bump = true;
+            intakeDir = (intakeDir == State.IN) ? State.OUT : State.IN;
+        } else if (!gamepad1.left_bumper && t_left_bump) {
+            t_left_bump = false;
+        }
+
+        /*
+         * GAMEPAD 1
+         * RIGHT TRIGGER: Shoot indefinitely
+         */
+        if (gamepad1.right_trigger > 0) {
+            if (Apndg.States.intake != State.OFF) {
+                Apndg.setIntake(State.OFF);
+                wasIntakeRunning = true;
+            }
+            Apndg.setShooter(State.ON);
+            Apndg.loadRing();
+        } else {
+            Apndg.setShooter(State.OFF);
+            if (wasIntakeRunning) {
+                Apndg.setIntake(intakeDir);
+                wasIntakeRunning = false;
+            }
+        }
     }
 
 }
