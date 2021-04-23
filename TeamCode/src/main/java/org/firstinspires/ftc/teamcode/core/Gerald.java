@@ -72,6 +72,7 @@ public class Gerald {
     private void initThreads() {
         localizationUpdater = new Thread(() -> {
             long lastUpdateTime = System.currentTimeMillis();
+            Motion.localizer.start(lastUpdateTime);
             while (!localizationUpdater.isInterrupted() && localizationUpdater.isAlive() && !ctx.isStopRequested()) {
                 if (System.currentTimeMillis() - lastUpdateTime >= Constants.getInt("teamcode.localizationDelay")) {
                     lastUpdateTime = System.currentTimeMillis();

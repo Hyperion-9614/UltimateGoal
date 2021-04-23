@@ -53,16 +53,23 @@ public class Metrics {
                 "xL: " + Motion.localizer.oldxlCounts
              + " xR: " + Motion.localizer.oldxrCounts
               + " y: " + Motion.localizer.oldyCounts));
+        data.add(new Entry("Odometry Cycle Time",
+               "Min: " + MathUtils.round(Motion.localizer.minDt, 6)
+            + " Ave: " + MathUtils.round(Motion.localizer.aveDt, 6)
+            + " Max: " +  MathUtils.round(Motion.localizer.maxDt, 6)));
         data.add(new Entry());
 
         data.add(new Entry("Appendages"));
         data.add(new Entry("Shooter", Apndg.States.shooter
                 + " - L: " + MathUtils.round(MathUtils.radToRPM(Apndg.shooterL.getVelocity(AngleUnit.RADIANS)), 2)
                 + " RPM R: " + MathUtils.round(MathUtils.radToRPM(Apndg.shooterR.getVelocity(AngleUnit.RADIANS)), 2) + " RPM"));
-        data.add(new Entry("Flap", MathUtils.round(Apndg.States.flapDeg, 2) + "\u00B0 - " + MathUtils.round(Apndg.flap.getPosition(), 2)));
+        data.add(new Entry("Flap", MathUtils.round(Apndg.States.flap, 2) + "\u00B0 - " + MathUtils.round(Apndg.flap.getPosition(), 2)));
+        data.add(new Entry("Angler", MathUtils.round(Apndg.States.anglerDeg, 2) + "\u00B0 - " + MathUtils.round(Apndg.angler.getPosition(), 2)));
         data.add(new Entry("Loader", Apndg.States.loader + " - " + MathUtils.round(Apndg.loader.getPosition(), 2)));
         data.add(new Entry("Intake", Apndg.States.intake + " - L: " + MathUtils.round(Apndg.shooterL.getPower(), 2)
                                                            + " R: " + MathUtils.round(Apndg.shooterR.getPower(), 2)));
+        data.add(new Entry("Mustache", Apndg.States.mustache + " - L: " + MathUtils.round(Apndg.mustacheL.getPosition(), 2)
+                                                               + " R: " + MathUtils.round(Apndg.mustacheR.getPosition(), 2)));
         data.add(new Entry("Arm", Apndg.States.arm + " - " + Apndg.arm.getCurrentPosition()));
         data.add(new Entry("Claw", Apndg.States.claw + " - " + MathUtils.round(Apndg.claw.getPosition(), 2)));
         data.add(new Entry());

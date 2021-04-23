@@ -45,7 +45,6 @@ public class Motion {
     public static DcMotorEx xLOdo;
     public static DcMotorEx xROdo;
     public static DcMotorEx yOdo;
-    public static DcMotorEx[] odos;
 
     // Motion control
     public static Localizer localizer;
@@ -76,7 +75,7 @@ public class Motion {
 
         drives = new DcMotorEx[]{ fLDrive, fRDrive, bLDrive, bRDrive };
         for (DcMotor drive : drives) {
-            drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//            drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
@@ -88,12 +87,6 @@ public class Motion {
         xLOdo = fLDrive;
         xROdo = fRDrive;
         yOdo = bRDrive;
-
-        odos = new DcMotorEx[]{ xLOdo, xROdo, yOdo };
-        for (DcMotor odo : odos) {
-            odo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            odo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
     }
 
     // Init motion control modules

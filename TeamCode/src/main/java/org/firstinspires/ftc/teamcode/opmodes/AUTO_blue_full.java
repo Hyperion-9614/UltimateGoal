@@ -35,9 +35,7 @@ public class AUTO_blue_full extends LinearOpMode {
     }
 
     public void execute() {
-        Motion.setDrive(1);
-        sleep(5000);
-        Motion.setDrive(0);
+        Motion.pidMove(30, 0);
     }
 
 }

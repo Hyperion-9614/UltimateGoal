@@ -60,8 +60,8 @@ public class TELE_blue_full extends LinearOpMode {
 
         /*
          * GAMEPAD 1
-         * RIGHT BUMPER (x1): Toggle intake ON/OFF
-         * LEFT BUMPER (x1): Switch intake direction
+         * RIGHT BUMPER: Toggle intake ON/OFF
+         * LEFT BUMPER: Switch intake direction
          */
         if (gamepad1.right_bumper && !t_right_bump) {
             t_right_bump = true;
@@ -81,11 +81,16 @@ public class TELE_blue_full extends LinearOpMode {
          * RIGHT TRIGGER: Shoot indefinitely
          */
         if (gamepad1.right_trigger > 0) {
+            double[] conf = Apndg.getOptimalShooterConfig();
+            Apndg.setFlap(conf[0]);
+            Apndg.setAngler(conf[1]);
+            Motion.rotate(conf[2]);
             if (Apndg.States.intake != State.OFF) {
                 Apndg.setIntake(State.OFF);
                 wasIntakeRunning = true;
             }
-            Apndg.setShooter(State.ON);
+            if (Apndg.States.shooter != State.ON)
+                Apndg.setShooter(State.ON);
             Apndg.loadRing();
         } else {
             Apndg.setShooter(State.OFF);
@@ -93,6 +98,14 @@ public class TELE_blue_full extends LinearOpMode {
                 Apndg.setIntake(intakeDir);
                 wasIntakeRunning = false;
             }
+        }
+
+        /*
+         * GAMEPAD 1
+         * Y: Toggle mustache
+         */
+        if (gamepad1.y) {
+            Apndg.setMustache(Apndg.States.mustache == State.UP ? State.DOWN : State.UP);
         }
     }
 

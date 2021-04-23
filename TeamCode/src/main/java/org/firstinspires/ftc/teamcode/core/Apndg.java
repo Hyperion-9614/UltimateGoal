@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.core;
 import com.hyperion.common.Constants;
 import com.hyperion.common.ID;
 import com.hyperion.common.MathUtils;
+import com.hyperion.motion.math.Pose;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -21,10 +22,13 @@ public class Apndg {
     public static DcMotorEx shooterL;
     public static DcMotorEx shooterR;
     public static Servo flap;
+    public static Servo angler;
 
     // Intake & Transfer
     public static Servo loader;
     public static DcMotorEx intake;
+    public static Servo mustacheL;
+    public static Servo mustacheR;
 
     // Wobble
     public static DcMotorEx arm;
@@ -46,6 +50,7 @@ public class Apndg {
         shooterL = gerald.hwmp.get(DcMotorEx.class, "ShootL");
         shooterR = gerald.hwmp.get(DcMotorEx.class, "ShootR");
         flap = gerald.hwmp.servo.get("ShootLevel");
+        angler = gerald.hwmp.servo.get("ShootAngle");
 
         shooterL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooterR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -57,13 +62,15 @@ public class Apndg {
         // Intake
         intake = gerald.hwmp.get(DcMotorEx.class, "Intake");
         loader = gerald.hwmp.servo.get("shootServo");
+        mustacheL = gerald.hwmp.servo.get("blockArmL");
+        mustacheR = gerald.hwmp.servo.get("blockArmR");
 
         intake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Wobble
         arm = gerald.hwmp.get(DcMotorEx.class, "WobbleClaw");
-        claw = gerald.hwmp.servo.get("blockArmL");
+        claw = gerald.hwmp.servo.get("WBGriper");
 
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -85,9 +92,11 @@ public class Apndg {
      * Sets positions of appendages to init state
      */
     public static void initPositions() {
-//        setFlap(0);
-//        setClaw(State.CLOSED);
-//        setLoader(State.OUT);
+        setFlap(Constants.getDouble("apndg.flap.origin"));
+        setAngler(Constants.getDouble("apndg.angler.origin"));
+        setLoader(State.OUT);
+        setMustache(State.UP);
+        setClaw(State.CLOSED);
     }
 
     /**
@@ -100,9 +109,10 @@ public class Apndg {
         double rpm = Constants.getDouble("apndg.shooter.rpm");
         switch (state) {
             case ON:
-                shooterL.setVelocity(MathUtils.rpmToRad(rpm), AngleUnit.RADIANS);
+                shooterL.setVelocity(-MathUtils.rpmToRad(rpm), AngleUnit.RADIANS);
                 shooterR.setVelocity(-MathUtils.rpmToRad(rpm), AngleUnit.RADIANS);
                 States.shooterLrpm = rpm;
+                gerald.ctx.sleep(500);
                 break;
             case OFF:
                 shooterL.setVelocity(0);
@@ -113,15 +123,40 @@ public class Apndg {
     }
 
     /**
-     * Sets the elevator to the given angle with the horizontal
+     * Sets the shooter flap to the given position
      *
-     * @param  angleDeg  the angle with the horizontal to
-     *                   angle the shooter flap (0 - 30 deg)
-     *
+     * @param  pos  the flap servo position
      */
-    public static void setFlap(double angleDeg) {
-        States.flapDeg = angleDeg;
-        flap.setPosition(0.19 + angleDeg / 30);
+    public static void setFlap(double pos) {
+        States.flap = pos;
+        flap.setPosition(pos);
+    }
+
+    /**
+     * Sets the shooter angler to the given position
+     *
+     * @param  pos  the angler servo position
+     */
+    public static void setAngler(double pos) {
+        States.flap = pos;
+        angler.setPosition(pos);
+    }
+
+    /**
+     * Returns the optimal flap, angler, and robot theta to
+     * accurately score in the high goal
+     */
+    public static double[] getOptimalShooterConfig() {
+        double[] conf = { 0, 0, 0 };
+        Pose shoot = Motion.getWaypoint("shoot");
+        double dX = Motion.robot.x - shoot.x;
+        double dY = Motion.robot.y - shoot.y;
+        double dTheta = Motion.robot.theta - shoot.theta;
+        double flapO = Constants.getDouble("apndg.flap.origin");
+        double anglerO = Constants.getDouble("apndg.angler.origin");
+        conf[0] = flapO + dY; // Assuming larger flap pos = greater angle
+        conf[1] = anglerO + dX; // Assuming larger angler pos = further right
+        return conf;
     }
 
     /**
@@ -158,6 +193,25 @@ public class Apndg {
                 break;
             case OUT:
                 intake.setPower(power);
+                break;
+        }
+    }
+
+    /**
+     * Sets the mustache
+     *
+     * @param  state  DOWN | UP
+     */
+    public static void setMustache(State state) {
+        States.mustache = state;
+        switch (state) {
+            case DOWN:
+                mustacheL.setPosition(Constants.getDouble("apndg.mustache.down.L"));
+                mustacheR.setPosition(Constants.getDouble("apndg.mustache.down.R"));
+                break;
+            case UP:
+                mustacheL.setPosition(Constants.getDouble("apndg.mustache.up.L"));
+                mustacheR.setPosition(Constants.getDouble("apndg.mustache.up.R"));
                 break;
         }
     }
@@ -202,29 +256,30 @@ public class Apndg {
     public static void loadRing() {
         if (States.loader != State.OUT)
             setLoader(State.OUT);
-        gerald.ctx.sleep(200);
-        setLoader(State.IN);
         gerald.ctx.sleep(100);
+        setLoader(State.IN);
+        gerald.ctx.sleep(275);
         setLoader(State.OUT);
-        gerald.ctx.sleep(200);
+        gerald.ctx.sleep(50);
     }
 
     /**
      * Loads and shoots a ring at a given angle
      *
-     * @param  angleDeg  the angle to shoot at (0 - 30 deg)
+     * @param  flapDeg  the angle to set the flap to (0 - 45 deg)
+     * @param  anglerDeg  the angle to set the angler to (0 - 30 deg)
      * @param  numTimes  number of times to load/shoot
      *                   input -1 if shooter should stay on indefinitely
      * @param  turnOff   should the shooter turn off after firing all rings
      */
-    public static void shoot(double angleDeg, int numTimes, boolean turnOff) {
-        gerald.status = "Shooting at angle " + angleDeg + "\u00B0 " + numTimes + " times";
-        setFlap(angleDeg);
+    public static void shoot(double flapDeg, double anglerDeg, int numTimes, boolean turnOff) {
+        gerald.status = "Shooting at flap " + flapDeg + "\u00B0 " + "angler " + anglerDeg + "\u00B0 " + numTimes + " times";
+        setFlap(flapDeg);
+        setAngler(anglerDeg);
         if (States.intake != State.OFF)
             setIntake(State.OFF);
         if (States.shooter != State.ON)
             setShooter(State.ON);
-        gerald.ctx.sleep(500);
         for (int i = 0; i < numTimes; i++)
             loadRing();
         if (numTimes > 0 && turnOff) {
@@ -236,18 +291,20 @@ public class Apndg {
     }
 
     public enum State {
-        ON, OFF, IN, OUT, OPEN, CLOSED
+        ON, OFF, IN, OUT, OPEN, CLOSED, DOWN, UP
     }
 
     public static class States {
 
-        public static State shooter;
+        public static State shooter = State.OFF;
         public static double shooterLrpm;
-        public static double flapDeg;
-        public static State loader;
-        public static State intake;
-        public static String arm;
-        public static State claw;
+        public static double flap;
+        public static double anglerDeg;
+        public static State loader = State.OUT;
+        public static State intake = State.OFF;
+        public static State mustache = State.UP;
+        public static String arm = "init";
+        public static State claw = State.CLOSED;
 
     }
 

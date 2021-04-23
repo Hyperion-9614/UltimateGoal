@@ -31,6 +31,12 @@ public class Localizer {
     public double oldT;
     public Vector2D lastTvel = new Vector2D();
 
+    public long startTime;
+    public double minDt = 100;
+    public double aveDt = 0;
+    public double n = 0;
+    public double maxDt = -100;
+
     public RealMatrix AInv;
 
     /**
@@ -40,6 +46,16 @@ public class Localizer {
      */
     public Localizer(Gerald gerald) {
         this.gerald = gerald;
+    }
+
+    /**
+     * Starts the localizer with the given time
+     *
+     * @param startTime
+     */
+    public void start(long startTime) {
+        this.startTime = startTime;
+        oldT = startTime;
     }
 
     /**
@@ -63,6 +79,11 @@ public class Localizer {
             double dxR = Constants.countsToM(xRNew - oldxrCounts);
             double dy = Constants.countsToM(yNew - oldyCounts);
             double dT = (tNew - oldT) / 1000.0;
+
+            minDt = Math.min(minDt, dT);
+            aveDt = (aveDt * n + dT) / ++n;
+            maxDt = Math.max(maxDt, dT);
+
             oldxlCounts = xLNew;
             oldxrCounts = xRNew;
             oldyCounts = yNew;
