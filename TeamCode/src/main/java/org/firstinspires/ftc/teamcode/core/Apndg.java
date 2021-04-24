@@ -147,15 +147,35 @@ public class Apndg {
      * accurately score in the high goal
      */
     public static double[] getOptimalShooterConfig() {
-        double[] conf = { 0, 0, 0 };
         Pose shoot = Motion.getWaypoint("shoot");
         double dX = Motion.robot.x - shoot.x;
         double dY = Motion.robot.y - shoot.y;
         double dTheta = Motion.robot.theta - shoot.theta;
+
+        double flapMin = Constants.getDouble("apndg.flap.min");
         double flapO = Constants.getDouble("apndg.flap.origin");
+        double flapMax = Constants.getDouble("apndg.flap.max");
+
+        double anglerMin = Constants.getDouble("apndg.angler.min");
         double anglerO = Constants.getDouble("apndg.angler.origin");
-        conf[0] = flapO + dY; // Assuming larger flap pos = greater angle
-        conf[1] = anglerO + dX; // Assuming larger angler pos = further right
+        double anglerMax = Constants.getDouble("apndg.angler.max");
+
+        double[] conf = { flapO, anglerO, Motion.robot.theta };
+        double dYs = MathUtils.clip(dY / 91.44, -0.3, 1);
+        double dXs = MathUtils.clip(dX / 91.44, -1, 1);
+
+        // Assuming larger flap pos = greater angle
+        // && larger angler pos = further right
+        if (dY > 0)
+            conf[0] += dYs * (flapMax - flapO);
+        else
+            conf[0] += dYs * (flapO - flapMin);
+
+        if (dX > 0)
+            conf[1] -= dXs * (anglerO - anglerMin);
+        else
+            conf[1] -= dXs * (anglerMax - anglerO);
+
         return conf;
     }
 
@@ -166,14 +186,7 @@ public class Apndg {
      */
     public static void setLoader(State state) {
         States.loader = state;
-        switch (state) {
-            case OUT:
-                loader.setPosition(Constants.getDouble("apndg.loader.out"));
-                break;
-            case IN:
-                loader.setPosition(Constants.getDouble("apndg.loader.in"));
-                break;
-        }
+        loader.setPosition(Constants.getDouble(new ID("apndg", "loader", state.toString().toLowerCase()).toString()));
     }
 
     /**
@@ -204,16 +217,8 @@ public class Apndg {
      */
     public static void setMustache(State state) {
         States.mustache = state;
-        switch (state) {
-            case DOWN:
-                mustacheL.setPosition(Constants.getDouble("apndg.mustache.down.L"));
-                mustacheR.setPosition(Constants.getDouble("apndg.mustache.down.R"));
-                break;
-            case UP:
-                mustacheL.setPosition(Constants.getDouble("apndg.mustache.up.L"));
-                mustacheR.setPosition(Constants.getDouble("apndg.mustache.up.R"));
-                break;
-        }
+        mustacheL.setPosition(Constants.getDouble(new ID("apndg", "mustache", state.toString().toLowerCase(), "L").toString()));
+        mustacheR.setPosition(Constants.getDouble(new ID("apndg", "mustache", state.toString().toLowerCase(), "R").toString()));
     }
 
     /**
@@ -240,14 +245,7 @@ public class Apndg {
      */
     public static void setClaw(State state) {
         States.claw = state;
-        switch (state) {
-            case OPEN:
-                claw.setPosition(Constants.getDouble("apndg.claw.open"));
-                break;
-            case CLOSED:
-                claw.setPosition(Constants.getDouble("apndg.claw.closed"));
-                break;
-        }
+        claw.setPosition(Constants.getDouble(new ID("apndg", "claw", state.toString().toLowerCase()).toString()));
     }
 
     /**

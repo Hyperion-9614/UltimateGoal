@@ -56,10 +56,14 @@
             "rpm": 2200
         },
         "flap": {
-            "origin": 0.5
+            "min": 0.1,
+            "origin": 0.5,
+            "max": 0.9
         },
         "angler": {
-            "origin": 0.5
+            "min": 0.1,
+            "origin": 0.5,
+            "max": 0.9
         },
         "loader": {
             "in": 0.45,
